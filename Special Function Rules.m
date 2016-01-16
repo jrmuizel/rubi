@@ -952,6 +952,14 @@ Int[u_*PolyLog[n_,v_],x_Symbol] :=
 FreeQ[n,x]
 
 
+Int[u_*Log[w_]*PolyLog[n_,v_],x_Symbol] :=
+  Module[{z=DerivativeDivides[v,u*v,x]},
+  z*Log[w]*PolyLog[n+1,v] - 
+  Int[SimplifyIntegrand[z*D[w,x]*PolyLog[n+1,v]/w,x],x] /;
+ Not[FalseQ[z]]] /;
+FreeQ[n,x] && InverseFunctionFreeQ[w,x]
+
+
 Int[(c_.*ProductLog[a_.+b_.*x_])^p_,x_Symbol] :=
   (a+b*x)*(c*ProductLog[a+b*x])^p/(b*(p+1)) +
   p/(c*(p+1))*Int[(c*ProductLog[a+b*x])^(p+1)/(1+ProductLog[a+b*x]),x] /;

@@ -417,20 +417,6 @@ Int[Log[d_+e_.*(F_^(c_.*(a_.+b_.*x_)))^n_.],x_Symbol] :=
 FreeQ[{F,a,b,c,d,e,n},x] && NonzeroQ[d-1]
 
 
-Int[u_*F_^v_,x_Symbol] :=
-  Module[{q=DerivativeDivides[v,u,x]},
-   q*F^v/Log[F] /;
- Not[FalseQ[q]]] /;
-FreeQ[F,x]
-
-
-Int[u_*w_^m_.*F_^v_,x_Symbol] :=
-  Module[{q=DerivativeDivides[v,u,x]},
-   q*Subst[Int[x^m*F^x,x],x,v] /;
- Not[FalseQ[q]]] /;
-FreeQ[{F,m},x] && ZeroQ[w-v]
-
-
 Int[u_,x_Symbol] :=
   Module[{v=FunctionOfExponential[u,x]},
   v/D[v,x]*Subst[Int[FunctionOfExponentialFunction[u,x]/x,x],x,v]] /;
@@ -943,6 +929,14 @@ Int[u_*Log[v_],x_Symbol] :=
  Not[FalseQ[w]]]
 
 
+Int[u_*Log[w_]*Log[v_],x_Symbol] :=
+  Module[{z=DerivativeDivides[v,u*(1-v),x]},
+  z*Log[w]*PolyLog[2,Together[1-v]] - 
+  Int[SimplifyIntegrand[z*D[w,x]*PolyLog[2,Together[1-v]]/w,x],x] /;
+ Not[FalseQ[z]]] /;
+InverseFunctionFreeQ[w,x]
+
+
 Int[Log[c_.*Px_^n_.],x_Symbol] :=
   x*Log[c*Px^n] -
   n*Int[x*D[Px,x]/Px,x] /;
@@ -959,6 +953,18 @@ Int[(a_.+b_.*x_)^m_.*Log[c_.*Px_^n_.],x_Symbol] :=
   (a+b*x)^(m+1)*Log[c*Px^n]/(b*(m+1)) -
   n/(b*(m+1))*Int[(a+b*x)^(m+1)*D[Px,x]/Px,x] /;
 FreeQ[{a,b,c,m,n},x] && PolynomialQ[Px,x] && Exponent[Px,x]>1 && NonzeroQ[m+1]
+
+
+(* Int[Log[c_.*Px_^n_.]/(a_.+b_.*x_^2),x_Symbol] :=
+  1/(2*Rt[a,2])*Int[Log[c*Px^n]/(Rt[a,2]-Rt[-b,2]*x),x] + 
+  1/(2*Rt[a,2])*Int[Log[c*Px^n]/(Rt[a,2]+Rt[-b,2]*x),x] /;
+FreeQ[{a,b,c,n},x] && PolynomialQ[Px,x] && Exponent[Px,x]>1 && PosQ[a] *)
+
+
+(* Int[Log[c_.*Px_^n_.]/(a_.+b_.*x_^2),x_Symbol] :=
+  -1/(2*Rt[-a,2])*Int[Log[c*Px^n]/(Rt[-a,2]-Rt[b,2]*x),x] - 
+  1/(2*Rt[-a,2])*Int[Log[c*Px^n]/(Rt[-a,2]+Rt[b,2]*x),x] /;
+FreeQ[{a,b,c,n},x] && PolynomialQ[Px,x] && Exponent[Px,x]>1 && NegQ[a] *)
 
 
 Int[Log[c_.*(b_.*(d_.+e_.*x_)^n_.)^p_.],x_Symbol] :=
@@ -1037,12 +1043,17 @@ Int[Log[u_]/(a_+c_.*x_^2),x_Symbol] :=
 FreeQ[{a,c},x] && InverseFunctionFreeQ[u,x]
 
 
+Int[u_^(a_.*x_)*Log[u_],x_Symbol] :=
+  u^(a*x)/a - Int[SimplifyIntegrand[x*u^(a*x-1)*D[u,x],x],x] /;
+FreeQ[a,x] && InverseFunctionFreeQ[u,x]
+
+
 Int[v_*Log[u_],x_Symbol] :=
   Module[{w=Block[{ShowSteps=False,StepCounter=Null}, Int[v,x]]},  
   Dist[Log[u],w,x] - 
   Int[SimplifyIntegrand[w*D[u,x]/u,x],x] /;
  InverseFunctionFreeQ[w,x]] /;
-InverseFunctionFreeQ[u,x] (* && Not[MatchQ[v, x^m_. /; FreeQ[m,x]]] && FalseQ[FunctionOfLinear[v*Log[u],x]] *)
+InverseFunctionFreeQ[u,x]
 
 
 Int[Log[v_]*Log[w_],x_Symbol] :=

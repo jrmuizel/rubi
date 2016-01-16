@@ -205,6 +205,22 @@ FreeQ[{a,b,c,d,e,f,m,n,p,q},x] && ZeroQ[y-v] && ZeroQ[y-w]
 
 
 (* ::Code:: *)
+Int[u_*F_^v_,x_Symbol] :=
+  Module[{q=DerivativeDivides[v,u,x]},
+   q*F^v/Log[F] /;
+ Not[FalseQ[q]]] /;
+FreeQ[F,x]
+
+
+(* ::Code:: *)
+Int[u_*w_^m_.*F_^v_,x_Symbol] :=
+  Module[{q=DerivativeDivides[v,u,x]},
+   q*Subst[Int[x^m*F^x,x],x,v] /;
+ Not[FalseQ[q]]] /;
+FreeQ[{F,m},x] && ZeroQ[w-v]
+
+
+(* ::Code:: *)
 Int[u_*x_^m_.,x_Symbol] :=
   1/(m+1)*Subst[Int[SubstFor[x^(m+1),u,x],x],x,x^(m+1)] /;
 FreeQ[m,x] && NonzeroQ[m+1] && FunctionOfQ[x^(m+1),u,x]
@@ -269,15 +285,21 @@ FreeQ[{c,m,n,p,q},x] && Not[FreeQ[v,x]] && Not[FreeQ[w,x]] && Not[FreeQ[z,x]] &&
 
 
 (* ::Code:: *)
+Int[u_.*(a_.+b_.*x_^n_)^p_,x_Symbol] :=
+  FullSimplify[Sqrt[a+b*x^n]/(x^(n/2)*Sqrt[b+a/x^n])]*Int[u*x^(n*p)*(b+a*x^(-n))^p,x] /;
+FreeQ[{a,b,p},x] && IntegerQ[p+1/2] && NegativeIntegerQ[n] (* && NegativeQ[a*b] *) && Not[RationalFunctionQ[u,x]]
+
+
+(* ::Code:: *)
 Int[u_.*(a_.+b_.*v_^n_)^p_,x_Symbol] :=
   (a+b*v^n)^p/(v^(n*p)*(b+a*v^(-n))^p)*Int[u*v^(n*p)*(b+a*v^(-n))^p,x] /;
-FreeQ[{a,b,p},x] && BinomialQ[v,x] && Not[LinearQ[v,x]] && Not[IntegerQ[p]] && NegativeIntegerQ[n]
+FreeQ[{a,b,p},x] && Not[IntegerQ[p]] && NegativeIntegerQ[n] && BinomialQ[v,x] && Not[LinearQ[v,x]]
 
 
 (* ::Code:: *)
 Int[u_.*(a_.+b_.*x_^m_.*v_^n_)^p_,x_Symbol] :=
   (a+b*x^m*v^n)^p/(v^(n*p)*(b*x^m+a*v^(-n))^p)*Int[u*v^(n*p)*(b*x^m+a*v^(-n))^p,x] /;
-FreeQ[{a,b,m,p},x] && BinomialQ[v,x] && Not[LinearQ[v,x]] && Not[IntegerQ[p]] && NegativeIntegerQ[n]
+FreeQ[{a,b,m,p},x] && Not[IntegerQ[p]] && NegativeIntegerQ[n] && BinomialQ[v,x]
 
 
 (* ::Code:: *)

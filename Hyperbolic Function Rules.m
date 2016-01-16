@@ -1855,6 +1855,34 @@ Int[x_^m_./(a_.+b_.*Cosh[d_.+e_.*x_]^2+c_.*Sinh[d_.+e_.*x_]^2),x_Symbol] :=
 FreeQ[{a,b,c,d,e},x] && PositiveIntegerQ[m] && NonzeroQ[a+b] && NonzeroQ[a+c]
 
 
+Int[x_^m_.*Cosh[c_.+d_.*x_]/(a_+b_.*Sinh[c_.+d_.*x_]),x_Symbol] :=
+  -x^(m+1)/(b*(m+1)) + 
+  Int[x^m*E^(c+d*x)/(a+Sqrt[a^2+b^2]+b*E^(c+d*x)),x] + 
+  Int[x^m*E^(c+d*x)/(a-Sqrt[a^2+b^2]+b*E^(c+d*x)),x] /;
+FreeQ[{a,b,c,d},x] && PositiveIntegerQ[m]
+
+
+Int[x_^m_.*Sinh[c_.+d_.*x_]/(a_+b_.*Cosh[c_.+d_.*x_]),x_Symbol] :=
+  -x^(m+1)/(b*(m+1)) + 
+  Int[x^m*E^(c+d*x)/(a+Sqrt[a^2-b^2]+b*E^(c+d*x)),x] + 
+  Int[x^m*E^(c+d*x)/(a-Sqrt[a^2-b^2]+b*E^(c+d*x)),x] /;
+FreeQ[{a,b,c,d},x] && PositiveIntegerQ[m]
+
+
+Int[x_^m_.*Cosh[c_.+d_.*x_]^n_/(a_+b_.*Sinh[c_.+d_.*x_]),x_Symbol] :=
+  -a/b^2*Int[x^m*Cosh[c+d*x]^(n-2),x] + 
+  1/b*Int[x^m*Cosh[c+d*x]^(n-2)*Sinh[c+d*x],x] + 
+  (a^2+b^2)/b^2*Int[x^m*Cosh[c+d*x]^(n-2)/(a+b*Sinh[c+d*x]),x] /;
+FreeQ[{a,b,c,d},x] && PositiveIntegerQ[m] && IntegerQ[n] && n>1
+
+
+Int[x_^m_.*Sinh[c_.+d_.*x_]^n_/(a_+b_.*Cosh[c_.+d_.*x_]),x_Symbol] :=
+  -a/b^2*Int[x^m*Sinh[c+d*x]^(n-2),x] + 
+  1/b*Int[x^m*Sinh[c+d*x]^(n-2)*Cosh[c+d*x],x] + 
+  (a^2-b^2)/b^2*Int[x^m*Sinh[c+d*x]^(n-2)/(a+b*Cosh[c+d*x]),x] /;
+FreeQ[{a,b,c,d},x] && PositiveIntegerQ[m] && IntegerQ[n] && n>1
+
+
 Int[x_*(A_+B_.*Sinh[c_.+d_.*x_])/(a_+b_.*Sinh[c_.+d_.*x_])^2,x_Symbol] :=
   B*x*Cosh[c+d*x]/(a*d*(a+b*Sinh[c+d*x])) - 
   B/(a*d)*Int[Cosh[c+d*x]/(a+b*Sinh[c+d*x]),x] /;
@@ -1885,6 +1913,26 @@ FreeQ[{a,b,c,d},x] && PositiveIntegerQ[m,n]
 Int[u_.*Cosh[a_.+b_.*x_]^m_.*Cosh[c_.+d_.*x_]^n_.,x_Symbol] :=
   Int[ExpandTrigReduce[u,Cosh[a+b*x]^m*Cosh[c+d*x]^n,x],x] /;
 FreeQ[{a,b,c,d},x] && PositiveIntegerQ[m,n]
+
+
+Int[Sech[a_.+b_.*x_]*Sech[c_+d_.*x_],x_Symbol] :=
+  -Csch[(b*c-a*d)/d]*Int[Tanh[a+b*x],x] + Csch[(b*c-a*d)/b]*Int[Tanh[c+d*x],x] /;
+FreeQ[{a,b,c,d},x] && ZeroQ[b^2-d^2] && NonzeroQ[b*c-a*d]
+
+
+Int[Csch[a_.+b_.*x_]*Csch[c_+d_.*x_],x_Symbol] :=
+  Csch[(b*c-a*d)/b]*Int[Coth[a+b*x],x] - Csch[(b*c-a*d)/d]*Int[Coth[c+d*x],x] /;
+FreeQ[{a,b,c,d},x] && ZeroQ[b^2-d^2] && NonzeroQ[b*c-a*d]
+
+
+Int[Tanh[a_.+b_.*x_]*Tanh[c_+d_.*x_],x_Symbol] :=
+  b*x/d - b/d*Cosh[(b*c-a*d)/d]*Int[Sech[a+b*x]*Sech[c+d*x],x] /;
+FreeQ[{a,b,c,d},x] && ZeroQ[b^2-d^2] && NonzeroQ[b*c-a*d]
+
+
+Int[Coth[a_.+b_.*x_]*Coth[c_+d_.*x_],x_Symbol] :=
+  b*x/d + Cosh[(b*c-a*d)/d]*Int[Csch[a+b*x]*Csch[c+d*x],x] /;
+FreeQ[{a,b,c,d},x] && ZeroQ[b^2-d^2] && NonzeroQ[b*c-a*d]
 
 
 Int[ArcTan[c_.+d_.*Tanh[a_.+b_.*x_]],x_Symbol] :=
