@@ -1,5 +1,13 @@
 (* ::Package:: *)
 
+(* ::Section:: *)
+(*Special Function Rules*)
+
+
+(* ::Subsection::Closed:: *)
+(*1. Error Functions*)
+
+
 Int[Erf[a_.+b_.*x_],x_Symbol] :=
   (a+b*x)*Erf[a+b*x]/b + 1/(b*Sqrt[Pi]*E^(a+b*x)^2) /;
 FreeQ[{a,b},x]
@@ -174,6 +182,10 @@ Int[x_^m_.*Erfi[a_+b_.*x_]^2,x_Symbol] :=
 FreeQ[{a,b},x] && PositiveIntegerQ[m]
 
 
+(* ::Subsection::Closed:: *)
+(*2. Fresnel Integral Functions*)
+
+
 Int[FresnelS[a_.+b_.*x_],x_Symbol] :=
   (a+b*x)*FresnelS[a+b*x]/b + Cos[Pi/2*(a+b*x)^2]/(b*Pi) /;
 FreeQ[{a,b},x]
@@ -322,6 +334,10 @@ Int[x_^m_*Sin[c_.*x_^2]*FresnelC[b_.*x_],x_Symbol] :=
 FreeQ[{b,c},x] && ZeroQ[c-Pi/2*b^2] && IntegerQ[m] && m<-1 && Mod[m,4]==2
 
 
+(* ::Subsection::Closed:: *)
+(*3. Exponential Integral Functions*)
+
+
 Int[ExpIntegralE[n_,a_.+b_.*x_],x_Symbol] :=
   -ExpIntegralE[n+1,a+b*x]/b /;
 FreeQ[{a,b,n},x]
@@ -439,6 +455,10 @@ Int[x_^m_.*LogIntegral[a_.+b_.*x_],x_Symbol] :=
   x^(m+1)*LogIntegral[a+b*x]/(m+1) -
   b/(m+1)*Int[x^(m+1)/Log[a+b*x],x] /;
 FreeQ[{a,b,m},x] && NonzeroQ[m+1]
+
+
+(* ::Subsection::Closed:: *)
+(*4. Trig Integral Functions*)
 
 
 Int[SinIntegral[a_.+b_.*x_],x_Symbol] :=
@@ -613,6 +633,10 @@ Int[x_^m_*Sin[a_.+b_.*x_]*CosIntegral[c_.+d_.*x_],x_Symbol] :=
 FreeQ[{a,b,c,d},x] && IntegerQ[m] && m<-1
 
 
+(* ::Subsection::Closed:: *)
+(*5. Hyperbolic Integral Functions*)
+
+
 Int[SinhIntegral[a_.+b_.*x_],x_Symbol] :=
   (a+b*x)*SinhIntegral[a+b*x]/b - Cosh[a+b*x]/b/;
 FreeQ[{a,b},x]
@@ -785,6 +809,10 @@ Int[x_^m_*Sinh[a_.+b_.*x_]*CoshIntegral[c_.+d_.*x_],x_Symbol] :=
 FreeQ[{a,b,c,d},x] && IntegerQ[m] && m<-1
 
 
+(* ::Subsection::Closed:: *)
+(*6. Gamma Functions*)
+
+
 Int[Gamma[n_,a_.+b_.*x_],x_Symbol] :=
   (a+b*x)*Gamma[n,a+b*x]/b -
   Gamma[n+1,a+b*x]/b /;
@@ -859,6 +887,10 @@ Int[Zeta[2,a_.+b_.*x_],x_Symbol] :=
 FreeQ[{a,b},x]
 
 
+(* ::Subsection::Closed:: *)
+(*7. Zeta Functions*)
+
+
 Int[Zeta[s_,a_.+b_.*x_],x_Symbol] :=
   -Zeta[s-1,a+b*x]/(b*(s-1)) /;
 FreeQ[{a,b,s},x] && NonzeroQ[s-1] && NonzeroQ[s-2]
@@ -879,6 +911,10 @@ Int[x_^m_.*Zeta[s_,a_.+b_.*x_],x_Symbol] :=
   x^(m+1)*Zeta[s,a+b*x]/(m+1) +
   b*s/(m+1)*Int[x^(m+1)*Zeta[s+1,a+b*x],x] /;
 FreeQ[{a,b,s},x] && NonzeroQ[s-1] && NonzeroQ[s-2] && RationalQ[m] && m<-1
+
+
+(* ::Subsection::Closed:: *)
+(*8. Polylogarithm Functions*)
 
 
 Int[PolyLog[n_,a_.*(b_.*x_^p_.)^q_.],x_Symbol] :=
@@ -958,6 +994,10 @@ Int[u_*Log[w_]*PolyLog[n_,v_],x_Symbol] :=
   Int[SimplifyIntegrand[z*D[w,x]*PolyLog[n+1,v]/w,x],x] /;
  Not[FalseQ[z]]] /;
 FreeQ[n,x] && InverseFunctionFreeQ[w,x]
+
+
+(* ::Subsection::Closed:: *)
+(*9. Product Logarithm Functions*)
 
 
 Int[(c_.*ProductLog[a_.+b_.*x_])^p_,x_Symbol] :=

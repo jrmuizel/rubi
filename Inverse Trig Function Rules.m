@@ -1,5 +1,13 @@
 (* ::Package:: *)
 
+(* ::Section:: *)
+(*Inverse Trig Function Rules*)
+
+
+(* ::Subsection::Closed:: *)
+(*u (a+b arcsin(c x))^n*)
+
+
 Int[(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
   x*(a+b*ArcSin[c*x])^n - 
   b*c*n*Int[x*(a+b*ArcSin[c*x])^(n-1)/Sqrt[1-c^2*x^2],x] /;
@@ -832,6 +840,10 @@ FreeQ[{a,b,c,d,e,f,A,B,C,m,n,p},x] && ZeroQ[B*(1-c^2)+2*A*c*d] && ZeroQ[2*c*C-B*
 Int[(e_.+f_.*x_)^m_.*(A_.+B_.*x_+C_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_+d_.*x_])^n_.,x_Symbol] :=
   1/d*Subst[Int[((d*e-c*f)/d+f*x/d)^m*(-C/d^2+C/d^2*x^2)^p*(a+b*ArcCos[x])^n,x],x,c+d*x] /;
 FreeQ[{a,b,c,d,e,f,A,B,C,m,n,p},x] && ZeroQ[B*(1-c^2)+2*A*c*d] && ZeroQ[2*c*C-B*d]
+
+
+(* ::Subsection::Closed:: *)
+(*u (a+b arctan(c x))^n*)
 
 
 Int[(a_.+b_.*ArcTan[c_.*x_])^n_.,x_Symbol] :=
@@ -1899,6 +1911,10 @@ Int[(e_.+f_.*x_)^m_.*(A_.+B_.*x_+C_.*x_^2)^p_.*(a_.+b_.*ArcCot[c_+d_.*x_])^n_.,x
 FreeQ[{a,b,c,d,e,f,A,B,C,m,n,p},x] && ZeroQ[B*(1+c^2)-2*A*c*d] && ZeroQ[2*c*C-B*d]
 
 
+(* ::Subsection::Closed:: *)
+(*Inverse Sine Functions*)
+
+
 Int[ArcSin[a_.*x_^p_]^n_./x_,x_Symbol] :=
   1/p*Subst[Int[x^n*Cot[x],x],x,ArcSin[a*x^p]] /;
 FreeQ[{a,p},x] && IntegerQ[n] && n>0
@@ -1941,16 +1957,16 @@ Int[ArcCos[u_],x_Symbol] :=
 InverseFunctionFreeQ[u,x] && Not[FunctionOfExponentialQ[u,x]]
 
 
-Int[x_^m_.*(a_.+b_.*ArcSin[u_]),x_Symbol] :=
-  x^(m+1)*(a+b*ArcSin[u])/(m+1) -
-  b/(m+1)*Int[SimplifyIntegrand[x^(m+1)*D[u,x]/Sqrt[1-u^2],x],x] /;
-FreeQ[{a,b,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[x^(m+1),u,x]] && Not[FunctionOfExponentialQ[u,x]]
+Int[(c_.+d_.*x_)^m_.*(a_.+b_.*ArcSin[u_]),x_Symbol] :=
+  (c+d*x)^(m+1)*(a+b*ArcSin[u])/(d*(m+1)) -
+  b/(d*(m+1))*Int[SimplifyIntegrand[(c+d*x)^(m+1)*D[u,x]/Sqrt[1-u^2],x],x] /;
+FreeQ[{a,b,c,d,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[(c+d*x)^(m+1),u,x]] && Not[FunctionOfExponentialQ[u,x]]
 
 
-Int[x_^m_.*(a_.+b_.*ArcCos[u_]),x_Symbol] :=
-  x^(m+1)*(a+b*ArcCos[u])/(m+1) +
-  b/(m+1)*Int[SimplifyIntegrand[x^(m+1)*D[u,x]/Sqrt[1-u^2],x],x] /;
-FreeQ[{a,b,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[x^(m+1),u,x]] && Not[FunctionOfExponentialQ[u,x]]
+Int[(c_.+d_.*x_)^m_.*(a_.+b_.*ArcCos[u_]),x_Symbol] :=
+  (c+d*x)^(m+1)*(a+b*ArcCos[u])/(d*(m+1)) +
+  b/(d*(m+1))*Int[SimplifyIntegrand[(c+d*x)^(m+1)*D[u,x]/Sqrt[1-u^2],x],x] /;
+FreeQ[{a,b,c,d,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[(c+d*x)^(m+1),u,x]] && Not[FunctionOfExponentialQ[u,x]]
 
 
 Int[v_*(a_.+b_.*ArcSin[u_]),x_Symbol] :=
@@ -1958,7 +1974,7 @@ Int[v_*(a_.+b_.*ArcSin[u_]),x_Symbol] :=
   Dist[(a+b*ArcSin[u]),w,x] -
   b*Int[SimplifyIntegrand[w*D[u,x]/Sqrt[1-u^2],x],x] /;
  InverseFunctionFreeQ[w,x]] /;
-FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, x^m_. /; FreeQ[m,x]]]
+FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, (c_.+d_.*x)^m_. /; FreeQ[{c,d,m},x]]]
 
 
 Int[v_*(a_.+b_.*ArcCos[u_]),x_Symbol] :=
@@ -1966,7 +1982,11 @@ Int[v_*(a_.+b_.*ArcCos[u_]),x_Symbol] :=
   Dist[(a+b*ArcCos[u]),w,x] +
   b*Int[SimplifyIntegrand[w*D[u,x]/Sqrt[1-u^2],x],x] /;
  InverseFunctionFreeQ[w,x]] /;
-FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, x^m_. /; FreeQ[m,x]]]
+FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, (c_.+d_.*x)^m_. /; FreeQ[{c,d,m},x]]]
+
+
+(* ::Subsection::Closed:: *)
+(*Inverse Tangent Functions*)
 
 
 Int[ArcTan[a_+b_.*x_]/(c_+d_.*x_^n_.),x_Symbol] :=
@@ -2111,8 +2131,8 @@ Int[u_.*(c_+d_.*x_)^p_.*E^(n_.*ArcTan[a_.*x_]),x_Symbol] :=
 FreeQ[{a,c,d,n,p},x] && ZeroQ[a^2*c^2+d^2] && (IntegerQ[p] || PositiveQ[c])
 
 
-Int[u_.*(c_+d_.*x_)^p_*E^(n_.*ArcTan[a_.*x_]),x_Symbol] :=
-  (c+d*x)^p/(1+d*x/c)^p*Int[u*(1+d*x/c)^p*E^(n*ArcTan[a*x]),x] /;
+Int[u_.*(c_+d_.*x_)^p_.*E^(n_.*ArcTan[a_.*x_]),x_Symbol] :=
+  Int[u*(c+d*x)^p*(1-I*a*x)^(I*n/2)/(1+I*a*x)^(I*n/2),x] /;
 FreeQ[{a,c,d,n,p},x] && ZeroQ[a^2*c^2+d^2] && Not[IntegerQ[p] || PositiveQ[c]]
 
 
@@ -2467,9 +2487,9 @@ Int[x_^m_*E^(n_*ArcTan[c_.*(a_+b_.*x_)]),x_Symbol] :=
 FreeQ[{a,b,c},x] && NegativeIntegerQ[m] && RationalQ[I*n] && -1<I*n<1
 
 
-Int[x_^m_.*E^(n_.*ArcTan[c_.*(a_+b_.*x_)]),x_Symbol] :=
-  Int[x^m*(1-I*a*c-I*b*c*x)^(I*n/2)/(1+I*a*c+I*b*c*x)^(I*n/2),x] /;
-FreeQ[{a,b,c,m,n},x] && Not[NegativeIntegerQ[m] && RationalQ[I*n] && -1<I*n<1]
+Int[(d_.+e_.*x_)^m_.*E^(n_.*ArcTan[c_.*(a_+b_.*x_)]),x_Symbol] :=
+  Int[(d+e*x)^m*(1-I*a*c-I*b*c*x)^(I*n/2)/(1+I*a*c+I*b*c*x)^(I*n/2),x] /;
+FreeQ[{a,b,c,d,e,m,n},x]
 
 
 Int[u_.*(c_+d_.*x_+e_.*x_^2)^p_.*E^(n_.*ArcTan[a_+b_.*x_]),x_Symbol] :=
@@ -2500,10 +2520,10 @@ Int[x_^m_*E^(n_*ArcCoth[c_.*(a_+b_.*x_)]),x_Symbol] :=
 FreeQ[{a,b,c},x] && NegativeIntegerQ[m] && RationalQ[I*n] && -1<I*n<1
 
 
-Int[x_^m_.*E^(n_.*ArcCoth[c_.*(a_+b_.*x_)]),x_Symbol] :=
+Int[(d_.+e_.*x_)^m_.*E^(n_.*ArcCoth[c_.*(a_+b_.*x_)]),x_Symbol] :=
   (I*c*(a+b*x))^(I*n/2)*(1+1/(I*c*(a+b*x)))^(I*n/2)/(1+I*a*c+I*b*c*x)^(I*n/2)*
-    Int[x^m*(1+I*a*c+I*b*c*x)^(I*n/2)/(-1+I*a*c+I*b*c*x)^(I*n/2),x] /;
-FreeQ[{a,b,c,m,n},x] && Not[IntegerQ[I*n/2]] && Not[NegativeIntegerQ[m] && RationalQ[I*n] && -1<I*n<1]
+    Int[(d+e*x)^m*(1+I*a*c+I*b*c*x)^(I*n/2)/(-1+I*a*c+I*b*c*x)^(I*n/2),x] /;
+FreeQ[{a,b,c,d,e,m,n},x] && Not[IntegerQ[I*n/2]]
 
 
 Int[u_.*(c_+d_.*x_+e_.*x_^2)^p_.*E^(n_.*ArcCot[a_+b_.*x_]),x_Symbol] :=
@@ -2590,30 +2610,30 @@ Int[ArcCot[u_],x_Symbol] :=
 InverseFunctionFreeQ[u,x]
 
 
-Int[x_^m_.*(a_.+b_.*ArcTan[u_]),x_Symbol] :=
-  x^(m+1)*(a+b*ArcTan[u])/(m+1) -
-  b/(m+1)*Int[SimplifyIntegrand[x^(m+1)*D[u,x]/(1+u^2),x],x] /;
-FreeQ[{a,b,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[x^(m+1),u,x]] && FalseQ[PowerVariableExpn[u,m+1,x]]
+Int[(c_.+d_.*x_)^m_.*(a_.+b_.*ArcTan[u_]),x_Symbol] :=
+  (c+d*x)^(m+1)*(a+b*ArcTan[u])/(d*(m+1)) -
+  b/(d*(m+1))*Int[SimplifyIntegrand[(c+d*x)^(m+1)*D[u,x]/(1+u^2),x],x] /;
+FreeQ[{a,b,c,d,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[(c+d*x)^(m+1),u,x]] && FalseQ[PowerVariableExpn[u,m+1,x]]
 
 
-Int[x_^m_.*(a_.+b_.*ArcCot[u_]),x_Symbol] :=
-  x^(m+1)*(a+b*ArcCot[u])/(m+1) +
-  b/(m+1)*Int[SimplifyIntegrand[x^(m+1)*D[u,x]/(1+u^2),x],x] /;
-FreeQ[{a,b,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[x^(m+1),u,x]] && FalseQ[PowerVariableExpn[u,m+1,x]]
+Int[(c_.+d_.*x_)^m_.*(a_.+b_.*ArcCot[u_]),x_Symbol] :=
+  (c+d*x)^(m+1)*(a+b*ArcCot[u])/(d*(m+1)) +
+  b/(d*(m+1))*Int[SimplifyIntegrand[(c+d*x)^(m+1)*D[u,x]/(1+u^2),x],x] /;
+FreeQ[{a,b,c,d,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[(c+d*x)^(m+1),u,x]] && FalseQ[PowerVariableExpn[u,m+1,x]]
 
 
 Int[v_*(a_.+b_.*ArcTan[u_]),x_Symbol] :=
   Module[{w=Block[{ShowSteps=False,StepCounter=Null}, Int[v,x]]},  
   Dist[(a+b*ArcTan[u]),w,x] - b*Int[SimplifyIntegrand[w*D[u,x]/(1+u^2),x],x] /;
  InverseFunctionFreeQ[w,x]] /;
-FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, x^m_. /; FreeQ[m,x]]] && FalseQ[FunctionOfLinear[v*(a+b*ArcTan[u]),x]]
+FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, (c_.+d_.*x)^m_. /; FreeQ[{c,d,m},x]]] && FalseQ[FunctionOfLinear[v*(a+b*ArcTan[u]),x]]
 
 
 Int[v_*(a_.+b_.*ArcCot[u_]),x_Symbol] :=
   Module[{w=Block[{ShowSteps=False,StepCounter=Null}, Int[v,x]]},  
   Dist[(a+b*ArcCot[u]),w,x] + b*Int[SimplifyIntegrand[w*D[u,x]/(1+u^2),x],x] /;
  InverseFunctionFreeQ[w,x]] /;
-FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, x^m_. /; FreeQ[m,x]]] && FalseQ[FunctionOfLinear[v*(a+b*ArcCot[u]),x]]
+FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, (c_.+d_.*x)^m_. /; FreeQ[{c,d,m},x]]] && FalseQ[FunctionOfLinear[v*(a+b*ArcCot[u]),x]]
 
 
 Int[ArcTan[v_]*Log[w_],x_Symbol] :=
@@ -2646,6 +2666,10 @@ Int[u_*ArcCot[v_]*Log[w_],x_Symbol] :=
   Int[SimplifyIntegrand[z*ArcCot[v]*D[w,x]/w,x],x] /;
  InverseFunctionFreeQ[z,x]] /;
 InverseFunctionFreeQ[v,x] && InverseFunctionFreeQ[w,x]
+
+
+(* ::Subsection::Closed:: *)
+(*Inverse Secant Functions*)
 
 
 Int[ArcSec[c_.*x_],x_Symbol] :=
@@ -2929,27 +2953,27 @@ Int[ArcCsc[u_],x_Symbol] :=
 InverseFunctionFreeQ[u,x] && Not[FunctionOfExponentialQ[u,x]]
 
 
-Int[x_^m_.*(a_.+b_.*ArcSec[u_]),x_Symbol] :=
-  x^(m+1)*(a+b*ArcSec[u])/(m+1) -
-  b*u/((m+1)*Sqrt[u^2])*Int[SimplifyIntegrand[x^(m+1)*D[u,x]/(u*Sqrt[u^2-1]),x],x] /;
-FreeQ[{a,b,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[x^(m+1),u,x]] && Not[FunctionOfExponentialQ[u,x]]
+Int[(c_.+d_.*x_)^m_.*(a_.+b_.*ArcSec[u_]),x_Symbol] :=
+  (c+d*x)^(m+1)*(a+b*ArcSec[u])/(d*(m+1)) -
+  b*u/(d*(m+1)*Sqrt[u^2])*Int[SimplifyIntegrand[(c+d*x)^(m+1)*D[u,x]/(u*Sqrt[u^2-1]),x],x] /;
+FreeQ[{a,b,c,d,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[(c+d*x)^(m+1),u,x]] && Not[FunctionOfExponentialQ[u,x]]
 
 
-Int[x_^m_.*(a_.+b_.*ArcCsc[u_]),x_Symbol] :=
-  x^(m+1)*(a+b*ArcCsc[u])/(m+1) +
-  b*u/((m+1)*Sqrt[u^2])*Int[SimplifyIntegrand[x^(m+1)*D[u,x]/(u*Sqrt[u^2-1]),x],x] /;
-FreeQ[{a,b,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[x^(m+1),u,x]] && Not[FunctionOfExponentialQ[u,x]]
+Int[(c_.+d_.*x_)^m_.*(a_.+b_.*ArcCsc[u_]),x_Symbol] :=
+  (c+d*x)^(m+1)*(a+b*ArcCsc[u])/(d*(m+1)) +
+  b*u/(d*(m+1)*Sqrt[u^2])*Int[SimplifyIntegrand[(c+d*x)^(m+1)*D[u,x]/(u*Sqrt[u^2-1]),x],x] /;
+FreeQ[{a,b,c,d,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[(c+d*x)^(m+1),u,x]] && Not[FunctionOfExponentialQ[u,x]]
 
 
 Int[v_*(a_.+b_.*ArcSec[u_]),x_Symbol] :=
   Module[{w=Block[{ShowSteps=False,StepCounter=Null}, Int[v,x]]},  
   Dist[(a+b*ArcSec[u]),w,x] - b*u/Sqrt[u^2]*Int[SimplifyIntegrand[w*D[u,x]/(u*Sqrt[u^2-1]),x],x] /;
  InverseFunctionFreeQ[w,x]] /;
-FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, x^m_. /; FreeQ[m,x]]]
+FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, (c_.+d_.*x)^m_. /; FreeQ[{c,d,m},x]]]
 
 
 Int[v_*(a_.+b_.*ArcCsc[u_]),x_Symbol] :=
   Module[{w=Block[{ShowSteps=False,StepCounter=Null}, Int[v,x]]},  
   Dist[(a+b*ArcCsc[u]),w,x] + b*u/Sqrt[u^2]*Int[SimplifyIntegrand[w*D[u,x]/(u*Sqrt[u^2-1]),x],x] /;
  InverseFunctionFreeQ[w,x]] /;
-FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, x^m_. /; FreeQ[m,x]]]
+FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, (c_.+d_.*x)^m_. /; FreeQ[{c,d,m},x]]]

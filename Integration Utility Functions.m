@@ -619,7 +619,7 @@ QuadraticQ[u_,x_Symbol] :=
 PolyQ[u_,x_Symbol,n_Integer] :=
   If[ListQ[u],
     Catch[Scan[Function[If[Not[PolyQ[#,x,n]],Throw[False]]],u]; True],
-  PolynomialQ[u,x] && Exponent[u,x]==n]
+  PolynomialQ[u,x] && Exponent[u,x]==n && Coefficient[u,x,n]=!=0]
 
 
 LinearPairQ[u_,v_,x_Symbol] :=
@@ -1469,6 +1469,10 @@ NormalizeIntegrandFactorBase[u_,x_Symbol] :=
       UnifySum[u,x],
     NormalizeIntegrandFactorBase[v,x]]],
   Map[Function[NormalizeIntegrandFactor[#,x]],u]]]]]]
+
+
+NormalizeTogether[u_] :=
+  NormalizeLeadTermSigns[Together[u]]
 
 
 (* NormalizeLeadTermSigns[u] returns an expression equal u but with not more than one sum 
@@ -2394,6 +2398,13 @@ ExpandIntegrand[x_^m_.*(e_+f_.*x_)^p_.*F_^(a_.+b_.*(c_.+d_.*x_)^n_.),x_Symbol] :
 FreeQ[{F,a,b,c,d,e,f,m,n,p},x]
 
 
+ExpandIntegrand[u_.*(a_+b_.*F_^v_)^m_.*(c_+d_.*F_^v_)^n_,x_Symbol] :=
+  Module[{w=ReplaceAll[ExpandIntegrand[(a+b*x)^m*(c+d*x)^n,x],x->F^v]},
+  Map[Function[u*#],w] /;
+ SumQ[w]] /;
+FreeQ[{F,a,b,c,d},x] && IntegersQ[m,n] && n<0
+
+
 ExpandIntegrand[u_*(a_.+b_.*x_)^m_.*f_^(e_.*(c_.+d_.*x_)^n_.),x_Symbol] :=
   Module[{v=ExpandIntegrand[u*(a+b*x)^m,x]},
   Distribute[f^(e*(c+d*x)^n)*v,Plus,Times] /;
@@ -2714,6 +2725,13 @@ ExpandLinearProduct[v_,u_,a_,b_,x_Symbol] :=
 FreeQ[{a,b},x] && PolynomialQ[u,x]
 
 
+ExpandTrigExpand[u_,F_,v_,m_,n_,x_Symbol] :=
+  Module[{w=ReplaceAll[Expand[TrigExpand[F[n*x]]^m,x],x->v]},
+  If[SumQ[w],
+    Map[Function[u*#],w],
+  u*w]]
+
+
 ExpandTrigReduce[u_,v_,x_Symbol] :=
   Module[{w=ExpandTrigReduce[v,x]},
   If[SumQ[w],
@@ -2745,18 +2763,15 @@ FreeQ[{F,a,n},x] && PolynomialQ[u,x] && Exponent[u,x]>0
 NormalizeTrig[u_,x_Symbol] := u
 
 
+Clear[ExpandTrigToExp];
+
+ExpandTrigToExp[u_,x_Symbol] := ExpandTrigToExp[1,u,x]
+
+
 ExpandTrigToExp[u_,v_,x_Symbol] :=
-  Module[{w=Expand[TrigToExp[v]]},
-  If[SumQ[w],
-    Map[Function[SimplifyIntegrand[u*#,x]],w],
-  SimplifyIntegrand[u*w,x]]]
-
-
-ExpandTrigToExp[u_,x_Symbol] :=
-  Module[{w=Expand[TrigToExp[u]]},
-  If[SumQ[w],
-    Map[Function[SimplifyIntegrand[#,x]],w],
-  SimplifyIntegrand[w,x]]]
+  Module[{w=TrigToExp[v]},
+  w=If[SumQ[w], Map[Function[SimplifyIntegrand[u*#,x]],w], SimplifyIntegrand[u*w,x]];
+  ExpandIntegrand[FreeFactors[w,x],NonfreeFactors[w,x],x]]
 
 
 (* Distrib[u,v] returns the sum of u times each term of v. *)
@@ -3334,13 +3349,15 @@ OddTrigPowerQ[u_,v_,x_] :=
   If[PowerQ[u],
     OddQ[u[[2]]] && OddTrigPowerQ[u[[1]],v,x],
   If[ProductQ[u],
+    If[Not[OneQ[FreeFactors[u,x]]],
+      OddTrigPowerQ[NonfreeFactors[u,x],v,x],
     Module[{lst=ReapList[Scan[Function[If[Not[FunctionOfTanQ[#,v,x]],Sow[#]]],u]]},
     If[lst==={},
       True,
-    Length[lst]==1 && OddTrigPowerQ[lst[[1]],v,x]]],
-(*If[SumQ[u],
-    Catch[Scan[Function[If[Not[OddTrigPowerQ[#,v,x]],Throw[False]]],u];True], *)
-  False]]]
+    Length[lst]==1 && OddTrigPowerQ[lst[[1]],v,x]]]],
+  If[SumQ[u],
+    Catch[Scan[Function[If[Not[OddTrigPowerQ[#,v,x]],Throw[False]]],u];True],
+  False]]]]
 
 
 (* u is a function of the form f[Tan[v],Cot[v]] where f is independent of x.
@@ -3521,13 +3538,15 @@ OddHyperbolicPowerQ[u_,v_,x_] :=
   If[PowerQ[u],
     OddQ[u[[2]]] && OddHyperbolicPowerQ[u[[1]],v,x],
   If[ProductQ[u],
+    If[Not[OneQ[FreeFactors[u,x]]],
+      OddHyperbolicPowerQ[NonfreeFactors[u,x],v,x],
     Module[{lst=ReapList[Scan[Function[If[Not[FunctionOfTanhQ[#,v,x]],Sow[#]]],u]]},
     If[lst==={},
       True,
-    Length[lst]==1 && OddHyperbolicPowerQ[lst[[1]],v,x]]],
-(*If[SumQ[u],
-    Catch[Scan[Function[If[Not[OddHyperbolicPowerQ[#,v,x]],Throw[False]]],u];True], *)
-  False]]]
+    Length[lst]==1 && OddHyperbolicPowerQ[lst[[1]],v,x]]]],
+  If[SumQ[u],
+    Catch[Scan[Function[If[Not[OddHyperbolicPowerQ[#,v,x]],Throw[False]]],u];True],
+  False]]]]
 
 
 (* u is a function of the form f[Tanh[v],Coth[v]] where f is independent of x.
@@ -3794,6 +3813,12 @@ SubstAux[a_+b_.*x_^2,x_Symbol,F_[z_]] :=
 FreeQ[{a,b},x] && MemberQ[{Tan,Cot,Sinh,Csch},F] && ZeroQ[a-b]
 
 
+SubstAux[F_[a_.*x_^m_.],x_Symbol,b_.*x_^n_] :=
+   Extract[{ArcCsc,ArcSec,ArcCot,ArcTan,ArcCos,ArcSin,ArcCsch,ArcSech,ArcCoth,ArcTanh,ArcCosh,ArcSinh},
+  Position[{ArcSin,ArcCos,ArcTan,ArcCot,ArcSec,ArcCsc,ArcSinh,ArcCosh,ArcTanh,ArcCoth,ArcSech,ArcCsch},F]][[1]] [x^(-m*n)/(a*b^m)] /;
+FreeQ[{a,b},x] && PositiveIntegerQ[m] && NegativeIntegerQ[n] && MemberQ[{ArcSin,ArcCos,ArcTan,ArcCot,ArcSec,ArcCsc,ArcSinh,ArcCosh,ArcTanh,ArcCoth,ArcSech,ArcCsch},F]
+
+
 (* Subst[u,v,w] returns u with all nondummy occurences of v replaced by w *)
 SubstAux[u_,v_,w_] :=
   If[u===v,
@@ -3815,8 +3840,13 @@ SubstAux[u_,v_,w_] :=
   Map[Function[SubstAux[#,v,w]],u]]]]]]]
 
 
+Clear[SimplifyAntiderivative];
+
 SimplifyAntiderivative[c_*u_,x_Symbol] :=
-  c*SimplifyAntiderivative[u,x] /;
+  Module[{v=SimplifyAntiderivative[u,x]},
+  If[SumQ[v] && NonsumQ[u],
+    Map[Function[c*#],v],
+  c*v]] /;
 FreeQ[c,x]
 
 
@@ -3835,60 +3865,349 @@ SimplifyAntiderivative[Log[f_^u_],x_Symbol] :=
 FreeQ[f,x]
 
 
-SimplifyAntiderivative[ArcTan[Tan[u_]],x_Symbol] :=
-  SimplifyAntiderivative[u,x]
-
-SimplifyAntiderivative[ArcTan[Cot[u_]],x_Symbol] :=
-  -SimplifyAntiderivative[u,x]
+SimplifyAntiderivative[ArcTan[a_.*Tan[u_]],x_Symbol] :=
+  RectifyTangent[u,a,1,x] /;
+FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
 
 
-SimplifyAntiderivative[ArcTan[Complex[0,n_]*Tanh[u_]],x_Symbol] :=
-  Complex[0,n]*SimplifyAntiderivative[u,x] /;
-OneQ[n^2]
-
-SimplifyAntiderivative[ArcTan[Complex[0,n_]*Coth[u_]],x_Symbol] :=
-  Complex[0,n]*SimplifyAntiderivative[u,x] /;
-OneQ[n^2]
+SimplifyAntiderivative[ArcCot[a_.*Tan[u_]],x_Symbol] :=
+  RectifyTangent[u,a,-1,x] /;
+FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
 
 
-SimplifyAntiderivative[ArcCot[Tan[u_]],x_Symbol] :=
-  -SimplifyAntiderivative[u,x]
-
-SimplifyAntiderivative[ArcCot[Cot[u_]],x_Symbol] :=
-  SimplifyAntiderivative[u,x]
+(* SimplifyAntiderivative[ArcTan[a_.*Tanh[u_]],x_Symbol] :=
+  RectifyTangent[I*u,I*a,-1,x] /;
+FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u] *)
 
 
-SimplifyAntiderivative[ArcCot[Complex[0,n_]*Tanh[u_]],x_Symbol] :=
-  -Complex[0,n]*SimplifyAntiderivative[u,x] /;
-OneQ[n^2]
+SimplifyAntiderivative[ArcCot[a_.*Tanh[u_]],x_Symbol] :=
+  -SimplifyAntiderivative[ArcTan[a*Tanh[u]],x] /;
+FreeQ[a,x] && ComplexFreeQ[u]
 
-SimplifyAntiderivative[ArcCot[Complex[0,n_]*Coth[u_]],x_Symbol] :=
-  -Complex[0,n]*SimplifyAntiderivative[u,x] /;
-OneQ[n^2]
+
+SimplifyAntiderivative[ArcTanh[a_.*Tan[u_]],x_Symbol] :=
+  RectifyTangent[u,I*a,-I,x] /;
+FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
+
+
+SimplifyAntiderivative[ArcCoth[a_.*Tan[u_]],x_Symbol] :=
+  RectifyTangent[u,I*a,-I,x] /;
+FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
+
+
+(* SimplifyAntiderivative[ArcTanh[a_.*Tanh[u_]],x_Symbol] :=
+  RectifyTangent[I*u,a,-I,x] /;
+FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u] *)
 
 
 SimplifyAntiderivative[ArcTanh[Tanh[u_]],x_Symbol] :=
   SimplifyAntiderivative[u,x]
 
-SimplifyAntiderivative[ArcTanh[Coth[u_]],x_Symbol] :=
-  SimplifyAntiderivative[u,x]
+
+(* SimplifyAntiderivative[ArcCoth[a_.*Tanh[u_]],x_Symbol] :=
+  RectifyTangent[I*u,a,-I,x] /;
+FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u] *)
 
 
 SimplifyAntiderivative[ArcCoth[Tanh[u_]],x_Symbol] :=
   SimplifyAntiderivative[u,x]
 
+
+SimplifyAntiderivative[ArcCot[a_.*Cot[u_]],x_Symbol] :=
+  RectifyCotangent[u,a,1,x] /;
+FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
+
+
+SimplifyAntiderivative[ArcTan[a_.*Cot[u_]],x_Symbol] :=
+  RectifyCotangent[u,a,-1,x] /;
+FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
+
+
+(* SimplifyAntiderivative[ArcCot[a_.*Coth[u_]],x_Symbol] :=
+  RectifyCotangent[I*u,I*a,1,x] /;
+FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u] *)
+
+
+SimplifyAntiderivative[ArcTan[a_.*Coth[u_]],x_Symbol] :=
+  -SimplifyAntiderivative[ArcTan[Tanh[u]/a],x] /;
+FreeQ[a,x] && ComplexFreeQ[u]
+
+
+SimplifyAntiderivative[ArcCoth[a_.*Cot[u_]],x_Symbol] :=
+  RectifyCotangent[u,I*a,I,x] /;
+FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
+
+
+SimplifyAntiderivative[ArcTanh[a_.*Cot[u_]],x_Symbol] :=
+  RectifyCotangent[u,I*a,I,x] /;
+FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
+
+
+(* SimplifyAntiderivative[ArcCoth[a_.*Coth[u_]],x_Symbol] :=
+  RectifyCotangent[I*u,a,-I,x] /;
+FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u] *)
+
+
 SimplifyAntiderivative[ArcCoth[Coth[u_]],x_Symbol] :=
   SimplifyAntiderivative[u,x]
+
+
+SimplifyAntiderivative[ArcTanh[a_.*Coth[u_]],x_Symbol] :=
+  SimplifyAntiderivative[ArcTanh[Tanh[u]/a],x] /;
+FreeQ[a,x] && ComplexFreeQ[u]
+
+
+SimplifyAntiderivative[ArcTanh[Coth[u_]],x_Symbol] :=
+  SimplifyAntiderivative[u,x]
+
+
+SimplifyAntiderivative[ArcTan[c_.*(a_+b_.*Tan[u_])],x_Symbol] :=
+  RectifyTangent[u,a*c,b*c,1,x] /;
+FreeQ[{a,b,c},x] && PositiveQ[a^2*c^2] && PositiveQ[b^2*c^2] && ComplexFreeQ[u]
+
+
+SimplifyAntiderivative[ArcTanh[c_.*(a_+b_.*Tan[u_])],x_Symbol] :=
+  RectifyTangent[u,I*a*c,I*b*c,-I,x] /;
+FreeQ[{a,b,c},x] && PositiveQ[a^2*c^2] && PositiveQ[b^2*c^2] && ComplexFreeQ[u]
+
+
+SimplifyAntiderivative[ArcTan[c_.*(a_+b_.*Cot[u_])],x_Symbol] :=
+  RectifyCotangent[u,a*c,b*c,1,x] /;
+FreeQ[{a,b,c},x] && PositiveQ[a^2*c^2] && PositiveQ[b^2*c^2] && ComplexFreeQ[u]
+
+
+SimplifyAntiderivative[ArcTanh[c_.*(a_+b_.*Cot[u_])],x_Symbol] :=
+  RectifyCotangent[u,I*a*c,I*b*c,-I,x] /;
+FreeQ[{a,b,c},x] && PositiveQ[a^2*c^2] && PositiveQ[b^2*c^2] && ComplexFreeQ[u]
+
+
+SimplifyAntiderivative[ArcTan[a_.+b_.*Tan[u_]+c_.*Tan[u_]^2],x_Symbol] :=
+  If[EvenQ[Denominator[NumericFactor[Together[u]]]],
+    ArcTan[NormalizeTogether[(a+c-1+(a-c-1)*Cos[2*u]+b*Sin[2*u])/(a+c+1+(a-c+1)*Cos[2*u]+b*Sin[2*u])]],
+  ArcTan[NormalizeTogether[(c+(a-c-1)*Cos[u]^2+b*Cos[u]*Sin[u])/(c+(a-c+1)*Cos[u]^2+b*Cos[u]*Sin[u])]]] /;
+FreeQ[{a,b,c},x] && ComplexFreeQ[u]
+
+SimplifyAntiderivative[ArcTan[a_.+b_.*(d_.+e_.*Tan[u_])+c_.*(f_.+g_.*Tan[u_])^2],x_Symbol] :=
+  SimplifyAntiderivative[ArcTan[a+b*d+c*f^2+(b*e+2*c*f*g)*Tan[u]+c*g^2*Tan[u]^2],x] /;
+FreeQ[{a,b,c},x] && ComplexFreeQ[u]
+
+
+SimplifyAntiderivative[ArcTan[a_.+c_.*Tan[u_]^2],x_Symbol] :=
+  If[EvenQ[Denominator[NumericFactor[Together[u]]]],
+    ArcTan[NormalizeTogether[(a+c-1+(a-c-1)*Cos[2*u])/(a+c+1+(a-c+1)*Cos[2*u])]],
+  ArcTan[NormalizeTogether[(c+(a-c-1)*Cos[u]^2)/(c+(a-c+1)*Cos[u]^2)]]] /;
+FreeQ[{a,c},x] && ComplexFreeQ[u]
+
+SimplifyAntiderivative[ArcTan[a_.+c_.*(f_.+g_.*Tan[u_])^2],x_Symbol] :=
+  SimplifyAntiderivative[ArcTan[a+c*f^2+(2*c*f*g)*Tan[u]+c*g^2*Tan[u]^2],x] /;
+FreeQ[{a,c},x] && ComplexFreeQ[u]
 
 
 SimplifyAntiderivative[u_,x_Symbol] :=
   If[FreeQ[u,x],
     0,
   If[LogQ[u],
-    Log[RemoveContent[u[[1]],x]],
+    If[MemberQ[{Sec,Csc,Sech,Csch},u[[1,0]]],
+      -Log[RemoveContent[1/u[[1]],x]],
+    Log[RemoveContent[u[[1]],x]]],
   If[SumQ[u],
-    Map[Function[SimplifyAntiderivative[#,x]],u],
+    SimplifyAntiderivativeSum[Map[Function[SimplifyAntiderivative[#,x]],u],x],
   u]]]
+
+
+Clear[SimplifyAntiderivativeSum];
+
+SimplifyAntiderivativeSum[v_.+A_.*Log[a_+b_.*Tan[u_]^n_.]+B_.*Log[Cos[u_]],x_Symbol] :=
+  SimplifyAntiderivativeSum[v,x] + A*Log[RemoveContent[a*Cos[u]^n+b*Sin[u]^n,x]] /;
+FreeQ[{a,b,A,B},x] && IntegerQ[n] && ZeroQ[n*A-B]
+
+
+SimplifyAntiderivativeSum[v_.+A_.*Log[a_+b_.*Cot[u_]^n_.]+B_.*Log[Sin[u_]],x_Symbol] :=
+  SimplifyAntiderivativeSum[v,x] + A*Log[RemoveContent[a*Sin[u]^n+b*Cos[u]^n,x]] /;
+FreeQ[{a,b,A,B},x] && IntegerQ[n] && ZeroQ[n*A-B]
+
+
+SimplifyAntiderivativeSum[v_.+A_.*Log[a_+b_.*Tan[u_]^n_.]+B_.*Log[c_+d_.*Tan[u_]^n_.],x_Symbol] :=
+  SimplifyAntiderivativeSum[v,x] + A*Log[RemoveContent[a*Cos[u]^n+b*Sin[u]^n,x]] + B*Log[RemoveContent[c*Cos[u]^n+d*Sin[u]^n,x]] /;
+FreeQ[{a,b,c,d,A,B},x] && IntegerQ[n] && ZeroQ[A+B]
+
+
+SimplifyAntiderivativeSum[v_.+A_.*Log[a_+b_.*Cot[u_]^n_.]+B_.*Log[c_+d_.*Cot[u_]^n_.],x_Symbol] :=
+  SimplifyAntiderivativeSum[v,x] + A*Log[RemoveContent[b*Cos[u]^n+a*Sin[u]^n,x]] + B*Log[RemoveContent[d*Cos[u]^n+c*Sin[u]^n,x]] /;
+FreeQ[{a,b,c,d,A,B},x] && IntegerQ[n] && ZeroQ[A+B]
+
+
+SimplifyAntiderivativeSum[v_.+A_.*Log[a_+b_.*Tan[u_]^n_.]+B_.*Log[c_+d_.*Tan[u_]^n_.]+C_.*Log[e_+f_.*Tan[u_]^n_.],x_Symbol] :=
+  SimplifyAntiderivativeSum[v,x] + A*Log[RemoveContent[a*Cos[u]^n+b*Sin[u]^n,x]] + 
+	B*Log[RemoveContent[c*Cos[u]^n+d*Sin[u]^n,x]] + C*Log[RemoveContent[e*Cos[u]^n+f*Sin[u]^n,x]] /;
+FreeQ[{a,b,c,d,e,f,A,B,C},x] && IntegerQ[n] && ZeroQ[A+B+C]
+
+
+SimplifyAntiderivativeSum[v_.+A_.*Log[a_+b_.*Cot[u_]^n_.]+B_.*Log[c_+d_.*Cot[u_]^n_.]+C_.*Log[e_+f_.*Cot[u_]^n_.],x_Symbol] :=
+  SimplifyAntiderivativeSum[v,x] + A*Log[RemoveContent[b*Cos[u]^n+a*Sin[u]^n,x]] + 
+	B*Log[RemoveContent[d*Cos[u]^n+c*Sin[u]^n,x]] + C*Log[RemoveContent[f*Cos[u]^n+e*Sin[u]^n,x]] /;
+FreeQ[{a,b,c,d,e,f,A,B,C},x] && IntegerQ[n] && ZeroQ[A+B+C]
+
+
+SimplifyAntiderivativeSum[u_,x_Symbol] := u
+
+
+(* RectifyTangent[u,a,b,x] returns an expression whose derivative equals the derivative of b*ArcTan[a*Tan[u]] wrt x. *)
+RectifyTangent[u_,a_,b_,x_Symbol] :=
+  If[MatchQ[Together[a],d_.*Complex[0,c_]],
+    Module[{c=a/I,e},
+    If[NegativeQ[c],
+      RectifyTangent[u,-a,-b,x],
+    If[ZeroQ[c-1],
+      If[EvenQ[Denominator[NumericFactor[Together[u]]]],
+        I*b*ArcTanh[Sin[2*u]]/2,
+      I*b*ArcTanh[2*Cos[u]*Sin[u]]/2],
+    e=SmartDenominator[c];
+    c=c*e;
+(*  If[EvenQ[Denominator[NumericFactor[Together[u]]]],
+      I*b*Log[RemoveContent[c^2+e^2-(c^2-e^2)*Cos[2*u]+2*c*e*Sin[2*u],x]]/4 - 
+      I*b*Log[RemoveContent[c^2+e^2-(c^2-e^2)*Cos[2*u]-2*c*e*Sin[2*u],x]]/4,
+    I*b*Log[RemoveContent[e^2+2*c*e*Cos[u]*Sin[u]+(c^2-e^2)*Sin[u]^2,x]]/4 - 
+    I*b*Log[RemoveContent[e^2-2*c*e*Cos[u]*Sin[u]+(c^2-e^2)*Sin[u]^2,x]]/4]]]], *)
+    I*b*Log[RemoveContent[e*Cos[u]+c*Sin[u],x]]/2 - 
+    I*b*Log[RemoveContent[e*Cos[u]-c*Sin[u],x]]/2]]],
+  If[NegativeQ[a],
+    RectifyTangent[u,-a,-b,x],
+  If[ZeroQ[a-1],
+    b*SimplifyAntiderivative[u,x],
+  Module[{c,numr,denr},
+  If[EvenQ[Denominator[NumericFactor[Together[u]]]],
+    c=Simplify[(1+a)/(1-a)];
+    numr=SmartNumerator[c];
+    denr=SmartDenominator[c];
+    b*SimplifyAntiderivative[u,x] - b*ArcTan[NormalizeLeadTermSigns[denr*Sin[2*u]/(numr+denr*Cos[2*u])]],
+  If[PositiveQ[a-1],
+    c=Simplify[1/(a-1)];
+    numr=SmartNumerator[c];
+    denr=SmartDenominator[c];
+    b*SimplifyAntiderivative[u,x] + b*ArcTan[NormalizeLeadTermSigns[denr*Cos[u]*Sin[u]/(numr+denr*Sin[u]^2)]],
+  c=Simplify[a/(1-a)];
+  numr=SmartNumerator[c];
+  denr=SmartDenominator[c];
+  b*SimplifyAntiderivative[u,x] - b*ArcTan[NormalizeLeadTermSigns[denr*Cos[u]*Sin[u]/(numr+denr*Cos[u]^2)]]]]]]]]
+
+
+(* RectifyTangent[u,a,b,r,x] returns an expression whose derivative equals the derivative of r*ArcTan[a+b*Tan[u]] wrt x. *)
+RectifyTangent[u_,a_,b_,r_,x_Symbol] :=
+  If[MatchQ[Together[a],d_.*Complex[0,c_]] && MatchQ[Together[b],d_.*Complex[0,c_]],
+    Module[{c=a/I,d=b/I,e},
+    If[NegativeQ[d],
+      RectifyTangent[u,-a,-b,-r,x],
+    e=SmartDenominator[Together[c+d*x]];
+    c=c*e;
+    d=d*e;
+    If[EvenQ[Denominator[NumericFactor[Together[u]]]],
+      I*r*Log[RemoveContent[Simplify[(c+e)^2+d^2]+Simplify[(c+e)^2-d^2]*Cos[2*u]+Simplify[2*(c+e)*d]*Sin[2*u],x]]/4 - 
+      I*r*Log[RemoveContent[Simplify[(c-e)^2+d^2]+Simplify[(c-e)^2-d^2]*Cos[2*u]+Simplify[2*(c-e)*d]*Sin[2*u],x]]/4,
+    I*r*Log[RemoveContent[Simplify[(c+e)^2]+Simplify[2*(c+e)*d]*Cos[u]*Sin[u]-Simplify[(c+e)^2-d^2]*Sin[u]^2,x]]/4 - 
+    I*r*Log[RemoveContent[Simplify[(c-e)^2]+Simplify[2*(c-e)*d]*Cos[u]*Sin[u]-Simplify[(c-e)^2-d^2]*Sin[u]^2,x]]/4]]],
+  If[NegativeQ[b],
+    RectifyTangent[u,-a,-b,-r,x],
+  If[EvenQ[Denominator[NumericFactor[Together[u]]]],
+    r*SimplifyAntiderivative[u,x] + 
+    r*ArcTan[Simplify[(2*a*b*Cos[2*u]-(1+a^2-b^2)*Sin[2*u])/(a^2+(1+b)^2+(1+a^2-b^2)*Cos[2*u]+2*a*b*Sin[2*u])]],
+  r*SimplifyAntiderivative[u,x] - 
+  r*ArcTan[ActivateTrig[Simplify[(a*b-2*a*b*cos[u]^2+(1+a^2-b^2)*cos[u]*sin[u])/(b*(1+b)+(1+a^2-b^2)*cos[u]^2+2*a*b*cos[u]*sin[u])]]]]]]
+
+
+(* SimplifyAntiderivative[ArcTanh[c_.*(a_+b_.*Tanh[u_])],x_Symbol] :=
+  If[EvenQ[Denominator[NumericFactor[Together[u]]]],
+    SimplifyAntiderivative[u,x] - 
+    ArcTanh[NormalizeTogether[(2*a*b*c^2*Cosh[2*u]-(1-a^2*c^2-b^2*c^2)*Sinh[2*u])/(a^2*c^2-(1+b*c)^2-(1-a^2*c^2-b^2*c^2)*Cosh[2*u]+2*a*b*c^2*Sinh[2*u])]],
+  SimplifyAntiderivative[u,x] - 
+  ArcTanh[NormalizeTogether[(a*b*c^2-2*a*b*c^2*Cosh[u]^2+(1-a^2*c^2-b^2*c^2)*Cosh[u]*Sinh[u])/(b*c*(1+b*c)+(1-a^2*c^2-b^2*c^2)*Cosh[u]^2-2*a*b*c^2*Cosh[u]*Sinh[u])]]] /;
+FreeQ[{a,b,c},x] *)
+
+
+(* RectifyCotangent[u,a,b,x] returns an expression whose derivative equals the derivative of b*ArcCot[a*Cot[u]] wrt x. *)
+RectifyCotangent[u_,a_,b_,x_Symbol] :=
+  If[MatchQ[Together[a],d_.*Complex[0,c_]],
+    Module[{c=a/I,e},
+    If[NegativeQ[c],
+      RectifyCotangent[u,-a,-b,x],
+    If[ZeroQ[c-1],
+      If[EvenQ[Denominator[NumericFactor[Together[u]]]],
+        -I*b*ArcTanh[Sin[2*u]]/2,
+      -I*b*ArcTanh[2*Cos[u]*Sin[u]]/2],
+    e=SmartDenominator[c];
+    c=c*e;
+(*  If[EvenQ[Denominator[NumericFactor[Together[u]]]],
+      -I*b*Log[RemoveContent[c^2+e^2+(c^2-e^2)*Cos[2*u]+2*c*e*Sin[2*u],x]]/4 + 
+       I*b*Log[RemoveContent[c^2+e^2+(c^2-e^2)*Cos[2*u]-2*c*e*Sin[2*u],x]]/4,
+    -I*b*Log[RemoveContent[e^2+(c^2-e^2)*Cos[u]^2+2*c*e*Cos[u]*Sin[u],x]]/4 + 
+     I*b*Log[RemoveContent[e^2+(c^2-e^2)*Cos[u]^2-2*c*e*Cos[u]*Sin[u],x]]/4]]]], *)
+    -I*b*Log[RemoveContent[c*Cos[u]+e*Sin[u],x]]/2 + 
+    I*b*Log[RemoveContent[c*Cos[u]-e*Sin[u],x]]/2]]],
+  If[NegativeQ[a],
+    RectifyCotangent[u,-a,-b,x],
+  If[ZeroQ[a-1],
+    b*SimplifyAntiderivative[u,x],
+  Module[{c,numr,denr},
+  If[EvenQ[Denominator[NumericFactor[Together[u]]]],
+    c=Simplify[(1+a)/(1-a)];
+    numr=SmartNumerator[c];
+    denr=SmartDenominator[c];
+    b*SimplifyAntiderivative[u,x] + b*ArcTan[NormalizeLeadTermSigns[denr*Sin[2*u]/(numr-denr*Cos[2*u])]],
+  If[PositiveQ[a-1],
+    c=Simplify[1/(a-1)];
+    numr=SmartNumerator[c];
+    denr=SmartDenominator[c];
+    b*SimplifyAntiderivative[u,x] - b*ArcTan[NormalizeLeadTermSigns[denr*Cos[u]*Sin[u]/(numr+denr*Cos[u]^2)]],
+  c=Simplify[a/(1-a)];
+  numr=SmartNumerator[c];
+  denr=SmartDenominator[c];
+  b*SimplifyAntiderivative[u,x] + b*ArcTan[NormalizeLeadTermSigns[denr*Cos[u]*Sin[u]/(numr+denr*Sin[u]^2)]]]]]]]]
+
+
+(* RectifyCotangent[u,a,b,r,x] returns an expression whose derivative equals the derivative of r*ArcTan[a+b*Cot[u]] wrt x. *)
+RectifyCotangent[u_,a_,b_,r_,x_Symbol] :=
+  If[MatchQ[Together[a],d_.*Complex[0,c_]] && MatchQ[Together[b],d_.*Complex[0,c_]],
+    Module[{c=a/I,d=b/I,e},
+    If[NegativeQ[d],
+      RectifyTangent[u,-a,-b,-r,x],
+    e=SmartDenominator[Together[c+d*x]];
+    c=c*e;
+    d=d*e;
+    If[EvenQ[Denominator[NumericFactor[Together[u]]]],
+      I*r*Log[RemoveContent[Simplify[(c+e)^2+d^2]-Simplify[(c+e)^2-d^2]*Cos[2*u]+Simplify[2*(c+e)*d]*Sin[2*u],x]]/4 - 
+      I*r*Log[RemoveContent[Simplify[(c-e)^2+d^2]-Simplify[(c-e)^2-d^2]*Cos[2*u]+Simplify[2*(c-e)*d]*Sin[2*u],x]]/4,
+    I*r*Log[RemoveContent[Simplify[(c+e)^2]-Simplify[(c+e)^2-d^2]*Cos[u]^2+Simplify[2*(c+e)*d]*Cos[u]*Sin[u],x]]/4 - 
+    I*r*Log[RemoveContent[Simplify[(c-e)^2]-Simplify[(c-e)^2-d^2]*Cos[u]^2+Simplify[2*(c-e)*d]*Cos[u]*Sin[u],x]]/4]]],
+  If[NegativeQ[b],
+    RectifyCotangent[u,-a,-b,-r,x],
+  If[EvenQ[Denominator[NumericFactor[Together[u]]]],
+    -r*SimplifyAntiderivative[u,x] - 
+    r*ArcTan[Simplify[(2*a*b*Cos[2*u]+(1+a^2-b^2)*Sin[2*u])/(a^2+(1+b)^2-(1+a^2-b^2)*Cos[2*u]+2*a*b*Sin[2*u])]],
+  -r*SimplifyAntiderivative[u,x] - 
+  r*ArcTan[ActivateTrig[Simplify[(a*b-2*a*b*sin[u]^2+(1+a^2-b^2)*cos[u]*sin[u])/(b*(1+b)+(1+a^2-b^2)*sin[u]^2+2*a*b*cos[u]*sin[u])]]]]]]
+
+
+(* SimplifyAntiderivative[ArcTanh[c_.*(a_+b_.*Coth[u_])],x_Symbol] :=
+  If[EvenQ[Denominator[NumericFactor[Together[u]]]],
+    SimplifyAntiderivative[u,x] - 
+    ArcTanh[NormalizeTogether[(2*a*b*c^2*Cosh[2*u]-(1-a^2*c^2-b^2*c^2)*Sinh[2*u])/(-a^2*c^2+(1+b*c)^2-(1-a^2*c^2-b^2*c^2)*Cosh[2*u]+2*a*b*c^2*Sinh[2*u])]],
+  SimplifyAntiderivative[u,x] - 
+  ArcTanh[NormalizeTogether[(a*b*c^2+2*a*b*c^2*Sinh[u]^2-(1-a^2*c^2-b^2*c^2)*Cosh[u]*Sinh[u])/(b*c*(1+b*c)-(1-a^2*c^2-b^2*c^2)*Sinh[u]^2+2*a*b*c^2*Cosh[u]*Sinh[u])]]] /;
+FreeQ[{a,b,c},x] *)
+
+
+SmartNumerator[u_^n_] := SmartDenominator[u^(-n)] /; RationalQ[n] && n<0
+
+SmartNumerator[u_*v_] := SmartNumerator[u]*SmartNumerator[v]
+
+SmartNumerator[u_] := Numerator[u]
+
+
+SmartDenominator[u_^n_] := SmartNumerator[u^(-n)] /; RationalQ[n] && n<0
+
+SmartDenominator[u_*v_] := SmartDenominator[u]*SmartDenominator[v]
+
+SmartDenominator[u_] := Denominator[u]
 
 
 (* u is a function of v.  SubstFor[w,v,u,x] returns w times u with v replaced by x. *)

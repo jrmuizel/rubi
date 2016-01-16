@@ -287,7 +287,7 @@ FreeQ[{c,m,n,p,q},x] && Not[FreeQ[v,x]] && Not[FreeQ[w,x]] && Not[FreeQ[z,x]] &&
 (* ::Code:: *)
 Int[u_.*(a_.+b_.*x_^n_)^p_,x_Symbol] :=
   FullSimplify[Sqrt[a+b*x^n]/(x^(n/2)*Sqrt[b+a/x^n])]*Int[u*x^(n*p)*(b+a*x^(-n))^p,x] /;
-FreeQ[{a,b,p},x] && IntegerQ[p+1/2] && NegativeIntegerQ[n] (* && NegativeQ[a*b] *) && Not[RationalFunctionQ[u,x]]
+FreeQ[{a,b,p},x] && IntegerQ[p+1/2] && NegativeIntegerQ[n] && Not[RationalFunctionQ[u,x]]
 
 
 (* ::Code:: *)

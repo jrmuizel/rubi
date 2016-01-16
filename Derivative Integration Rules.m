@@ -20,27 +20,51 @@
 
 
 (* ::Code:: *)
-Int[f_'[x_],x_Symbol] :=
-  f[x] /;
-FreeQ[f,x]
-
-
-(* ::Code:: *)
 Int[Derivative[n_][f_][x_],x_Symbol] :=
   Derivative[n-1][f][x] /;
 FreeQ[{f,n},x]
 
 
 (* ::Code:: *)
-Int[u_*g_'[x_],x_Symbol] :=
-  Subst[Int[SimplifyIntegrand[SubstFor[g[x],u,x],x],x],x,g[x]] /;
-FreeQ[g,x] && FunctionOfQ[g[x],u,x]
+Int[(c_.*F_^(a_.+b_.*x_))^p_.*Derivative[n_][f_][x_],x_Symbol] :=
+  (c*F^(a+b*x))^p*Derivative[n-1][f][x] - b*p*Log[F]*Int[(c*F^(a+b*x))^p*Derivative[n-1][f][x],x] /;
+FreeQ[{a,b,c,f,F,p},x] && PositiveIntegerQ[n]
 
 
 (* ::Code:: *)
-Int[u_*Derivative[n_][g_][x_],x_Symbol] :=
-  Subst[Int[SimplifyIntegrand[SubstFor[Derivative[n-1][g][x],u,x],x],x],x,Derivative[n-1][g][x]] /;
-FreeQ[{g,n},x] && FunctionOfQ[Derivative[n-1][g][x],u,x]
+Int[(c_.*F_^(a_.+b_.*x_))^p_.*Derivative[n_][f_][x_],x_Symbol] :=
+  (c*F^(a+b*x))^p*Derivative[n][f][x]/(b*p*Log[F]) - 1/(b*p*Log[F])*Int[(c*F^(a+b*x))^p*Derivative[n+1][f][x],x] /;
+FreeQ[{a,b,c,f,F,p},x] && NegativeIntegerQ[n]
+
+
+(* ::Code:: *)
+Int[Sin[a_.+b_.*x_]*Derivative[n_][f_][x_],x_Symbol] :=
+  Sin[a+b*x]*Derivative[n-1][f][x] - b*Int[Cos[a+b*x]*Derivative[n-1][f][x],x] /;
+FreeQ[{a,b,f},x] && PositiveIntegerQ[n]
+
+
+(* ::Code:: *)
+Int[Cos[a_.+b_.*x_]*Derivative[n_][f_][x_],x_Symbol] :=
+  Cos[a+b*x]*Derivative[n-1][f][x] + b*Int[Sin[a+b*x]*Derivative[n-1][f][x],x] /;
+FreeQ[{a,b,f},x] && PositiveIntegerQ[n]
+
+
+(* ::Code:: *)
+Int[Sin[a_.+b_.*x_]*Derivative[n_][f_][x_],x_Symbol] :=
+  -Cos[a+b*x]*Derivative[n][f][x]/b + 1/b*Int[Cos[a+b*x]*Derivative[n+1][f][x],x] /;
+FreeQ[{a,b,f},x] && NegativeIntegerQ[n]
+
+
+(* ::Code:: *)
+Int[Cos[a_.+b_.*x_]*Derivative[n_][f_][x_],x_Symbol] :=
+  Sin[a+b*x]*Derivative[n][f][x]/b - 1/b*Int[Sin[a+b*x]*Derivative[n+1][f][x],x] /;
+FreeQ[{a,b,f},x] && NegativeIntegerQ[n]
+
+
+(* ::Code:: *)
+Int[u_*Derivative[n_][f_][x_],x_Symbol] :=
+  Subst[Int[SimplifyIntegrand[SubstFor[Derivative[n-1][f][x],u,x],x],x],x,Derivative[n-1][f][x]] /;
+FreeQ[{f,n},x] && FunctionOfQ[Derivative[n-1][f][x],u,x]
 
 
 (* ::Code:: *)

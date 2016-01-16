@@ -32,9 +32,79 @@ FreeQ[{a,b,c,d,e,f},x] && ZeroQ[b*c^2-a*d^2] && ZeroQ[d*e+c*f] && NegQ[b*c/d]
 
 
 (* ::Code:: *)
-Int[Sqrt[a_.*x_+b_.*Sqrt[c_+d_.*x_^2]],x_Symbol] :=
-  2/(3*a)*(2*a*x-b*Sqrt[c+a^2*x^2/b^2])*Sqrt[a*x+b*Sqrt[c+a^2*x^2/b^2]] /;
-FreeQ[{a,b,c,d},x] && ZeroQ[d-a^2/b^2]
+Int[(g_.+h_.*(d_.+e_.*x_+f_.*Sqrt[a_.+b_.*x_+c_.*x_^2])^n_)^p_.,x_Symbol] :=
+  2*Subst[Int[(g+h*x^n)^p*(d^2*e-(b*d-a*e)*f^2-(2*d*e-b*f^2)*x+e*x^2)/(-2*d*e+b*f^2+2*e*x)^2,x],x,d+e*x+f*Sqrt[a+b*x+c*x^2]] /;
+FreeQ[{a,b,c,d,e,f,g,h,n},x] && ZeroQ[e^2-c*f^2] && IntegerQ[p]
+
+
+(* ::Code:: *)
+Int[(g_.+h_.*(d_.+e_.*x_+f_.*Sqrt[a_+c_.*x_^2])^n_)^p_.,x_Symbol] :=
+  1/(2*e)*Subst[Int[(g+h*x^n)^p*(d^2+a*f^2-2*d*x+x^2)/(d-x)^2,x],x,d+e*x+f*Sqrt[a+c*x^2]] /;
+FreeQ[{a,c,d,e,f,g,h,n},x] && ZeroQ[e^2-c*f^2] && IntegerQ[p]
+
+
+(* ::Code:: *)
+Int[(g_.+h_.*(u_+f_. Sqrt[v_])^n_)^p_.,x_Symbol] :=
+  Int[(g+h*(ExpandToSum[u,x]+f*Sqrt[ExpandToSum[v,x]])^n)^p,x] /;
+FreeQ[{f,g,h,n},x] && LinearQ[u,x] && QuadraticQ[v,x] && Not[LinearMatchQ[u,x] && QuadraticMatchQ[v,x]] && 
+  ZeroQ[Coefficient[u,x,1]^2-Coefficient[v,x,2]*f^2] && IntegerQ[p]
+
+
+(* ::Code:: *)
+Int[(g_.+h_.*x_)^m_.*(e_.*x_+f_.*Sqrt[a_.+c_.*x_^2])^n_.,x_Symbol] :=
+  1/(2^(m+1)*e^(m+1))*Subst[Int[x^(n-m-2)*(a*f^2+x^2)*(-a*f^2*h+2*e*g*x+h*x^2)^m,x],x,e*x+f*Sqrt[a+c*x^2]] /;
+FreeQ[{a,c,e,f,g,h,n},x] && ZeroQ[e^2-c*f^2] && IntegerQ[m]
+
+
+(* ::Code:: *)
+Int[x_^p_.*(g_+i_.*x_^2)^m_.*(e_.*x_+f_.*Sqrt[a_+c_.*x_^2])^n_.,x_Symbol] :=
+  1/(2^(2*m+p+1)*e^(p+1)*f^(2*m))*(i/c)^m*Subst[Int[x^(n-2*m-p-2)*(-a*f^2+x^2)^p*(a*f^2+x^2)^(2*m+1),x],x,e*x+f*Sqrt[a+c*x^2]] /;
+FreeQ[{a,c,e,f,g,i,n},x] && ZeroQ[e^2-c*f^2] && ZeroQ[c*g-a*i] && IntegersQ[p,2*m] && (IntegerQ[m] || PositiveQ[i/c])
+
+
+(* ::Code:: *)
+Int[(g_.+h_.*x_+i_.*x_^2)^m_.*(d_.+e_.*x_+f_.*Sqrt[a_.+b_.*x_+c_.*x_^2])^n_.,x_Symbol] :=
+  2/f^(2*m)*(i/c)^m*
+    Subst[Int[x^n*(d^2*e-(b*d-a*e)*f^2-(2*d*e-b*f^2)*x+e*x^2)^(2*m+1)/(-2*d*e+b*f^2+2*e*x)^(2*(m+1)),x],x,d+e*x+f*Sqrt[a+b*x+c*x^2]] /;
+FreeQ[{a,b,c,d,e,f,g,h,i,n},x] && ZeroQ[e^2-c*f^2] && ZeroQ[c*g-a*i] && ZeroQ[c*h-b*i] && IntegerQ[2*m] && (IntegerQ[m] || PositiveQ[i/c])
+
+
+(* ::Code:: *)
+Int[(g_+i_.*x_^2)^m_.*(d_.+e_.*x_+f_.*Sqrt[a_+c_.*x_^2])^n_.,x_Symbol] :=
+  1/(2^(2*m+1)*e*f^(2*m))*(i/c)^m*
+    Subst[Int[x^n*(d^2+a*f^2-2*d*x+x^2)^(2*m+1)/(-d+x)^(2*(m+1)),x],x,d+e*x+f*Sqrt[a+c*x^2]] /;
+FreeQ[{a,c,d,e,f,g,i,n},x] && ZeroQ[e^2-c*f^2] && ZeroQ[c*g-a*i] && IntegerQ[2*m] && (IntegerQ[m] || PositiveQ[i/c])
+
+
+(* ::Code:: *)
+Int[(g_.+h_.*x_+i_.*x_^2)^m_.*(d_.+e_.*x_+f_.*Sqrt[a_.+b_.*x_+c_.*x_^2])^n_.,x_Symbol] :=
+  (i/c)^(m-1/2)*Sqrt[g+h*x+i*x^2]/Sqrt[a+b*x+c*x^2]*Int[(a+b*x+c*x^2)^m*(d+e*x+f*Sqrt[a+b*x+c*x^2])^n,x] /;
+FreeQ[{a,b,c,d,e,f,g,h,i,n},x] && ZeroQ[e^2-c*f^2] && ZeroQ[c*g-a*i] && ZeroQ[c*h-b*i] && PositiveIntegerQ[m+1/2] && Not[PositiveQ[i/c]]
+
+
+(* ::Code:: *)
+Int[(g_+i_.*x_^2)^m_.*(d_.+e_.*x_+f_.*Sqrt[a_+c_.*x_^2])^n_.,x_Symbol] :=
+  (i/c)^(m-1/2)*Sqrt[g+i*x^2]/Sqrt[a+c*x^2]*Int[(a+c*x^2)^m*(d+e*x+f*Sqrt[a+c*x^2])^n,x] /;
+FreeQ[{a,c,d,e,f,g,i,n},x] && ZeroQ[e^2-c*f^2] && ZeroQ[c*g-a*i] && PositiveIntegerQ[m+1/2] && Not[PositiveQ[i/c]]
+
+
+(* ::Code:: *)
+Int[(g_.+h_.*x_+i_.*x_^2)^m_.*(d_.+e_.*x_+f_.*Sqrt[a_.+b_.*x_+c_.*x_^2])^n_.,x_Symbol] :=
+  (i/c)^(m+1/2)*Sqrt[a+b*x+c*x^2]/Sqrt[g+h*x+i*x^2]*Int[(a+b*x+c*x^2)^m*(d+e*x+f*Sqrt[a+b*x+c*x^2])^n,x] /;
+FreeQ[{a,b,c,d,e,f,g,h,i,n},x] && ZeroQ[e^2-c*f^2] && ZeroQ[c*g-a*i] && ZeroQ[c*h-b*i] && NegativeIntegerQ[m-1/2] && Not[PositiveQ[i/c]]
+
+
+(* ::Code:: *)
+Int[(g_+i_.*x_^2)^m_.*(d_.+e_.*x_+f_.*Sqrt[a_+c_.*x_^2])^n_.,x_Symbol] :=
+  (i/c)^(m+1/2)*Sqrt[a+c*x^2]/Sqrt[g+i*x^2]*Int[(a+c*x^2)^m*(d+e*x+f*Sqrt[a+c*x^2])^n,x] /;
+FreeQ[{a,c,d,e,f,g,i,n},x] && ZeroQ[e^2-c*f^2] && ZeroQ[c*g-a*i] && NegativeIntegerQ[m-1/2] && Not[PositiveQ[i/c]]
+
+
+(* ::Code:: *)
+Int[w_^m_.*(u_+f_. Sqrt[v_])^n_.,x_Symbol] :=
+  Int[ExpandToSum[w,x]^m*(ExpandToSum[u,x]+f*Sqrt[ExpandToSum[v,x]])^n,x] /;
+FreeQ[{f,n},x] && LinearQ[u,x] && QuadraticQ[{v,w},x] && Not[LinearMatchQ[u,x] && QuadraticMatchQ[{v,w},x]] && 
+  ZeroQ[Coefficient[u,x,1]^2-Coefficient[v,x,2]*f^2]
 
 
 (* ::Code:: *)

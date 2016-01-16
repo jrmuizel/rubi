@@ -1,5 +1,13 @@
 (* ::Package:: *)
 
+(* ::Section:: *)
+(*Algebraic Trinomial Function Rules*)
+
+
+(* ::Subsection::Closed:: *)
+(*3.1.1 (a+b x+c x^2)^p*)
+
+
 Int[(a_+b_.*x_+c_.*x_^2)^p_,x_Symbol] :=
   Int[Cancel[(b/2+c*x)^(2*p)/c^p],x] /;
 FreeQ[{a,b,c},x] && ZeroQ[b^2-4*a*c] && IntegerQ[p]
@@ -99,6 +107,10 @@ FreeQ[{a,b,c,p},x] && ZeroQ[u-v] && LinearQ[u,x] && NonzeroQ[u-x]
 Int[u_^p_,x_Symbol] :=
   Int[ExpandToSum[u,x]^p,x] /;
 FreeQ[p,x] && QuadraticQ[u,x] && Not[QuadraticMatchQ[u,x]]
+
+
+(* ::Subsection::Closed:: *)
+(*3.1.2 (d+e x)^m (a+b x+c x^2)^p*)
 
 
 Int[(d_.+e_.*x_)^m_.*(a_+b_.*x_+c_.*x_^2)^p_.,x_Symbol] :=
@@ -945,6 +957,10 @@ Int[u_^m_.*v_^p_.,x_Symbol] :=
 FreeQ[{m,p},x] && LinearQ[u,x] && QuadraticQ[v,x] && Not[LinearMatchQ[u,x] && QuadraticMatchQ[v,x]]
 
 
+(* ::Subsection::Closed:: *)
+(*3.1.3 (d+e x)^m (f+g x)^n (a+b x+c x^2)^p*)
+
+
 Int[(d_.+e_.*x_)^m_.*(f_.+g_.*x_)^n_.*(a_+b_.*x_+c_.*x_^2)^p_.,x_Symbol] :=
   Int[(d+e*x)^m*(f+g*x)^n*Cancel[(b/2+c*x)^(2*p)/c^p],x] /;
 FreeQ[{a,b,c,d,e,f,g,m,n},x] && ZeroQ[b^2-4*a*c] && IntegerQ[p]
@@ -1560,6 +1576,10 @@ Int[u_^m_.*v_^n_.*w_^p_.,x_Symbol] :=
 FreeQ[{m,n,p},x] && LinearQ[{u,v},x] && QuadraticQ[w,x] && Not[LinearMatchQ[{u,v},x] && QuadraticMatchQ[w,x]]
 
 
+(* ::Subsection::Closed:: *)
+(*3.1.4 (a+b x+c x^2)^m (d+e x+f x^2)^p*)
+
+
 Int[(a_+b_.*x_+c_.*x_^2)^m_.*(d_+e_.*x_+f_.*x_^2)^p_.,x_Symbol] :=
   (c/f)^m*Int[(d+e*x+f*x^2)^(m+p),x] /;
 FreeQ[{a,b,c,d,e,f,m,p},x] && ZeroQ[c*d-a*f] && ZeroQ[b*d-a*e] && (IntegerQ[m] || PositiveQ[c/f]) && 
@@ -1763,6 +1783,10 @@ Int[u_^m_.*v_^p_.,x_Symbol] :=
 FreeQ[{m,p},x] && QuadraticQ[{u,v},x] && Not[QuadraticMatchQ[{u,v},x]]
 
 
+(* ::Subsection::Closed:: *)
+(*3.1.5 (A+B x) (a+b x+c x^2)^m (d+e x+f x^2)^p*)
+
+
 Int[(A_.+B_.*x_)/((a_+b_.*x_+c_.*x_^2)*Sqrt[d_.+e_.*x_+f_.*x_^2]),x_Symbol] :=
   Module[{q=Rt[b^2-4*a*c,2]},
   (2*c*A-B*(b-q))/q*Int[1/((b-q+2*c*x)*Sqrt[d+e*x+f*x^2]),x] -
@@ -1900,6 +1924,10 @@ FreeQ[{a,c,d,f,A,B,m,p},x] && ZeroQ[u-v] && ZeroQ[u-w] && LinearQ[u,x] && Nonzer
 Int[z_*u_^m_.*v_^p_.,x_Symbol] :=
   Int[ExpandToSum[z,x]*ExpandToSum[u,x]^m*ExpandToSum[v,x]^p,x] /;
 FreeQ[{m,p},x] && LinearQ[z] && QuadraticQ[{u,v},x] && Not[LinearMatchQ[z] && QuadraticMatchQ[{u,v},x]]
+
+
+(* ::Subsection::Closed:: *)
+(*3.2.1 (a+b x^n+c x^(2 n))^p*)
 
 
 Int[(a_+b_.*x_^n_+c_.*x_^j_.)^p_,x_Symbol] :=
@@ -2061,6 +2089,10 @@ FreeQ[{a,b,c,n,p},x] && ZeroQ[j-2*n] && ZeroQ[u-v] && LinearQ[u,x] && NonzeroQ[u
 Int[u_^p_,x_Symbol] :=
   Int[ExpandToSum[u,x]^p,x] /;
 FreeQ[p,x] && TrinomialQ[u,x] && Not[TrinomialMatchQ[u,x]]
+
+
+(* ::Subsection::Closed:: *)
+(*3.2.2 x^m (a+b x^n+c x^(2 n))^p*)
 
 
 Int[x_^m_.*(a_+b_.*x_^n_+c_.*x_^j_.)^p_.,x_Symbol] :=
@@ -2413,6 +2445,10 @@ Int[x_^m_.*u_^p_.,x_Symbol] :=
 FreeQ[{m,p},x] && TrinomialQ[u,x] && Not[TrinomialMatchQ[u,x]]
 
 
+(* ::Subsection::Closed:: *)
+(*3.2.3 (d+e x^n)^m (a+b x^n+c x^(2 n))^p*)
+
+
 Int[(d_.+e_.*x_^n_)^m_.*(b_.*x_^n_+c_.*x_^j_.)^p_.,x_Symbol] :=
   Int[x^(n*p)*(d+e*x^n)^m*(b+c*x^n)^p,x] /;
 FreeQ[{b,c,d,e,m,n},x] && ZeroQ[j-2*n] && IntegerQ[p]
@@ -2750,6 +2786,10 @@ FreeQ[{m,p},x] && BinomialQ[u,x] && TrinomialQ[v,x] && Not[BinomialMatchQ[u,x] &
 Int[u_^m_.*v_^p_.,x_Symbol] :=
   Int[ExpandToSum[u,x]^m*ExpandToSum[v,x]^p,x] /;
 FreeQ[{m,p},x] && BinomialQ[u,x] && BinomialQ[v,x] && Not[BinomialMatchQ[u,x] && BinomialMatchQ[v,x]]
+
+
+(* ::Subsection::Closed:: *)
+(*3.2.4 x^m (d+e x^n)^q (a+b x^n+c x^(2 n))^p*)
 
 
 Int[x_^m_.*(d_+e_.*x_^n_)*(b_.*x_^n_+c_.*x_^j_.)^p_,x_Symbol] :=
@@ -3239,6 +3279,10 @@ Int[x_^m_.*z_^q_.*u_^p_.,x_Symbol] :=
 FreeQ[{m,p,q},x] && BinomialQ[z,x] && BinomialQ[u,x] && Not[BinomialMatchQ[z,x] && BinomialMatchQ[u,x]]
 
 
+(* ::Subsection::Closed:: *)
+(*3.3.1 (a x^q+b x^n+c x^(2 n-q))^p*)
+
+
 Int[(a_.*x_^q_.+b_.*x_^n_.+c_.*x_^r_.)^p_,x_Symbol] :=
   Int[((a+b+c)*x^n)^p,x] /;
 FreeQ[{a,b,c,n,p},x] && ZeroQ[n-q] && ZeroQ[r-n]
@@ -3295,6 +3339,10 @@ FreeQ[{a,b,c,n,p,q},x] && ZeroQ[r-(2*n-q)] && ZeroQ[u-v] && ZeroQ[u-w] && Linear
 Int[u_^p_,x_Symbol] :=
   Int[ExpandToSum[u,x]^p,x] /;
 FreeQ[p,x] && GeneralizedTrinomialQ[u,x] && Not[GeneralizedTrinomialMatchQ[u,x]]
+
+
+(* ::Subsection::Closed:: *)
+(*3.3.2 x^m (a x^q+b x^n+c x^(2 n-q))^p*)
 
 
 Int[x_^m_.*(a_.*x_^q_.+b_.*x_^n_.+c_.*x_^r_.)^p_.,x_Symbol] :=
@@ -3442,6 +3490,10 @@ Int[x_^m_.*u_^p_.,x_Symbol] :=
 FreeQ[{m,p},x] && GeneralizedTrinomialQ[u,x] && Not[GeneralizedTrinomialMatchQ[u,x]]
 
 
+(* ::Subsection::Closed:: *)
+(*3.3.3 (A+B x^(n-q)) (a x^q+b x^n+c x^(2 n-q))^p*)
+
+
 Int[(A_+B_.*x_^r_.)*(a_.*x_^q_.+b_.*x_^n_.+c_.*x_^j_.)^p_.,x_Symbol] :=
   Int[x^(p*q)*(A+B*x^(n-q))*(a+b*x^(n-q)+c*x^(2*(n-q)))^p,x] /;
 FreeQ[{a,b,c,A,B,n,q},x] && ZeroQ[r-(n-q)] && ZeroQ[j-(2*n-q)] && IntegerQ[p] && PosQ[n-q]
@@ -3531,6 +3583,10 @@ Int[z_*u_^p_.,x_Symbol] :=
   Int[ExpandToSum[z,x]*ExpandToSum[u,x]^p,x] /;
 FreeQ[p,x] && BinomialQ[z,x] && GeneralizedTrinomialQ[u,x] && 
   ZeroQ[BinomialDegree[z,x]-GeneralizedTrinomialDegree[u,x]] && Not[BinomialMatchQ[z,x] && GeneralizedTrinomialMatchQ[u,x]]
+
+
+(* ::Subsection::Closed:: *)
+(*3.3.4 x^m (A+B x^(n-q)) (a x^q+b x^n+c x^(2 n-q))^p*)
 
 
 Int[x_^m_.*(A_+B_.*x_^r_.)*(a_.*x_^q_.+b_.*x_^n_.+c_.*x_^j_.)^p_.,x_Symbol] :=
