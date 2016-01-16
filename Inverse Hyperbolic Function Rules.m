@@ -2152,18 +2152,23 @@ FreeQ[{a,b,c,d,e,m},x] && ZeroQ[b-c^2] && ZeroQ[b*d-a*e]
 
 
 Int[E^(n_.*ArcTanh[a_.*x_]),x_Symbol] :=
-  Int[(1+a*x)^(n/2)/(1-a*x)^(n/2),x] /;
-FreeQ[a,x] && RationalQ[n]
-
-
-Int[E^(n_*ArcTanh[a_.*x_]),x_Symbol] :=
-  4*(1-a*x)*E^(n*ArcTanh[a*x])/(a*(n-2)*(1+a*x))*Hypergeometric2F1[2,1-n/2,2-n/2,-E^(-2*ArcTanh[a*x])] /;
-FreeQ[{a,n},x] && Not[RationalQ[n]]
+  Int[((1+a*x)^((n+1)/2)/((1-a*x)^((n-1)/2)*Sqrt[1-a^2*x^2])),x] /;
+FreeQ[a,x] && OddQ[n]
 
 
 Int[x_^m_.*E^(n_.*ArcTanh[a_.*x_]),x_Symbol] :=
+  Int[x^m*((1+a*x)^((n+1)/2)/((1-a*x)^((n-1)/2)*Sqrt[1-a^2*x^2])),x] /;
+FreeQ[{a,m},x] && OddQ[n]
+
+
+Int[E^(n_*ArcTanh[a_.*x_]),x_Symbol] :=
+  Int[(1+a*x)^(n/2)/(1-a*x)^(n/2),x] /;
+FreeQ[{a,n},x] && Not[OddQ[n]]
+
+
+Int[x_^m_.*E^(n_*ArcTanh[a_.*x_]),x_Symbol] :=
   Int[x^m*(1+a*x)^(n/2)/(1-a*x)^(n/2),x] /;
-FreeQ[{a,m,n},x]
+FreeQ[{a,m,n},x] && Not[OddQ[n]]
 
 
 Int[u_.*(c_+d_.*x_)^p_.*E^(n_.*ArcTanh[a_.*x_]),x_Symbol] :=
@@ -2316,9 +2321,15 @@ FreeQ[{a,c,d,n},x] && ZeroQ[a^2*c+d] && IntegerQ[m] && RationalQ[p] && 3<=m<=-2(
 
 
 Int[x_^m_.*(c_+d_.*x_^2)^p_.*E^(n_.*ArcTanh[a_.*x_]),x_Symbol] :=
+  c^p*Int[x^m*(1-a*x)^(p-n/2)*(1+a*x)^(p+n/2),x] /;
+FreeQ[{a,c,d,m,n,p},x] && ZeroQ[a^2*c+d] && (IntegerQ[p] || PositiveQ[c]) && ZeroQ[n^2-1] && 
+  (Not[RationalQ[m]] || Not[RationalQ[p]]) && Not[IntegerQ[p-n/2]]
+
+
+Int[x_^m_.*(c_+d_.*x_^2)^p_.*E^(n_.*ArcTanh[a_.*x_]),x_Symbol] :=
   c^p*Int[x^m*(1-a^2*x^2)^(p-n/2)*(1+a*x)^n,x] /;
 FreeQ[{a,c,d,m,n,p},x] && ZeroQ[a^2*c+d] && (IntegerQ[p] || PositiveQ[c]) && OddQ[n] && 
-  (Not[RationalQ[p]] || Not[RationalQ[m]] || ZeroQ[n-1] && NonzeroQ[p+1]) && Not[IntegerQ[p-n/2]]
+  (Not[RationalQ[m]] || Not[RationalQ[p]] || ZeroQ[n-1] && NonzeroQ[p+1]) && Not[IntegerQ[p-n/2]]
 
 
 Int[x_^m_.*(c_+d_.*x_^2)^p_*E^(n_*ArcTanh[a_.*x_]),x_Symbol] :=
@@ -2382,18 +2393,33 @@ FreeQ[a,x] && IntegerQ[n/2]
 
 
 Int[E^(n_.*ArcCoth[a_.*x_]),x_Symbol] :=
-  -Subst[Int[(1+x/a)^(n/2)/(x^2*(1-x/a)^(n/2)),x],x,1/x] /;
-FreeQ[{a,n},x] && Not[IntegerQ[n/2]]
+  -Subst[Int[(1+x/a)^((n+1)/2)/(x^2*(1-x/a)^((n-1)/2)*Sqrt[1-x^2/a^2]),x],x,1/x] /;
+FreeQ[a,x] && OddQ[n]
 
 
 Int[x_^m_.*E^(n_.*ArcCoth[a_.*x_]),x_Symbol] :=
+  -Subst[Int[(1+x/a)^((n+1)/2)/(x^(m+2)*(1-x/a)^((n-1)/2)*Sqrt[1-x^2/a^2]),x],x,1/x] /;
+FreeQ[a,x] && OddQ[n] && IntegerQ[m]
+
+
+Int[E^(n_*ArcCoth[a_.*x_]),x_Symbol] :=
+  -Subst[Int[(1+x/a)^(n/2)/(x^2*(1-x/a)^(n/2)),x],x,1/x] /;
+FreeQ[{a,n},x] && Not[IntegerQ[n]]
+
+
+Int[x_^m_.*E^(n_*ArcCoth[a_.*x_]),x_Symbol] :=
   -Subst[Int[(1+x/a)^(n/2)/(x^(m+2)*(1-x/a)^(n/2)),x],x,1/x] /;
-FreeQ[{a,n},x] && Not[IntegerQ[n/2]] && IntegerQ[m]
+FreeQ[{a,n},x] && Not[IntegerQ[n]] && IntegerQ[m]
 
 
 Int[x_^m_*E^(n_.*ArcCoth[a_.*x_]),x_Symbol] :=
+  -x^m*(1/x)^m*Subst[Int[(1+x/a)^((n+1)/2)/(x^(m+2)*(1-x/a)^((n-1)/2)*Sqrt[1-x^2/a^2]),x],x,1/x] /;
+FreeQ[{a,m},x] && OddQ[n] && Not[IntegerQ[m]]
+
+
+Int[x_^m_*E^(n_*ArcCoth[a_.*x_]),x_Symbol] :=
   -x^m*(1/x)^m*Subst[Int[(1+x/a)^(n/2)/(x^(m+2)*(1-x/a)^(n/2)),x],x,1/x] /;
-FreeQ[{a,m,n},x] && Not[IntegerQ[n/2]] && Not[IntegerQ[m]]
+FreeQ[{a,m,n},x] && Not[IntegerQ[n]] && Not[IntegerQ[m]]
 
 
 Int[u_.*(c_+d_.*x_)^p_.*E^(n_.*ArcCoth[a_.*x_]),x_Symbol] :=

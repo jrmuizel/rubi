@@ -355,7 +355,7 @@ HeldFormQ[u_] :=
 
 (* InverseFunctionQ[u] returns True if u is a call on an inverse function; else returns False. *)
 InverseFunctionQ[u_] :=
-  LogQ[u] || InverseTrigQ[u] && Length[u]==1 || InverseHyperbolicQ[u] || Head[u]===Mods  || Head[u]===PolyLog 
+  LogQ[u] || InverseTrigQ[u] && Length[u]<=1 || InverseHyperbolicQ[u] || Head[u]===Mods  || Head[u]===PolyLog 
 
 
 (* If u is free of trig, hyperbolic and calculus functions involving x,
@@ -988,6 +988,44 @@ GeneralizedTrinomialTest[u_,x_Symbol] :=
   False
 
 
+(* If u is equivalent to a polynomial of the form a+b*(c+d*x)^n where n\[Element]\[DoubleStruckCapitalZ] and n>2,
+	PseudoBinomialQ[u,x] returns True; else it returns False. *)
+PseudoBinomialQ[u_,x_Symbol] :=
+  NotFalseQ[PseudoBinomialTest[u,x]]
+
+
+(* If u is equivalent to a polynomial of the form a+b*(e+f*x)^n and v to a polynomial of the form c+d*(e+f*x)^n where n\[Element]\[DoubleStruckCapitalZ] and n>2,
+	PseudoBinomialPairQ[u,v,x] returns True; else it returns False. *)
+PseudoBinomialPairQ[u_,v_,x_Symbol] :=
+  Module[{lst1,lst2},
+  If[FalseQ[lst1=PseudoBinomialTest[u,x]],
+    False,
+  If[FalseQ[lst2=PseudoBinomialTest[v,x]],
+    False,
+  Drop[lst1,2]===Drop[lst2,2]]]] 
+
+
+(* u is pseudo-binomial in x, NormalizePseudoBinomial[u,x] returns u in the form a+b*(c+d*x)^n. *)
+NormalizePseudoBinomial[u_,x_Symbol] :=
+  Module[{lst=PseudoBinomialTest[u,x]},
+  lst[[1]]+lst[[2]]*(lst[[3]]+lst[[4]]*x)^lst[[5]]]
+
+
+(* If u is equivalent to a polynomial of the form a+b*(c+d*x)^n where n\[Element]\[DoubleStruckCapitalZ] and n>2,
+	PseudoBinomialTest[u,x] returns the list {a,b,c,d,n}; else it returns False. *)
+PseudoBinomialTest[u_,x_Symbol] :=
+  If[PolynomialQ[u,x] && Exponent[u,x]>2,
+    Module[{a,c,d,n},
+    n=Exponent[u,x];
+    d=Rt[Coefficient[u,x,n],n];
+    c=Coefficient[u,x,n-1]/(n*d^(n-1));
+    a=Simplify[u-(c+d*x)^n];
+    If[NonzeroQ[a] && FreeQ[a,x],
+      {a,1,c,d,n},
+    False]],
+  False]
+
+
 (* If u (x) is equivalent to a polynomial raised to an integer power greater than 1,
 	PerfectPowerTest[u,x] returns u (x) as an expanded polynomial raised to the power;
 	else it returns False. *)
@@ -1286,6 +1324,13 @@ Gcd[m_,n_] :=
 RationalQ[m,n]
 
 
+Gcd[args__] :=
+  Block[{lst={args}},
+  If[Length[lst]==1,
+    lst[[1]],
+  Apply[Gcd,Prepend[Drop[lst,2],Gcd[lst[[1]],lst[[2]]]]]]]
+
+
 (* If lst is a list of n terms, CommonNumericFactors[lst] returns a n+1-element list whose first
 	element is the product of the numeric factors common to all terms of lst, and whose remaining
 	elements are quotients of each term divided by the numeric common factor. *)
@@ -1311,7 +1356,9 @@ NumericFactor[u_] :=
   If[ProductQ[u],
     Map[NumericFactor,u],
   If[SumQ[u],
-    Function[If[SumQ[#], 1, NumericFactor[#]]][ContentFactor[u]],
+    If[LeafCount[u]<50,             (* Eliminate this kludge! *)
+      Function[If[SumQ[#], 1, NumericFactor[#]]][ContentFactor[u]],
+    Apply[Gcd,Map[NumericFactor,Apply[List,u]]]],
   1]]]]
 
 
@@ -1330,7 +1377,10 @@ NonnumericFactors[u_] :=
   If[ProductQ[u],
     Map[NonnumericFactors,u],
   If[SumQ[u],
-    Function[If[SumQ[#], u, NonnumericFactors[#]]][ContentFactor[u]],
+    If[LeafCount[u]<50,             (* Eliminate this kludge! *)
+      Function[If[SumQ[#], u, NonnumericFactors[#]]][ContentFactor[u]],
+    Module[{n=Apply[Gcd,Map[NumericFactor,Apply[List,u]]]},
+    Map[Function[#/n],u]]],
   u]]]]
 
 
@@ -1420,9 +1470,9 @@ NormalizeIntegrand[u_,x_Symbol] :=
 NormalizeIntegrandAux[u_,x_Symbol] :=
   If[SumQ[u],
     Map[Function[NormalizeIntegrandAux[#,x]],u],
-  If[ProductQ[u],
-    Map[Function[NormalizeIntegrandFactor[#,x]],u],
-  NormalizeIntegrandFactor[u,x]]]
+  If[ProductQ[MergeMonomials[u,x]],
+    Map[Function[NormalizeIntegrandFactor[#,x]],MergeMonomials[u,x]],
+  NormalizeIntegrandFactor[MergeMonomials[u,x],x]]]
 
 
 NormalizeIntegrandFactor[u_,x_Symbol] :=
@@ -1531,6 +1581,18 @@ NormalizePowerOfLinear[u_,x_Symbol] :=
   ExpandToSum[v,x]]]
 
 
+MergeMonomials[u_.*(a_.+b_.*x_)^m_.*(c_.+d_.*x_)^n_.,x_Symbol] :=
+  u*b^m/d^m*(c+d*x)^(m+n) /;
+FreeQ[{a,b,c,d},x] && IntegerQ[m] && ZeroQ[b*c-a*d]
+
+
+MergeMonomials[u_.*(a_.+b_.*x_)^m_.*(c_.*(a_.+b_.*x_)^n_.)^p_,x_Symbol] :=
+  u*(c*(a+b*x)^n)^(m/n+p)/c^(m/n) /;
+FreeQ[{a,b,c,m,n,p},x] && IntegerQ[m/n]
+
+MergeMonomials[u_,x_Symbol] := u
+
+
 (* SimplifyIntegrand[u,x] simplifies u and returns the result in a standard form recognizable by integration rules. *) 
 SimplifyIntegrand[u_,x_Symbol] :=
   Module[{v},
@@ -1540,6 +1602,12 @@ SimplifyIntegrand[u_,x_Symbol] :=
   If[v=!=NormalizeLeadTermSigns[u],
     v,
   u]]]
+
+
+(* SimplifyTerm[u_,x_Symbol] :=
+  Module[{v=Simplify[u],w},
+  w=Together[v];
+  NormalizeIntegrand[If[LeafCount[v]<LeafCount[w],v,w],x]] *)
 
 
 SimplifyTerm[u_,x_Symbol] :=
@@ -1568,6 +1636,14 @@ SmartSimplify[u_] :=
     v=FactorNumericGcd[v];
     TimeConstrained[FixSimplify[v],TimeLimit/3,v]],
   TimeLimit,u]
+
+
+SubstForExpn[u_,v_,w_] :=
+  If[u===v,
+    w,
+  If[AtomQ[u],
+    u,
+  Map[Function[SubstForExpn[#,v,w]],u]]]
 
 
 Simp[u_,x_] :=
@@ -2329,10 +2405,11 @@ PolynomialDivide[u_,v_,w_,x_Symbol] :=
 
 
 ExpandToSum[u_,v_,x_Symbol] :=
-  Module[{w=ExpandToSum[v,x]},
-  If[SumQ[w],
-    Map[Function[u*#],w],
-  u*w]]
+  Module[{w=ExpandToSum[v,x],r},
+  r=NonfreeTerms[w,x];
+  If[SumQ[r],
+    u*FreeTerms[w,x]+Map[Function[MergeMonomials[u*#,x]],r],
+  u*FreeTerms[w,x]+MergeMonomials[u*r,x]]]
 
 
 ExpandToSum[u_,x_Symbol] :=
@@ -2346,7 +2423,7 @@ ExpandToSum[u_,x_Symbol] :=
     Function[#[[1]]*x^#[[4]] + #[[2]]*x^#[[3]]][GeneralizedBinomialTest[u,x]],
   If[GeneralizedTrinomialQ[u,x],
     Function[#[[1]]*x^#[[5]] + #[[2]]*x^#[[4]] + #[[3]]*x^(2*#[[4]]-#[[5]])][GeneralizedTrinomialTest[u,x]],
-  Print["Warning: Unrecogized expression for expansion ",u];
+  Print["Warning: Unrecognized expression for expansion ",u];
   Expand[u,x]]]]]]
 
 
@@ -2363,10 +2440,11 @@ ExpandTrig[u_,v_,x_Symbol] :=
 Clear[ExpandIntegrand];
 
 ExpandIntegrand[u_,v_,x_Symbol] :=
-  Module[{w=ExpandIntegrand[v,x]},
-  If[SumQ[w],
-    Map[Function[u*#],w],
-  u*w]]
+  Module[{w=ExpandIntegrand[v,x],r},
+  r=NonfreeTerms[w,x];
+  If[SumQ[r],
+    u*FreeTerms[w,x]+Map[Function[MergeMonomials[u*#,x]],r],
+  u*FreeTerms[w,x]+MergeMonomials[u*r,x]]]
 
 
 (* ExpandIntegrand[u_,x_Symbol] :=
@@ -2466,7 +2544,7 @@ FreeQ[{a,b,c,d,A,B},x] && PositiveIntegerQ[m]
 
 
 (* If u is a polynomial in x, ExpandIntegrand[u*(a+b*x)^m,x] expand u*(a+b*x)^m into a sum of terms of the form A*(a+b*x)^n. *)
-ExpandIntegrand[u_*(a_.+b_.*x_)^m_,x_Symbol] :=
+ExpandIntegrand[u_*(a_+b_.*x_)^m_,x_Symbol] :=
   Module[{tmp1,tmp2},
   tmp1=ExpandLinearProduct[(a+b*x)^m,u,a,b,x];
   If[Not[IntegerQ[m]],
@@ -2476,7 +2554,22 @@ ExpandIntegrand[u_*(a_.+b_.*x_)^m_,x_Symbol] :=
     tmp2,
   tmp1]]] /;
 FreeQ[{a,b,m},x] && PolynomialQ[u,x] && 
-  Not[PositiveIntegerQ[m] && MatchQ[u,v_.*(c_+d_.*x)^n_ /; FreeQ[{c,d},x] && IntegerQ[n] && n>m]]
+  Not[PositiveIntegerQ[m] && MatchQ[u,w_.*(c_+d_.*x)^p_ /; FreeQ[{c,d},x] && IntegerQ[p] && p>m]]
+
+
+(* If u is a polynomial in x, ExpandIntegrand[u*(a+b*x)^m,x] expand u*(a+b*x)^m into a sum of terms of the form A*(a+b*x)^n. *)
+ExpandIntegrand[u_*v_^n_*(a_+b_.*x_)^m_,x_Symbol] :=
+  Function[ExpandIntegrand[#[[1]]*(a+b*x)^FractionalPart[m],x] + ExpandIntegrand[#[[2]]*v^n*(a+b*x)^m,x]][
+    PolynomialQuotientRemainder[u,v^(-n)*(a+b*x)^(-IntegerPart[m]),x]]/;
+FreeQ[{a,b,m},x] && NegativeIntegerQ[n] && Not[IntegerQ[m]] && PolynomialQ[u,x] && PolynomialQ[v,x] && 
+  RationalQ[m] && m<-1 && Exponent[u,x]>=-(n+IntegerPart[m])*Exponent[v,x]
+
+
+(* If u is a polynomial in x, ExpandIntegrand[u*(a+b*x)^m,x] expand u*(a+b*x)^m into a sum of terms of the form A*(a+b*x)^n. *)
+ExpandIntegrand[u_*v_^n_*(a_+b_.*x_)^m_,x_Symbol] :=
+  Function[ExpandIntegrand[#[[1]]*(a+b*x)^m,x] + ExpandIntegrand[#[[2]]*v^n*(a+b*x)^m,x]][PolynomialQuotientRemainder[u,v^(-n),x]]/;
+FreeQ[{a,b,m},x] && NegativeIntegerQ[n] && Not[IntegerQ[m]] && PolynomialQ[u,x] && PolynomialQ[v,x] && 
+  Exponent[u,x]>=-n*Exponent[v,x]
 
 
 (* ::Code:: *)
@@ -2579,6 +2672,11 @@ PolynomialQ[u,x] && PolynomialQ[v,x] && BinomialQ[v,x] && Exponent[u,x]==Exponen
 ExpandIntegrand[u_/v_,x_Symbol] :=
   PolynomialDivide[u,v,x] /;
 PolynomialQ[u,x] && PolynomialQ[v,x] && Exponent[u,x]>=Exponent[v,x]
+
+
+ExpandIntegrand[u_*(a_.*x_)^p_,x_Symbol] :=
+  ExpandToSum[(a*x)^p,u,x] /;
+Not[IntegerQ[p]] && PolynomialQ[u,x]
 
 
 ExpandIntegrand[u_.*v_^p_,x_Symbol] :=
@@ -3141,8 +3239,6 @@ FunctionOfQ[v_,u_,x_Symbol,PureFlag_:False] :=
     True,
   If[Not[InertTrigFreeQ[u]],
     FunctionOfQ[v,ActivateTrig[u],x,PureFlag],
-  If[PowerQ[v] && FreeQ[v[[2]],x] (* && NonzeroQ[v[[2]]+1] *),
-    FunctionOfPowerQ[u,v[[1]],v[[2]],x],
   If[ProductQ[v] && Not[OneQ[FreeFactors[v,x]]],
     FunctionOfQ[NonfreeFactors[v,x],u,x,PureFlag],
 
@@ -3163,7 +3259,7 @@ FunctionOfQ[v_,u_,x_Symbol,PureFlag_:False] :=
       PureFunctionOfTanhQ[u,v[[1]],x],
     If[CothQ[v],
       PureFunctionOfCothQ[u,v[[1]],x],
-    FunctionOfExpnQ[u,v,x]]]]]]]]],
+    FunctionOfExpnQ[u,v,x]=!=False]]]]]]]],
   If[SinQ[v] || CscQ[v],
     FunctionOfSinQ[u,v[[1]],x],
   If[CosQ[v] || SecQ[v],
@@ -3176,49 +3272,40 @@ FunctionOfQ[v_,u_,x_Symbol,PureFlag_:False] :=
     FunctionOfCoshQ[u,v[[1]],x],
   If[TanhQ[v] || CothQ[v],
     FunctionOfTanhQ[u,v[[1]],x],
-  FunctionOfExpnQ[u,v,x]]]]]]]]]]]]]
+  FunctionOfExpnQ[u,v,x]=!=False]]]]]]]]]]]
 
 
 FunctionOfExpnQ[u_,v_,x_] :=
   If[u===v,
-    True,
+    1,
   If[AtomQ[u],
-    u=!=x,
+    If[u===x,
+      False,
+    0],
   If[CalculusQ[u],
     False,
-  Catch[Scan[Function[If[FunctionOfExpnQ[#,v,x],Null,Throw[False]]],u];True]]]]
-
-
-FunctionOfPowerQ[u_,bas_,deg_,x_] :=
-  If[AtomQ[u],
-    u=!=x,
-  If[CalculusQ[u],
+  If[PowerQ[u] && FreeQ[u[[2]],x],
+    If[ZeroQ[u[[1]]-v],
+      If[IntegerQ[u[[2]]], u[[2]], 1],
+    If[PowerQ[v] && FreeQ[v[[2]],x] && ZeroQ[u[[1]]-v[[1]]],
+      If[RationalQ[v[[2]]],
+        If[RationalQ[u[[2]]] && IntegerQ[u[[2]]/v[[2]]] && (v[[2]]>0 || u[[2]]<0), u[[2]]/v[[2]], False],
+      If[IntegerQ[Simplify[u[[2]]/v[[2]]]], Simplify[u[[2]]/v[[2]]], False]],
+    FunctionOfExpnQ[u[[1]],v,x]]],
+  If[ProductQ[u] && Not[OneQ[FreeFactors[u,x]]],
+    FunctionOfExpnQ[NonfreeFactors[u,x],v,x],
+  If[ProductQ[u] && ProductQ[v],
+    Module[{deg1=FunctionOfExpnQ[First[u],First[v],x],deg2},
+    If[deg1===False,
+      False,
+    deg2=FunctionOfExpnQ[Rest[u],Rest[v],x];
+    If[deg1===deg2 && FreeQ[Simplify[u/v^deg1],x],
+      deg1,
+    False]]],
+  Module[{lst=Map[Function[FunctionOfExpnQ[#,v,x]],Apply[List,u]]},
+  If[MemberQ[lst,False],
     False,
-  If[PowerQ[u] && ZeroQ[u[[1]]-bas] && FreeQ[u[[2]],x],
-    If[RationalQ[deg],
-      If[RationalQ[u[[2]]],
-        IntegerQ[u[[2]]/deg] && (deg>0 || u[[2]]<0),
-      False],
-    IntegerQ[Simplify[u[[2]]/deg]]],
-  Catch[Scan[Function[If[FunctionOfPowerQ[#,bas,deg,x],Null,Throw[False]]],u];True]]]]
-
-
-(* If func[w]^m is a factor of u where m is odd and w is an integer multiple of v, 
-	FindTrigFactor[func1,func2,u,v,True] returns the list {w,u/func[w]^n}; else it returns False. *)
-(* If func[w]^m is a factor of u where m is odd and w is an integer multiple of v not equal to v, 
-	FindTrigFactor[func1,func2,u,v,False] returns the list {w,u/func[w]^n}; else it returns False. *)
-FindTrigFactor[func1_,func2_,u_,v_,flag_] :=
-  If[u===1,
-    False,
-  If[(Head[LeadBase[u]]===func1 || Head[LeadBase[u]]===func2) && 
-		OddQ[LeadDegree[u]] && 
-		IntegerQuotientQ[LeadBase[u][[1]],v] && 
-		(flag || NonzeroQ[LeadBase[u][[1]]-v]),
-    {LeadBase[u][[1]], RemainingFactors[u]},
-  Module[{lst=FindTrigFactor[func1,func2,RemainingFactors[u],v,flag]},
-  If[FalseQ[lst],
-    False,
-  {lst[[1]], LeadFactor[u]*lst[[2]]}]]]]
+  Apply[Gcd,lst]]]]]]]]]
 
 
 (* If u is a pure function of Sin[v] and/or Csc[v], PureFunctionOfSinQ[u,v,x] returns True; 
@@ -3597,6 +3684,24 @@ FunctionOfHyperbolicQ[u_,v_,x_Symbol] :=
   Catch[Scan[Function[If[FunctionOfHyperbolicQ[#,v,x],Null,Throw[False]]],u];True]]]]
 
 
+(* If func[w]^m is a factor of u where m is odd and w is an integer multiple of v, 
+	FindTrigFactor[func1,func2,u,v,True] returns the list {w,u/func[w]^n}; else it returns False. *)
+(* If func[w]^m is a factor of u where m is odd and w is an integer multiple of v not equal to v, 
+	FindTrigFactor[func1,func2,u,v,False] returns the list {w,u/func[w]^n}; else it returns False. *)
+FindTrigFactor[func1_,func2_,u_,v_,flag_] :=
+  If[u===1,
+    False,
+  If[(Head[LeadBase[u]]===func1 || Head[LeadBase[u]]===func2) && 
+		OddQ[LeadDegree[u]] && 
+		IntegerQuotientQ[LeadBase[u][[1]],v] && 
+		(flag || NonzeroQ[LeadBase[u][[1]]-v]),
+    {LeadBase[u][[1]], RemainingFactors[u]},
+  Module[{lst=FindTrigFactor[func1,func2,RemainingFactors[u],v,flag]},
+  If[FalseQ[lst],
+    False,
+  {lst[[1]], LeadFactor[u]*lst[[2]]}]]]]
+
+
 (* If u/v is an integer, IntegerQuotientQ[u,v] returns True; else it returns False. *)
 IntegerQuotientQ[u_,v_] :=
 (* u===v || ZeroQ[u-v] || IntegerQ[u/v] *)
@@ -3802,26 +3907,29 @@ SquareRootOfQuadraticSubst[u_,vv_,xx_,x_Symbol] :=
 Subst[u_,x_Symbol,w_] :=
   SimplifyAntiderivative[SubstAux[u,x,w],x]
 
+Subst[u_,Rule[x_Symbol,w_]] :=
+  SimplifyAntiderivative[SubstAux[u,x,w],x]
+
 Subst[u_,x_,w_] :=
   SubstAux[u,x,w]
 
 
-SubstAux[a_+b_.*x_,x_Symbol,F_[z_]^2] :=
+SubstAux[a_+b_.*x_,x_Symbol,c_.*F_[z_]^2] :=
   a*Simplify[1-F[z]^2] /;
-FreeQ[{a,b},x] && MemberQ[{Sin,Cos,Sec,Csc,Cosh,Tanh,Coth,Sech},F] && ZeroQ[a+b]
+FreeQ[{a,b,c},x] && MemberQ[{Sin,Cos,Sec,Csc,Cosh,Tanh,Coth,Sech},F] && ZeroQ[a+b*c]
 
-SubstAux[a_+b_.*x_,x_Symbol,F_[z_]^2] :=
+SubstAux[a_+b_.*x_,x_Symbol,c_.*F_[z_]^2] :=
   a*Simplify[1+F[z]^2] /;
-FreeQ[{a,b},x] && MemberQ[{Tan,Cot,Sinh,Csch},F] && ZeroQ[a-b]
+FreeQ[{a,b,c},x] && MemberQ[{Tan,Cot,Sinh,Csch},F] && ZeroQ[a-b*c]
 
 
-SubstAux[a_+b_.*x_^2,x_Symbol,F_[z_]] :=
+SubstAux[a_+b_.*x_^2,x_Symbol,c_.*F_[z_]] :=
   a*Simplify[1-F[z]^2] /;
-FreeQ[{a,b},x] && MemberQ[{Sin,Cos,Sec,Csc,Cosh,Tanh,Coth,Sech},F] && ZeroQ[a+b]
+FreeQ[{a,b,c},x] && MemberQ[{Sin,Cos,Sec,Csc,Cosh,Tanh,Coth,Sech},F] && ZeroQ[a+b*c^2]
 
-SubstAux[a_+b_.*x_^2,x_Symbol,F_[z_]] :=
+SubstAux[a_+b_.*x_^2,x_Symbol,c_.*F_[z_]] :=
   a*Simplify[1+F[z]^2] /;
-FreeQ[{a,b},x] && MemberQ[{Tan,Cot,Sinh,Csch},F] && ZeroQ[a-b]
+FreeQ[{a,b,c},x] && MemberQ[{Tan,Cot,Sinh,Csch},F] && ZeroQ[a-b*c^2]
 
 
 SubstAux[F_[a_.*x_^m_.],x_Symbol,b_.*x_^n_] :=
@@ -3871,9 +3979,34 @@ SimplifyAntiderivative[Log[u_^n_],x_Symbol] :=
 FreeQ[n,x]
 
 
+SimplifyAntiderivative[F_[G_[u_]],x_Symbol] :=
+  -SimplifyAntiderivative[F[1/G[u]],x] /;
+MemberQ[{Log,ArcTan,ArcCot},F] && MemberQ[{Cot,Sec,Csc,Coth,Sech,Csch},G]
+
+
+SimplifyAntiderivative[F_[G_[u_]],x_Symbol] :=
+  SimplifyAntiderivative[F[1/G[u]],x] /;
+MemberQ[{ArcTanh,ArcCoth},F] && MemberQ[{Cot,Sec,Csc,Coth,Sech,Csch},G]
+
+
+SimplifyAntiderivative[Log[F_[u_]],x_Symbol] :=
+  -SimplifyAntiderivative[Log[1/F[u]],x] /;
+MemberQ[{Cot,Sec,Csc,Coth,Sech,Csch},F]
+
+
 SimplifyAntiderivative[Log[f_^u_],x_Symbol] :=
   Log[f]*SimplifyAntiderivative[u,x] /;
 FreeQ[f,x]
+
+
+SimplifyAntiderivative[Log[a_+b_.*Tan[u_]],x_Symbol] :=
+  b/a*SimplifyAntiderivative[u,x] - SimplifyAntiderivative[Log[Cos[u]],x] /;
+FreeQ[{a,b},x] && ZeroQ[a^2+b^2]
+
+
+SimplifyAntiderivative[Log[a_+b_.*Cot[u_]],x_Symbol] :=
+  -b/a*SimplifyAntiderivative[u,x] - SimplifyAntiderivative[Log[Sin[u]],x] /;
+FreeQ[{a,b},x] && ZeroQ[a^2+b^2]
 
 
 SimplifyAntiderivative[ArcTan[a_.*Tan[u_]],x_Symbol] :=
@@ -4018,9 +4151,7 @@ SimplifyAntiderivative[u_,x_Symbol] :=
   If[FreeQ[u,x],
     0,
   If[LogQ[u],
-    If[MemberQ[{Sec,Csc,Sech,Csch},u[[1,0]]],
-      -Log[RemoveContent[1/u[[1]],x]],
-    Log[RemoveContent[u[[1]],x]]],
+    Log[RemoveContent[u[[1]],x]],
   If[SumQ[u],
     SimplifyAntiderivativeSum[Map[Function[SimplifyAntiderivative[#,x]],u],x],
   u]]]
@@ -4232,8 +4363,6 @@ SubstFor[v_,u_,x_] :=
     Subst[u,v,x],
   If[Not[InertTrigFreeQ[u]],
     SubstFor[v,ActivateTrig[u],x],
-  If[PowerQ[v] && FreeQ[v[[2]],x] (* && NonzeroQ[v[[2]]+1] *),
-    SubstForPower[u,v[[1]],v[[2]],x],
   If[Not[OneQ[FreeFactors[v,x]]],
     SubstFor[NonfreeFactors[v,x],u,x/FreeFactors[v,x]],
 
@@ -4263,24 +4392,26 @@ SubstFor[v_,u_,x_] :=
   If[CschQ[v],
     SubstForHyperbolic[u,1/x,1/Sqrt[1+x^2],v[[1]],x],
 
-  SubstForExpn[u,v,x]]]]]]]]]]]]]]]]]
+  SubstForAux[u,v,x]]]]]]]]]]]]]]]]
 
 
-SubstForExpn[u_,v_,w_] :=
+(* u is a function of v.  SubstForAux[u,v,x] returns u with v replaced by x. *)
+SubstForAux[u_,v_,x_] :=
   If[u===v,
-    w,
+    x,
   If[AtomQ[u],
     u,
-  Map[Function[SubstForExpn[#,v,w]],u]]]
-
-
-SubstForPower[u_,bas_,deg_,x_] :=
-  If[AtomQ[u],
-    u,
-  If[PowerQ[u] && ZeroQ[u[[1]]-bas] && FreeQ[u[[2]],x] && IntegerQ[Simplify[u[[2]]/deg]]
-		(* && (u[[2]]/deg>0 || FractionQ[deg]) *),
-    x^(u[[2]]/deg),
-  Map[Function[SubstForPower[#,bas,deg,x]],u]]]
+  If[PowerQ[u] && FreeQ[u[[2]],x],
+    If[ZeroQ[u[[1]]-v],
+      x^u[[2]],
+    If[PowerQ[v] && FreeQ[v[[2]],x] && ZeroQ[u[[1]]-v[[1]]],
+      x^Simplify[u[[2]]/v[[2]]],
+    SubstForAux[u[[1]],v,x]^u[[2]]]],
+  If[ProductQ[u] && Not[OneQ[FreeFactors[u,x]]],
+    FreeFactors[u,x]*SubstForAux[NonfreeFactors[u,x],v,x],
+  If[ProductQ[u] && ProductQ[v],
+    SubstForAux[First[u],First[v],x],
+  Map[Function[SubstForAux[#,v,x]],u]]]]]]
 
 
 (* u (v) is an expression of the form f (Sin[v],Cos[v],Tan[v],Cot[v],Sec[v],Csc[v]). *)
@@ -4644,6 +4775,37 @@ InertTrigSumQ[u_,func_,x_] :=
   MatchQ[u, (a_.+b_.*(d_.*func[w_])^p_.+c_.*(d_.*func[w_])^q_.)^n_. /; FreeQ[{a,b,c,d,n,p,q},x]]
 
 
+(* ::Code:: *)
+KnownSineIntegrandQ[u_,x_Symbol] :=
+  KnownTrigIntegrandQ[{sin,cos},u,x]
+
+
+(* ::Code:: *)
+KnownTangentIntegrandQ[u_,x_Symbol] :=
+  KnownTrigIntegrandQ[{tan},u,x]
+
+
+(* ::Code:: *)
+KnownCotangentIntegrandQ[u_,x_Symbol] :=
+  KnownTrigIntegrandQ[{cot},u,x]
+
+
+(* ::Code:: *)
+KnownSecantIntegrandQ[u_,x_Symbol] :=
+  KnownTrigIntegrandQ[{sec,csc},u,x]
+
+
+(* ::Code:: *)
+KnownTrigIntegrandQ[list_,u_,x_Symbol] :=
+  u===1 || 
+  MatchQ[u,(a_.+b_.*func_[e_.+f_.*x])^m_. /; MemberQ[list,func] && FreeQ[{a,b,e,f,m},x]] || 
+  MatchQ[u,(a_.+b_.*func_[e_.+f_.*x])^m_.*(A_.+B_.*func_[e_.+f_.*x]) /; MemberQ[list,func] && FreeQ[{a,b,e,f,A,B,m},x]] || 
+  MatchQ[u,(A_.+C_.*func_[e_.+f_.*x]^2) /; MemberQ[list,func] && FreeQ[{e,f,A,C},x]] || 
+  MatchQ[u,(A_.+B_.*func_[e_.+f_.*x]+C_.*func_[e_.+f_.*x]^2) /; MemberQ[list,func] && FreeQ[{e,f,A,B,C},x]] || 
+  MatchQ[u,(a_.+b_.*func_[e_.+f_.*x])^m_.*(A_.+C_.*func_[e_.+f_.*x]^2) /; MemberQ[list,func] && FreeQ[{a,b,e,f,A,C,m},x]] || 
+  MatchQ[u,(a_.+b_.*func_[e_.+f_.*x])^m_.*(A_.+B_.*func_[e_.+f_.*x]+C_.*func_[e_.+f_.*x]^2) /; MemberQ[list,func] && FreeQ[{a,b,e,f,A,B,C,m},x]]
+
+
 (* If the derivative of u wrt x is a constant wrt x, PiecewiseLinearQ[u,x] returns True;
 	else it returns False. *)
 PiecewiseLinearQ[u_,v_,x_Symbol] :=
@@ -4740,14 +4902,18 @@ OddQ[m] && SumQ[v] && NumericFactor[v[[1]]]<0
 
 RtAux[u_.*v_^m_.*w_^p_.,n_] :=
   RtAux[u,n]*RtAux[-v,n]^m*RtAux[-w,n]^p /;
-OddQ[m] && OddQ[p] && SumQ[v] && SumQ[w] && NumericFactor[v[[1]]]<0 && SumQ[w] && NumericFactor[w[[1]]]<0
+OddQ[m] && OddQ[p] && SumQ[v] && SumQ[w] && NumericFactor[v[[1]]]<0 && NumericFactor[w[[1]]]<0
 
 RtAux[-u_*v_^m_.,n_] :=
   RtAux[u,n]*RtAux[-v^m,n] /;
 EvenQ[n] && OddQ[m] && SumQ[v] && NumericFactor[v[[1]]]<0
 
 RtAux[u_^m_,n_] :=
-  1/RtAux[u^-m,n] /;
+  1/RtAux[u^(-m),n] /;
+RationalQ[m] && m<0
+
+RtAux[-u_^m_,n_] :=
+  1/RtAux[-u^(-m),n] /;
 RationalQ[m] && m<0
 
 RtAux[v_.*u_^w_,n_] :=
@@ -4772,7 +4938,7 @@ RtAux[u_,n_] :=
     Do[If[PowerQ[u[[i]]] && OddQ[u[[i,2]]] && SumQ[u[[i,1]]] && (NegQ[u[[i,1,1]]] || NegQ[u[[i,1,2]]]),
          Throw[RtAux[(-First[u[[i,1]]] - Rest[u[[i,1]]])^u[[i,2]],n]*RtAux[-Delete[u,i],n]]],
       {i,2,Length[u]}];
-    Do[If[AtomQ[u[[i]]],
+    Do[If[AtomQ[u[[i]]] || PowerQ[u[[i]]] && OddQ[u[[i,2]]] && AtomQ[u[[i,1]]],
          Throw[RtAux[-u[[i]],n]*RtAux[-Delete[u,i],n]]],
       {i,2,Length[u]}];
     RtAux[-u[[2]],n]*RtAux[Drop[u,2],n],
@@ -4817,6 +4983,49 @@ SumQ[u]
 
 IntTerm[u_,x_Symbol] :=
   Dist[FreeFactors[u,x], Int[NonfreeFactors[u,x],x], x]
+
+
+(* SimplerQ[u,v] returns True iff u is simpler than v. *)
+SimplerQ[u_,v_] :=
+  If[IntegerQ[u],
+    If[IntegerQ[v],
+      If[Abs[u]==Abs[v],
+        v<0,
+      Abs[u]<Abs[v]],
+    True],
+  If[IntegerQ[v],
+    False,
+  If[Head[u]===Rational,
+    If[Head[v]===Rational,
+      If[Denominator[u]==Denominator[v],
+        SimplerQ[Numerator[u],Numerator[v]],
+      Denominator[u]<Denominator[v]],
+    True],
+  If[Head[v]===Rational,
+    False,
+  If[Head[u]===Complex,
+    If[Head[v]===Complex,
+      If[Re[u]==Re[v],
+        SimplerQ[Im[u],Im[v]],
+      SimplerQ[Re[u],Re[v]]],
+    False],
+  If[NumberQ[u],
+    If[NumberQ[v],
+      OrderedQ[{u,v}],
+    True],
+  If[NumberQ[v],
+    False,
+  If[AtomQ[u],
+    If[AtomQ[v],
+      OrderedQ[{u,v}],
+    True],
+  If[AtomQ[v],
+    False,
+  If[Head[u]===Head[v],
+    If[Length[u]==Length[v],
+      Catch[Do[If[u[[ii]]===v[[ii]],Null,Throw[SimplerQ[u[[ii]],v[[ii]]]]],{ii,Length[u]}]; False],
+    Length[u]<Length[v]],
+  LeafCount[u]<LeafCount[v]]]]]]]]]]]
 
 
 (* SimplerIntegrandQ[u,v,x] returns True iff u is simpler to integrate wrt x than v. *)
@@ -4888,7 +5097,7 @@ SimplerSqrtQ[u_,v_] :=
     True],
   If[IntegerQ[sqrtv],
     False,
-  If[RationalQ[Rt[sqrtu]],
+  If[RationalQ[sqrtu],
     If[RationalQ[sqrtv],
       sqrtu<sqrtv,
     True],
@@ -4927,55 +5136,55 @@ FixIntRules[rulelist_] :=
 
 
 FixIntRule[RuleDelayed[lhs_,F_[G_[list_,F_[u_+v_,test2_]],test1_]],x_] :=
-  ReplacePart[RuleDelayed[lhs,Condition[Module[list,Condition[u+v,test2]],test1]],{{2,1,2,1,1}->FixRhsIntRule[u,x],{2,1,2,1,2}->FixRhsIntRule[v,x]}] /;
-F===Condition && G===Module
+  ReplacePart[RuleDelayed[lhs,F[G[list,F[u+v,test2]],test1]],{{2,1,2,1,1}->FixRhsIntRule[u,x],{2,1,2,1,2}->FixRhsIntRule[v,x]}] /;
+F===Condition && (G===Module || G===Block)
 
 FixIntRule[RuleDelayed[lhs_,G_[list_,F_[u_+v_,test2_]]],x_] :=
-  ReplacePart[RuleDelayed[lhs,Module[list,Condition[u+v,test2]]],{{2,2,1,1}->FixRhsIntRule[u,x],{2,2,1,2}->FixRhsIntRule[v,x]}] /;
-F===Condition && G===Module
+  ReplacePart[RuleDelayed[lhs,G[list,F[u+v,test2]]],{{2,2,1,1}->FixRhsIntRule[u,x],{2,2,1,2}->FixRhsIntRule[v,x]}] /;
+F===Condition && (G===Module || G===Block)
 
 FixIntRule[RuleDelayed[lhs_,F_[G_[list_,u_+v_],test_]],x_] :=
-  ReplacePart[RuleDelayed[lhs,Condition[Module[list,u+v],test]],{{2,1,2,1}->FixRhsIntRule[u,x],{2,1,2,2}->FixRhsIntRule[v,x]}] /;
-F===Condition && G===Module
+  ReplacePart[RuleDelayed[lhs,F[G[list,u+v],test]],{{2,1,2,1}->FixRhsIntRule[u,x],{2,1,2,2}->FixRhsIntRule[v,x]}] /;
+F===Condition && (G===Module || G===Block)
 
 FixIntRule[RuleDelayed[lhs_,G_[list_,u_+v_]],x_] :=
-  ReplacePart[RuleDelayed[lhs,Module[list,u+v]],{{2,2,1}->FixRhsIntRule[u,x],{2,2,2}->FixRhsIntRule[v,x]}] /;
-G===Module
+  ReplacePart[RuleDelayed[lhs,G[list,u+v]],{{2,2,1}->FixRhsIntRule[u,x],{2,2,2}->FixRhsIntRule[v,x]}] /;
+(G===Module || G===Block)
 
 FixIntRule[RuleDelayed[lhs_,F_[u_+v_,test_]],x_] :=
-  ReplacePart[RuleDelayed[lhs,Condition[u+v,test]],{{2,1,1}->FixRhsIntRule[u,x],{2,1,2}->FixRhsIntRule[v,x]}] /;
+  ReplacePart[RuleDelayed[lhs,F[u+v,test]],{{2,1,1}->FixRhsIntRule[u,x],{2,1,2}->FixRhsIntRule[v,x]}] /;
 F===Condition
 
 FixIntRule[RuleDelayed[lhs_,u_+v_],x_] :=
   ReplacePart[RuleDelayed[lhs,u+v],{{2,1}->FixRhsIntRule[u,x],{2,2}->FixRhsIntRule[v,x]}]
 
 
-FixIntRule[RuleDelayed[lhs_,F_[G_[list1_,F_[G_[list2_,u_],test2_]],test1_]],x_] :=
-  ReplacePart[RuleDelayed[lhs,Condition[Module[list1,Condition[Module[list2,u],test2]],test1]],{2,1,2,1,2}->FixRhsIntRule[u,x]] /;
-F===Condition && G===Module
+FixIntRule[RuleDelayed[lhs_,F_[G_[list1_,F_[H_[list2_,u_],test2_]],test1_]],x_] :=
+  ReplacePart[RuleDelayed[lhs,F[G[list1,F[H[list2,u],test2]],test1]],{2,1,2,1,2}->FixRhsIntRule[u,x]] /;
+F===Condition && (G===Module || G===Block) && (H===Module || H===Block)
 
 FixIntRule[RuleDelayed[lhs_,F_[G_[list_,F_[H_[str1_,str2_,str3_,J_[u_]],test2_]],test1_]],x_] :=
-  ReplacePart[RuleDelayed[lhs,Condition[Module[list,Condition[ShowStep[str1,str2,str3,Hold[u]],test2]],test1]],{2,1,2,1,4,1}->FixRhsIntRule[u,x]] /;
-F===Condition && G===Module && H===ShowStep && J===Hold
+  ReplacePart[RuleDelayed[lhs,F[G[list,F[H[str1,str2,str3,J[u]],test2]],test1]],{2,1,2,1,4,1}->FixRhsIntRule[u,x]] /;
+F===Condition && (G===Module || G===Block) && H===ShowStep && J===Hold
 
 FixIntRule[RuleDelayed[lhs_,F_[G_[list_,F_[u_,test2_]],test1_]],x_] :=
-  ReplacePart[RuleDelayed[lhs,Condition[Module[list,Condition[u,test2]],test1]],{2,1,2,1}->FixRhsIntRule[u,x]] /;
-F===Condition && G===Module
+  ReplacePart[RuleDelayed[lhs,F[G[list,F[u,test2]],test1]],{2,1,2,1}->FixRhsIntRule[u,x]] /;
+F===Condition && (G===Module || G===Block)
 
 FixIntRule[RuleDelayed[lhs_,G_[list_,F_[u_,test2_]]],x_] :=
-  ReplacePart[RuleDelayed[lhs,Module[list,Condition[u,test2]]],{2,2,1}->FixRhsIntRule[u,x]] /;
-F===Condition && G===Module
+  ReplacePart[RuleDelayed[lhs,G[list,F[u,test2]]],{2,2,1}->FixRhsIntRule[u,x]] /;
+F===Condition && (G===Module || G===Block)
 
 FixIntRule[RuleDelayed[lhs_,F_[G_[list_,u_],test_]],x_] :=
-  ReplacePart[RuleDelayed[lhs,Condition[Module[list,u],test]],{2,1,2}->FixRhsIntRule[u,x]] /;
-F===Condition && G===Module
+  ReplacePart[RuleDelayed[lhs,F[G[list,u],test]],{2,1,2}->FixRhsIntRule[u,x]] /;
+F===Condition && (G===Module || G===Block)
 
 FixIntRule[RuleDelayed[lhs_,G_[list_,u_]],x_] :=
-  ReplacePart[RuleDelayed[lhs,Module[list,u]],{2,2}->FixRhsIntRule[u,x]] /;
-G===Module
+  ReplacePart[RuleDelayed[lhs,G[list,u]],{2,2}->FixRhsIntRule[u,x]] /;
+(G===Module || G===Block)
 
 FixIntRule[RuleDelayed[lhs_,F_[u_,test_]],x_] :=
-  ReplacePart[RuleDelayed[lhs,Condition[u,test]],{2,1}->FixRhsIntRule[u,x]] /;
+  ReplacePart[RuleDelayed[lhs,F[u,test]],{2,1}->FixRhsIntRule[u,x]] /;
 F===Condition
 
 FixIntRule[RuleDelayed[lhs_,u_],x_] :=

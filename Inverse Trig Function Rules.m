@@ -2111,19 +2111,24 @@ Int[ArcCot[c_.*x_/Sqrt[a_.+b_.*x_^2]]^m_./Sqrt[d_.+e_.*x_^2],x_Symbol] :=
 FreeQ[{a,b,c,d,e,m},x] && ZeroQ[b+c^2] && ZeroQ[b*d-a*e]
 
 
+Int[E^(n_*ArcTan[a_.*x_]),x_Symbol] :=
+  Int[((1-I*a*x)^((I*n+1)/2)/((1+I*a*x)^((I*n-1)/2)*Sqrt[1+a^2*x^2])),x] /;
+FreeQ[a,x] && OddQ[I*n]
+
+
+Int[x_^m_.*E^(n_*ArcTan[a_.*x_]),x_Symbol] :=
+  Int[x^m*((1-I*a*x)^((I*n+1)/2)/((1+I*a*x)^((I*n-1)/2)*Sqrt[1+a^2*x^2])),x] /;
+FreeQ[{a,m},x] && OddQ[I*n]
+
+
 Int[E^(n_.*ArcTan[a_.*x_]),x_Symbol] :=
   Int[(1-I*a*x)^(I*n/2)/(1+I*a*x)^(I*n/2),x] /;
-FreeQ[a,x] && RationalQ[I*n]
-
-
-Int[E^(n_.*ArcTan[a_.*x_]),x_Symbol] :=
-  4*(I-a*x)*E^(n*ArcTan[a*x])/(a*(n+2*I)*(I+a*x))*Hypergeometric2F1[2,1-I*n/2,2-I*n/2,-E^(2*I*ArcTan[a*x])] /;
-FreeQ[{a,n},x] && Not[RationalQ[I*n]]
+FreeQ[{a,n},x] && Not[OddQ[I*n]]
 
 
 Int[x_^m_.*E^(n_.*ArcTan[a_.*x_]),x_Symbol] :=
   Int[x^m*(1-I*a*x)^(I*n/2)/(1+I*a*x)^(I*n/2),x] /;
-FreeQ[{a,m,n},x]
+FreeQ[{a,m,n},x] && Not[OddQ[I*n]]
 
 
 Int[u_.*(c_+d_.*x_)^p_.*E^(n_.*ArcTan[a_.*x_]),x_Symbol] :=
@@ -2342,14 +2347,29 @@ Int[u_.*E^(n_*ArcCot[a_.*x_]),x_Symbol] :=
 FreeQ[a,x] && IntegerQ[I*n/2]
 
 
+Int[E^(n_*ArcCot[a_.*x_]),x_Symbol] :=
+  -Subst[Int[(1-I*x/a)^((I*n+1)/2)/(x^2*(1+I*x/a)^((I*n-1)/2)*Sqrt[1+x^2/a^2]),x],x,1/x] /;
+FreeQ[a,x] && OddQ[I*n]
+
+
+Int[x_^m_.*E^(n_*ArcCot[a_.*x_]),x_Symbol] :=
+  -Subst[Int[(1-I*x/a)^((I*n+1)/2)/(x^(m+2)*(1+I*x/a)^((I*n-1)/2)*Sqrt[1+x^2/a^2]),x],x,1/x] /;
+FreeQ[a,x] && OddQ[I*n] && IntegerQ[m]
+
+
 Int[E^(n_.*ArcCot[a_.*x_]),x_Symbol] :=
   -Subst[Int[(1-I*x/a)^(I*n/2)/(x^2*(1+I*x/a)^(I*n/2)),x],x,1/x] /;
-FreeQ[{a,n},x] && Not[IntegerQ[I*n/2]]
+FreeQ[{a,n},x] && Not[IntegerQ[I*n]]
 
 
 Int[x_^m_.*E^(n_.*ArcCot[a_.*x_]),x_Symbol] :=
   -Subst[Int[(1-I*x/a)^(n/2)/(x^(m+2)*(1+I*x/a)^(n/2)),x],x,1/x] /;
-FreeQ[{a,n},x] && Not[IntegerQ[I*n/2]] && IntegerQ[m]
+FreeQ[{a,n},x] && Not[IntegerQ[I*n]] && IntegerQ[m]
+
+
+Int[x_^m_*E^(n_*ArcCot[a_.*x_]),x_Symbol] :=
+  -x^m*(1/x)^m*Subst[Int[(1-I*x/a)^((I*n+1)/2)/(x^(m+2)*(1+I*x/a)^((I*n-1)/2)*Sqrt[1+x^2/a^2]),x],x,1/x] /;
+FreeQ[{a,m},x] && OddQ[I*n] && Not[IntegerQ[m]]
 
 
 Int[x_^m_*E^(n_.*ArcCot[a_.*x_]),x_Symbol] :=

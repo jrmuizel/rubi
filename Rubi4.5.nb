@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       145,          7]
-NotebookDataLength[     11233,        283]
-NotebookOptionsPosition[     10496,        256]
-NotebookOutlinePosition[     10902,        273]
-CellTagsIndexPosition[     10859,        270]
+NotebookDataLength[     11595,        293]
+NotebookOptionsPosition[     10858,        266]
+NotebookOutlinePosition[     11264,        283]
+CellTagsIndexPosition[     11221,        280]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -23,13 +23,14 @@ Cell[CellGroupData[{
 Cell[TextData[{
  StyleBox["Rubi",
   FontSlant->"Italic"],
- " 4.4"
+ " 4.5"
 }], "Title",
  CellChangeTimes->{{3.4897813784127054`*^9, 3.4897813794267073`*^9}, 
    3.518320509030015*^9, {3.5769613958072157`*^9, 3.576961399157221*^9}, {
    3.5818113211358624`*^9, 3.581811322505864*^9}, {3.588014284106391*^9, 
    3.5880142845587916`*^9}, {3.5933144297049866`*^9, 
-   3.5933144300349865`*^9}, {3.5953446914325457`*^9, 3.595344691902547*^9}},
+   3.5933144300349865`*^9}, {3.5953446914325457`*^9, 3.595344691902547*^9}, {
+   3.612238596642627*^9, 3.612238596892227*^9}},
  TextAlignment->Center],
 
 Cell["Rule-Based Integrator", "Subtitle",
@@ -144,6 +145,15 @@ Cell[BoxData[{
   RowBox[{"LoadPackage", "[", "\"\<Exponential Function Rules\>\"", "]"}], 
   ";"}], "\n", 
  RowBox[{
+  RowBox[{"LoadPackage", "[", "\"\<Sine Function Rules\>\"", "]"}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"LoadPackage", "[", "\"\<Tangent Function Rules\>\"", "]"}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"LoadPackage", "[", "\"\<Secant Function Rules\>\"", "]"}], 
+  ";"}], "\n", 
+ RowBox[{
   RowBox[{"LoadPackage", "[", "\"\<Trig Function Rules\>\"", "]"}], 
   ";"}], "\n", 
  RowBox[{
@@ -180,7 +190,7 @@ Cell[BoxData[{
    3.5769617588277245`*^9, 3.5769618302878246`*^9}, {3.5769619293479633`*^9, 
    3.576961935817972*^9}, {3.576962004338068*^9, 3.5769620153680835`*^9}, {
    3.576962478824736*^9, 3.5769624799947376`*^9}, {3.576965706486283*^9, 
-   3.5769657335563207`*^9}, 3.5981526491463847`*^9}],
+   3.5769657335563207`*^9}, 3.5981526491463847`*^9, 3.612238809426402*^9}],
 
 Cell[BoxData[
  RowBox[{
@@ -273,17 +283,17 @@ CellTagsIndex->{}
 (*NotebookFileOutline
 Notebook[{
 Cell[CellGroupData[{
-Cell[567, 22, 452, 10, 99, "Title"],
-Cell[1022, 34, 207, 4, 60, "Subtitle"],
-Cell[1232, 40, 90, 1, 34, "Subsubtitle"],
-Cell[1325, 43, 1554, 31, 62, "Text"],
-Cell[2882, 76, 1414, 27, 63, "Text"],
-Cell[4299, 105, 147, 3, 53, "Code"],
-Cell[4449, 110, 2795, 72, 394, "Code"],
-Cell[7247, 184, 709, 12, 53, "Code"],
-Cell[7959, 198, 1054, 16, 62, "Text"],
-Cell[9016, 216, 1206, 27, 64, "Text"],
-Cell[10225, 245, 255, 8, 77, "Code"]
+Cell[567, 22, 502, 11, 99, "Title"],
+Cell[1072, 35, 207, 4, 60, "Subtitle"],
+Cell[1282, 41, 90, 1, 34, "Subsubtitle"],
+Cell[1375, 44, 1554, 31, 62, "Text"],
+Cell[2932, 77, 1414, 27, 63, "Text"],
+Cell[4349, 106, 147, 3, 53, "Code"],
+Cell[4499, 111, 3107, 81, 454, "Code"],
+Cell[7609, 194, 709, 12, 53, "Code"],
+Cell[8321, 208, 1054, 16, 62, "Text"],
+Cell[9378, 226, 1206, 27, 64, "Text"],
+Cell[10587, 255, 255, 8, 77, "Code"]
 }, Open  ]]
 }
 ]

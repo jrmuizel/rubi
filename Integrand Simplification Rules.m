@@ -56,15 +56,9 @@ FreeQ[{a,b,c,n,p},x] && ZeroQ[j-2*n] && ZeroQ[c]
 
 
 (* ::Code:: *)
-Int[u_.*x_^m_,x_Symbol] :=
-  Int[u/x,x] /;
-ZeroQ[m+1] && m=!=-1
-
-
-(* ::Code:: *)
-(* Int[u_.*v_^m_,x_Symbol] :=
-  Int[u/v,x] /;
-ZeroQ[m+1] && m=!=-1 *)
+Int[u_.*v_^m_,x_Symbol] :=
+  Int[u*v^Simplify[m],x] /;
+PolynomialQ[v,x] && Not[RationalQ[m]] && FreeQ[m,x] && RationalQ[Simplify[m]]
 
 
 (* ::Code:: *)
@@ -107,6 +101,12 @@ SimplifyFlag && SumQ[u],
 Int[u_,x_Symbol] :=
   IntSum[u,x] /;
 SumQ[u]]
+
+
+(* ::Code:: *)
+Int[(c_.*x_)^m_.*u_,x_Symbol] :=
+  Int[ExpandIntegrand[(c*x)^m*u,x],x] /;
+FreeQ[{c,m},x] && SumQ[u] && Not[MatchQ[u,a_+b_.*v_ /; FreeQ[{a,b},x] && InverseFunctionQ[v]]]
 
 
 (* ::Code:: *)
@@ -158,16 +158,81 @@ FreeQ[{a,b,c,d,n,p,q},x] && Not[IntegerQ[p]] && Not[IntegerQ[q]]
 
 
 (* ::Code:: *)
-Int[u_.*(a_.+b_.*x_^n_.)^m_.*(c_.+d_.*x_^n_.)^p_.,x_Symbol] :=
-  (b/d)^m*Int[u*(c+d*x^n)^(m+p),x] /;
-FreeQ[{a,b,c,d,m,n,p},x] && ZeroQ[b*c-a*d] && (IntegerQ[m] || PositiveQ[b/d]) && 
-  (Not[IntegerQ[p]] || LeafCount[c+d*x]<=LeafCount[a+b*x])
+Int[u_.*v_^m_.*(b_*v_)^n_,x_Symbol] :=
+  1/b^m*Int[u*(b*v)^(m+n),x] /;
+FreeQ[{b,n},x] && IntegerQ[m]
 
 
 (* ::Code:: *)
-Int[u_.*(a_.+b_.*x_^n_.)^m_.*(c_.+d_.*x_^n_.)^p_.,x_Symbol] :=
-  (a+b*x^n)^m/(c+d*x^n)^m*Int[u*(c+d*x^n)^(m+p),x] /;
-FreeQ[{a,b,c,d,m,n,p},x] && ZeroQ[b*c-a*d] && Not[IntegerQ[m] || IntegerQ[p] || PositiveQ[b/d]]
+Int[u_.*(a_.*v_)^m_*(b_.*v_)^n_,x_Symbol] :=
+  a^(m+1/2)*b^(n-1/2)*Sqrt[b*v]/Sqrt[a*v]*Int[u*v^(m+n),x] /;
+FreeQ[{a,b,m},x] && Not[IntegerQ[m]] && PositiveIntegerQ[n+1/2] && IntegerQ[m+n]
+
+
+(* ::Code:: *)
+(* Int[u_.*(a_.*v_)^m_*(b_.*v_)^n_,x_Symbol] :=
+  b^(n-1/2)*Sqrt[b*v]/(a^(n-1/2)*Sqrt[a*v])*Int[u*(a*v)^(m+n),x] /;
+FreeQ[{a,b,m},x] && Not[IntegerQ[m]] && PositiveIntegerQ[n+1/2] && Not[IntegerQ[m+n]] *)
+
+
+(* ::Code:: *)
+Int[u_.*(a_.*v_)^m_*(b_.*v_)^n_,x_Symbol] :=
+  a^(m-1/2)*b^(n+1/2)*Sqrt[a*v]/Sqrt[b*v]*Int[u*v^(m+n),x] /;
+FreeQ[{a,b,m},x] && Not[IntegerQ[m]] && NegativeIntegerQ[n-1/2] && IntegerQ[m+n]
+
+
+(* ::Code:: *)
+(* Int[u_.*(a_.*v_)^m_*(b_.*v_)^n_,x_Symbol] :=
+  b^(n+1/2)*Sqrt[a*v]/(a^(n+1/2)*Sqrt[b*v])*Int[u*(a*v)^(m+n),x] /;
+FreeQ[{a,b,m},x] && Not[IntegerQ[m]] && NegativeIntegerQ[n-1/2] && Not[IntegerQ[m+n]] *)
+
+
+(* ::Code:: *)
+Int[u_.*(a_.*v_)^m_*(b_.*v_)^n_,x_Symbol] :=
+  a^(m+n)*(b*v)^n/(a*v)^n*Int[u*v^(m+n),x] /;
+FreeQ[{a,b,m,n},x] && Not[IntegerQ[m]] && Not[IntegerQ[n]] && IntegerQ[m+n]
+
+
+(* ::Code:: *)
+Int[u_.*(a_.*v_)^m_*(b_.*v_)^n_,x_Symbol] :=
+  (b*v)^n/(a*v)^n*Int[u*(a*v)^(m+n),x] /;
+FreeQ[{a,b,m,n},x] && Not[IntegerQ[m]] && Not[IntegerQ[n]] && Not[IntegerQ[m+n]]
+
+
+(* ::Code:: *)
+Int[u_.*(a_+b_.*v_)^m_.*(c_+d_.*v_)^n_.,x_Symbol] :=
+  (b/d)^m*Int[u*(c+d*v)^(m+n),x] /;
+FreeQ[{a,b,c,d,m,n},x] && ZeroQ[b*c-a*d] && (IntegerQ[m] || PositiveQ[b/d]) && (Not[IntegerQ[n]] || LeafCount[c+d*x]<=LeafCount[a+b*x])
+
+
+(* ::Code:: *)
+Int[u_.*(a_+b_.*v_)^m_*(c_+d_.*v_)^n_,x_Symbol] :=
+  (a+b*v)^m/(c+d*v)^m*Int[u*(c+d*v)^(m+n),x] /;
+FreeQ[{a,b,c,d,m,n},x] && ZeroQ[b*c-a*d] && Not[IntegerQ[m] || IntegerQ[n] || PositiveQ[b/d]]
+
+
+(* ::Code:: *)
+Int[u_.*(a_+b_.*v_)^m_.*(c_+d_.*v_)^n_.,x_Symbol] :=
+  (b/d)^m*Int[u*(c+d*v)^(m+n),x] /;
+FreeQ[{a,b,c,d,m,n},x] && ZeroQ[b*c-a*d] && (IntegerQ[m] || PositiveQ[b/d]) && (Not[IntegerQ[n]] || LeafCount[c+d*x]<=LeafCount[a+b*x])
+
+
+(* ::Code:: *)
+Int[u_.*(a_+b_.*v_)^m_*(c_+d_.*v_)^n_,x_Symbol] :=
+  (a+b*v)^m/(c+d*v)^m*Int[u*(c+d*v)^(m+n),x] /;
+FreeQ[{a,b,c,d,m,n},x] && ZeroQ[b*c-a*d] && Not[IntegerQ[m] || IntegerQ[n] || PositiveQ[b/d]]
+
+
+(* ::Code:: *)
+Int[u_.*(a_.*v_)^m_*(b_.*v_+c_.*v_^2),x_Symbol] :=
+  1/a*Int[u*(a*v)^(m+1)*Simp[b+c*v,x],x] /;
+FreeQ[{a,b,c},x] && RationalQ[m] && m<=-1
+
+
+(* ::Code:: *)
+Int[u_.*(a_+b_.*v_)^m_*(A_.+B_.*v_+C_.*v_^2),x_Symbol] :=
+  1/b^2*Int[u*(a+b*v)^(m+1)*Simp[b*B-a*C+b*C*v,x],x] /;
+FreeQ[{a,b,A,B,C},x] && ZeroQ[A*b^2-a*b*B+a^2*C] && RationalQ[m] && m<=-1
 
 
 (* ::Code:: *)

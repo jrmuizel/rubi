@@ -2,7 +2,7 @@
 
 (* ShowSteps controls both the use of special definitions when defining rules AND the display of
 	steps when simplify expressions. *) 
-ShowSteps=True;
+If[ShowSteps=!=False, ShowSteps=True];
 SimplifyFlag=True;
 
 
@@ -99,17 +99,17 @@ FormatLhs[rule_] :=
         lhs=ReplaceVariable[lhs,var,func]]]] );
   DropDefer[StringReplace[ToString[lhs, InputForm],{"_Symbol"->"", "_."->"", "_"->""}]]]
 
-(* ReplaceVariable[lhs,var,func] returns lhs with the var replaced by f[func] *)
+(* ReplaceVariable[lhs,var,func] returns lhs with the var replaced by F[func] *)
 ReplaceVariable[lhs_,var_,func_] :=
-  Block[{f},
+  Block[{F},
   If[PatternEqualQ[lhs[[1,1]],var],
-    ReplacePart[lhs,f[func],{1,1}],
+    ReplacePart[lhs,F[func],{1,1}],
   If[PatternEqualQ[lhs[[1,1,1]],var],
-    ReplacePart[lhs,f[func],{1,1,1}],
+    ReplacePart[lhs,F[func],{1,1,1}],
   If[PatternEqualQ[lhs[[1,1,2]],var],
-    ReplacePart[lhs,f[func],{1,1,2}],
+    ReplacePart[lhs,F[func],{1,1,2}],
   If[PatternEqualQ[lhs[[1,1,3]],var],
-    ReplacePart[lhs,f[func],{1,1,3}],
+    ReplacePart[lhs,F[func],{1,1,3}],
   Print["Function of expression variable not found: ",lhs," ",var," ",func];
   Abort[]]]]]]
 
@@ -120,9 +120,9 @@ PatternEqualQ[pattern_,var_] :=
 (* rhs is an expression of the form Defer[...] where ... is the right hand side of a rule.
 	FormatRhs[rhs] returns a string for the rhs of the rule in InputForm. *)
 FormatRhs[rhs_] :=
-  Block[{SubstFor,Rt,f},
+  Block[{SubstFor,Rt,F},
   DropDefer[ToString[ReplaceAll[rhs,{
-		SubstFor[v_,u_,x_] -> f[x],
+		SubstFor[v_,u_,x_] -> F[x],
 		Rt[u_,2] -> Sqrt[u],
 		Rt[u_,n_] -> u^(1/n)
   }], InputForm]]]

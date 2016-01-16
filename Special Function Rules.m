@@ -831,8 +831,9 @@ FreeQ[{b,m,n},x] && NonzeroQ[m+1]
 
 
 Int[x_^m_.*Gamma[n_,a_+b_.*x_],x_Symbol] :=
-  x^(m+1)*Gamma[n,a+b*x]/(m+1) + 
-  b/(m+1)*Int[x^(m+1)*(a+b*x)^(n-1)/E^(a+b*x),x] /;
+  Block[{$UseGamma=True},
+    x^(m+1)*Gamma[n,a+b*x]/(m+1) + 
+    b/(m+1)*Int[x^(m+1)*(a+b*x)^(n-1)/E^(a+b*x),x]] /;
 FreeQ[{a,b,m,n},x] && (PositiveIntegerQ[m] || PositiveIntegerQ[n] || IntegersQ[m,n]) && NonzeroQ[m+1]
 
 
@@ -882,13 +883,13 @@ Int[((a_.+b_.*x_)!)^n_.*PolyGamma[0,c_.+b_.*x_],x_Symbol] :=
 FreeQ[{a,b,c,n},x] && ZeroQ[a-c+1]
 
 
+(* ::Subsection::Closed:: *)
+(*7. Zeta Functions*)
+
+
 Int[Zeta[2,a_.+b_.*x_],x_Symbol] :=
   Int[PolyGamma[1,a+b*x],x] /;
 FreeQ[{a,b},x]
-
-
-(* ::Subsection::Closed:: *)
-(*7. Zeta Functions*)
 
 
 Int[Zeta[s_,a_.+b_.*x_],x_Symbol] :=

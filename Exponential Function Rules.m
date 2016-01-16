@@ -8,6 +8,9 @@
 (*Exponential Functions*)
 
 
+$UseGamma=False;
+
+
 Int[F_^(c_.*(a_.+b_.*x_)),x_Symbol] :=
   F^(c*(a+b*x))/(b*c*Log[F]) /;
 FreeQ[{F,a,b,c},x]
@@ -16,50 +19,106 @@ FreeQ[{F,a,b,c},x]
 Int[(d_.+e_.*x_)^m_.*F_^(c_.*(a_.+b_.*x_)),x_Symbol] :=
   (d+e*x)^m*F^(c*(a+b*x))/(b*c*Log[F]) - 
   e*m/(b*c*Log[F])*Int[(d+e*x)^(m-1)*F^(c*(a+b*x)),x] /;
-FreeQ[{F,a,b,c,d,e},x] && IntegerQ[2*m] && 0<m<4
+FreeQ[{F,a,b,c,d,e},x] && IntegerQ[2*m] && Not[$UseGamma===True] && m>0 (* && (IntegerQ[m] || m<2) *)
 
 
 Int[F_^(c_.*(a_.+b_.*x_))/(d_.+e_.*x_),x_Symbol] :=
   1/e*F^(c*(a-b*d/e))*ExpIntegralEi[b*c*(d+e*x)*Log[F]/e] /;
-FreeQ[{F,a,b,c,d,e},x]
+FreeQ[{F,a,b,c,d,e},x] && Not[$UseGamma===True]
 
 
 Int[F_^(c_.*(a_.+b_.*x_))/Sqrt[d_.+e_.*x_],x_Symbol] :=
   2/e*Subst[Int[F^(c*(a-b*d/e)+b*c*x^2/e),x],x,Sqrt[d+e*x]] /;
-FreeQ[{F,a,b,c,d,e},x]
+FreeQ[{F,a,b,c,d,e},x] && Not[$UseGamma===True]
 
 
 Int[(d_.+e_.*x_)^m_*F_^(c_.*(a_.+b_.*x_)),x_Symbol] :=
   (d+e*x)^(m+1)*F^(c*(a+b*x))/(e*(m+1)) - 
   b*c*Log[F]/(e*(m+1))*Int[(d+e*x)^(m+1)*F^(c*(a+b*x)),x] /;
-FreeQ[{F,a,b,c,d,e},x] && IntegerQ[2*m] && -5<m<-1
-
-
-Int[(d_.+e_.*x_)^m_.*E^(c_.*(a_.+b_.*x_)),x_Symbol] :=
-  E^(c*(a-b*d/e))*(d+e*x)^m/(b*c*(-b*c/e*(d+e*x))^m)*Gamma[m+1,-b*c/e*(d+e*x)] /;
-FreeQ[{a,b,c,d,e,m},x] && Not[SumSimplerQ[m,1]]
+FreeQ[{F,a,b,c,d,e},x] && IntegerQ[2*m] && Not[$UseGamma===True] && m<-1 (* && m>-3 *)
 
 
 Int[(d_.+e_.*x_)^m_.*F_^(c_.*(a_.+b_.*x_)),x_Symbol] :=
+  (-e)^m*F^(c*(a-b*d/e))/(b^(m+1)*c^(m+1)*Log[F]^(m+1))*Gamma[m+1,-b*c*Log[F]/e*(d+e*x)] /;
+FreeQ[{F,a,b,c,d,e},x] && IntegerQ[m] (* && $UseGamma===True *)
+
+
+Int[(d_.+e_.*x_)^m_*F_^(c_.*(a_.+b_.*x_)),x_Symbol] :=
+  (-e)^(m-1/2)*F^(c*(a-b*d/e))*Sqrt[d+e*x]/(b^(m+1/2)*c^(m+1/2)*Log[F]^(m+1/2)*Sqrt[(-b*c*Log[F]/e)*(d+e*x)])*
+    Gamma[m+1,-b*c*Log[F]/e*(d+e*x)] /;
+FreeQ[{F,a,b,c,d,e},x] && PositiveIntegerQ[m+1/2] (* && $UseGamma===True *)
+
+
+Int[(d_.+e_.*x_)^m_*F_^(c_.*(a_.+b_.*x_)),x_Symbol] :=
+  (-e)^(m+1/2)*F^(c*(a-b*d/e))*Sqrt[-b*c*Log[F]/e*(d+e*x)]/(b^(m+3/2)*c^(m+3/2)*Log[F]^(m+3/2)*Sqrt[d+e*x])*
+    Gamma[m+1,-b*c*Log[F]/e*(d+e*x)] /;
+FreeQ[{F,a,b,c,d,e},x] && NegativeIntegerQ[m-1/2] (* && $UseGamma===True *)
+
+
+Int[(d_.+e_.*x_)^m_*E^(c_.*(a_.+b_.*x_)),x_Symbol] :=
+  E^(c*(a-b*d/e))*(d+e*x)^m/(b*c*(-b*c/e*(d+e*x))^m)*Gamma[m+1,-b*c/e*(d+e*x)] /;
+FreeQ[{a,b,c,d,e,m},x] (* && Not[IntegerQ[2*m]] *) && Not[SumSimplerQ[m,1]]
+
+
+Int[(d_.+e_.*x_)^m_*F_^(c_.*(a_.+b_.*x_)),x_Symbol] :=
   -F^(c*(a-b*d/e))*(d+e*x)^(m+1)/(e*(-b*c*Log[F]*(d+e*x)/e)^(m+1))*Gamma[m+1,-b*c*Log[F]*(d+e*x)/e] /;
-FreeQ[{F,a,b,c,d,e,m},x]
+FreeQ[{F,a,b,c,d,e,m},x] (* && Not[IntegerQ[2*m]] *)
 
 
 Int[u_^m_.*F_^(c_.*v_),x_Symbol] :=
   Int[NormalizePowerOfLinear[u,x]^m*F^(c*ExpandToSum[v,x]),x] /;
-FreeQ[{F,c,m},x] && IntegerQ[m] && LinearQ[v,x] && PowerOfLinearQ[u,x] && Not[LinearMatchQ[v,x] && PowerOfLinearMatchQ[u,x]]
+FreeQ[{F,c},x] && LinearQ[v,x] && PowerOfLinearQ[u,x] && Not[LinearMatchQ[v,x] && PowerOfLinearMatchQ[u,x]] && IntegerQ[m]
 
 
 Int[u_^m_.*F_^(c_.*v_),x_Symbol] :=
-  Module[{w=NormalizePowerOfLinear[u,x],z},
-  z=If[PowerQ[w] && FreeQ[w[[2]],x], w[[1]]^(m*w[[2]]), w^m];
-  w^m/z*Int[z*F^(c*ExpandToSum[v,x]),x]] /; 
-FreeQ[{F,c,m},x] && Not[IntegerQ[m]] && LinearQ[v,x] && PowerOfLinearQ[u,x] && Not[LinearMatchQ[v,x] && PowerOfLinearMatchQ[u,x]]
+  Module[{uu=NormalizePowerOfLinear[u,x],z},
+  z=If[PowerQ[uu] && FreeQ[uu[[2]],x], uu[[1]]^(m*uu[[2]]), uu^m];
+  uu^m/z*Int[z*F^(c*ExpandToSum[v,x]),x]] /; 
+FreeQ[{F,c,m},x] && LinearQ[v,x] && PowerOfLinearQ[u,x] && Not[LinearMatchQ[v,x] && PowerOfLinearMatchQ[u,x]] && Not[IntegerQ[m]]
 
 
 Int[u_*F_^(c_.*v_),x_Symbol] :=
   Int[ExpandIntegrand[u*F^(c*ExpandToSum[v,x]),x],x] /;
-FreeQ[{F,c},x] && PolynomialQ[u,x] && LinearQ[v,x]
+FreeQ[{F,c},x] && PolynomialQ[u,x] && LinearQ[v,x] && $UseGamma===True
+
+
+Int[u_*F_^(c_.*v_),x_Symbol] :=
+  Int[ExpandIntegrand[F^(c*ExpandToSum[v,x]),u,x],x] /;
+FreeQ[{F,c},x] && PolynomialQ[u,x] && LinearQ[v,x] && Not[$UseGamma===True]
+
+
+Int[u_^m_.*F_^(c_.*v_)*w_,x_Symbol] :=
+  Coefficient[w,x,1]*u^(m+1)*F^(c*v)/(Coefficient[v,x,1]*c*Coefficient[u,x,1]*Log[F]) /;
+FreeQ[{F,c,m},x] && LinearQ[{u,v,w},x] && 
+  ZeroQ[Coefficient[u,x,1]*Coefficient[w,x,1]*(m+1)-
+    Coefficient[v,x,1]*c*(Coefficient[u,x,1]*Coefficient[w,x,0]-Coefficient[u,x,0]*Coefficient[w,x,1])*Log[F]]
+
+
+Int[w_*u_^m_.*F_^(c_.*v_),x_Symbol] :=
+  Int[ExpandIntegrand[w*NormalizePowerOfLinear[u,x]^m*F^(c*ExpandToSum[v,x]),x],x] /;
+FreeQ[{F,c},x] && PolynomialQ[w,x] && LinearQ[v,x] && PowerOfLinearQ[u,x] && IntegerQ[m] && $UseGamma===True
+
+
+Int[w_*u_^m_.*F_^(c_.*v_),x_Symbol] :=
+  Int[ExpandIntegrand[F^(c*ExpandToSum[v,x]),w*NormalizePowerOfLinear[u,x]^m,x],x] /;
+FreeQ[{F,c},x] && PolynomialQ[w,x] && LinearQ[v,x] && PowerOfLinearQ[u,x] && IntegerQ[m] && Not[$UseGamma===True]
+
+
+Int[w_*u_^m_.*F_^(c_.*v_),x_Symbol] :=
+  Module[{uu=NormalizePowerOfLinear[u,x],z},
+  z=If[PowerQ[uu] && FreeQ[uu[[2]],x], uu[[1]]^(m*uu[[2]]), uu^m];
+  uu^m/z*Int[ExpandIntegrand[w*z*F^(c*ExpandToSum[v,x]),x],x]] /;
+FreeQ[{F,c,m},x] && PolynomialQ[w,x] && LinearQ[v,x] && PowerOfLinearQ[u,x] && Not[IntegerQ[m]]
+
+
+Int[F_^(c_.*(a_.+b_.*x_))*Log[d_.*x_]^n_.*(e_+h_.*(f_.+g_.*x_)*Log[d_.*x_]),x_Symbol] :=
+  e*x*F^(c*(a+b*x))*Log[d*x]^(n+1)/(n+1) /;
+FreeQ[{F,a,b,c,d,e,f,g,h,n},x] && ZeroQ[e-f*h*(n+1)] && ZeroQ[g*h*(n+1)-b*c*e*Log[F]] && NonzeroQ[n+1]
+
+
+Int[x_^m_.*F_^(c_.*(a_.+b_.*x_))*Log[d_.*x_]^n_.*(e_+h_.*(f_.+g_.*x_)*Log[d_.*x_]),x_Symbol] :=
+  e*x^(m+1)*F^(c*(a+b*x))*Log[d*x]^(n+1)/(n+1) /;
+FreeQ[{F,a,b,c,d,e,f,g,h,m,n},x] && ZeroQ[e*(m+1)-f*h*(n+1)] && ZeroQ[g*h*(n+1)-b*c*e*Log[F]] && NonzeroQ[n+1]
 
 
 Int[F_^(a_.+b_.*(c_.+d_.*x_)),x_Symbol] :=
