@@ -516,46 +516,153 @@ Int[(A_+B_.*x_)/(a_+b_.*x_^3),x_Symbol] :=
 FreeQ[{a,b,A,B},x] && NonzeroQ[a*B^3-b*A^3] && NegQ[a/b]
 
 
+Int[(A_+B_.*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+  -C^2/b*Int[1/(B-C*x),x] /;
+FreeQ[{a,b,A,B,C},x] && ZeroQ[B^2-A*C] && ZeroQ[b*B^3+a*C^3]
+
+
+Int[(A_.+B_.*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=a^(1/3)/b^(1/3)},
+  C/b*Int[1/(q+x),x] + (B+C*q)/b*Int[1/(q^2-q*x+x^2),x]] /;
+FreeQ[{a,b,A,B,C},x] && ZeroQ[A*b^(2/3)-a^(1/3)*b^(1/3)*B-2*a^(2/3)*C]
+
+
+Int[x_*(B_+C_.*x_)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=a^(1/3)/b^(1/3)},
+  C/b*Int[1/(q+x),x] + (B+C*q)/b*Int[1/(q^2-q*x+x^2),x]] /;
+FreeQ[{a,b,B,C},x] && ZeroQ[a^(1/3)*b^(1/3)*B+2*a^(2/3)*C]
+
+
+Int[(A_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=a^(1/3)/b^(1/3)},
+  C/b*Int[1/(q+x),x] + C*q/b*Int[1/(q^2-q*x+x^2),x]] /;
+FreeQ[{a,b,A,C},x] && ZeroQ[A*b^(2/3)-2*a^(2/3)*C]
+
+
+Int[(A_.+B_.*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=(-a)^(1/3)/(-b)^(1/3)},
+  C/b*Int[1/(q+x),x] + (B+C*q)/b*Int[1/(q^2-q*x+x^2),x]] /;
+FreeQ[{a,b,A,B,C},x] && ZeroQ[A*(-b)^(2/3)-(-a)^(1/3)*(-b)^(1/3)*B-2*(-a)^(2/3)*C]
+
+
+Int[x_*(B_+C_.*x_)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=(-a)^(1/3)/(-b)^(1/3)},
+  C/b*Int[1/(q+x),x] + (B+C*q)/b*Int[1/(q^2-q*x+x^2),x]] /;
+FreeQ[{a,b,B,C},x] && ZeroQ[(-a)^(1/3)*(-b)^(1/3)*B+2*(-a)^(2/3)*C]
+
+
+Int[(A_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=(-a)^(1/3)/(-b)^(1/3)},
+  C/b*Int[1/(q+x),x] + C*q/b*Int[1/(q^2-q*x+x^2),x]] /;
+FreeQ[{a,b,A,C},x] && ZeroQ[A*(-b)^(2/3)-2*(-a)^(2/3)*C]
+
+
+Int[(A_.+B_.*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=(-a)^(1/3)/b^(1/3)},
+  -C/b*Int[1/(q-x),x] + (B-C*q)/b*Int[1/(q^2+q*x+x^2),x]] /;
+FreeQ[{a,b,A,B,C},x] && ZeroQ[A*b^(2/3)+(-a)^(1/3)*b^(1/3)*B-2*(-a)^(2/3)*C]
+
+
+Int[x_*(B_+C_.*x_)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=(-a)^(1/3)/b^(1/3)},
+  -C/b*Int[1/(q-x),x] + (B-C*q)/b*Int[1/(q^2+q*x+x^2),x]] /;
+FreeQ[{a,b,B,C},x] && ZeroQ[(-a)^(1/3)*b^(1/3)*B-2*(-a)^(2/3)*C]
+
+
+Int[(A_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=(-a)^(1/3)/b^(1/3)},
+  -C/b*Int[1/(q-x),x] - C*q/b*Int[1/(q^2+q*x+x^2),x]] /;
+FreeQ[{a,b,A,C},x] && ZeroQ[A*b^(2/3)-2*(-a)^(2/3)*C]
+
+
+Int[(A_.+B_.*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=a^(1/3)/(-b)^(1/3)},
+  -C/b*Int[1/(q-x),x] + (B-C*q)/b*Int[1/(q^2+q*x+x^2),x]] /;
+FreeQ[{a,b,A,B,C},x] && ZeroQ[A*(-b)^(2/3)+a^(1/3)*(-b)^(1/3)*B-2*a^(2/3)*C]
+
+
+Int[x_*(B_+C_.*x_)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=a^(1/3)/(-b)^(1/3)},
+  -C/b*Int[1/(q-x),x] + (B-C*q)/b*Int[1/(q^2+q*x+x^2),x]] /;
+FreeQ[{a,b,B,C},x] && ZeroQ[a^(1/3)*(-b)^(1/3)*B-2*a^(2/3)*C]
+
+
+Int[(A_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=a^(1/3)/(-b)^(1/3)},
+  -C/b*Int[1/(q-x),x] - C*q/b*Int[1/(q^2+q*x+x^2),x]] /;
+FreeQ[{a,b,A,C},x] && ZeroQ[A*(-b)^(2/3)-2*a^(2/3)*C]
+
+
 Int[(A_.+B_.*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
   Module[{q=(a/b)^(1/3)},
-  C*q^3/a*Int[1/(q+x),x] + q^2*(A-C*q^2)/a*Int[1/(q^2-q*x+x^2),x] /;
- ZeroQ[A-B*q-2*C*q^2] && NonzeroQ[A-C*q^2]] /;
-FreeQ[{a,b,A,B,C},x] && PosQ[a/b]
+  C/b*Int[1/(q+x),x] + (B+C*q)/b*Int[1/(q^2-q*x+x^2),x]] /;
+FreeQ[{a,b,A,B,C},x] && ZeroQ[A-(a/b)^(1/3)*B-2*(a/b)^(2/3)*C]
 
 
 Int[x_*(B_+C_.*x_)/(a_+b_.*x_^3),x_Symbol] :=
   Module[{q=(a/b)^(1/3)},
-  C*q^3/a*Int[1/(q+x),x] - C*q^4/a*Int[1/(q^2-q*x+x^2),x] /;
- ZeroQ[B+2*C*q]] /;
-FreeQ[{a,b,B,C},x] && PosQ[a/b]
+  C/b*Int[1/(q+x),x] + (B+C*q)/b*Int[1/(q^2-q*x+x^2),x]] /;
+FreeQ[{a,b,B,C},x] && ZeroQ[(a/b)^(1/3)*B+2*(a/b)^(2/3)*C]
+
+
+Int[(A_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=(a/b)^(1/3)},
+  C/b*Int[1/(q+x),x] + C*q/b*Int[1/(q^2-q*x+x^2),x]] /;
+FreeQ[{a,b,A,C},x] && ZeroQ[A-2*(a/b)^(2/3)*C]
+
+
+Int[(A_.+B_.*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=Rt[a/b,3]},
+  C/b*Int[1/(q+x),x] + (B+C*q)/b*Int[1/(q^2-q*x+x^2),x]] /;
+FreeQ[{a,b,A,B,C},x] && ZeroQ[A-Rt[a/b,3]*B-2*Rt[a/b,3]^2*C]
+
+
+Int[x_*(B_+C_.*x_)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=Rt[a/b,3]},
+  C/b*Int[1/(q+x),x] + (B+C*q)/b*Int[1/(q^2-q*x+x^2),x]] /;
+FreeQ[{a,b,B,C},x] && ZeroQ[Rt[a/b,3]*B+2*Rt[a/b,3]^2*C]
 
 
 Int[(A_.+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
-  Module[{q=(a/b)^(1/3)},
-  C*q^3/a*Int[1/(q+x),x] + C*q^4/a*Int[1/(q^2-q*x+x^2),x] /;
- ZeroQ[A-2*C*q^2]] /;
-FreeQ[{a,b,A,C},x] && PosQ[a/b]
+  Module[{q=Rt[a/b,3]},
+  C/b*Int[1/(q+x),x] + C*q/b*Int[1/(q^2-q*x+x^2),x]] /;
+FreeQ[{a,b,A,C},x] && ZeroQ[A-2*Rt[a/b,3]^2*C]
 
 
 Int[(A_.+B_.*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
   Module[{q=(-a/b)^(1/3)},
-  C*q^3/a*Int[1/(q-x),x] + q^2*(A-C*q^2)/a*Int[1/(q^2+q*x+x^2),x] /;
- ZeroQ[A+B*q-2*C*q^2] && NonzeroQ[A-C*q^2]] /;
-FreeQ[{a,b,A,B,C},x] && NegQ[a/b]
+  -C/b*Int[1/(q-x),x] + (B-C*q)/b*Int[1/(q^2+q*x+x^2),x]] /;
+FreeQ[{a,b,A,B,C},x] && ZeroQ[A+(-a/b)^(1/3)*B-2*(-a/b)^(2/3)*C]
 
 
 Int[x_*(B_+C_.*x_)/(a_+b_.*x_^3),x_Symbol] :=
   Module[{q=(-a/b)^(1/3)},
-  C*q^3/a*Int[1/(q-x),x] - C*q^4/a*Int[1/(q^2+q*x+x^2),x] /;
- ZeroQ[B-2*C*q]] /;
-FreeQ[{a,b,B,C},x] && NegQ[a/b]
+  -C/b*Int[1/(q-x),x] + (B-C*q)/b*Int[1/(q^2+q*x+x^2),x]] /;
+FreeQ[{a,b,B,C},x] && ZeroQ[(-a/b)^(1/3)*B-2*(-a/b)^(2/3)*C]
+
+
+Int[(A_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=(-a/b)^(1/3)},
+  -C/b*Int[1/(q-x),x] - C*q/b*Int[1/(q^2+q*x+x^2),x]] /;
+FreeQ[{a,b,A,C},x] && ZeroQ[A-2*(-a/b)^(2/3)*C]
+
+
+Int[(A_.+B_.*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=Rt[-a/b,3]},
+  -C/b*Int[1/(q-x),x] + (B-C*q)/b*Int[1/(q^2+q*x+x^2),x]] /;
+FreeQ[{a,b,A,B,C},x] && ZeroQ[A+Rt[-a/b,3]*B-2*Rt[-a/b,3]^2*C]
+
+
+Int[x_*(B_+C_.*x_)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=Rt[-a/b,3]},
+  -C/b*Int[1/(q-x),x] + (B-C*q)/b*Int[1/(q^2+q*x+x^2),x]] /;
+FreeQ[{a,b,B,C},x] && ZeroQ[Rt[-a/b,3]*B-2*Rt[-a/b,3]^2*C]
 
 
 Int[(A_.+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
-  Module[{q=(-a/b)^(1/3)},
-  C*q^3/a*Int[1/(q-x),x] + C*q^4/a*Int[1/(q^2+q*x+x^2),x] /;
- ZeroQ[A-2*C*q^2]] /;
-FreeQ[{a,b,A,C},x] && NegQ[a/b]
+  Module[{q=Rt[-a/b,3]},
+  -C/b*Int[1/(q-x),x] - C*q/b*Int[1/(q^2+q*x+x^2),x]] /;
+FreeQ[{a,b,A,C},x] && ZeroQ[A-2*Rt[-a/b,3]^2*C]
 
 
 Int[(A_.+B_.*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
@@ -575,23 +682,38 @@ FreeQ[{a,b,A,C},x] && Not[RationalQ[a,b,A,C]]
 
 Int[(A_.+B_.*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
   Module[{q=(a/b)^(1/3)},
-  q^2/a*Int[(A+C*q*x)/(q^2-q*x+x^2),x] /;
- ZeroQ[A-B*q+C*q^2]] /;
-FreeQ[{a,b,A,B,C},x] && NonzeroQ[a*B^3-b*A^3] && RationalQ[a/b] && a/b>0
+  q^2/a*Int[(A+C*q*x)/(q^2-q*x+x^2),x]] /;
+FreeQ[{a,b,A,B,C},x] && ZeroQ[A-B*(a/b)^(1/3)+C*(a/b)^(2/3)]
 
 
-Int[(B_*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+Int[x_*(B_.+C_.*x_)/(a_+b_.*x_^3),x_Symbol] :=
   Module[{q=(a/b)^(1/3)},
-  B*q^2/a*Int[x/(q^2-q*x+x^2),x] /;
- ZeroQ[-B+C*q]] /;
-FreeQ[{a,b,B,C},x] && RationalQ[a/b] && a/b>0
+  C*q^3/a*Int[x/(q^2-q*x+x^2),x]] /;
+FreeQ[{a,b,B,C},x] && ZeroQ[B*(a/b)^(1/3)-C*(a/b)^(2/3)]
 
 
 Int[(A_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
   Module[{q=(a/b)^(1/3)},
-  q^2/a*Int[(A+C*q*x)/(q^2-q*x+x^2),x] /;
- ZeroQ[A+C*q^2]] /;
-FreeQ[{a,b,A,C},x] && RationalQ[a/b] && a/b>0
+  q^2/a*Int[(A+C*q*x)/(q^2-q*x+x^2),x]] /;
+FreeQ[{a,b,A,C},x] && ZeroQ[A+C*(a/b)^(2/3)]
+
+
+Int[(A_.+B_.*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=(-a/b)^(1/3)},
+  q/a*Int[(A*q+(A+B*q)*x)/(q^2+q*x+x^2),x]] /;
+FreeQ[{a,b,A,B,C},x] && ZeroQ[A+B*(-a/b)^(1/3)+C*(-a/b)^(2/3)]
+
+
+Int[x_*(B_+C_.*x_)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=(-a/b)^(1/3)},
+  B*q^2/a*Int[x/(q^2+q*x+x^2),x]] /;
+FreeQ[{a,b,B,C},x] && ZeroQ[B*(-a/b)^(1/3)+C*(-a/b)^(2/3)]
+
+
+Int[(A_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
+  Module[{q=(-a/b)^(1/3)},
+  A*q/a*Int[(q+x)/(q^2+q*x+x^2),x]] /;
+FreeQ[{a,b,A,C},x] && ZeroQ[A+C*(-a/b)^(2/3)]
 
 
 Int[(A_.+B_.*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
@@ -616,27 +738,6 @@ Int[(A_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
   q/(3*a)*Int[(q*(2*A-C*q^2)-(A-2*C*q^2)*x)/(q^2-q*x+x^2),x] /;
  NonzeroQ[A+C*q^2]] /;
 FreeQ[{a,b,A,C},x] && RationalQ[a/b] && a/b>0
-
-
-Int[(A_.+B_.*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
-  Module[{q=(-a/b)^(1/3)},
-  q/a*Int[(A*q+(A+B*q)*x)/(q^2+q*x+x^2),x] /;
- ZeroQ[A+B*q+C*q^2]] /;
-FreeQ[{a,b,A,B,C},x] && NonzeroQ[a*B^3-b*A^3] && RationalQ[a/b] && a/b<0
-
-
-Int[x_*(B_+C_.*x_)/(a_+b_.*x_^3),x_Symbol] :=
-  Module[{q=(-a/b)^(1/3)},
-  B*q^2/a*Int[x/(q^2+q*x+x^2),x] /;
- ZeroQ[B*q+C*q^2]] /;
-FreeQ[{a,b,B,C},x] && RationalQ[a/b] && a/b<0
-
-
-Int[(A_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=
-  Module[{q=(-a/b)^(1/3)},
-  A*q/a*Int[(q+x)/(q^2+q*x+x^2),x] /;
- ZeroQ[A+C*q^2]] /;
-FreeQ[{a,b,A,C},x] && RationalQ[a/b] && a/b<0
 
 
 Int[(A_.+B_.*x_+C_.*x_^2)/(a_+b_.*x_^3),x_Symbol] :=

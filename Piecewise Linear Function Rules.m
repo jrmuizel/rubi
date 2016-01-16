@@ -177,11 +177,11 @@ FreeQ[{a,b},x] && PiecewiseLinearQ[u,x] && Not[LinearQ[u,x]] && RationalQ[n] && 
 
 
 (* ::Code:: *)
-Int[u_^n_.*Log[a_.+b_.*x_]/(a_.+b_.*x_),x_Symbol] :=
+(* Int[u_^n_.*Log[a_.+b_.*x_]/(a_.+b_.*x_),x_Symbol] :=
   Module[{c=Simplify[D[u,x]]},
   u^n*Log[a+b*x]^2/(2*b) - 
   c*n/(2*b)*Int[u^(n-1)*Log[a+b*x]^2,x]] /;
-FreeQ[{a,b},x] && PiecewiseLinearQ[u,x] && RationalQ[n] && n>0
+FreeQ[{a,b},x] && PiecewiseLinearQ[u,x] && RationalQ[n] && n>0 *)
 
 
 (* ::Code:: *)

@@ -23,6 +23,10 @@
 If[Not[NumberQ[TimeLimit]], TimeLimit=1.0];
 
 
+IntHide[u_,x_Symbol] :=
+  Block[{ShowSteps=False,StepCounter=Null}, Int[u,x]]
+
+
 Map2[func_,lst1_,lst2_] :=
   Module[{i},
     ReapList[Do[Sow[func[lst1[[i]],lst2[[i]]]],{i,Length[lst1]}]]]
@@ -2509,9 +2513,9 @@ ExpandIntegrand[F_[u_]^m_.*(a_+b_.*G_[u_])^n_.,x_Symbol] :=
 FreeQ[{a,b},x] && IntegersQ[m,n] && F[u]*G[u]===1
 
 
-ExpandIntegrand[u_*(a_.+b_.*Log[c_.*(d_.+e_.*x_)^n_.])^p_,x_Symbol] :=
-  ExpandLinearProduct[(a+b*Log[c*(d+e*x)^n])^p,u,d,e,x] /;
-FreeQ[{a,b,c,d,e,n,p},x] && PolynomialQ[u,x]
+ExpandIntegrand[u_*(a_.+b_.*Log[c_.*(d_.*(e_.+f_.*x_)^p_.)^q_.])^n_,x_Symbol] :=
+  ExpandLinearProduct[(a+b*Log[c*(d*(e+f*x)^p)^q])^n,u,e,f,x] /;
+FreeQ[{a,b,c,d,e,f,n,p,q},x] && PolynomialQ[u,x]
 
 
 ExpandIntegrand[u_*(a_.+b_.*F_[c_.+d_.*x_])^n_,x_Symbol] :=
@@ -2635,17 +2639,31 @@ FreeQ[{a,b,c,d,e,f},x] && IntegersQ[m,n,p,q] && 0<m<p<q<n
 
 
 (* ::Code:: *)
-ExpandIntegrand[1/(a_.+b_.*u_^n_.+c_.*u_^j_.),x_Symbol] :=
-  Module[{q=Rt[b^2-4*a*c,2]},
-  2*c/(q*(b-q+2*c*u^n)) - 2*c/(q*(b+q+2*c*u^n))] /;
-FreeQ[{a,b,c,n},x] && ZeroQ[j-2*n] && NonzeroQ[b^2-4*a*c]
+ExpandIntegrand[(a_+c_.*u_^n_.)^p_,x_Symbol] :=
+  Module[{q},
+  ReplaceAll[ExpandIntegrand[1/c^p,(-q+c*x)^p*(q+c*x)^p,x],{q->Rt[-a*c,2],x->u^(n/2)}]] /;
+FreeQ[{a,c},x] && IntegerQ[n/2] && NegativeIntegerQ[p]
 
 
 (* ::Code:: *)
-ExpandIntegrand[u_^m_./(a_.+b_.*u_^n_.+c_.*u_^j_.),x_Symbol] :=
-  Module[{q=Rt[b^2-4*a*c,2]},
-  2*c*u^m/(q*(b-q+2*c*u^n)) - 2*c*u^m/(q*(b+q+2*c*u^n))] /;
-FreeQ[{a,b,c},x] && IntegersQ[m,n,j] && j==2*n && 0<m<2*n && m!=n && NonzeroQ[b^2-4*a*c]
+ExpandIntegrand[u_^m_.*(a_.+c_.*u_^n_.)^p_,x_Symbol] :=
+  Module[{q},
+  ReplaceAll[ExpandIntegrand[1/c^p,x^m*(-q+c*x^(n/2))^p*(q+c*x^(n/2))^p,x],{q->Rt[-a*c,2],x->u}]] /;
+FreeQ[{a,c},x] && IntegersQ[m,n/2] && NegativeIntegerQ[p] && 0<m<n && m!=n/2
+
+
+(* ::Code:: *)
+ExpandIntegrand[(a_.+b_.*u_^n_.+c_.*u_^j_.)^p_,x_Symbol] :=
+  Module[{q},
+  ReplaceAll[ExpandIntegrand[1/(4^p*c^p),(b-q+2*c*x)^p*(b+q+2*c*x)^p,x],{q->Rt[b^2-4*a*c,2],x->u^n}]] /;
+FreeQ[{a,b,c},x] && IntegerQ[n] && ZeroQ[j-2*n] && NegativeIntegerQ[p] && NonzeroQ[b^2-4*a*c]
+
+
+(* ::Code:: *)
+ExpandIntegrand[u_^m_.*(a_.+b_.*u_^n_.+c_.*u_^j_.)^p_,x_Symbol] :=
+  Module[{q},
+  ReplaceAll[ExpandIntegrand[1/(4^p*c^p),x^m*(b-q+2*c*x^n)^p*(b+q+2*c*x^n)^p,x],{q->Rt[b^2-4*a*c,2],x->u}]] /;
+FreeQ[{a,b,c},x] && IntegersQ[m,n,j] && ZeroQ[j-2*n] && NegativeIntegerQ[p] && 0<m<2*n && m!=n && NonzeroQ[b^2-4*a*c]
 
 
 (* ::Code:: *)

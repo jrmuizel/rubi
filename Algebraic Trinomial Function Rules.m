@@ -89,9 +89,9 @@ FreeQ[{a,b,c},x] && NonzeroQ[b^2-4*a*c] && RationalQ[p] && p<-1 && p!=-3/2
 
 
 Int[(a_+b_.*x_+c_.*x_^2)^p_,x_Symbol] :=
-  2^(p-1)*(b-Rt[b^2-4*a*c,2]+2*c*x)*(a+b*x+c*x^2)^p/(c*(p+1)*((b+Rt[b^2-4*a*c,2]+2*c*x)/Rt[b^2-4*a*c,2])^p)*
-    Hypergeometric2F1[-p,p+1,p+2,(-b+Rt[b^2-4*a*c,2]-2*c*x)/(2*Rt[b^2-4*a*c,2])] /;
-FreeQ[{a,b,c,p},x] && NonzeroQ[b^2-4*a*c] && NonzeroQ[p+1]
+  -(a+b*x+c*x^2)^(p+1)/((p+1)*Rt[b^2-4*a*c,2]*(-(b+2*c*x-Rt[b^2-4*a*c,2])/(2*Rt[b^2-4*a*c,2]))^(p+1))*
+    Hypergeometric2F1[-p,p+1,p+2,(b+2*c*x+Rt[b^2-4*a*c,2])/(2*Rt[b^2-4*a*c,2])] /;
+FreeQ[{a,b,c,p},x] && NonzeroQ[b^2-4*a*c] && Not[IntegerQ[2*p]]
 
 
 Int[(a_+b_.*u_+c_.*v_^2)^p_,x_Symbol] :=
@@ -761,6 +761,11 @@ Int[(d_+e_.*x_)^m_*(a_+c_.*x_^2)^p_,x_Symbol] :=
   -(d+e*x)^(m+1)*(a*e+c*d*x)*(a+c*x^2)^(p+1)/(2*a*(p+1)*(c*d^2+a*e^2)) - 
   ((c*d^2+a*e^2)+c*d^2*m)/(2*a*(p+1)*(c*d^2+a*e^2))*Int[(d+e*x)^m*(a+c*x^2)^(p+1),x] /;
 FreeQ[{a,c,d,e,m},x] && NonzeroQ[c*d^2+a*e^2] && RationalQ[m,p] && m+2*p+4==0 && p<-1
+
+
+Int[(d_.+e_.*x_)^m_/Sqrt[b_.*x_+c_.*x_^2],x_Symbol] :=
+  Int[(d+e*x)^m/(Sqrt[x]*Sqrt[b+c*x]),x] /;
+FreeQ[{b,c,d,e},x] && NonzeroQ[2*c*d-b*e] && NonzeroQ[c*d-b*e] && RationalQ[m] && m^2==1/4 && PositiveQ[b] && NegativeQ[c]
 
 
 Int[(d_.+e_.*x_)^m_/Sqrt[b_.*x_+c_.*x_^2],x_Symbol] :=
@@ -3022,7 +3027,7 @@ FreeQ[{a,c,A,B,n,p},x] && ZeroQ[j-2*n]
 
 
 Int[1/((a_+b_.*x_^2)*Sqrt[c_+d_.*x_^4]),x_Symbol] :=
-  Simp[1/(a*Sqrt[c]*Rt[-Rt[-d/c,2],2])*EllipticPi[b/(a*Rt[-d/c,2]), ArcSin[Rt[-Rt[-d/c,2],2]*x], -1],x] /;
+  1/(a*Sqrt[c]*Rt[-d/c,4])*EllipticPi[-b/(a*Rt[-d/c,2]),ArcSin[Rt[-d/c,4]*x],-1] /;
 FreeQ[{a,b,c,d},x] && PositiveQ[c]
 
 

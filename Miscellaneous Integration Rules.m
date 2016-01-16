@@ -44,30 +44,6 @@ FreeQ[{a,b,c,e,g,A,C,F},x] && ZeroQ[e+g] && ZeroQ[A*e^2+C]
 
 
 (* ::Code:: *)
-Int[u_*(a_.+b_.*Log[c_.*(d_.+e_.*x_)^n_.])^p_.,x_Symbol] :=
-  Module[{v=ExpandIntegrand[(a+b*Log[c*(d+e*x)^n])^p,u,x]},
-  Int[v,x] /;
- SumQ[v]] /;
-FreeQ[{a,b,c,d,e,n,p},x]
-
-
-(* ::Code:: *)
-Int[u_*Log[c_.*(a_.+b_.*x_^n_.)^p_.],x_Symbol] :=
-  Module[{v=ExpandIntegrand[Log[c*(a+b*x^n)^p],u,x]},
-  Int[v,x] /;
- SumQ[v]] /;
-FreeQ[{a,b,c,n,p},x]
-
-
-(* ::Code:: *)
-Int[u_*Log[e_.*(e1_.*(a_.+b_.*x_)^n1_.*(c_.+d_.*x_)^n2_)^n_.]^p_.,x_Symbol] :=
-  Module[{v=ExpandIntegrand[Log[e*(e1*(a+b*x)^n1*(c+d*x)^n2)^n]^p,u,x]},
-  Int[v,x] /;
- SumQ[v]] /;
-FreeQ[{a,b,c,d,e,n,e1,n1,p},x]
-
-
-(* ::Code:: *)
 Int[u_/y_,x_Symbol] :=
   Module[{q=DerivativeDivides[y,u,x]},
     q*Log[RemoveContent[y,x]] /;
@@ -685,6 +661,10 @@ Int[u_,x_Symbol] :=
   Module[{lst=SubstForFractionalPowerOfLinear[u,x]},
   lst[[2]]*lst[[4]]*Subst[Int[lst[[1]],x],x,lst[[3]]^(1/lst[[2]])] /;
  NotFalseQ[lst]]]
+
+
+(* ::Code:: *)
+Int[u_,x_] := Defer[Int][u,x]
 
 
 

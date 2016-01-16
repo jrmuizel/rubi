@@ -5,6 +5,363 @@
 
 
 (* ::Subsection::Closed:: *)
+(*Sine normalization rules*)
+
+
+Int[u_*(c_.*tan[a_.+b_.*x_])^m_.*(d_.*sin[a_.+b_.*x_])^n_.,x_Symbol] :=
+  (c*Tan[a+b*x])^m*(d*Cos[a+b*x])^m/(d*Sin[a+b*x])^m*Int[ActivateTrig[u]*(d*Sin[a+b*x])^(m+n)/(d*Cos[a+b*x])^m,x] /;
+FreeQ[{a,b,c,d,m,n},x] && KnownSineIntegrandQ[u,x] && Not[IntegerQ[m]]
+
+
+Int[u_*(c_.*tan[a_.+b_.*x_])^m_.*(d_.*cos[a_.+b_.*x_])^n_.,x_Symbol] :=
+  (c*Tan[a+b*x])^m*(d*Cos[a+b*x])^m/(d*Sin[a+b*x])^m*Int[ActivateTrig[u]*(d*Sin[a+b*x])^m/(d*Cos[a+b*x])^(m-n),x] /;
+FreeQ[{a,b,c,d,m,n},x] && KnownSineIntegrandQ[u,x] && Not[IntegerQ[m]]
+
+
+Int[u_*(c_.*cot[a_.+b_.*x_])^m_.*(d_.*sin[a_.+b_.*x_])^n_.,x_Symbol] :=
+  (c*Cot[a+b*x])^m*(d*Sin[a+b*x])^m/(d*Cos[a+b*x])^m*Int[ActivateTrig[u]*(d*Cos[a+b*x])^m/(d*Sin[a+b*x])^(m-n),x] /;
+FreeQ[{a,b,c,d,m,n},x] && KnownSineIntegrandQ[u,x] && Not[IntegerQ[m]]
+
+
+Int[u_*(c_.*cot[a_.+b_.*x_])^m_.*(d_.*cos[a_.+b_.*x_])^n_.,x_Symbol] :=
+  (c*Cot[a+b*x])^m*(d*Sin[a+b*x])^m/(d*Cos[a+b*x])^m*Int[ActivateTrig[u]*(d*Cos[a+b*x])^(m+n)/(d*Sin[a+b*x])^m,x] /;
+FreeQ[{a,b,c,d,m,n},x] && KnownSineIntegrandQ[u,x] && Not[IntegerQ[m]]
+
+
+Int[u_*(c_.*sec[a_.+b_.*x_])^m_.*(d_.*cos[a_.+b_.*x_])^n_.,x_Symbol] :=
+  (c*Sec[a+b*x])^m*(d*Cos[a+b*x])^m*Int[ActivateTrig[u]*(d*Cos[a+b*x])^(n-m),x] /;
+FreeQ[{a,b,c,d,m,n},x] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_*(c_.*sec[a_.+b_.*x_])^m_.*(d_.*cos[a_.+b_.*x_])^n_.,x_Symbol] :=
+  (c*Csc[a+b*x])^m*(d*Sin[a+b*x])^m*Int[ActivateTrig[u]*(d*Sin[a+b*x])^(n-m),x] /;
+FreeQ[{a,b,c,d,m,n},x] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_*(c_.*tan[a_.+b_.*x_])^m_.,x_Symbol] :=
+  (c*Tan[a+b*x])^m*(c*Cos[a+b*x])^m/(c*Sin[a+b*x])^m*Int[ActivateTrig[u]*(c*Sin[a+b*x])^m/(c*Cos[a+b*x])^m,x] /;
+FreeQ[{a,b,c,m},x] && Not[IntegerQ[m]] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_*(c_.*cot[a_.+b_.*x_])^m_.,x_Symbol] :=
+  (c*Cot[a+b*x])^m*(c*Sin[a+b*x])^m/(c*Cos[a+b*x])^m*Int[ActivateTrig[u]*(c*Cos[a+b*x])^m/(c*Sin[a+b*x])^m,x] /;
+FreeQ[{a,b,c,m},x] && Not[IntegerQ[m]] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_*(c_.*sec[a_.+b_.*x_])^m_.,x_Symbol] :=
+  (c*Sec[a+b*x])^m*(c*Cos[a+b*x])^m*Int[ActivateTrig[u]/(c*Cos[a+b*x])^m,x] /;
+FreeQ[{a,b,c,m},x] && Not[IntegerQ[m]] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_*(c_.*csc[a_.+b_.*x_])^m_.,x_Symbol] :=
+  (c*Csc[a+b*x])^m*(c*Sin[a+b*x])^m*Int[ActivateTrig[u]/(c*Sin[a+b*x])^m,x] /;
+FreeQ[{a,b,c,m},x] && Not[IntegerQ[m]] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_*(c_.*sin[a_.+b_.*x_])^n_.*(A_+B_.*csc[a_.+b_.*x_]),x_Symbol] :=
+  c*Int[ActivateTrig[u]*(c*Sin[a+b*x])^(n-1)*(B+A*Sin[a+b*x]),x] /;
+FreeQ[{a,b,c,A,B,n},x] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_*(c_.*cos[a_.+b_.*x_])^n_.*(A_+B_.*sec[a_.+b_.*x_]),x_Symbol] :=
+  c*Int[ActivateTrig[u]*(c*Cos[a+b*x])^(n-1)*(B+A*Cos[a+b*x]),x] /;
+FreeQ[{a,b,c,A,B,n},x] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_*(A_+B_.*csc[a_.+b_.*x_]),x_Symbol] :=
+  Int[ActivateTrig[u]*(B+A*Sin[a+b*x])/Sin[a+b*x],x] /;
+FreeQ[{a,b,A,B},x] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_*(A_+B_.*sec[a_.+b_.*x_]),x_Symbol] :=
+  Int[ActivateTrig[u]*(B+A*Cos[a+b*x])/Cos[a+b*x],x] /;
+FreeQ[{a,b,A,B},x] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_.*(c_.*sin[a_.+b_.*x_])^n_.*(A_.+B_.*csc[a_.+b_.*x_]+C_.*csc[a_.+b_.*x_]^2),x_Symbol] :=
+  c^2*Int[ActivateTrig[u]*(c*Sin[a+b*x])^(n-2)*(C+B*Sin[a+b*x]+A*Sin[a+b*x]^2),x] /;
+FreeQ[{a,b,c,A,B,C,n},x] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_.*(c_.*cos[a_.+b_.*x_])^n_.*(A_.+B_.*sec[a_.+b_.*x_]+C_.*sec[a_.+b_.*x_]^2),x_Symbol] :=
+  c^2*Int[ActivateTrig[u]*(c*Cos[a+b*x])^(n-2)*(C+B*Cos[a+b*x]+A*Cos[a+b*x]^2),x] /;
+FreeQ[{a,b,c,A,B,C,n},x] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_.*(c_.*sin[a_.+b_.*x_])^n_.*(A_+C_.*csc[a_.+b_.*x_]^2),x_Symbol] :=
+  c^2*Int[ActivateTrig[u]*(c*Sin[a+b*x])^(n-2)*(C+A*Sin[a+b*x]^2),x] /;
+FreeQ[{a,b,c,A,C,n},x] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_.*(c_.*cos[a_.+b_.*x_])^n_.*(A_+C_.*sec[a_.+b_.*x_]^2),x_Symbol] :=
+  c^2*Int[ActivateTrig[u]*(c*Cos[a+b*x])^(n-2)*(C+A*Cos[a+b*x]^2),x] /;
+FreeQ[{a,b,c,A,C,n},x] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_*(A_.+B_.*csc[a_.+b_.*x_]+C_.*csc[a_.+b_.*x_]^2),x_Symbol] :=
+  Int[ActivateTrig[u]*(C+B*Sin[a+b*x]+A*Sin[a+b*x]^2)/Sin[a+b*x]^2,x] /;
+FreeQ[{a,b,A,B,C},x] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_*(A_.+B_.*sec[a_.+b_.*x_]+C_.*sec[a_.+b_.*x_]^2),x_Symbol] :=
+  Int[ActivateTrig[u]*(C+B*Cos[a+b*x]+A*Cos[a+b*x]^2)/Cos[a+b*x]^2,x] /;
+FreeQ[{a,b,A,B,C},x] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_*(A_+C_.*csc[a_.+b_.*x_]^2),x_Symbol] :=
+  Int[ActivateTrig[u]*(C+A*Sin[a+b*x]^2)/Sin[a+b*x]^2,x] /;
+FreeQ[{a,b,A,C},x] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_*(A_+C_.*sec[a_.+b_.*x_]^2),x_Symbol] :=
+  Int[ActivateTrig[u]*(C+A*Cos[a+b*x]^2)/Cos[a+b*x]^2,x] /;
+FreeQ[{a,b,A,C},x] && KnownSineIntegrandQ[u,x]
+
+
+Int[u_*(A_.+B_.*sin[a_.+b_.*x_]+C_.*csc[a_.+b_.*x_]),x_Symbol] :=
+  Int[ActivateTrig[u]*(C+A*Sin[a+b*x]+B*Sin[a+b*x]^2)/Sin[a+b*x],x] /;
+FreeQ[{a,b,A,B,C},x]
+
+
+Int[u_*(A_.+B_.*cos[a_.+b_.*x_]+C_.*sec[a_.+b_.*x_]),x_Symbol] :=
+  Int[ActivateTrig[u]*(C+A*Cos[a+b*x]+B*Cos[a+b*x]^2)/Cos[a+b*x],x] /;
+FreeQ[{a,b,A,B,C},x]
+
+
+Int[u_*(A_.*sin[a_.+b_.*x_]^n_.+B_.*sin[a_.+b_.*x_]^n1_+C_.*sin[a_.+b_.*x_]^n2_),x_Symbol] :=
+  Int[ActivateTrig[u]*Sin[a+b*x]^n*(A+B*Sin[a+b*x]+C*Sin[a+b*x]^2),x] /;
+FreeQ[{a,b,A,B,C,n},x] && ZeroQ[n1-n-1] && ZeroQ[n2-n-2]
+
+
+Int[u_*(A_.*cos[a_.+b_.*x_]^n_.+B_.*cos[a_.+b_.*x_]^n1_+C_.*cos[a_.+b_.*x_]^n2_),x_Symbol] :=
+  Int[ActivateTrig[u]*Cos[a+b*x]^n*(A+B*Cos[a+b*x]+C*Cos[a+b*x]^2),x] /;
+FreeQ[{a,b,A,B,C,n},x] && ZeroQ[n1-n-1] && ZeroQ[n2-n-2]
+
+
+(* ::Subsection::Closed:: *)
+(*Tangent normalization rules*)
+
+
+Int[u_*(c_.*cot[a_.+b_.*x_])^m_.*(d_.*tan[a_.+b_.*x_])^n_.,x_Symbol] :=
+  (c*Cot[a+b*x])^m*(d*Tan[a+b*x])^m*Int[ActivateTrig[u]*(d*Tan[a+b*x])^(n-m),x] /;
+FreeQ[{a,b,c,d,m,n},x] && KnownTangentIntegrandQ[u,x]
+
+
+Int[u_*(c_.*tan[a_.+b_.*x_])^m_.*(d_.*cos[a_.+b_.*x_])^n_.,x_Symbol] :=
+  (c*Tan[a+b*x])^m*(d*Cos[a+b*x])^m/(d*Sin[a+b*x])^m*Int[ActivateTrig[u]*(d*Sin[a+b*x])^m/(d*Cos[a+b*x])^(m-n),x] /;
+FreeQ[{a,b,c,d,m,n},x] && KnownCotangentIntegrandQ[u,x]
+
+
+Int[u_*(c_.*cot[a_.+b_.*x_])^m_.,x_Symbol] :=
+  (c*Cot[a+b*x])^m*(c*Tan[a+b*x])^m*Int[ActivateTrig[u]/(c*Tan[a+b*x])^m,x] /;
+FreeQ[{a,b,c,m},x] && Not[IntegerQ[m]] && KnownTangentIntegrandQ[u,x]
+
+
+Int[u_*(c_.*tan[a_.+b_.*x_])^m_.,x_Symbol] :=
+  (c*Cot[a+b*x])^m*(c*Tan[a+b*x])^m*Int[ActivateTrig[u]/(c*Cot[a+b*x])^m,x] /;
+FreeQ[{a,b,c,m},x] && Not[IntegerQ[m]] && KnownCotangentIntegrandQ[u,x]
+
+
+Int[u_*(c_.*tan[a_.+b_.*x_])^n_.*(A_+B_.*cot[a_.+b_.*x_]),x_Symbol] :=
+  c*Int[ActivateTrig[u]*(c*Tan[a+b*x])^(n-1)*(B+A*Tan[a+b*x]),x] /;
+FreeQ[{a,b,c,A,B,n},x] && KnownTangentIntegrandQ[u,x]
+
+
+Int[u_*(c_.*cot[a_.+b_.*x_])^n_.*(A_+B_.*tan[a_.+b_.*x_]),x_Symbol] :=
+  c*Int[ActivateTrig[u]*(c*Cot[a+b*x])^(n-1)*(B+A*Cot[a+b*x]),x] /;
+FreeQ[{a,b,c,A,B,n},x] && KnownCotangentIntegrandQ[u,x]
+
+
+Int[u_*(A_+B_.*cot[a_.+b_.*x_]),x_Symbol] :=
+  Int[ActivateTrig[u]*(B+A*Tan[a+b*x])/Tan[a+b*x],x] /;
+FreeQ[{a,b,A,B},x] && KnownTangentIntegrandQ[u,x]
+
+
+Int[u_*(A_+B_.*tan[a_.+b_.*x_]),x_Symbol] :=
+  Int[ActivateTrig[u]*(B+A*Cot[a+b*x])/Cot[a+b*x],x] /;
+FreeQ[{a,b,A,B},x] && KnownCotangentIntegrandQ[u,x]
+
+
+Int[u_.*(c_.*tan[a_.+b_.*x_])^n_.*(A_.+B_.*cot[a_.+b_.*x_]+C_.*cot[a_.+b_.*x_]^2),x_Symbol] :=
+  c^2*Int[ActivateTrig[u]*(c*Tan[a+b*x])^(n-2)*(C+B*Tan[a+b*x]+A*Tan[a+b*x]^2),x] /;
+FreeQ[{a,b,c,A,B,C,n},x] && KnownTangentIntegrandQ[u,x]
+
+
+Int[u_.*(c_.*cot[a_.+b_.*x_])^n_.*(A_.+B_.*tan[a_.+b_.*x_]+C_.*tan[a_.+b_.*x_]^2),x_Symbol] :=
+  c^2*Int[ActivateTrig[u]*(c*Cot[a+b*x])^(n-2)*(C+B*Cot[a+b*x]+A*Cot[a+b*x]^2),x] /;
+FreeQ[{a,b,c,A,B,C,n},x] && KnownCotangentIntegrandQ[u,x]
+
+
+Int[u_.*(c_.*tan[a_.+b_.*x_])^n_.*(A_+C_.*cot[a_.+b_.*x_]^2),x_Symbol] :=
+  c^2*Int[ActivateTrig[u]*(c*Tan[a+b*x])^(n-2)*(C+A*Tan[a+b*x]^2),x] /;
+FreeQ[{a,b,c,A,C,n},x] && KnownTangentIntegrandQ[u,x]
+
+
+Int[u_.*(c_.*cot[a_.+b_.*x_])^n_.*(A_+C_.*tan[a_.+b_.*x_]^2),x_Symbol] :=
+  c^2*Int[ActivateTrig[u]*(c*Cot[a+b*x])^(n-2)*(C+A*Cot[a+b*x]^2),x] /;
+FreeQ[{a,b,c,A,C,n},x] && KnownCotangentIntegrandQ[u,x]
+
+
+Int[u_*(A_.+B_.*cot[a_.+b_.*x_]+C_.*cot[a_.+b_.*x_]^2),x_Symbol] :=
+  Int[ActivateTrig[u]*(C+B*Tan[a+b*x]+A*Tan[a+b*x]^2)/Tan[a+b*x]^2,x] /;
+FreeQ[{a,b,A,B,C},x] && KnownTangentIntegrandQ[u,x]
+
+
+Int[u_*(A_.+B_.*tan[a_.+b_.*x_]+C_.*tan[a_.+b_.*x_]^2),x_Symbol] :=
+  Int[ActivateTrig[u]*(C+B*Cot[a+b*x]+A*Cot[a+b*x]^2)/Cot[a+b*x]^2,x] /;
+FreeQ[{a,b,A,B,C},x] && KnownCotangentIntegrandQ[u,x]
+
+
+Int[u_*(A_+C_.*cot[a_.+b_.*x_]^2),x_Symbol] :=
+  Int[ActivateTrig[u]*(C+A*Tan[a+b*x]^2)/Tan[a+b*x]^2,x] /;
+FreeQ[{a,b,A,C},x] && KnownTangentIntegrandQ[u,x]
+
+
+Int[u_*(A_+C_.*tan[a_.+b_.*x_]^2),x_Symbol] :=
+  Int[ActivateTrig[u]*(C+A*Cot[a+b*x]^2)/Cot[a+b*x]^2,x] /;
+FreeQ[{a,b,A,C},x] && KnownCotangentIntegrandQ[u,x]
+
+
+Int[u_*(A_.+B_.*tan[a_.+b_.*x_]+C_.*cot[a_.+b_.*x_]),x_Symbol] :=
+  Int[ActivateTrig[u]*(C+A*Tan[a+b*x]+B*Tan[a+b*x]^2)/Tan[a+b*x],x] /;
+FreeQ[{a,b,A,B,C},x]
+
+
+Int[u_*(A_.*tan[a_.+b_.*x_]^n_.+B_.*tan[a_.+b_.*x_]^n1_+C_.*tan[a_.+b_.*x_]^n2_),x_Symbol] :=
+  Int[ActivateTrig[u]*Tan[a+b*x]^n*(A+B*Tan[a+b*x]+C*Tan[a+b*x]^2),x] /;
+FreeQ[{a,b,A,B,C,n},x] && ZeroQ[n1-n-1] && ZeroQ[n2-n-2]
+
+
+Int[u_*(A_.*cot[a_.+b_.*x_]^n_.+B_.*cot[a_.+b_.*x_]^n1_+C_.*cot[a_.+b_.*x_]^n2_),x_Symbol] :=
+  Int[ActivateTrig[u]*Cot[a+b*x]^n*(A+B*Cot[a+b*x]+C*Cot[a+b*x]^2),x] /;
+FreeQ[{a,b,A,B,C,n},x] && ZeroQ[n1-n-1] && ZeroQ[n2-n-2]
+
+
+(* ::Subsection::Closed:: *)
+(*Secant normalization rules*)
+
+
+Int[u_*(c_.*sin[a_.+b_.*x_])^m_.*(d_.*csc[a_.+b_.*x_])^n_.,x_Symbol] :=
+  (c*Sin[a+b*x])^m*(d*Csc[a+b*x])^m*Int[ActivateTrig[u]*(d*Csc[a+b*x])^(n-m),x] /;
+FreeQ[{a,b,c,d,m,n},x] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_*(c_.*cos[a_.+b_.*x_])^m_.*(d_.*sec[a_.+b_.*x_])^n_.,x_Symbol] :=
+  (c*Cos[a+b*x])^m*(d*Sec[a+b*x])^m*Int[ActivateTrig[u]*(d*Sec[a+b*x])^(n-m),x] /;
+FreeQ[{a,b,c,d,m,n},x] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_*(c_.*tan[a_.+b_.*x_])^m_.*(d_.*sec[a_.+b_.*x_])^n_.,x_Symbol] :=
+  (c*Tan[a+b*x])^m*(d*Csc[a+b*x])^m/(d*Sec[a+b*x])^m*Int[ActivateTrig[u]*(d*Sec[a+b*x])^(m+n)/(d*Csc[a+b*x])^m,x] /;
+FreeQ[{a,b,c,d,m,n},x] && KnownSecantIntegrandQ[u,x] && Not[IntegerQ[m]]
+
+
+Int[u_*(c_.*tan[a_.+b_.*x_])^m_.*(d_.*csc[a_.+b_.*x_])^n_.,x_Symbol] :=
+  (c*Tan[a+b*x])^m*(d*Csc[a+b*x])^m/(d*Sec[a+b*x])^m*Int[ActivateTrig[u]*(d*Sec[a+b*x])^m/(d*Csc[a+b*x])^(m-n),x] /;
+FreeQ[{a,b,c,d,m,n},x] && KnownSecantIntegrandQ[u,x] && Not[IntegerQ[m]]
+
+
+Int[u_*(c_.*cot[a_.+b_.*x_])^m_.*(d_.*sec[a_.+b_.*x_])^n_.,x_Symbol] :=
+  (c*Cot[a+b*x])^m*(d*Sec[a+b*x])^m/(d*Csc[a+b*x])^m*Int[ActivateTrig[u]*(d*Csc[a+b*x])^m/(d*Sec[a+b*x])^(m-n),x] /;
+FreeQ[{a,b,c,d,m,n},x] && KnownSecantIntegrandQ[u,x] && Not[IntegerQ[m]]
+
+
+Int[u_*(c_.*cot[a_.+b_.*x_])^m_.*(d_.*csc[a_.+b_.*x_])^n_.,x_Symbol] :=
+  (c*Cot[a+b*x])^m*(d*Sec[a+b*x])^m/(d*Csc[a+b*x])^m*Int[ActivateTrig[u]*(d*Csc[a+b*x])^(m+n)/(d*Sec[a+b*x])^m,x] /;
+FreeQ[{a,b,c,d,m,n},x] && KnownSecantIntegrandQ[u,x] && Not[IntegerQ[m]]
+
+
+Int[u_*(c_.*sin[a_.+b_.*x_])^m_.,x_Symbol] :=
+  (c*Csc[a+b*x])^m*(c*Sin[a+b*x])^m*Int[ActivateTrig[u]/(c*Csc[a+b*x])^m,x] /;
+FreeQ[{a,b,c,m},x] && Not[IntegerQ[m]] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_*(c_.*cos[a_.+b_.*x_])^m_.,x_Symbol] :=
+  (c*Cos[a+b*x])^m*(c*Sec[a+b*x])^m*Int[ActivateTrig[u]/(c*Sec[a+b*x])^m,x] /;
+FreeQ[{a,b,c,m},x] && Not[IntegerQ[m]] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_*(c_.*tan[a_.+b_.*x_])^m_.,x_Symbol] :=
+  (c*Tan[a+b*x])^m*(c*Csc[a+b*x])^m/(c*Sec[a+b*x])^m*Int[ActivateTrig[u]*(c*Sec[a+b*x])^m/(c*Csc[a+b*x])^m,x] /;
+FreeQ[{a,b,c,m},x] && Not[IntegerQ[m]] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_*(c_.*cot[a_.+b_.*x_])^m_.,x_Symbol] :=
+  (c*Cot[a+b*x])^m*(c*Sec[a+b*x])^m/(c*Csc[a+b*x])^m*Int[ActivateTrig[u]*(c*Csc[a+b*x])^m/(c*Sec[a+b*x])^m,x] /;
+FreeQ[{a,b,c,m},x] && Not[IntegerQ[m]] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_*(c_.*sec[a_.+b_.*x_])^n_.*(A_+B_.*cos[a_.+b_.*x_]),x_Symbol] :=
+  c*Int[ActivateTrig[u]*(c*Sec[a+b*x])^(n-1)*(B+A*Sec[a+b*x]),x] /;
+FreeQ[{a,b,c,A,B,n},x] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_*(c_.*csc[a_.+b_.*x_])^n_.*(A_+B_.*sin[a_.+b_.*x_]),x_Symbol] :=
+  c*Int[ActivateTrig[u]*(c*Csc[a+b*x])^(n-1)*(B+A*Csc[a+b*x]),x] /;
+FreeQ[{a,b,c,A,B,n},x] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_*(A_+B_.*cos[a_.+b_.*x_]),x_Symbol] :=
+  Int[ActivateTrig[u]*(B+A*Sec[a+b*x])/Sec[a+b*x],x] /;
+FreeQ[{a,b,A,B},x] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_*(A_+B_.*sin[a_.+b_.*x_]),x_Symbol] :=
+  Int[ActivateTrig[u]*(B+A*Csc[a+b*x])/Csc[a+b*x],x] /;
+FreeQ[{a,b,A,B},x] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_.*(c_.*sec[a_.+b_.*x_])^n_.*(A_.+B_.*cos[a_.+b_.*x_]+C_.*cos[a_.+b_.*x_]^2),x_Symbol] :=
+  c^2*Int[ActivateTrig[u]*(c*Sec[a+b*x])^(n-2)*(C+B*Sec[a+b*x]+A*Sec[a+b*x]^2),x] /;
+FreeQ[{a,b,c,A,B,C,n},x] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_.*(c_.*csc[a_.+b_.*x_])^n_.*(A_.+B_.*sin[a_.+b_.*x_]+C_.*sin[a_.+b_.*x_]^2),x_Symbol] :=
+  c^2*Int[ActivateTrig[u]*(c*Csc[a+b*x])^(n-2)*(C+B*Csc[a+b*x]+A*Csc[a+b*x]^2),x] /;
+FreeQ[{a,b,c,A,B,C,n},x] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_.*(c_.*sec[a_.+b_.*x_])^n_.*(A_+C_.*cos[a_.+b_.*x_]^2),x_Symbol] :=
+  c^2*Int[ActivateTrig[u]*(c*Sec[a+b*x])^(n-2)*(C+A*Sec[a+b*x]^2),x] /;
+FreeQ[{a,b,c,A,C,n},x] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_.*(c_.*csc[a_.+b_.*x_])^n_.*(A_+C_.*sin[a_.+b_.*x_]^2),x_Symbol] :=
+  c^2*Int[ActivateTrig[u]*(c*Csc[a+b*x])^(n-2)*(C+A*Csc[a+b*x]^2),x] /;
+FreeQ[{a,b,c,A,C,n},x] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_*(A_.+B_.*cos[a_.+b_.*x_]+C_.*cos[a_.+b_.*x_]^2),x_Symbol] :=
+  Int[ActivateTrig[u]*(C+B*Sec[a+b*x]+A*Sec[a+b*x]^2)/Sec[a+b*x]^2,x] /;
+FreeQ[{a,b,A,B,C},x] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_*(A_.+B_.*sin[a_.+b_.*x_]+C_.*sin[a_.+b_.*x_]^2),x_Symbol] :=
+  Int[ActivateTrig[u]*(C+B*Csc[a+b*x]+A*Csc[a+b*x]^2)/Csc[a+b*x]^2,x] /;
+FreeQ[{a,b,A,B,C},x] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_*(A_+C_.*cos[a_.+b_.*x_]^2),x_Symbol] :=
+  Int[ActivateTrig[u]*(C+A*Sec[a+b*x]^2)/Sec[a+b*x]^2,x] /;
+FreeQ[{a,b,A,C},x] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_*(A_+C_.*sin[a_.+b_.*x_]^2),x_Symbol] :=
+  Int[ActivateTrig[u]*(C+A*Csc[a+b*x]^2)/Csc[a+b*x]^2,x] /;
+FreeQ[{a,b,A,C},x] && KnownSecantIntegrandQ[u,x]
+
+
+Int[u_*(A_.*sec[a_.+b_.*x_]^n_.+B_.*sec[a_.+b_.*x_]^n1_+C_.*sec[a_.+b_.*x_]^n2_),x_Symbol] :=
+  Int[ActivateTrig[u]*Sec[a+b*x]^n*(A+B*Sec[a+b*x]+C*Sec[a+b*x]^2),x] /;
+FreeQ[{a,b,A,B,C,n},x] && ZeroQ[n1-n-1] && ZeroQ[n2-n-2]
+
+
+Int[u_*(A_.*csc[a_.+b_.*x_]^n_.+B_.*csc[a_.+b_.*x_]^n1_+C_.*csc[a_.+b_.*x_]^n2_),x_Symbol] :=
+  Int[ActivateTrig[u]*Csc[a+b*x]^n*(A+B*Csc[a+b*x]+C*Csc[a+b*x]^2),x] /;
+FreeQ[{a,b,A,B,C,n},x] && ZeroQ[n1-n-1] && ZeroQ[n2-n-2]
+
+
+(* ::Subsection::Closed:: *)
 (*3 trig^m (a+b trig^n)^p*)
 
 
@@ -864,13 +1221,13 @@ FreeQ[{a,b,c,d,m,n},x] && PositiveIntegerQ[p/2]
 
 
 Int[(c_.+d_.*x_)^m_.*Sec[a_.+b_.*x_]^n_.*Tan[a_.+b_.*x_]^p_.,x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[Sec[a+b*x]^n*Tan[a+b*x]^p,x]]},
+  Module[{u=IntHide[Sec[a+b*x]^n*Tan[a+b*x]^p,x]},
   Dist[(c+d*x)^m,u,x] - d*m*Int[(c+d*x)^(m-1)*u,x]] /;
 FreeQ[{a,b,c,d,n,p},x] && PositiveIntegerQ[m] && (EvenQ[n] || OddQ[p])
 
 
 Int[(c_.+d_.*x_)^m_.*Csc[a_.+b_.*x_]^n_.*Cot[a_.+b_.*x_]^p_.,x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[Csc[a+b*x]^n*Cot[a+b*x]^p,x]]},
+  Module[{u=IntHide[Csc[a+b*x]^n*Cot[a+b*x]^p,x]},
   Dist[(c+d*x)^m,u,x] - d*m*Int[(c+d*x)^(m-1)*u,x]] /;
 FreeQ[{a,b,c,d,n,p},x] && PositiveIntegerQ[m] && (EvenQ[n] || OddQ[p])
 
@@ -881,7 +1238,7 @@ FreeQ[{a,b,c,d},x] && RationalQ[m] && IntegerQ[n]
 
 
 Int[(c_.+d_.*x_)^m_.*Csc[a_.+b_.*x_]^n_.*Sec[a_.+b_.*x_]^p_., x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[Csc[a+b*x]^n*Sec[a+b*x]^p,x]]},
+  Module[{u=IntHide[Csc[a+b*x]^n*Sec[a+b*x]^p,x]},
   Dist[(c+d*x)^m,u,x] - d*m*Int[(c+d*x)^(m-1)*u,x]] /;
 FreeQ[{a,b,c,d},x] && IntegersQ[n,p] && RationalQ[m] && m>0 && n!=p
 
@@ -1995,13 +2352,13 @@ FreeQ[{F,c,n},x] && TrigQ[G] && LinearQ[{u,v},x] && Not[LinearMatchQ[{u,v},x]]
 
 
 Int[x_^m_.*F_^(c_.*(a_.+b_.*x_))*Sin[d_.+e_.*x_]^n_.,x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[F^(c*(a+b*x))*Sin[d+e*x]^n,x]]},
+  Module[{u=IntHide[F^(c*(a+b*x))*Sin[d+e*x]^n,x]},
   Dist[x^m,u,x] - m*Int[x^(m-1)*u,x]] /;
 FreeQ[{F,a,b,c,d,e},x] && RationalQ[m] && m>0 && PositiveIntegerQ[n]
 
 
 Int[x_^m_.*F_^(c_.*(a_.+b_.*x_))*Cos[d_.+e_.*x_]^n_.,x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[F^(c*(a+b*x))*Cos[d+e*x]^n,x]]},
+  Module[{u=IntHide[F^(c*(a+b*x))*Cos[d+e*x]^n,x]},
   Dist[x^m,u,x] - m*Int[x^(m-1)*u,x]] /;
 FreeQ[{F,a,b,c,d,e},x] && RationalQ[m] && m>0 && PositiveIntegerQ[n]
 
@@ -2526,32 +2883,40 @@ Int[x_^m_.*Csc[d_.+e_.*x_]^2/(c_.+b_.*Cot[d_.+e_.*x_]^2+a_.*Csc[d_.+e_.*x_]^2),x
 FreeQ[{a,b,c,d,e},x] && PositiveIntegerQ[m] && NonzeroQ[a+b] && NonzeroQ[a+c]
 
 
-Int[x_^m_.*Cos[c_.+d_.*x_]/(a_+b_.*Sin[c_.+d_.*x_]),x_Symbol] :=
-  -I*x^(m+1)/(b*(m+1)) + 
-  Int[x^m*E^(I*(c+d*x))/(a-Sqrt[a^2-b^2]-I*b*E^(I*(c+d*x))),x] + 
-  Int[x^m*E^(I*(c+d*x))/(a+Sqrt[a^2-b^2]-I*b*E^(I*(c+d*x))),x] /;
-FreeQ[{a,b,c,d},x] && PositiveIntegerQ[m]
+Int[(e_.+f_.*x_)^m_.*Cos[c_.+d_.*x_]/(a_+b_.*Sin[c_.+d_.*x_]),x_Symbol] :=
+  I*(e+f*x)^(m+1)/(b*f*(m+1)) - 2/b*Int[(e+f*x)^m*(I*b+a*E^(I*(c+d*x)))/(b-2*I*a*E^(I*(c+d*x))-b*E^(2*I*(c+d*x))),x] /;
+FreeQ[{a,b,c,d,e,f},x] && PositiveIntegerQ[m]
 
 
-Int[x_^m_.*Sin[c_.+d_.*x_]/(a_+b_.*Cos[c_.+d_.*x_]),x_Symbol] :=
-  I*x^(m+1)/(b*(m+1)) - 
-  I*Int[x^m*E^(I*(c+d*x))/(a-Sqrt[a^2-b^2]+b*E^(I*(c+d*x))),x] - 
-  I*Int[x^m*E^(I*(c+d*x))/(a+Sqrt[a^2-b^2]+b*E^(I*(c+d*x))),x] /;
-FreeQ[{a,b,c,d},x] && PositiveIntegerQ[m]
+Int[(e_.+f_.*x_)^m_.*Sin[c_.+d_.*x_]/(a_+b_.*Cos[c_.+d_.*x_]),x_Symbol] :=
+  -I*(e+f*x)^(m+1)/(b*f*(m+1)) + 2*I/b*Int[(e+f*x)^m*(b+a*E^(I*(c+d*x)))/(b+2*a*E^(I*(c+d*x))+b*E^(2*I*(c+d*x))),x] /;
+FreeQ[{a,b,c,d,e,f},x] && PositiveIntegerQ[m]
 
 
-Int[x_^m_.*Cos[c_.+d_.*x_]^n_/(a_+b_.*Sin[c_.+d_.*x_]),x_Symbol] :=
-  a/b^2*Int[x^m*Cos[c+d*x]^(n-2),x] - 
-  1/b*Int[x^m*Cos[c+d*x]^(n-2)*Sin[c+d*x],x] - 
-  (a^2-b^2)/b^2*Int[x^m*Cos[c+d*x]^(n-2)/(a+b*Sin[c+d*x]),x] /;
-FreeQ[{a,b,c,d},x] && PositiveIntegerQ[m] && IntegerQ[n] && n>1
+Int[(e_.+f_.*x_)^m_.*Cos[c_.+d_.*x_]^n_/(a_+b_.*Sin[c_.+d_.*x_]),x_Symbol] :=
+  1/a*Int[(e+f*x)^m*Cos[c+d*x]^(n-2),x] - 
+  1/b*Int[(e+f*x)^m*Cos[c+d*x]^(n-2)*Sin[c+d*x],x] /;
+FreeQ[{a,b,c,d,e,f},x] && PositiveIntegerQ[m] && IntegerQ[n] && n>1 && ZeroQ[a^2-b^2]
 
 
-Int[x_^m_.*Sin[c_.+d_.*x_]^n_/(a_+b_.*Cos[c_.+d_.*x_]),x_Symbol] :=
-  a/b^2*Int[x^m*Sin[c+d*x]^(n-2),x] - 
-  1/b*Int[x^m*Sin[c+d*x]^(n-2)*Cos[c+d*x],x] - 
-  (a^2-b^2)/b^2*Int[x^m*Sin[c+d*x]^(n-2)/(a+b*Cos[c+d*x]),x] /;
-FreeQ[{a,b,c,d},x] && PositiveIntegerQ[m] && IntegerQ[n] && n>1
+Int[(e_.+f_.*x_)^m_.*Sin[c_.+d_.*x_]^n_/(a_+b_.*Cos[c_.+d_.*x_]),x_Symbol] :=
+  1/a*Int[(e+f*x)^m*Sin[c+d*x]^(n-2),x] - 
+  1/b*Int[(e+f*x)^m*Sin[c+d*x]^(n-2)*Cos[c+d*x],x] /;
+FreeQ[{a,b,c,d,e,f},x] && PositiveIntegerQ[m] && IntegerQ[n] && n>1 && ZeroQ[a^2-b^2]
+
+
+Int[(e_.+f_.*x_)^m_.*Cos[c_.+d_.*x_]^n_/(a_+b_.*Sin[c_.+d_.*x_]),x_Symbol] :=
+  a/b^2*Int[(e+f*x)^m*Cos[c+d*x]^(n-2),x] - 
+  1/b*Int[(e+f*x)^m*Cos[c+d*x]^(n-2)*Sin[c+d*x],x] - 
+  (a^2-b^2)/b^2*Int[(e+f*x)^m*Cos[c+d*x]^(n-2)/(a+b*Sin[c+d*x]),x] /;
+FreeQ[{a,b,c,d,e,f},x] && PositiveIntegerQ[m] && IntegerQ[n] && n>1 && NonzeroQ[a^2-b^2]
+
+
+Int[(e_.+f_.*x_)^m_.*Sin[c_.+d_.*x_]^n_/(a_+b_.*Cos[c_.+d_.*x_]),x_Symbol] :=
+  a/b^2*Int[(e+f*x)^m*Sin[c+d*x]^(n-2),x] - 
+  1/b*Int[(e+f*x)^m*Sin[c+d*x]^(n-2)*Cos[c+d*x],x] - 
+  (a^2-b^2)/b^2*Int[(e+f*x)^m*Sin[c+d*x]^(n-2)/(a+b*Cos[c+d*x]),x] /;
+FreeQ[{a,b,c,d,e,f},x] && PositiveIntegerQ[m] && IntegerQ[n] && n>1 && NonzeroQ[a^2-b^2]
 
 
 Int[x_*(A_+B_.*Sin[c_.+d_.*x_])/(a_+b_.*Sin[c_.+d_.*x_])^2,x_Symbol] :=

@@ -42,6 +42,820 @@ Int[(a_.+b_.*ArcCos[c_.*x_])^n_,x_Symbol] :=
 FreeQ[{a,b,c,n},x]
 
 
+Int[(a_+b_.*ArcSin[c_.*x_])/(d_.+e_.*x_),x_Symbol] :=
+  Subst[Int[(a+b*x)*Cos[x]/(c*d+e*Sin[x]),x],x,ArcSin[c*x]] /;
+FreeQ[{a,b,c,d,e},x]
+
+
+Int[(a_+b_.*ArcCos[c_.*x_])/(d_.+e_.*x_),x_Symbol] :=
+  -Subst[Int[(a+b*x)*Sin[x]/(c*d+e*Cos[x]),x],x,ArcCos[c*x]] /;
+FreeQ[{a,b,c,d,e},x]
+
+
+Int[(d_.+e_.*x_)^m_.*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
+  (d+e*x)^(m+1)*(a+b*ArcSin[c*x])/(e*(m+1)) - 
+  b*c/(e*(m+1))*Int[(d+e*x)^(m+1)/Sqrt[1-c^2*x^2],x] /;
+FreeQ[{a,b,c,d,e,m},x] && NonzeroQ[m+1]
+
+
+Int[(d_.+e_.*x_)^m_.*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
+  (d+e*x)^(m+1)*(a+b*ArcCos[c*x])/(e*(m+1)) + 
+  b*c/(e*(m+1))*Int[(d+e*x)^(m+1)/Sqrt[1-c^2*x^2],x] /;
+FreeQ[{a,b,c,d,e,m},x] && NonzeroQ[m+1]
+
+
+Int[x_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
+  (d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])/(2*e*(p+1)) + 
+  b*d^p/(2*c*(p+1))*Int[(1-c^2*x^2)^(p+1/2),x] /;
+FreeQ[{a,b,c,d,e,p},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p]
+
+
+Int[x_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
+  (d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])/(2*e*(p+1)) - 
+  b*d^p/(2*c*(p+1))*Int[(1-c^2*x^2)^(p+1/2),x] /;
+FreeQ[{a,b,c,d,e,p},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p]
+
+
+Int[Px_*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
+  Module[{u=IntHide[Px,x]},  
+  Dist[a+b*ArcSin[c*x],u,x] - b*c*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
+FreeQ[{a,b,c},x] && PolynomialQ[Px,x]
+
+
+Int[Px_*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
+  Module[{u=IntHide[Px,x]},  
+  Dist[a+b*ArcCos[c*x],u,x] + b*c*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
+FreeQ[{a,b,c},x] && PolynomialQ[Px,x]
+
+
+Int[x_^m_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
+  Module[{u=IntHide[x^m*(d+e*x^2)^p,x]},  
+  Dist[a+b*ArcSin[c*x],u,x] - b*c*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p] && NegativeIntegerQ[m/2]
+
+
+Int[x_^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
+  Module[{u=IntHide[x^m*(d+e*x^2)^p,x]},  
+  Dist[a+b*ArcCos[c*x],u,x] + b*c*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p] && NegativeIntegerQ[m/2]
+
+
+Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])/x_,x_Symbol] :=
+  (d+e*x^2)^p*(a+b*ArcSin[c*x])/(2*p) - 
+  b*c*d^p/(2*p)*Int[(1-c^2*x^2)^(p-1/2),x] + 
+  d*Int[(d+e*x^2)^(p-1)*(a+b*ArcSin[c*x])/x,x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p]
+
+
+Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])/x_,x_Symbol] :=
+  (d+e*x^2)^p*(a+b*ArcCos[c*x])/(2*p) + 
+  b*c*d^p/(2*p)*Int[(1-c^2*x^2)^(p-1/2),x] + 
+  d*Int[(d+e*x^2)^(p-1)*(a+b*ArcCos[c*x])/x,x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p]
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^p*(a+b*ArcSin[c*x])/(f*(m+1)) - 
+  b*c*d^p/(f*(m+1))*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p-1/2),x] - 
+  2*e*p/(f^2*(m+1))*Int[(f*x)^(m+2)*(d+e*x^2)^(p-1)*(a+b*ArcSin[c*x]),x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p] && RationalQ[m] && m<-1
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^p*(a+b*ArcCos[c*x])/(f*(m+1)) + 
+  b*c*d^p/(f*(m+1))*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p-1/2),x] - 
+  2*e*p/(f^2*(m+1))*Int[(f*x)^(m+2)*(d+e*x^2)^(p-1)*(a+b*ArcCos[c*x]),x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p] && RationalQ[m] && m<-1
+
+
+Int[Px_*(d_.+e_.*x_)^m_.*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
+  Module[{u=IntHide[Px*(d+e*x)^m,x]},  
+  Dist[a+b*ArcSin[c*x],u,x] - b*c*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
+FreeQ[{a,b,c,d,e,m},x] && PolynomialQ[Px,x]
+
+
+Int[Px_*(d_.+e_.*x_)^m_.*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
+  Module[{u=IntHide[Px*(d+e*x)^m,x]},  
+  Dist[a+b*ArcCos[c*x],u,x] + b*c*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
+FreeQ[{a,b,c,d,e,m},x] && PolynomialQ[Px,x]
+
+
+Int[1/(Sqrt[d_+e_.*x_^2]*(a_.+b_.*ArcSin[c_.*x_])),x_Symbol] :=
+  Log[a+b*ArcSin[c*x]]/(b*c*Sqrt[d]) /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d]
+
+
+Int[1/(Sqrt[d_+e_.*x_^2]*(a_.+b_.*ArcCos[c_.*x_])),x_Symbol] :=
+  -Log[a+b*ArcCos[c*x]]/(b*c*Sqrt[d]) /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d]
+
+
+Int[(a_.+b_.*ArcSin[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  (a+b*ArcSin[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) /;
+FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && NonzeroQ[n+1]
+
+
+Int[(a_.+b_.*ArcCos[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  -(a+b*ArcCos[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) /;
+FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && NonzeroQ[n+1]
+
+
+Int[(a_.+b_.*ArcSin[c_.*x_])^n_./(d_+e_.*x_^2),x_Symbol] :=
+  1/(c*d)*Subst[Int[(a+b*x)^n*Sec[x],x],x,ArcSin[c*x]] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[n]
+
+
+Int[(a_.+b_.*ArcCos[c_.*x_])^n_./(d_+e_.*x_^2),x_Symbol] :=
+  -1/(c*d)*Subst[Int[(a+b*x)^n*Csc[x],x],x,ArcCos[c*x]] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[n]
+
+
+Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  x*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n/(2*p+1) - 
+  b*c*d^p*n/(2*p+1)*Int[x*(1-c^2*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n-1),x] + 
+  2*d*p/(2*p+1)*Int[(d+e*x^2)^(p-1)*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[n,p] && n>0 && p>0
+
+
+Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  x*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n/(2*p+1) + 
+  b*c*d^p*n/(2*p+1)*Int[x*(1-c^2*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n-1),x] + 
+  2*d*p/(2*p+1)*Int[(d+e*x^2)^(p-1)*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[n,p] && n>0 && p>0
+
+
+Int[(a_.+b_.*ArcSin[c_.*x_])^n_./(d_+e_.*x_^2)^(3/2),x_Symbol] :=
+  x*(a+b*ArcSin[c*x])^n/(d*Sqrt[d+e*x^2]) - b*c*n/Sqrt[d]*Int[x*(a+b*ArcSin[c*x])^(n-1)/(d+e*x^2),x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && RationalQ[n] && n>0
+
+
+Int[(a_.+b_.*ArcCos[c_.*x_])^n_./(d_+e_.*x_^2)^(3/2),x_Symbol] :=
+  x*(a+b*ArcCos[c*x])^n/(d*Sqrt[d+e*x^2]) + b*c*n/Sqrt[d]*Int[x*(a+b*ArcCos[c*x])^(n-1)/(d+e*x^2),x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && RationalQ[n] && n>0
+
+
+Int[(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  -x*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(2*d*(p+1)) + 
+  b*c*d^p*n/(2*(p+1))*Int[x*(1-c^2*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] + 
+  (2*p+3)/(2*d*(p+1))*Int[(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[n,p] && n>0 && p<-1
+
+
+Int[(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  -x*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(2*d*(p+1)) - 
+  b*c*d^p*n/(2*(p+1))*Int[x*(1-c^2*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] + 
+  (2*p+3)/(2*d*(p+1))*Int[(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[n,p] && n>0 && p<-1
+
+
+Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_,x_Symbol] :=
+  d^p*(1-c^2*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n+1)/(b*c*(n+1)) + 
+  c*d^p*(2*p+1)/(b*(n+1))*Int[x*(1-c^2*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n+1),x] /;
+FreeQ[{a,b,c,d,e,p},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[n] && n<-1
+
+
+Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_,x_Symbol] :=
+  -d^p*(1-c^2*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n+1)/(b*c*(n+1)) - 
+  c*d^p*(2*p+1)/(b*(n+1))*Int[x*(1-c^2*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n+1),x] /;
+FreeQ[{a,b,c,d,e,p},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[n] && n<-1
+
+
+Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  d^p/c*Subst[Int[(a+b*x)^n*Cos[x]^(2*p+1),x],x,ArcSin[c*x]] /;
+FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && PositiveIntegerQ[2*p]
+
+
+Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  -d^p/c*Subst[Int[(a+b*x)^n*Sin[x]^(2*p+1),x],x,ArcCos[c*x]] /;
+FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && PositiveIntegerQ[2*p]
+
+
+Int[Sqrt[d_+e_.*x_^2]*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  x*Sqrt[d+e*x^2]*(a+b*ArcSin[c*x])^n/2 - 
+  b*c*n*Sqrt[d+e*x^2]/(2*Sqrt[1-c^2*x^2])*Int[x*(a+b*ArcSin[c*x])^(n-1),x] + 
+  Sqrt[d+e*x^2]/(2*Sqrt[1-c^2*x^2])*Int[(a+b*ArcSin[c*x])^n/Sqrt[1-c^2*x^2],x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && RationalQ[n] && n>0
+
+
+Int[Sqrt[d_+e_.*x_^2]*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  x*Sqrt[d+e*x^2]*(a+b*ArcCos[c*x])^n/2 + 
+  b*c*n*Sqrt[d+e*x^2]/(2*Sqrt[1-c^2*x^2])*Int[x*(a+b*ArcCos[c*x])^(n-1),x] + 
+  Sqrt[d+e*x^2]/(2*Sqrt[1-c^2*x^2])*Int[(a+b*ArcCos[c*x])^n/Sqrt[1-c^2*x^2],x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && RationalQ[n] && n>0
+
+
+Int[(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  x*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n/(2*p+1) - 
+  b*c*n*d^(p-1/2)*Sqrt[d+e*x^2]/((2*p+1)*Sqrt[1-c^2*x^2])*Int[x*(1-c^2*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n-1),x] + 
+  2*d*p/(2*p+1)*Int[(d+e*x^2)^(p-1)*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2] && RationalQ[n] && n>0 && p>0
+
+
+Int[(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  x*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n/(2*p+1) + 
+  b*c*n*d^(p-1/2)*Sqrt[d+e*x^2]/((2*p+1)*Sqrt[1-c^2*x^2])*Int[x*(1-c^2*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n-1),x] + 
+  2*d*p/(2*p+1)*Int[(d+e*x^2)^(p-1)*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2] && RationalQ[n] && n>0 && p>0
+
+
+Int[(a_.+b_.*ArcSin[c_.*x_])^n_./(d_+e_.*x_^2)^(3/2),x_Symbol] :=
+  x*(a+b*ArcSin[c*x])^n/(d*Sqrt[d+e*x^2]) - 
+  b*c*n*Sqrt[1-c^2*x^2]/(d*Sqrt[d+e*x^2])*Int[x*(a+b*ArcSin[c*x])^(n-1)/(1-c^2*x^2),x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && RationalQ[n] && n>0
+
+
+Int[(a_.+b_.*ArcCos[c_.*x_])^n_./(d_+e_.*x_^2)^(3/2),x_Symbol] :=
+  x*(a+b*ArcCos[c*x])^n/(d*Sqrt[d+e*x^2]) + 
+  b*c*n*Sqrt[1-c^2*x^2]/(d*Sqrt[d+e*x^2])*Int[x*(a+b*ArcCos[c*x])^(n-1)/(1-c^2*x^2),x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && RationalQ[n] && n>0
+
+
+Int[(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  -x*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(2*d*(p+1)) + 
+  b*c*n*d^(p+1/2)*Sqrt[1-c^2*x^2]/(2*(p+1)*Sqrt[d+e*x^2])*Int[x*(1-c^2*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] + 
+  (2*p+3)/(2*d*(p+1))*Int[(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2] && RationalQ[n] && n>0 && p<-1
+
+
+Int[(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  -x*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(2*d*(p+1)) - 
+  b*c*n*d^(p+1/2)*Sqrt[1-c^2*x^2]/(2*(p+1)*Sqrt[d+e*x^2])*Int[x*(1-c^2*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] + 
+  (2*p+3)/(2*d*(p+1))*Int[(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2] && RationalQ[n] && n>0 && p<-1
+
+
+Int[x_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(2*e*(p+1)) + 
+  b*d^p*n/(2*c*(p+1))*Int[(1-c^2*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] /;
+FreeQ[{a,b,c,d,e,p},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[n] && n>0 && NonzeroQ[p+1]
+
+
+Int[x_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(2*e*(p+1)) - 
+  b*d^p*n/(2*c*(p+1))*Int[(1-c^2*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] /;
+FreeQ[{a,b,c,d,e,p},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[n] && n>0 && NonzeroQ[p+1]
+
+
+Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(d*f*(m+1)) - 
+  b*c*d^p*n/(f*(m+1))*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] /;
+FreeQ[{a,b,c,d,e,f,m,p},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[n] && n>0 && ZeroQ[m+2*p+3] && 
+  (n==1 || RationalQ[m,p] && p<0) && NonzeroQ[m+1]
+
+
+Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(d*f*(m+1)) + 
+  b*c*d^p*n/(f*(m+1))*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] /;
+FreeQ[{a,b,c,d,e,f,m,p},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[n] && n>0 && ZeroQ[m+2*p+3] && 
+  (n==1 || RationalQ[m,p] && p<0) && NonzeroQ[m+1]
+
+
+Int[x_^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
+  Module[{u=IntHide[x^m*(1-c^2*x^2)^p,x]},  
+  Dist[d^p*(a+b*ArcSin[c*x]),u,x] - b*c*d^p*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && IntegerQ[p-1/2] && 
+  (PositiveIntegerQ[(m+1)/2] || NegativeIntegerQ[(m+2*p+3)/2]) && p!=-1/2
+
+
+Int[x_^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
+  Module[{u=IntHide[x^m*(1-c^2*x^2)^p,x]},  
+  Dist[d^p*(a+b*ArcCos[c*x]),u,x] + b*c*d^p*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && IntegerQ[p-1/2] && 
+  (PositiveIntegerQ[(m+1)/2] || NegativeIntegerQ[(m+2*p+3)/2]) && p!=-1/2
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n/(f*(m+1)) - 
+  b*c*d^p*n/(f*(m+1))*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n-1),x] - 
+  2*e*p/(f^2*(m+1))*Int[(f*x)^(m+2)*(d+e*x^2)^(p-1)*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[m,n,p] && n>0 && p>0 && m<-1
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n/(f*(m+1)) + 
+  b*c*d^p*n/(f*(m+1))*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n-1),x] - 
+  2*e*p/(f^2*(m+1))*Int[(f*x)^(m+2)*(d+e*x^2)^(p-1)*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[m,n,p] && n>0 && p>0 && m<-1
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n/(f*(m+2*p+1)) - 
+  b*c*d^p*n/(f*(m+2*p+1))*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n-1),x] + 
+  2*d*p/(m+2*p+1)*Int[(f*x)^m*(d+e*x^2)^(p-1)*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,m},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[m,n,p] && n>0 && p>0 && NonzeroQ[m+2*p+1]
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n/(f*(m+2*p+1)) + 
+  b*c*d^p*n/(f*(m+2*p+1))*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n-1),x] + 
+  2*d*p/(m+2*p+1)*Int[(f*x)^m*(d+e*x^2)^(p-1)*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,m},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[m,n,p] && n>0 && p>0 && NonzeroQ[m+2*p+1]
+
+
+Int[x_^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_./(d_+e_.*x_^2),x_Symbol] :=
+  1/(c^(m+1)*d)*Subst[Int[(a+b*x)^n*Sin[x]^m*Sec[x],x],x,ArcSin[c*x]] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[n] && IntegerQ[m] && m^2==1
+
+
+Int[x_^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_./(d_+e_.*x_^2),x_Symbol] :=
+  -1/(c^(m+1)*d)*Subst[Int[(a+b*x)^n*Cos[x]^m*Csc[x],x],x,ArcCos[c*x]] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[n] && IntegerQ[m] && m^2==1
+
+
+Int[x_^m_*(a_.+b_.*ArcSin[c_.*x_])/Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  b*x^m/(c*Sqrt[d]*m^2) + x^(m-1)*Sqrt[d+e*x^2]*(a+b*ArcSin[c*x])/(e*m) + 
+  (m-1)/(c^2*m)*Int[x^(m-2)*(a+b*ArcSin[c*x])/Sqrt[d+e*x^2],x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && PositiveIntegerQ[m]
+
+
+Int[x_^m_*(a_.+b_.*ArcCos[c_.*x_])/Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  -b*x^m/(c*Sqrt[d]*m^2) + x^(m-1)*Sqrt[d+e*x^2]*(a+b*ArcCos[c*x])/(e*m) + 
+  (m-1)/(c^2*m)*Int[x^(m-2)*(a+b*ArcCos[c*x])/Sqrt[d+e*x^2],x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && PositiveIntegerQ[m]
+
+
+Int[ArcSin[c_.*x_]/(x_*Sqrt[d_+e_.*x_^2]),x_Symbol] :=
+  1/Sqrt[d]*Subst[Int[x/Sin[x],x],x,ArcSin[c*x]] /;
+FreeQ[{c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d]
+
+
+Int[ArcCos[c_.*x_]/(x_*Sqrt[d_+e_.*x_^2]),x_Symbol] :=
+  -1/Sqrt[d]*Subst[Int[x/Cos[x],x],x,ArcCos[c*x]] /;
+FreeQ[{c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d]
+
+
+Int[(a_+b_.*ArcSin[c_.*x_])/(x_*Sqrt[d_+e_.*x_^2]),x_Symbol] :=
+  a*Int[1/(x*Sqrt[d+e*x^2]),x] + 
+  b*Int[ArcSin[c*x]/(x*Sqrt[d+e*x^2]),x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e]
+
+
+Int[(a_+b_.*ArcCos[c_.*x_])/(x_*Sqrt[d_+e_.*x_^2]),x_Symbol] :=
+  a*Int[1/(x*Sqrt[d+e*x^2]),x] + 
+  b*Int[ArcCos[c*x]/(x*Sqrt[d+e*x^2]),x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e]
+
+
+Int[x_^m_*(a_.+b_.*ArcSin[c_.*x_])/Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  -b*c*x^(m+2)/(Sqrt[d]*(m+1)*(m+2)) + x^(m+1)*Sqrt[d+e*x^2]*(a+b*ArcSin[c*x])/(d*(m+1)) + 
+  c^2*(m+2)/(m+1)*Int[x^(m+2)*(a+b*ArcSin[c*x])/Sqrt[d+e*x^2],x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && IntegerQ[m] && m<-1
+
+
+Int[x_^m_*(a_.+b_.*ArcCos[c_.*x_])/Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  b*c*x^(m+2)/(Sqrt[d]*(m+1)*(m+2)) + x^(m+1)*Sqrt[d+e*x^2]*(a+b*ArcCos[c*x])/(d*(m+1)) + 
+  c^2*(m+2)/(m+1)*Int[x^(m+2)*(a+b*ArcCos[c*x])/Sqrt[d+e*x^2],x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && IntegerQ[m] && m<-1
+
+
+Int[(f_.*x_)^m_*(a_.+b_.*ArcSin[c_.*x_])/Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  (f*x)^(m+1)*(a+b*ArcSin[c*x])*Hypergeometric2F1[1/2,(1+m)/2,(3+m)/2,c^2*x^2]/(Sqrt[d]*f*(m+1)) - 
+  b*c*(f*x)^(m+2)*HypergeometricPFQ[{1,1+m/2,1+m/2},{3/2+m/2,2+m/2},c^2*x^2]/(Sqrt[d]*f^2*(m+1)*(m+2)) /;
+FreeQ[{a,b,c,d,e,f,m},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && Not[IntegerQ[m]]
+
+
+Int[(f_.*x_)^m_*(a_.+b_.*ArcCos[c_.*x_])/Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  (f*x)^(m+1)*(a+b*ArcCos[c*x])*Hypergeometric2F1[1/2,(1+m)/2,(3+m)/2,c^2*x^2]/(Sqrt[d]*f*(m+1)) + 
+  b*c*(f*x)^(m+2)*HypergeometricPFQ[{1,1+m/2,1+m/2},{3/2+m/2,2+m/2},c^2*x^2]/(Sqrt[d]*f^2*(m+1)*(m+2)) /;
+FreeQ[{a,b,c,d,e,f,m},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && Not[IntegerQ[m]]
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  f*(f*x)^(m-1)*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(e*(m+2*p+1)) + 
+  b*d^p*f*n/(c*(m+2*p+1))*Int[(f*x)^(m-1)*(1-c^2*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] + 
+  f^2*(m-1)/(c^2*(m+2*p+1))*Int[(f*x)^(m-2)*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[m,n,p] && n>0 && -1<=p<0 && m>1 && 
+  NonzeroQ[m+2*p+1]
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  f*(f*x)^(m-1)*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(e*(m+2*p+1)) - 
+  b*d^p*f*n/(c*(m+2*p+1))*Int[(f*x)^(m-1)*(1-c^2*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] + 
+  f^2*(m-1)/(c^2*(m+2*p+1))*Int[(f*x)^(m-2)*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[m,n,p] && n>0 && -1<=p<0 && m>1 && 
+  NonzeroQ[m+2*p+1]
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  f*(f*x)^(m-1)*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(2*e*(p+1)) + 
+  b*d^p*f*n/(2*c*(p+1))*Int[(f*x)^(m-1)*(1-c^2*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] - 
+  f^2*(m-1)/(2*e*(p+1))*Int[(f*x)^(m-2)*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[m,n,p] && n>0 && p<-1 && m>1
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  f*(f*x)^(m-1)*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(2*e*(p+1)) - 
+  b*d^p*f*n/(2*c*(p+1))*Int[(f*x)^(m-1)*(1-c^2*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] - 
+  f^2*(m-1)/(2*e*(p+1))*Int[(f*x)^(m-2)*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[m,n,p] && n>0 && p<-1 && m>1
+
+
+Int[(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_./x_,x_Symbol] :=
+  c^2*Int[x*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n,x] + 
+  1/d*Int[(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/x,x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && RationalQ[n,p] && n>0 && p<-1
+
+
+Int[(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_./x_,x_Symbol] :=
+  c^2*Int[x*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n,x] + 
+  1/d*Int[(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/x,x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && RationalQ[n,p] && n>0 && p<-1
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(d*f*(m+1)) - 
+  b*c*d^p*n/(f*(m+1))*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] + 
+  c^2*(m+2*p+3)/(f^2*(m+1))*Int[(f*x)^(m+2)*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[m,n,p] && n>0 && p<0 && m<-1
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(d*f*(m+1)) + 
+  b*c*d^p*n/(f*(m+1))*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] + 
+  c^2*(m+2*p+3)/(f^2*(m+1))*Int[(f*x)^(m+2)*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[m,n,p] && n>0 && p<0 && m<-1
+
+
+Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_,x_Symbol] :=
+  d^p*(f*x)^m*(1-c^2*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n+1)/(b*c*(n+1)) - 
+  d^p*f*m/(b*c*(n+1))*Int[(f*x)^(m-1)*(1-c^2*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n+1),x] /;
+FreeQ[{a,b,c,d,e,f,m,p},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[n] && n<-1 && ZeroQ[m+2*p+1]
+
+
+Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_,x_Symbol] :=
+  -d^p*(f*x)^m*(1-c^2*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n+1)/(b*c*(n+1)) + 
+  d^p*f*m/(b*c*(n+1))*Int[(f*x)^(m-1)*(1-c^2*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n+1),x] /;
+FreeQ[{a,b,c,d,e,f,m,p},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[n] && n<-1 && ZeroQ[m+2*p+1]
+
+
+Int[(f_.*x_)^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_/Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  (f*x)^m*(a+b*ArcSin[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) - 
+  f*m/(b*c*Sqrt[d]*(n+1))*Int[(f*x)^(m-1)*(a+b*ArcSin[c*x])^(n+1),x] /;
+FreeQ[{a,b,c,d,e,f,m},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && RationalQ[n] && n<-1
+
+
+Int[(f_.*x_)^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_/Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  -(f*x)^m*(a+b*ArcCos[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) + 
+  f*m/(b*c*Sqrt[d]*(n+1))*Int[(f*x)^(m-1)*(a+b*ArcCos[c*x])^(n+1),x] /;
+FreeQ[{a,b,c,d,e,f,m},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && RationalQ[n] && n<-1
+
+
+Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_,x_Symbol] :=
+  d^p*(f*x)^m*(1-c^2*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n+1)/(b*c*(n+1)) - 
+  d^p*f*m/(b*c*(n+1))*Int[(f*x)^(m-1)*(1-c^2*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n+1),x] + 
+  c*d^p*(m+2*p+1)/(b*f*(n+1))*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n+1),x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[n] && n<-1 && IntegerQ[m] && m>-3 && 
+  PositiveIntegerQ[2*p]
+
+
+Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_,x_Symbol] :=
+  -d^p*(f*x)^m*(1-c^2*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n+1)/(b*c*(n+1)) + 
+  d^p*f*m/(b*c*(n+1))*Int[(f*x)^(m-1)*(1-c^2*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n+1),x] - 
+  c*d^p*(m+2*p+1)/(b*f*(n+1))*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n+1),x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && RationalQ[n] && n<-1 && IntegerQ[m] && m>-3 && 
+  PositiveIntegerQ[2*p]
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  Int[ExpandIntegrand[(a+b*ArcSin[c*x])^n/Sqrt[d+e*x^2],(f*x)^m*(d+e*x^2)^(p+1/2),x],x] /;
+FreeQ[{a,b,c,d,e,f,m,n},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && PositiveIntegerQ[p+1/2] && Not[PositiveIntegerQ[(m+1)/2]] && 
+  IntegerQ[m] && -3<m<0
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  Int[ExpandIntegrand[(a+b*ArcCos[c*x])^n/Sqrt[d+e*x^2],(f*x)^m*(d+e*x^2)^(p+1/2),x],x] /;
+FreeQ[{a,b,c,d,e,f,m,n},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && PositiveIntegerQ[p+1/2] && Not[PositiveIntegerQ[(m+1)/2]] && 
+  IntegerQ[m] && -3<m<0
+
+
+Int[x_^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  d^p/c^(m+1)*Subst[Int[(a+b*x)^n*Sin[x]^m*Cos[x]^(2*p+1),x],x,ArcSin[c*x]] /;
+FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && IntegersQ[m,2*p] && 
+  (m>0 && p>-1 || p==-1/2 && PositiveIntegerQ[n])
+
+
+Int[x_^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  -d^p/c^(m+1)*Subst[Int[(a+b*x)^n*Cos[x]^m*Sin[x]^(2*p+1),x],x,ArcCos[c*x]] /;
+FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && (IntegerQ[p] || PositiveQ[d]) && IntegersQ[m,2*p] && 
+  (m>0 && p>-1 || p==-1/2 && PositiveIntegerQ[n])
+
+
+Int[x_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(2*e*(p+1)) + 
+  b*n*d^(p-1/2)*Sqrt[d+e*x^2]/(2*c*(p+1)*Sqrt[1-c^2*x^2])*Int[(1-c^2*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && RationalQ[n] && n>0
+
+
+Int[x_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(2*e*(p+1)) - 
+  b*n*d^(p-1/2)*Sqrt[d+e*x^2]/(2*c*(p+1)*Sqrt[1-c^2*x^2])*Int[(1-c^2*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && RationalQ[n] && n>0
+
+
+Int[x_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(2*e*(p+1)) + 
+  b*n*d^(p+1/2)*Sqrt[1-c^2*x^2]/(2*c*(p+1)*Sqrt[d+e*x^2])*Int[(1-c^2*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && NegativeIntegerQ[p-1/2] && RationalQ[n] && n>0
+
+
+Int[x_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(2*e*(p+1)) - 
+  b*n*d^(p+1/2)*Sqrt[1-c^2*x^2]/(2*c*(p+1)*Sqrt[d+e*x^2])*Int[(1-c^2*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && NegativeIntegerQ[p-1/2] && RationalQ[n] && n>0
+
+
+Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])/(d*f*(m+1)) - 
+  b*c*d^(p-1/2)*Sqrt[d+e*x^2]/(f*(m+1)*Sqrt[1-c^2*x^2])*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p+1/2),x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && ZeroQ[m+2*p+3]
+
+
+Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])/(d*f*(m+1)) + 
+  b*c*d^(p-1/2)*Sqrt[d+e*x^2]/(f*(m+1)*Sqrt[1-c^2*x^2])*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p+1/2),x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && ZeroQ[m+2*p+3]
+
+
+Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(d*f*(m+1)) - 
+  b*c*n*d^(p+1/2)*Sqrt[1-c^2*x^2]/(f*(m+1)*Sqrt[d+e*x^2])*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && NegativeIntegerQ[p-1/2] && RationalQ[n] && n>0 && ZeroQ[m+2*p+3]
+
+
+Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(d*f*(m+1)) + 
+  b*c*n*d^(p+1/2)*Sqrt[1-c^2*x^2]/(f*(m+1)*Sqrt[d+e*x^2])*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && NegativeIntegerQ[p-1/2] && RationalQ[n] && n>0 && ZeroQ[m+2*p+3]
+
+
+Int[x_^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
+  Module[{u=IntHide[x^m*(1-c^2*x^2)^p,x]},
+  (a+b*ArcSin[c*x])*Int[x^m*(d+e*x^2)^p,x] - 
+  b*c*d^(p-1/2)*Sqrt[d+e*x^2]/Sqrt[1-c^2*x^2]*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && (PositiveIntegerQ[(m+1)/2] || NegativeIntegerQ[(m+2*p+3)/2])
+
+
+Int[x_^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
+  Module[{u=IntHide[x^m*(1-c^2*x^2)^p,x]},
+  (a+b*ArcCos[c*x])*Int[x^m*(d+e*x^2)^p,x] + 
+  b*c*d^(p-1/2)*Sqrt[d+e*x^2]/Sqrt[1-c^2*x^2]*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && (PositiveIntegerQ[(m+1)/2] || NegativeIntegerQ[(m+2*p+3)/2])
+
+
+Int[(f_.*x_)^m_*Sqrt[d_+e_.*x_^2]*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*Sqrt[d+e*x^2]*(a+b*ArcSin[c*x])^n/(f*(m+1)) - 
+  b*c*n*Sqrt[d+e*x^2]/(f*(m+1)*Sqrt[1-c^2*x^2])*Int[(f*x)^(m+1)*(a+b*ArcSin[c*x])^(n-1),x] + 
+  c^2*Sqrt[d+e*x^2]/(f^2*(m+1)*Sqrt[1-c^2*x^2])*Int[(f*x)^(m+2)*(a+b*ArcSin[c*x])^n/Sqrt[1-c^2*x^2],x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && RationalQ[m,n] && n>0 && m<-1
+
+
+Int[(f_.*x_)^m_*Sqrt[d_+e_.*x_^2]*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*Sqrt[d+e*x^2]*(a+b*ArcCos[c*x])^n/(f*(m+1)) + 
+  b*c*n*Sqrt[d+e*x^2]/(f*(m+1)*Sqrt[1-c^2*x^2])*Int[(f*x)^(m+1)*(a+b*ArcCos[c*x])^(n-1),x] + 
+  c^2*Sqrt[d+e*x^2]/(f^2*(m+1)*Sqrt[1-c^2*x^2])*Int[(f*x)^(m+2)*(a+b*ArcCos[c*x])^n/Sqrt[1-c^2*x^2],x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && RationalQ[m,n] && n>0 && m<-1
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n/(f*(m+1)) - 
+  b*c*n*d^(p-1/2)*Sqrt[d+e*x^2]/(f*(m+1)*Sqrt[1-c^2*x^2])*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n-1),x] - 
+  2*e*p/(f^2*(m+1))*Int[(f*x)^(m+2)*(d+e*x^2)^(p-1)*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2] && RationalQ[m,n] && n>0 && p>0 && m<-1
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n/(f*(m+1)) + 
+  b*c*n*d^(p-1/2)*Sqrt[d+e*x^2]/(f*(m+1)*Sqrt[1-c^2*x^2])*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n-1),x] - 
+  2*e*p/(f^2*(m+1))*Int[(f*x)^(m+2)*(d+e*x^2)^(p-1)*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2] && RationalQ[m,n] && n>0 && p>0 && m<-1
+
+
+Int[(f_.*x_)^m_*Sqrt[d_+e_.*x_^2]*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*Sqrt[d+e*x^2]*(a+b*ArcSin[c*x])^n/(f*(m+2)) - 
+  b*c*n*Sqrt[d+e*x^2]/(f*(m+2)*Sqrt[1-c^2*x^2])*Int[(f*x)^(m+1)*(a+b*ArcSin[c*x])^(n-1),x] + 
+  Sqrt[d+e*x^2]/((m+2)*Sqrt[1-c^2*x^2])*Int[(f*x)^m*(a+b*ArcSin[c*x])^n/Sqrt[1-c^2*x^2],x] /;
+FreeQ[{a,b,c,d,e,f,m},x] && ZeroQ[c^2*d+e] && RationalQ[n] && n>0 && NonzeroQ[m+2] && (RationalQ[m] || ZeroQ[n-1])
+
+
+Int[(f_.*x_)^m_*Sqrt[d_+e_.*x_^2]*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*Sqrt[d+e*x^2]*(a+b*ArcCos[c*x])^n/(f*(m+2)) + 
+  b*c*n*Sqrt[d+e*x^2]/(f*(m+2)*Sqrt[1-c^2*x^2])*Int[(f*x)^(m+1)*(a+b*ArcCos[c*x])^(n-1),x] + 
+  Sqrt[d+e*x^2]/((m+2)*Sqrt[1-c^2*x^2])*Int[(f*x)^m*(a+b*ArcCos[c*x])^n/Sqrt[1-c^2*x^2],x] /;
+FreeQ[{a,b,c,d,e,f,m},x] && ZeroQ[c^2*d+e] && RationalQ[n] && n>0 && NonzeroQ[m+2] && (RationalQ[m] || ZeroQ[n-1])
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n/(f*(m+2*p+1)) - 
+  b*c*n*d^(p-1/2)*Sqrt[d+e*x^2]/(f*(m+2*p+1)*Sqrt[1-c^2*x^2])*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n-1),x] + 
+  2*d*p/(m+2*p+1)*Int[(f*x)^m*(d+e*x^2)^(p-1)*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,m},x] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2] && RationalQ[n] && n>0 && p>0 && NonzeroQ[m+2*p+1] && 
+  (RationalQ[m] || ZeroQ[n-1])
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n/(f*(m+2*p+1)) + 
+  b*c*n*d^(p-1/2)*Sqrt[d+e*x^2]/(f*(m+2*p+1)*Sqrt[1-c^2*x^2])*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n-1),x] + 
+  2*d*p/(m+2*p+1)*Int[(f*x)^m*(d+e*x^2)^(p-1)*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,m},x] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2] && RationalQ[n] && n>0 && p>0 && NonzeroQ[m+2*p+1] && 
+  (RationalQ[m] || ZeroQ[n-1])
+
+
+Int[x_^m_*(a_.+b_.*ArcSin[c_.*x_])/Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  b*x^m*Sqrt[1-c^2*x^2]/(c*m^2*Sqrt[d+e*x^2]) + 
+  x^(m-1)*Sqrt[d+e*x^2]*(a+b*ArcSin[c*x])/(e*m) + 
+  (m-1)/(c^2*m)*Int[x^(m-2)*(a+b*ArcSin[c*x])/Sqrt[d+e*x^2],x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[m]
+
+
+Int[x_^m_*(a_.+b_.*ArcCos[c_.*x_])/Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  -b*x^m*Sqrt[1-c^2*x^2]/(c*m^2*Sqrt[d+e*x^2]) + 
+  x^(m-1)*Sqrt[d+e*x^2]*(a+b*ArcCos[c*x])/(e*m) + 
+  (m-1)/(c^2*m)*Int[x^(m-2)*(a+b*ArcCos[c*x])/Sqrt[d+e*x^2],x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[m]
+
+
+Int[ArcSin[c_.*x_]/(x_*Sqrt[d_+e_.*x_^2]),x_Symbol] :=
+  Sqrt[1-c^2*x^2]/Sqrt[d+e*x^2]*Subst[Int[x/Sin[x],x],x,ArcSin[c*x]] /;
+FreeQ[{c,d,e},x] && ZeroQ[c^2*d+e]
+
+
+Int[ArcCos[c_.*x_]/(x_*Sqrt[d_+e_.*x_^2]),x_Symbol] :=
+  -Sqrt[1-c^2*x^2]/Sqrt[d+e*x^2]*Subst[Int[x/Cos[x],x],x,ArcCos[c*x]] /;
+FreeQ[{c,d,e},x] && ZeroQ[c^2*d+e]
+
+
+Int[x_^m_*(a_.+b_.*ArcSin[c_.*x_])/Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  -b*c*x^(m+2)*Sqrt[1-c^2*x^2]/((m+1)*(m+2)*Sqrt[d+e*x^2]) + 
+  x^(m+1)*Sqrt[d+e*x^2]*(a+b*ArcSin[c*x])/(d*(m+1)) + 
+  c^2*(m+2)/(m+1)*Int[x^(m+2)*(a+b*ArcSin[c*x])/Sqrt[d+e*x^2],x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[m] && m<-1
+
+
+Int[x_^m_*(a_.+b_.*ArcCos[c_.*x_])/Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  b*c*x^(m+2)*Sqrt[1-c^2*x^2]/((m+1)*(m+2)*Sqrt[d+e*x^2]) + 
+  x^(m+1)*Sqrt[d+e*x^2]*(a+b*ArcCos[c*x])/(d*(m+1)) + 
+  c^2*(m+2)/(m+1)*Int[x^(m+2)*(a+b*ArcCos[c*x])/Sqrt[d+e*x^2],x] /;
+FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[m] && m<-1
+
+
+Int[(f_.*x_)^m_*(a_.+b_.*ArcSin[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  f*(f*x)^(m-1)*Sqrt[d+e*x^2]*(a+b*ArcSin[c*x])^n/(e*m) + 
+  b*f*n*Sqrt[d+e*x^2]/(c*d*m*Sqrt[1-c^2*x^2])*Int[(f*x)^(m-1)*(a+b*ArcSin[c*x])^(n-1),x] + 
+  f^2*(m-1)/(c^2*m)*Int[((f*x)^(m-2)*(a+b*ArcSin[c*x])^n)/Sqrt[d+e*x^2],x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && RationalQ[m,n] && n>0 && m>1
+
+
+Int[(f_.*x_)^m_*(a_.+b_.*ArcCos[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  f*(f*x)^(m-1)*Sqrt[d+e*x^2]*(a+b*ArcCos[c*x])^n/(e*m) - 
+  b*f*n*Sqrt[d+e*x^2]/(c*d*m*Sqrt[1-c^2*x^2])*Int[(f*x)^(m-1)*(a+b*ArcCos[c*x])^(n-1),x] + 
+  f^2*(m-1)/(c^2*m)*Int[((f*x)^(m-2)*(a+b*ArcCos[c*x])^n)/Sqrt[d+e*x^2],x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && RationalQ[m,n] && n>0 && m>1
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  f*(f*x)^(m-1)*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(2*e*(p+1)) + 
+  b*f*n*d^(p+1/2)*Sqrt[1-c^2*x^2]/(2*c*(p+1)*Sqrt[d+e*x^2])*Int[(f*x)^(m-1)*(1-c^2*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] - 
+  f^2*(m-1)/(2*e*(p+1))*Int[(f*x)^(m-2)*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2] && RationalQ[m,n] && n>0 && p<-1 && m>1
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  f*(f*x)^(m-1)*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(2*e*(p+1)) - 
+  b*f*n*d^(p+1/2)*Sqrt[1-c^2*x^2]/(2*c*(p+1)*Sqrt[d+e*x^2])*Int[(f*x)^(m-1)*(1-c^2*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] - 
+  f^2*(m-1)/(2*e*(p+1))*Int[(f*x)^(m-2)*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2] && RationalQ[m,n] && n>0 && p<-1 && m>1
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(d*f*(m+1)) - 
+  b*c*n*d^(p+1/2)*Sqrt[1-c^2*x^2]/(f*(m+1)*Sqrt[d+e*x^2])*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] + 
+  c^2*(m+2*p+3)/(f^2*(m+1))*Int[(f*x)^(m+2)*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2] && RationalQ[m,n] && n>0 && p<0 && m<-1
+
+
+Int[(f_.*x_)^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (f*x)^(m+1)*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(d*f*(m+1)) + 
+  b*c*n*d^(p+1/2)*Sqrt[1-c^2*x^2]/(f*(m+1)*Sqrt[d+e*x^2])*Int[(f*x)^(m+1)*(1-c^2*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] + 
+  c^2*(m+2*p+3)/(f^2*(m+1))*Int[(f*x)^(m+2)*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f},x] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2] && RationalQ[m,n] && n>0 && p<0 && m<-1
+
+
+Int[(f_+g_.*x_)^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_/Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  (f+g*x)^m*(a+b*ArcSin[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) - 
+  g*m/(b*c*Sqrt[d]*(n+1))*Int[(f+g*x)^(m-1)*(a+b*ArcSin[c*x])^(n+1),x] /;
+FreeQ[{a,b,c,d,e,f,g,m},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && RationalQ[n] && n<-1
+
+
+Int[(f_+g_.*x_)^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_/Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  -(f+g*x)^m*(a+b*ArcCos[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) + 
+  g*m/(b*c*Sqrt[d]*(n+1))*Int[(f+g*x)^(m-1)*(a+b*ArcCos[c*x])^(n+1),x] /;
+FreeQ[{a,b,c,d,e,f,g,m},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && RationalQ[n] && n<-1
+
+
+Int[(f_+g_.*x_)^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  1/(c^(m+1)*Sqrt[d])*Subst[Int[(a+b*x)^n*(c*f+g*Sin[x])^m,x],x,ArcSin[c*x]] /;
+FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && IntegerQ[m]
+
+
+Int[(f_+g_.*x_)^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  -1/(c^(m+1)*Sqrt[d])*Subst[Int[(a+b*x)^n*(c*f+g*Cos[x])^m,x],x,ArcCos[c*x]] /;
+FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && IntegerQ[m]
+
+
+Int[(f_+g_.*x_)^m_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (f+g*x)^m*(d+e*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) - 
+  1/(b*c*Sqrt[d]*(n+1))*Int[(d*g*m+e*f*(2*p+1)*x+e*g*(m+2*p+1)*x^2)*(f+g*x)^(m-1)*(d+e*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n+1),x] /;
+FreeQ[{a,b,c,d,e,f,g},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && PositiveIntegerQ[p+1/2] && PositiveIntegerQ[n] && IntegerQ[m]
+
+
+Int[(f_+g_.*x_)^m_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  -(f+g*x)^m*(d+e*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) + 
+  1/(b*c*Sqrt[d]*(n+1))*Int[(d*g*m+e*f*(2*p+1)*x+e*g*(m+2*p+1)*x^2)*(f+g*x)^(m-1)*(d+e*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n+1),x] /;
+FreeQ[{a,b,c,d,e,f,g},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && PositiveIntegerQ[p+1/2] && PositiveIntegerQ[n] && IntegerQ[m]
+
+
+Int[Log[h_.*(f_.+g_.*x_)^m_.]*(a_.+b_.*ArcSin[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  Log[h*(f+g*x)^m]*(a+b*ArcSin[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) - 
+  g*m/(b*c*Sqrt[d]*(n+1))*Int[(a+b*ArcSin[c*x])^(n+1)/(f+g*x),x] /;
+FreeQ[{a,b,c,d,e,f,g,h,m},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && PositiveIntegerQ[n]
+
+
+Int[Log[h_.*(f_.+g_.*x_)^m_.]*(a_.+b_.*ArcCos[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
+  -Log[h*(f+g*x)^m]*(a+b*ArcCos[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) + 
+  g*m/(b*c*Sqrt[d]*(n+1))*Int[(a+b*ArcCos[c*x])^(n+1)/(f+g*x),x] /;
+FreeQ[{a,b,c,d,e,f,g,h,m},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && PositiveIntegerQ[n]
+
+
+Int[u_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  d^(p-1/2)*Sqrt[d+e*x^2]/Sqrt[1-c^2*x^2]*Int[u*(1-c^2*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && Not[PositiveQ[d]]
+
+
+Int[u_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  d^(p-1/2)*Sqrt[d+e*x^2]/Sqrt[1-c^2*x^2]*Int[u*(1-c^2*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && Not[PositiveQ[d]]
+
+
+Int[u_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  d^(p+1/2)*Sqrt[1-c^2*x^2]/Sqrt[d+e*x^2]*Int[u*(1-c^2*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && NegativeIntegerQ[p-1/2] && Not[PositiveQ[d]]
+
+
+Int[u_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  d^(p+1/2)*Sqrt[1-c^2*x^2]/Sqrt[d+e*x^2]*Int[u*(1-c^2*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && NegativeIntegerQ[p-1/2] && Not[PositiveQ[d]]
+
+
+Int[u_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (d+e*x^2)^p/(1-c^2*x^2)^p*Int[u*(1-c^2*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && Not[IntegerQ[2*p]] && Not[PositiveQ[d]]
+
+
+Int[u_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (d+e*x^2)^p/(1-c^2*x^2)^p*Int[u*(1-c^2*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && Not[IntegerQ[2*p]] && Not[PositiveQ[d]]
+
+
+Int[u_.*(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (d*f)^p*Int[u*(1-c^2*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[e-c*d] && ZeroQ[g+c*f] && IntegerQ[p]
+
+
+Int[u_.*(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (d*f)^p*Int[u*(1-c^2*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[e-c*d] && ZeroQ[g+c*f] && IntegerQ[p]
+
+
+Int[u_.*(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (d*f)^(p-1/2)*Sqrt[d+e*x]*Sqrt[f+g*x]/Sqrt[1-c^2*x^2]*Int[u*(1-c^2*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[e-c*d] && ZeroQ[g+c*f] && PositiveIntegerQ[p+1/2]
+
+
+Int[u_.*(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (d*f)^(p-1/2)*Sqrt[d+e*x]*Sqrt[f+g*x]/Sqrt[1-c^2*x^2]*Int[u*(1-c^2*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[e-c*d] && ZeroQ[g+c*f] && PositiveIntegerQ[p+1/2]
+
+
+Int[u_.*(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (d*f)^(p+1/2)*Sqrt[1-c^2*x^2]/(Sqrt[d+e*x]*Sqrt[f+g*x])*Int[u*(1-c^2*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[e-c*d] && ZeroQ[g+c*f] && NegativeIntegerQ[p-1/2]
+
+
+Int[u_.*(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (d*f)^(p+1/2)*Sqrt[1-c^2*x^2]/(Sqrt[d+e*x]*Sqrt[f+g*x])*Int[u*(1-c^2*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[e-c*d] && ZeroQ[g+c*f] && NegativeIntegerQ[p-1/2]
+
+
+Int[u_.*(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  (d+e*x)^p*(f+g*x)^p/(1-c^2*x^2)^p*Int[u*(1-c^2*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,g,n,p},x] && ZeroQ[e-c*d] && ZeroQ[g+c*f] && Not[IntegerQ[2*p]]
+
+
+Int[u_.*(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  (d+e*x)^p*(f+g*x)^p/(1-c^2*x^2)^p*Int[u*(1-c^2*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,g,n,p},x] && ZeroQ[e-c*d] && ZeroQ[g+c*f] && Not[IntegerQ[2*p]]
+
+
 Int[(d_.+e_.*x_)^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
   (d+e*x)^(m+1)*(a+b*ArcSin[c*x])^n/(e*(m+1)) - 
   b*c*n/(e*(m+1))*Int[(d+e*x)^(m+1)*(a+b*ArcSin[c*x])^(n-1)/Sqrt[1-c^2*x^2],x] /;
@@ -66,18 +880,18 @@ Int[x_^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_,x_Symbol] :=
 FreeQ[{a,b,c},x] && RationalQ[n] && -2<=n<-1 && PositiveIntegerQ[m]
 
 
-Int[x_^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_,x_Symbol] :=
-  x^m*Sqrt[1-c^2*x^2]*(a+b*ArcSin[c*x])^(n+1)/(b*c*(n+1)) - 
-  m/(b*c*(n+1))*Int[x^(m-1)*(a+b*ArcSin[c*x])^(n+1)/Sqrt[1-c^2*x^2],x] + 
-  c*(m+1)/(b*(n+1))*Int[x^(m+1)*(a+b*ArcSin[c*x])^(n+1)/Sqrt[1-c^2*x^2],x] /;
-FreeQ[{a,b,c},x] && RationalQ[n] && n<-2 && PositiveIntegerQ[m]
+Int[(e_.*x_)^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_,x_Symbol] :=
+  (e*x)^m*Sqrt[1-c^2*x^2]*(a+b*ArcSin[c*x])^(n+1)/(b*c*(n+1)) - 
+  e*m/(b*c*(n+1))*Int[(e*x)^(m-1)*(a+b*ArcSin[c*x])^(n+1)/Sqrt[1-c^2*x^2],x] + 
+  c*(m+1)/(b*e*(n+1))*Int[(e*x)^(m+1)*(a+b*ArcSin[c*x])^(n+1)/Sqrt[1-c^2*x^2],x] /;
+FreeQ[{a,b,c,e},x] && RationalQ[n] && n<-2 && PositiveIntegerQ[m]
 
 
-Int[x_^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_,x_Symbol] :=
-  -x^m*Sqrt[1-c^2*x^2]*(a+b*ArcCos[c*x])^(n+1)/(b*c*(n+1)) + 
-  m/(b*c*(n+1))*Int[x^(m-1)*(a+b*ArcCos[c*x])^(n+1)/Sqrt[1-c^2*x^2],x] - 
-  c*(m+1)/(b*(n+1))*Int[x^(m+1)*(a+b*ArcCos[c*x])^(n+1)/Sqrt[1-c^2*x^2],x] /;
-FreeQ[{a,b,c},x] && RationalQ[n] && n<-2 && PositiveIntegerQ[m]
+Int[(e_.*x_)^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_,x_Symbol] :=
+  -(e*x)^m*Sqrt[1-c^2*x^2]*(a+b*ArcCos[c*x])^(n+1)/(b*c*(n+1)) + 
+  e*m/(b*c*(n+1))*Int[(e*x)^(m-1)*(a+b*ArcCos[c*x])^(n+1)/Sqrt[1-c^2*x^2],x] - 
+  c*(m+1)/(b*e*(n+1))*Int[(e*x)^(m+1)*(a+b*ArcCos[c*x])^(n+1)/Sqrt[1-c^2*x^2],x] /;
+FreeQ[{a,b,c,e},x] && RationalQ[n] && n<-2 && PositiveIntegerQ[m]
 
 
 Int[(d_+e_.*x_)^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_,x_Symbol] :=
@@ -100,86 +914,14 @@ Int[(d_.+e_.*x_)^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
 FreeQ[{a,b,c,d,e,n},x] && IntegerQ[m] && (m>0 || PositiveIntegerQ[n])
 
 
-Int[(d_.+e_.*x_)^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][(d+e*x)^m*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,m,n},x]
-
-
-Int[(d_.+e_.*x_)^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][(d+e*x)^m*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,m,n},x]
-
-
-Int[x_^m_.*(d_+e_.*x_)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Int[ExpandIntegrand[x^m*(d+e*x)^p*(a+b*ArcSin[c*x])^n,x],x] /;
-FreeQ[{a,b,c,d,e,m},x] && IntegerQ[p] && PositiveIntegerQ[n] && (PositiveIntegerQ[p] || NonzeroQ[a])
-
-
-Int[x_^m_.*(d_+e_.*x_)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Int[ExpandIntegrand[x^m*(d+e*x)^p*(a+b*ArcCos[c*x])^n,x],x] /;
-FreeQ[{a,b,c,d,e,m},x] && IntegerQ[p] && PositiveIntegerQ[n] && (PositiveIntegerQ[p] || NonzeroQ[a])
-
-
-Int[x_^m_.*(d_.+e_.*x_)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][x^m*(d+e*x)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,m,n,p},x]
-
-
-Int[x_^m_.*(d_.+e_.*x_)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][x^m*(d+e*x)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,m,n,p},x]
-
-
-Int[(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Int[(d*f+e*g*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[e*f+d*g] && IntegerQ[p]
-
-
-Int[(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Int[(d*f+e*g*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[e*f+d*g] && IntegerQ[p]
-
-
-Int[(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Sqrt[d+e*x]*Sqrt[f+g*x]/Sqrt[d*f+e*g*x^2]*Int[(d*f+e*g*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[e*f+d*g] && PositiveIntegerQ[p+1/2]
-
-
-Int[(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Sqrt[d+e*x]*Sqrt[f+g*x]/Sqrt[d*f+e*g*x^2]*Int[(d*f+e*g*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[e*f+d*g] && PositiveIntegerQ[p+1/2]
-
-
-Int[(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Sqrt[d*f+e*g*x^2]/(Sqrt[d+e*x]*Sqrt[f+g*x])*Int[(d*f+e*g*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[e*f+d*g] && NegativeIntegerQ[p-1/2]
-
-
-Int[(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Sqrt[d*f+e*g*x^2]/(Sqrt[d+e*x]*Sqrt[f+g*x])*Int[(d*f+e*g*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[e*f+d*g] && NegativeIntegerQ[p-1/2]
-
-
-Int[(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[(d+e*x)^p*(f+g*x)^p,x]]},  
-  Dist[a+b*ArcSin[c*x],u,x] - b*c*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
-FreeQ[{a,b,c,d,e,f,g},x] && PositiveIntegerQ[p]
-
-
-Int[(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[(d+e*x)^p*(f+g*x)^p,x]]},  
-  Dist[a+b*ArcCos[c*x],u,x] + b*c*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
-FreeQ[{a,b,c,d,e,f,g},x] && PositiveIntegerQ[p]
-
-
 Int[(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[(d+e*x)^p*(f+g*x)^p,x]]},  
+  Module[{u=IntHide[(d+e*x)^p*(f+g*x)^p,x]},  
   Dist[a+b*ArcSin[c*x],u,x] - b*c*Int[Dist[1/Sqrt[1-c^2*x^2],u,x],x]] /;
 FreeQ[{a,b,c,d,e,f,g},x] && NegativeIntegerQ[p+1/2]
 
 
 Int[(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[(d+e*x)^p*(f+g*x)^p,x]]},  
+  Module[{u=IntHide[(d+e*x)^p*(f+g*x)^p,x]},  
   Dist[a+b*ArcCos[c*x],u,x] + b*c*Int[Dist[1/Sqrt[1-c^2*x^2],u,x],x]] /;
 FreeQ[{a,b,c,d,e,f,g},x] && NegativeIntegerQ[p+1/2]
 
@@ -194,652 +936,134 @@ Int[(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
 FreeQ[{a,b,c,d,e,f,g,n},x] && IntegerQ[p]
 
 
-Int[(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][(d+e*x)^p*(f+g*x)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,n,p},x]
+Int[Px_*(d_+e_.*x_)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  Int[ExpandIntegrand[Px*(d+e*x)^p*(a+b*ArcSin[c*x])^n,x],x] /;
+FreeQ[{a,b,c,d,e},x] && IntegerQ[p] && PositiveIntegerQ[n] && PolynomialQ[Px,x]
 
 
-Int[(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][(d+e*x)^p*(f+g*x)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,n,p},x]
+Int[Px_*(d_+e_.*x_)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  Int[ExpandIntegrand[Px*(d+e*x)^p*(a+b*ArcCos[c*x])^n,x],x] /;
+FreeQ[{a,b,c,d,e},x] && IntegerQ[p] && PositiveIntegerQ[n] && PolynomialQ[Px,x]
 
 
-Int[(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[(d+e*x^2)^p,x]]},  
-  Dist[a+b*ArcSin[c*x],u,x] - b*c*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
-FreeQ[{a,b,c,d,e},x] && (PositiveIntegerQ[p] || NegativeIntegerQ[p+1/2])
+Int[x_^m_.*(d_+e_.*x_)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  Int[ExpandIntegrand[x^m*(d+e*x)^p*(a+b*ArcSin[c*x])^n,x],x] /;
+FreeQ[{a,b,c,d,e,m},x] && IntegerQ[p] && PositiveIntegerQ[n] && (IntegerQ[m] || PositiveIntegerQ[p] || NonzeroQ[a])
 
 
-Int[(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[(d+e*x^2)^p,x]]},  
-  Dist[a+b*ArcCos[c*x],u,x] + b*c*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
-FreeQ[{a,b,c,d,e},x] && (PositiveIntegerQ[p] || NegativeIntegerQ[p+1/2])
+Int[x_^m_.*(d_+e_.*x_)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  Int[ExpandIntegrand[x^m*(d+e*x)^p*(a+b*ArcCos[c*x])^n,x],x] /;
+FreeQ[{a,b,c,d,e,m},x] && IntegerQ[p] && PositiveIntegerQ[n] && (IntegerQ[m] || PositiveIntegerQ[p] || NonzeroQ[a])
 
 
-Int[(a_.+b_.*ArcSin[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
-  1/(b*c*Sqrt[d])*Subst[Int[x^n,x],x,a+b*ArcSin[c*x]] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && PositiveQ[d]
+Int[u_*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
+  Module[{v=IntHide[u,x]},  
+  Dist[a+b*ArcSin[c*x],v,x] - b*c*Int[SimplifyIntegrand[v/Sqrt[1-c^2*x^2],x],x] /;
+ InverseFunctionFreeQ[v,x]] /;
+FreeQ[{a,b,c},x]
 
 
-Int[(a_.+b_.*ArcCos[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
-  -1/(b*c*Sqrt[d])*Subst[Int[x^n,x],x,a+b*ArcCos[c*x]] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && PositiveQ[d]
+Int[u_*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
+  Module[{v=IntHide[u,x]},  
+  Dist[a+b*ArcCos[c*x],v,x] + b*c*Int[SimplifyIntegrand[v/Sqrt[1-c^2*x^2],x],x] /;
+ InverseFunctionFreeQ[v,x]] /;
+FreeQ[{a,b,c},x]
 
 
-Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  x*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n/(2*p+1) - 
-  b*c*n*Sqrt[d]/(2*p+1)*Int[x*(d+e*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n-1),x] + 
-  2*d*p/(2*p+1)*Int[(d+e*x^2)^(p-1)*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[n] && n>0 && p>0
+Int[Px_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  Int[ExpandIntegrand[Px*(a+b*ArcSin[c*x])^n,x],x] /;
+FreeQ[{a,b,c,n},x] && PolynomialQ[Px,x]
 
 
-Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  x*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n/(2*p+1) + 
-  b*c*n*Sqrt[d]/(2*p+1)*Int[x*(d+e*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n-1),x] + 
-  2*d*p/(2*p+1)*Int[(d+e*x^2)^(p-1)*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[n] && n>0 && p>0
+Int[Px_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  Int[ExpandIntegrand[Px*(a+b*ArcCos[c*x])^n,x],x] /;
+FreeQ[{a,b,c,n},x] && PolynomialQ[Px,x]
 
 
-Int[(a_.+b_.*ArcSin[c_.*x_])^n_./(d_+e_.*x_^2),x_Symbol] :=
-  1/(c*d)*Subst[Int[(a+b*x)^n*Sec[x],x],x,ArcSin[c*x]] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && PositiveIntegerQ[n]
+Int[Px_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  Module[{u=ExpandIntegrand[Px*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n,x]},
+  Int[u,x] /;
+ SumQ[u]] /;
+FreeQ[{a,b,c,d,e,n},x] && PolynomialQ[Px,x] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2]
 
 
-Int[(a_.+b_.*ArcCos[c_.*x_])^n_./(d_+e_.*x_^2),x_Symbol] :=
-  -1/(c*d)*Subst[Int[(a+b*x)^n*Csc[x],x],x,ArcCos[c*x]] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && PositiveIntegerQ[n]
+Int[Px_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  Module[{u=ExpandIntegrand[Px*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n,x]},
+  Int[u,x] /;
+ SumQ[u]] /;
+FreeQ[{a,b,c,d,e,n},x] && PolynomialQ[Px,x] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2]
 
 
-Int[(a_.+b_.*ArcSin[c_.*x_])^n_./(d_+e_.*x_^2)^(3/2),x_Symbol] :=
-  x*(a+b*ArcSin[c*x])^n/(d*Sqrt[d+e*x^2]) - b*c*n/Sqrt[d]*Int[x*(a+b*ArcSin[c*x])^(n-1)/(d+e*x^2),x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && RationalQ[n] && n>0
+Int[Px_.*(f_+g_.*(d_+e_.*x_^2)^p_)^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  Module[{u=ExpandIntegrand[Px*(f+g*(d+e*x^2)^p)^m*(a+b*ArcSin[c*x])^n,x]},
+  Int[u,x] /;
+ SumQ[u]] /;
+FreeQ[{a,b,c,d,e,f,g},x] && PolynomialQ[Px,x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && IntegersQ[m,n]
 
 
-Int[(a_.+b_.*ArcCos[c_.*x_])^n_./(d_+e_.*x_^2)^(3/2),x_Symbol] :=
-  x*(a+b*ArcCos[c*x])^n/(d*Sqrt[d+e*x^2]) + b*c*n/Sqrt[d]*Int[x*(a+b*ArcCos[c*x])^(n-1)/(d+e*x^2),x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && RationalQ[n] && n>0
+Int[Px_.*(f_+g_.*(d_+e_.*x_^2)^p_)^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  Module[{u=ExpandIntegrand[Px*(f+g*(d+e*x^2)^p)^m*(a+b*ArcCos[c*x])^n,x]},
+  Int[u,x] /;
+ SumQ[u]] /;
+FreeQ[{a,b,c,d,e,f,g},x] && PolynomialQ[Px,x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && IntegersQ[m,n]
 
 
-Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  -x*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(2*d*(p+1)) + 
-  b*c*n/(2*Sqrt[d]*(p+1))*Int[x*(d+e*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] + 
-  (2*p+3)/(2*d*(p+1))*Int[(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[n] && n>0 && p<-1 && p!=-2/3
+Int[RFx_*ArcSin[c_.*x_]^n_.,x_Symbol] :=
+  Module[{u=ExpandIntegrand[ArcSin[c*x]^n,RFx,x]},
+  Int[u,x] /;
+ SumQ[u]] /;
+FreeQ[c,x] && RationalFunctionQ[RFx,x] && PositiveIntegerQ[n]
 
 
-Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  -x*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(2*d*(p+1)) - 
-  b*c*n/(2*Sqrt[d]*(p+1))*Int[x*(d+e*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] + 
-  (2*p+3)/(2*d*(p+1))*Int[(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[n] && n>0 && p<-1 && p!=-2/3
+Int[RFx_*ArcCos[c_.*x_]^n_.,x_Symbol] :=
+  Module[{u=ExpandIntegrand[ArcCos[c*x]^n,RFx,x]},
+  Int[u,x] /;
+ SumQ[u]] /;
+FreeQ[c,x] && RationalFunctionQ[RFx,x] && PositiveIntegerQ[n]
 
 
-Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_,x_Symbol] :=
-  (d+e*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) - 
-  e*(2*p+1)/(b*c*Sqrt[d]*(n+1))*Int[x*(d+e*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n+1),x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[n] && n<-1 && p!=-1/2
+Int[RFx_*(a_+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  Int[ExpandIntegrand[RFx*(a+b*ArcSin[c*x])^n,x],x] /;
+FreeQ[{a,b,c},x] && RationalFunctionQ[RFx,x] && PositiveIntegerQ[n]
 
 
-Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_,x_Symbol] :=
-  -(d+e*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) + 
-  e*(2*p+1)/(b*c*Sqrt[d]*(n+1))*Int[x*(d+e*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n+1),x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[n] && n<-1 && p!=-1/2
+Int[RFx_*(a_+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  Int[ExpandIntegrand[RFx*(a+b*ArcCos[c*x])^n,x],x] /;
+FreeQ[{a,b,c},x] && RationalFunctionQ[RFx,x] && PositiveIntegerQ[n]
 
 
-Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  d^p/c*Subst[Int[(a+b*x)^n*Cos[x]^(2*p+1),x],x,ArcSin[c*x]] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[2*p] && PositiveQ[d]
+Int[RFx_*(d_+e_.*x_^2)^p_*ArcSin[c_.*x_]^n_.,x_Symbol] :=
+  Module[{u=ExpandIntegrand[(d+e*x^2)^p*ArcSin[c*x]^n,RFx,x]},
+  Int[u,x] /;
+ SumQ[u]] /;
+FreeQ[{c,d,e},x] && RationalFunctionQ[RFx,x] && PositiveIntegerQ[n] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2]
 
 
-Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  -d^p/c*Subst[Int[(a+b*x)^n*Sin[x]^(2*p+1),x],x,ArcCos[c*x]] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[2*p] && PositiveQ[d]
+Int[RFx_*(d_+e_.*x_^2)^p_*ArcCos[c_.*x_]^n_.,x_Symbol] :=
+  Module[{u=ExpandIntegrand[(d+e*x^2)^p*ArcCos[c*x]^n,RFx,x]},
+  Int[u,x] /;
+ SumQ[u]] /;
+FreeQ[{c,d,e},x] && RationalFunctionQ[RFx,x] && PositiveIntegerQ[n] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2]
 
 
-Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  d^p*Int[(1-c^2*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && IntegerQ[p] && Not[PositiveQ[d]]
+Int[RFx_*(d_+e_.*x_^2)^p_*(a_+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  Int[ExpandIntegrand[(d+e*x^2)^p,RFx*(a+b*ArcSin[c*x])^n,x],x] /;
+FreeQ[{a,b,c,d,e},x] && RationalFunctionQ[RFx,x] && PositiveIntegerQ[n] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2]
 
 
-Int[(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  d^p*Int[(1-c^2*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && IntegerQ[p] && Not[PositiveQ[d]]
+Int[RFx_*(d_+e_.*x_^2)^p_*(a_+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  Int[ExpandIntegrand[(d+e*x^2)^p,RFx*(a+b*ArcCos[c*x])^n,x],x] /;
+FreeQ[{a,b,c,d,e},x] && RationalFunctionQ[RFx,x] && PositiveIntegerQ[n] && ZeroQ[c^2*d+e] && IntegerQ[p-1/2]
 
 
-Int[(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  d^(p-1/2)*Sqrt[d+e*x^2]/Sqrt[1-c^2*x^2]*Int[(1-c^2*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && Not[PositiveQ[d]]
+Int[u_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
+  Defer[Int][u*(a+b*ArcSin[c*x])^n,x] /;
+FreeQ[{a,b,c,n},x]
 
 
-Int[(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  d^(p-1/2)*Sqrt[d+e*x^2]/Sqrt[1-c^2*x^2]*Int[(1-c^2*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && Not[PositiveQ[d]]
-
-
-Int[(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  d^(p+1/2)*Sqrt[1-c^2*x^2]/Sqrt[d+e*x^2]*Int[(1-c^2*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && NegativeIntegerQ[p-1/2] && Not[PositiveQ[d]]
-
-
-Int[(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  d^(p+1/2)*Sqrt[1-c^2*x^2]/Sqrt[d+e*x^2]*Int[(1-c^2*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && NegativeIntegerQ[p-1/2] && Not[PositiveQ[d]]
-
-
-Int[(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Int[ExpandIntegrand[(d+e*x^2)^p*(a+b*ArcSin[c*x])^n,x],x] /;
-FreeQ[{a,b,c,d,e,n},x] && PositiveIntegerQ[p]
-
-
-Int[(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Int[ExpandIntegrand[(d+e*x^2)^p*(a+b*ArcCos[c*x])^n,x],x] /;
-FreeQ[{a,b,c,d,e,n},x] && PositiveIntegerQ[p]
-
-
-Int[(d_.+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Int[ExpandIntegrand[(Sqrt[d]-Sqrt[-e]*x)^p*(Sqrt[d]+Sqrt[-e]*x)^p*(a+b*ArcSin[c*x])^n,x],x] /;
-FreeQ[{a,b,c,d,e,n},x] && NegativeIntegerQ[p] && PositiveIntegerQ[n]
-
-
-Int[(d_.+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Int[ExpandIntegrand[(Sqrt[d]-Sqrt[-e]*x)^p*(Sqrt[d]+Sqrt[-e]*x)^p*(a+b*ArcCos[c*x])^n,x],x] /;
-FreeQ[{a,b,c,d,e,n},x] && NegativeIntegerQ[p] && PositiveIntegerQ[n]
-
-
-Int[(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][(d+e*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,n,p},x]
-
-
-Int[(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][(d+e*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,n,p},x]
-
-
-Int[x_^m_.*(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Int[x^m*(d*f+e*g*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n},x] && ZeroQ[e*f+d*g] && IntegerQ[p]
-
-
-Int[x_^m_.*(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Int[x^m*(d*f+e*g*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n},x] && ZeroQ[e*f+d*g] && IntegerQ[p]
-
-
-Int[x_^m_.*(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Sqrt[d+e*x]*Sqrt[f+g*x]/Sqrt[d*f+e*g*x^2]*Int[x^m*(d*f+e*g*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n},x] && ZeroQ[e*f+d*g] && PositiveIntegerQ[p+1/2]
-
-
-Int[x_^m_.*(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Sqrt[d+e*x]*Sqrt[f+g*x]/Sqrt[d*f+e*g*x^2]*Int[x^m*(d*f+e*g*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n},x] && ZeroQ[e*f+d*g] && PositiveIntegerQ[p+1/2]
-
-
-Int[x_^m_.*(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Sqrt[d*f+e*g*x^2]/(Sqrt[d+e*x]*Sqrt[f+g*x])*Int[x^m*(d*f+e*g*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n},x] && ZeroQ[e*f+d*g] && NegativeIntegerQ[p-1/2]
-
-
-Int[x_^m_.*(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Sqrt[d*f+e*g*x^2]/(Sqrt[d+e*x]*Sqrt[f+g*x])*Int[x^m*(d*f+e*g*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n},x] && ZeroQ[e*f+d*g] && NegativeIntegerQ[p-1/2]
-
-
-Int[x_^m_.*(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Int[ExpandIntegrand[x^m*(d+e*x)^p*(f+g*x)^p*(a+b*ArcSin[c*x])^n,x],x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n},x] && PositiveIntegerQ[p]
-
-
-Int[x_^m_.*(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Int[ExpandIntegrand[x^m*(d+e*x)^p*(f+g*x)^p*(a+b*ArcCos[c*x])^n,x],x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n},x] && PositiveIntegerQ[p]
-
-
-Int[x_^m_.*(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][x^m*(d+e*x)^p*(f+g*x)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
-
-
-Int[x_^m_.*(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][x^m*(d+e*x)^p*(f+g*x)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
-
-
-Int[x_*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
-  (d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])/(2*e*(p+1)) - 
-  b*c/(2*e*(p+1))*Int[(d+e*x^2)^(p+1)/Sqrt[1-c^2*x^2],x] /;
-FreeQ[{a,b,c,d,e,p},x] && NonzeroQ[p+1]
-
-
-Int[x_*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
-  (d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])/(2*e*(p+1)) + 
-  b*c/(2*e*(p+1))*Int[(d+e*x^2)^(p+1)/Sqrt[1-c^2*x^2],x] /;
-FreeQ[{a,b,c,d,e,p},x] && NonzeroQ[p+1]
-
-
-Int[x_^m_.*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[x^m*(d+e*x^2)^p,x]]},  
-  Dist[a+b*ArcSin[c*x],u,x] - b*c*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
-FreeQ[{a,b,c,d,e,m,p},x] && (
-  PositiveIntegerQ[p] && Not[NegativeIntegerQ[(m-1)/2] && m+2*p+3>0] || 
-  PositiveIntegerQ[(m+1)/2] && Not[NegativeIntegerQ[p] && m+2*p+3>0] || 
-  NegativeIntegerQ[(m+2*p+1)/2] && Not[NegativeIntegerQ[(m-1)/2]] )
-
-
-Int[x_^m_.*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[x^m*(d+e*x^2)^p,x]]},  
-  Dist[a+b*ArcCos[c*x],u,x] + b*c*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
-FreeQ[{a,b,c,d,e,m,p},x] && (
-  PositiveIntegerQ[p] && Not[NegativeIntegerQ[(m-1)/2] && m+2*p+3>0] || 
-  PositiveIntegerQ[(m+1)/2] && Not[NegativeIntegerQ[p] && m+2*p+3>0] || 
-  NegativeIntegerQ[(m+2*p+1)/2] && Not[NegativeIntegerQ[(m-1)/2]] )
-
-
-Int[x_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  (d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(2*e*(p+1)) + 
-  b*n/(2*c*Sqrt[d]*(p+1))*Int[(d+e*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[n] && n>0 && p!=-1
-
-
-Int[x_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  (d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(2*e*(p+1)) - 
-  b*n/(2*c*Sqrt[d]*(p+1))*Int[(d+e*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[n] && n>0 && p!=-1
-
-
-Int[x_^m_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  x^(m+1)*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n/(m+1) - 
-  b*c*Sqrt[d]*n/(m+1)*Int[x^(m+1)*(d+e*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n-1),x] - 
-  2*e*p/(m+1)*Int[x^(m+2)*(d+e*x^2)^(p-1)*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n>0 && p>0 && m<-1
-
-
-Int[x_^m_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  x^(m+1)*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n/(m+1) + 
-  b*c*Sqrt[d]*n/(m+1)*Int[x^(m+1)*(d+e*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n-1),x] - 
-  2*e*p/(m+1)*Int[x^(m+2)*(d+e*x^2)^(p-1)*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n>0 && p>0 && m<-1
-
-
-Int[x_^m_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  x^(m+1)*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n/(m+2*p+1) - 
-  b*c*n*Sqrt[d]/(m+2*p+1)*Int[x^(m+1)*(d+e*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n-1),x] + 
-  2*d*p/(m+2*p+1)*Int[x^m*(d+e*x^2)^(p-1)*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n>0 && p>0 && m+2*p+1!=0
-
-
-Int[x_^m_*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  x^(m+1)*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n/(m+2*p+1) + 
-  b*c*n*Sqrt[d]/(m+2*p+1)*Int[x^(m+1)*(d+e*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n-1),x] + 
-  2*d*p/(m+2*p+1)*Int[x^m*(d+e*x^2)^(p-1)*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n>0 && p>0 && m+2*p+1!=0
-
-
-Int[x_^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  x^(m+1)*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(d*(m+1)) - 
-  b*c*n/(Sqrt[d]*(m+1))*Int[x^(m+1)*(d+e*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n>0 && p<0 && m!=-1 && m+2*p+3==0
-
-
-Int[x_^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  x^(m+1)*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(d*(m+1)) + 
-  b*c*n/(Sqrt[d]*(m+1))*Int[x^(m+1)*(d+e*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n>0 && p<0 && m!=-1 && m+2*p+3==0
-
-
-Int[x_^m_*(a_.+b_.*ArcSin[c_.*x_])/Sqrt[d_+e_.*x_^2],x_Symbol] :=
-  x^(m+1)*(a+b*ArcSin[c*x])*Hypergeometric2F1[1/2,(1+m)/2,(3+m)/2,c^2*x^2]/(Sqrt[d]*(m+1)) - 
-  b*c*x^(m+2)*HypergeometricPFQ[{1,1+m/2,1+m/2},{3/2+m/2,2+m/2},c^2*x^2]/(Sqrt[d]*(m+1)*(m+2)) /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && Not[IntegerQ[m]]
-
-
-Int[x_^m_*(a_.+b_.*ArcCos[c_.*x_])/Sqrt[d_+e_.*x_^2],x_Symbol] :=
-  x^(m+1)*(a+b*ArcCos[c*x])*Hypergeometric2F1[1/2,(1+m)/2,(3+m)/2,c^2*x^2]/(Sqrt[d]*(m+1)) + 
-  b*c*x^(m+2)*HypergeometricPFQ[{1,1+m/2,1+m/2},{3/2+m/2,2+m/2},c^2*x^2]/(Sqrt[d]*(m+1)*(m+2)) /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && Not[IntegerQ[m]]
-
-
-Int[x_^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_./(d_+e_.*x_^2),x_Symbol] :=
-  1/(c^(m+1)*d)*Subst[Int[(a+b*x)^n*Sin[x]^m*Sec[x],x],x,ArcSin[c*x]] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && PositiveIntegerQ[n] && IntegerQ[m] && m^2==1
-
-
-Int[x_^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_./(d_+e_.*x_^2),x_Symbol] :=
-  -1/(c^(m+1)*d)*Subst[Int[(a+b*x)^n*Cos[x]^m*Csc[x],x],x,ArcCos[c*x]] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && PositiveIntegerQ[n] && IntegerQ[m] && m^2==1
-
-
-Int[x_^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  x^(m-1)*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(e*(m+2*p+1)) - 
-  b*c*Sqrt[d]*n/(e*(m+2*p+1))*Int[x^(m-1)*(d+e*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] + 
-  (m-1)/(c^2*(m+2*p+1))*Int[x^(m-2)*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n>0 && -1<=p<0 && m>1 && NonzeroQ[m+2*p+1]
-
-
-Int[x_^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  x^(m-1)*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(e*(m+2*p+1)) + 
-  b*c*Sqrt[d]*n/(e*(m+2*p+1))*Int[x^(m-1)*(d+e*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] + 
-  (m-1)/(c^2*(m+2*p+1))*Int[x^(m-2)*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n>0 && -1<=p<0 && m>1 && NonzeroQ[m+2*p+1]
-
-
-Int[x_^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  x^(m-1)*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(2*e*(p+1)) + 
-  b*n/(2*c*Sqrt[d]*(p+1))*Int[x^(m-1)*(d+e*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] - 
-  (m-1)/(2*e*(p+1))*Int[x^(m-2)*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n>0 && p<-1 && m>1
-
-
-Int[x_^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  x^(m-1)*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(2*e*(p+1)) - 
-  b*n/(2*c*Sqrt[d]*(p+1))*Int[x^(m-1)*(d+e*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] - 
-  (m-1)/(2*e*(p+1))*Int[x^(m-2)*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n>0 && p<-1 && m>1
-
-
-Int[ArcSin[c_.*x_]/(x_*Sqrt[d_+e_.*x_^2]),x_Symbol] :=
-  -2*I*ArcSin[c*x]*ArcTan[c*x-I*Sqrt[1-c^2*x^2]]/Sqrt[d] + 
-  I*PolyLog[2,-I*(c*x)-Sqrt[1-c^2*x^2]]/Sqrt[d] - 
-  I*PolyLog[2,I*(c*x)+Sqrt[1-c^2*x^2]]/Sqrt[d] /;
-FreeQ[{c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d]
-
-
-Int[ArcCos[c_.*x_]/(x_*Sqrt[d_+e_.*x_^2]),x_Symbol] :=
-  2*I*ArcCos[c*x]*ArcTan[c*x+I*Sqrt[1-c^2*x^2]]/Sqrt[d] - 
-  I*PolyLog[2,-I*(c*x)+Sqrt[1-c^2*x^2]]/Sqrt[d] + 
-  I*PolyLog[2,I*(c*x)-Sqrt[1-c^2*x^2]]/Sqrt[d] /;
-FreeQ[{c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d]
-
-
-Int[(a_+b_.*ArcSin[c_.*x_])/(x_*Sqrt[d_+e_.*x_^2]),x_Symbol] :=
-  a*Int[1/(x*Sqrt[d+e*x^2]),x] + 
-  b*Int[ArcSin[c*x]/(x*Sqrt[d+e*x^2]),x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d]
-
-
-Int[(a_+b_.*ArcCos[c_.*x_])/(x_*Sqrt[d_+e_.*x_^2]),x_Symbol] :=
-  a*Int[1/(x*Sqrt[d+e*x^2]),x] + 
-  b*Int[ArcCos[c*x]/(x*Sqrt[d+e*x^2]),x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && PositiveQ[d]
-
-
-Int[(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_./x_,x_Symbol] :=
-  c^2*Int[x*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n,x] + 
-  1/d*Int[(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/x,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[n] && n>0 && p<-1
-
-
-Int[(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_./x_,x_Symbol] :=
-  c^2*Int[x*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n,x] + 
-  1/d*Int[(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/x,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[n] && n>0 && p<-1
-
-
-Int[x_^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  x^(m+1)*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n/(d*(m+1)) - 
-  b*c*n/(Sqrt[d]*(m+1))*Int[x^(m+1)*(d+e*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n-1),x] + 
-  c^2*(m+2*p+3)/(m+1)*Int[x^(m+2)*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n>0 && p<0 && m<-1 && m+2*p+3!=0
-
-
-Int[x_^m_*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  x^(m+1)*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n/(d*(m+1)) + 
-  b*c*n/(Sqrt[d]*(m+1))*Int[x^(m+1)*(d+e*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n-1),x] + 
-  c^2*(m+2*p+3)/(m+1)*Int[x^(m+2)*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n>0 && p<0 && m<-1 && m+2*p+3!=0
-
-
-Int[x_^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_/Sqrt[d_+e_.*x_^2],x_Symbol] :=
-  x^m*(a+b*ArcSin[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) - 
-  m/(b*c*Sqrt[d]*(n+1))*Int[x^(m-1)*(a+b*ArcSin[c*x])^(n+1),x] /;
-FreeQ[{a,b,c,d,e,m},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && RationalQ[n] && n<-1
-
-
-Int[x_^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_/Sqrt[d_+e_.*x_^2],x_Symbol] :=
-  -x^m*(a+b*ArcCos[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) + 
-  m/(b*c*Sqrt[d]*(n+1))*Int[x^(m-1)*(a+b*ArcCos[c*x])^(n+1),x] /;
-FreeQ[{a,b,c,d,e,m},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && RationalQ[n] && n<-1
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_,x_Symbol] :=
-  x^m*(d+e*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) - 
-  d*m/(b*c*Sqrt[d]*(n+1))*Int[x^(m-1)*(d+e*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n+1),x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n<-1 && m+2*p+1==0
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_,x_Symbol] :=
-  -x^m*(d+e*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) + 
-  d*m/(b*c*Sqrt[d]*(n+1))*Int[x^(m-1)*(d+e*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n+1),x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n<-1 && m+2*p+1==0
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_,x_Symbol] :=
-  x^m*(d+e*x^2)^(p+1/2)*(a+b*ArcSin[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) - 
-  d*m/(b*c*Sqrt[d]*(n+1))*Int[x^(m-1)*(d+e*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n+1),x] - 
-  e*(m+2*p+1)/(b*c*Sqrt[d]*(n+1))*Int[x^(m+1)*(d+e*x^2)^(p-1/2)*(a+b*ArcSin[c*x])^(n+1),x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n<-1
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_,x_Symbol] :=
-  -x^m*(d+e*x^2)^(p+1/2)*(a+b*ArcCos[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) + 
-  d*m/(b*c*Sqrt[d]*(n+1))*Int[x^(m-1)*(d+e*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n+1),x] + 
-  e*(m+2*p+1)/(b*c*Sqrt[d]*(n+1))*Int[x^(m+1)*(d+e*x^2)^(p-1/2)*(a+b*ArcCos[c*x])^(n+1),x] /;
-FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d+e] && IntegerQ[2*p] && PositiveQ[d] && RationalQ[m,n] && n<-1
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  1/d*Int[x^m*(d+e*x^2)^(p+1)*(a+b*ArcSin[c*x])^n,x] - 
-  e/d*Int[x^(m+2)*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && NegativeIntegerQ[p+1/2] && PositiveQ[d] && NegativeIntegerQ[(m-1)/2]
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  1/d*Int[x^m*(d+e*x^2)^(p+1)*(a+b*ArcCos[c*x])^n,x] - 
-  e/d*Int[x^(m+2)*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && NegativeIntegerQ[p+1/2] && PositiveQ[d] && NegativeIntegerQ[(m-1)/2]
-
-
-Int[x_^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
-  1/(c^(m+1)*Sqrt[d])*Subst[Int[(a+b*x)^n*Sin[x]^m,x],x,ArcSin[c*x]] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && IntegerQ[m] && (m>0 || PositiveIntegerQ[n])
-
-
-Int[x_^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
-  -1/(c^(m+1)*Sqrt[d])*Subst[Int[(a+b*x)^n*Cos[x]^m,x],x,ArcCos[c*x]] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && IntegerQ[m] && (m>0 || PositiveIntegerQ[n])
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  d^p/c^(m+1)*Subst[Int[(a+b*x)^n*Sin[x]^m*Cos[x]^(2*p+1),x],x,ArcSin[c*x]] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[2*p] && PositiveQ[d] && PositiveIntegerQ[m]
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  -d^p/c^(m+1)*Subst[Int[(a+b*x)^n*Cos[x]^m*Sin[x]^(2*p+1),x],x,ArcCos[c*x]] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[2*p] && PositiveQ[d] && PositiveIntegerQ[m]
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Int[ExpandIntegrand[(a+b*ArcSin[c*x])^n/Sqrt[d+e*x^2],x^m*(d+e*x^2)^(p+1/2),x],x] /;
-FreeQ[{a,b,c,d,e,m,n},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && PositiveQ[d] && Not[PositiveIntegerQ[(m+1)/2]]
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Int[ExpandIntegrand[(a+b*ArcCos[c*x])^n/Sqrt[d+e*x^2],x^m*(d+e*x^2)^(p+1/2),x],x] /;
-FreeQ[{a,b,c,d,e,m,n},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && PositiveQ[d] && Not[PositiveIntegerQ[(m+1)/2]]
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  d^p*Int[x^m*(1-c^2*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,m,n},x] && ZeroQ[c^2*d+e] && IntegerQ[p] && Not[PositiveQ[d]]
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  d^p*Int[x^m*(1-c^2*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,m,n},x] && ZeroQ[c^2*d+e] && IntegerQ[p] && Not[PositiveQ[d]]
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  d^(p-1/2)*Sqrt[d+e*x^2]/Sqrt[1-c^2*x^2]*Int[x^m*(1-c^2*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,m,n},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && Not[PositiveQ[d]]
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  d^(p-1/2)*Sqrt[d+e*x^2]/Sqrt[1-c^2*x^2]*Int[x^m*(1-c^2*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,m,n},x] && ZeroQ[c^2*d+e] && PositiveIntegerQ[p+1/2] && Not[PositiveQ[d]]
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  d^(p+1/2)*Sqrt[1-c^2*x^2]/Sqrt[d+e*x^2]*Int[x^m*(1-c^2*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,m,n},x] && ZeroQ[c^2*d+e] && NegativeIntegerQ[p-1/2] && Not[PositiveQ[d]]
-
-
-Int[x_^m_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  d^(p+1/2)*Sqrt[1-c^2*x^2]/Sqrt[d+e*x^2]*Int[x^m*(1-c^2*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,m,n},x] && ZeroQ[c^2*d+e] && NegativeIntegerQ[p-1/2] && Not[PositiveQ[d]]
-
-
-Int[x_^m_.*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Int[ExpandIntegrand[x^m*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n,x],x] /;
-FreeQ[{a,b,c,d,e,m,n},x] && PositiveIntegerQ[p]
-
-
-Int[x_^m_.*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Int[ExpandIntegrand[x^m*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n,x],x] /;
-FreeQ[{a,b,c,d,e,m,n},x] && PositiveIntegerQ[p]
-
-
-Int[x_^m_.*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][x^m*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,m,n,p},x]
-
-
-Int[x_^m_.*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][x^m*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,m,n,p},x]
-
-
-Int[(h_.+i_.*x_)^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_./(Sqrt[d_+e_.*x_]*Sqrt[f_+g_.*x_]),x_Symbol] :=
-  Sqrt[d*f+e*g*x^2]/(Sqrt[d+e*x]*Sqrt[f+g*x])*Int[(h+i*x)^m*(a+b*ArcSin[c*x])^n/Sqrt[d*f+e*g*x^2],x] /;
-FreeQ[{a,b,c,d,e,f,g,h,i,m,n},x] && ZeroQ[e*f+d*g]
-
-
-Int[(h_.+i_.*x_)^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_./(Sqrt[d_+e_.*x_]*Sqrt[f_+g_.*x_]),x_Symbol] :=
-  Sqrt[d*f+e*g*x^2]/(Sqrt[d+e*x]*Sqrt[f+g*x])*Int[(h+i*x)^m*(a+b*ArcCos[c*x])^n/Sqrt[d*f+e*g*x^2],x] /;
-FreeQ[{a,b,c,d,e,f,g,h,i,m,n},x] && ZeroQ[e*f+d*g]
-
-
-Int[(i_*x_)^m_*(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  (i*x)^m/x^m*Int[x^m*(d+e*x)^p*(f+g*x)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,i,m,n,p},x]
-
-
-Int[(i_*x_)^m_*(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  (i*x)^m/x^m*Int[x^m*(d+e*x)^p*(f+g*x)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,i,m,n,p},x]
-
-
-Int[(h_.+i_.*x_)^m_.*(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][(h+i*x)^m*(d+e*x)^p*(f+g*x)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,h,i,m,n,p},x]
-
-
-Int[(h_.+i_.*x_)^m_.*(d_+e_.*x_)^p_.*(f_+g_.*x_)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][(h+i*x)^m*(d+e*x)^p*(f+g*x)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,h,i,m,n,p},x]
-
-
-Int[(f_.+g_.*x_)^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_/Sqrt[d_+e_.*x_^2],x_Symbol] :=
-  (f+g*x)^m*(a+b*ArcSin[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) - 
-  g*m/(b*c*Sqrt[d]*(n+1))*Int[(f+g*x)^(m-1)*(a+b*ArcSin[c*x])^(n+1),x] /;
-FreeQ[{a,b,c,d,e,f,g,m},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && RationalQ[n] && n<-1
-
-
-Int[(f_.+g_.*x_)^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_/Sqrt[d_+e_.*x_^2],x_Symbol] :=
-  -(f+g*x)^m*(a+b*ArcCos[c*x])^(n+1)/(b*c*Sqrt[d]*(n+1)) + 
-  g*m/(b*c*Sqrt[d]*(n+1))*Int[(f+g*x)^(m-1)*(a+b*ArcCos[c*x])^(n+1),x] /;
-FreeQ[{a,b,c,d,e,f,g,m},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && RationalQ[n] && n<-1
-
-
-Int[(f_.+g_.*x_)^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
-  1/(c^(m+1)*Sqrt[d])*Subst[Int[(a+b*x)^n*(c*f+g*Sin[x])^m,x],x,ArcSin[c*x]] /;
-FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && IntegerQ[m]
-
-
-Int[(f_.+g_.*x_)^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
-  -1/(c^(m+1)*Sqrt[d])*Subst[Int[(a+b*x)^n*(c*f+g*Cos[x])^m,x],x,ArcCos[c*x]] /;
-FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[c^2*d+e] && PositiveQ[d] && IntegerQ[m]
-
-
-Int[(f_.+g_.*x_)^m_.*(a_.+b_.*ArcSin[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
-  Sqrt[1-c^2*x^2]/Sqrt[d+e*x^2]*Int[(f+g*x)^m*(a+b*ArcSin[c*x])^n/Sqrt[1-c^2*x^2],x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n},x] && ZeroQ[c^2*d+e] && Not[PositiveQ[d]]
-
-
-Int[(f_.+g_.*x_)^m_.*(a_.+b_.*ArcCos[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
-  Sqrt[1-c^2*x^2]/Sqrt[d+e*x^2]*Int[(f+g*x)^m*(a+b*ArcCos[c*x])^n/Sqrt[1-c^2*x^2],x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n},x] && ZeroQ[c^2*d+e] && Not[PositiveQ[d]]
-
-
-Int[(g_*x_)^m_*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  (g*x)^m/x^m*Int[x^m*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,g,m,n,p},x]
-
-
-Int[(g_*x_)^m_*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  (g*x)^m/x^m*Int[x^m*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,g,m,n,p},x]
-
-
-Int[(f_.+g_.*x_)^m_.*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][(f+g*x)^m*(d+e*x^2)^p*(a+b*ArcSin[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
-
-
-Int[(f_.+g_.*x_)^m_.*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][(f+g*x)^m*(d+e*x^2)^p*(a+b*ArcCos[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
-
-
-Int[(a_.+b_.*ArcSin[c_+d_.*x_])^n_.,x_Symbol] :=
-  1/d*Subst[Int[(a+b*ArcSin[x])^n,x],x,c+d*x] /;
-FreeQ[{a,b,c,d,n},x]
-
-
-Int[(a_.+b_.*ArcCos[c_+d_.*x_])^n_.,x_Symbol] :=
-  1/d*Subst[Int[(a+b*ArcCos[x])^n,x],x,c+d*x] /;
-FreeQ[{a,b,c,d,n},x]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*ArcSin[c_+d_.*x_])^n_.,x_Symbol] :=
-  1/d*Subst[Int[((d*e-c*f)/d+f*x/d)^m*(a+b*ArcSin[x])^n,x],x,c+d*x] /;
-FreeQ[{a,b,c,d,e,f,m,n},x]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*ArcCos[c_+d_.*x_])^n_.,x_Symbol] :=
-  1/d*Subst[Int[((d*e-c*f)/d+f*x/d)^m*(a+b*ArcCos[x])^n,x],x,c+d*x] /;
-FreeQ[{a,b,c,d,e,f,m,n},x]
-
-
-Int[(A_.+B_.*x_+C_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_+d_.*x_])^n_.,x_Symbol] :=
-  1/d*Subst[Int[(-C/d^2+C/d^2*x^2)^p*(a+b*ArcSin[x])^n,x],x,c+d*x] /;
-FreeQ[{a,b,c,d,A,B,C,n,p},x] && ZeroQ[B*(1-c^2)+2*A*c*d] && ZeroQ[2*c*C-B*d]
-
-
-Int[(A_.+B_.*x_+C_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_+d_.*x_])^n_.,x_Symbol] :=
-  1/d*Subst[Int[(-C/d^2+C/d^2*x^2)^p*(a+b*ArcCos[x])^n,x],x,c+d*x] /;
-FreeQ[{a,b,c,d,A,B,C,n,p},x] && ZeroQ[B*(1-c^2)+2*A*c*d] && ZeroQ[2*c*C-B*d]
-
-
-Int[(e_.+f_.*x_)^m_.*(A_.+B_.*x_+C_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_+d_.*x_])^n_.,x_Symbol] :=
-  1/d*Subst[Int[((d*e-c*f)/d+f*x/d)^m*(-C/d^2+C/d^2*x^2)^p*(a+b*ArcSin[x])^n,x],x,c+d*x] /;
-FreeQ[{a,b,c,d,e,f,A,B,C,m,n,p},x] && ZeroQ[B*(1-c^2)+2*A*c*d] && ZeroQ[2*c*C-B*d]
-
-
-Int[(e_.+f_.*x_)^m_.*(A_.+B_.*x_+C_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_+d_.*x_])^n_.,x_Symbol] :=
-  1/d*Subst[Int[((d*e-c*f)/d+f*x/d)^m*(-C/d^2+C/d^2*x^2)^p*(a+b*ArcCos[x])^n,x],x,c+d*x] /;
-FreeQ[{a,b,c,d,e,f,A,B,C,m,n,p},x] && ZeroQ[B*(1-c^2)+2*A*c*d] && ZeroQ[2*c*C-B*d]
+Int[u_.*(a_.+b_.*ArcCos[c_.*x_])^n_.,x_Symbol] :=
+  Defer[Int][u*(a+b*ArcCos[c*x])^n,x] /;
+FreeQ[{a,b,c,n},x]
 
 
 (* ::Subsection::Closed:: *)
@@ -880,13 +1104,33 @@ Int[(a_.+b_.*ArcCot[c_.*x_])^n_./(d_+e_.*x_),x_Symbol] :=
 FreeQ[{a,b,c,d,e},x] && ZeroQ[c^2*d^2+e^2] && PositiveIntegerQ[n]
 
 
-Int[(a_.+b_.*ArcTan[c_.*x_])/(d_.+e_.*x_),x_Symbol] :=
-  a/e*Log[RemoveContent[d+e*x,x]] + I*b/2*Int[Log[1-I*c*x]/(d+e*x),x] - I*b/2*Int[Log[1+I*c*x]/(d+e*x),x] /;
+Int[ArcTan[c_.*x_]/(d_+e_.*x_),x_Symbol] :=
+  -ArcTan[c*d/e]*Log[d+e*x]/e + I*PolyLog[2,Simp[I*c*(d+e*x)/(I*c*d-e),x]]/(2*e) - I*PolyLog[2,Simp[I*c*(d+e*x)/(I*c*d+e),x]]/(2*e) /;
+FreeQ[{c,d,e},x] && PositiveQ[I*c*d/e+1] && NegativeQ[I*c*d/e-1]
+
+
+(* Int[ArcCot[c_.*x_]/(d_+e_.*x_),x_Symbol] :=
+  ? /;
+FreeQ[{c,d,e},x] && PositiveQ[I*c*d/e+1] && NegativeQ[I*c*d/e-1] *)
+
+
+Int[ArcTan[c_.*x_]/(d_.+e_.*x_),x_Symbol] :=
+  I/2*Int[Log[1-I*c*x]/(d+e*x),x] - I/2*Int[Log[1+I*c*x]/(d+e*x),x] /;
+FreeQ[{c,d,e},x]
+
+
+Int[ArcCot[c_.*x_]/(d_.+e_.*x_),x_Symbol] :=
+  I/2*Int[Log[1-I/(c*x)]/(d+e*x),x] - I/2*Int[Log[1+I/(c*x)]/(d+e*x),x] /;
+FreeQ[{c,d,e},x]
+
+
+Int[(a_+b_.*ArcTan[c_.*x_])/(d_.+e_.*x_),x_Symbol] :=
+  a/e*Log[RemoveContent[d+e*x,x]] + b*Int[ArcTan[c*x]/(d+e*x),x] /;
 FreeQ[{a,b,c,d,e},x]
 
 
-Int[(a_.+b_.*ArcCot[c_.*x_])/(d_.+e_.*x_),x_Symbol] :=
-  a/e*Log[RemoveContent[d+e*x,x]] + I*b/2*Int[Log[1-I/(c*x)]/(d+e*x),x] - I*b/2*Int[Log[1+I/(c*x)]/(d+e*x),x] /;
+Int[(a_+b_.*ArcCot[c_.*x_])/(d_.+e_.*x_),x_Symbol] :=
+  a/e*Log[RemoveContent[d+e*x,x]] + b*Int[ArcCot[c*x]/(d+e*x),x] /;
 FreeQ[{a,b,c,d,e},x]
 
 
@@ -1209,13 +1453,13 @@ FreeQ[{a,b,c,d,e},x]
 
 
 Int[(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcTan[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[(d+e*x^2)^p,x]]},  
+  Module[{u=IntHide[(d+e*x^2)^p,x]},  
   Dist[a+b*ArcTan[c*x],u,x] - b*c*Int[ExpandIntegrand[u/(1+c^2*x^2),x],x]] /;
 FreeQ[{a,b,c,d,e},x] && (IntegerQ[p] || NegativeIntegerQ[p+1/2])
 
 
 Int[(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcCot[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[(d+e*x^2)^p,x]]},  
+  Module[{u=IntHide[(d+e*x^2)^p,x]},  
   Dist[a+b*ArcCot[c*x],u,x] + b*c*Int[ExpandIntegrand[u/(1+c^2*x^2),x],x]] /;
 FreeQ[{a,b,c,d,e},x] && (IntegerQ[p] || NegativeIntegerQ[p+1/2])
 
@@ -1635,7 +1879,7 @@ FreeQ[{a,b,c,d,e,p},x] && NonzeroQ[p+1]
 
 
 Int[x_^m_.*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcTan[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[x^m*(d+e*x^2)^p,x]]},  
+  Module[{u=IntHide[x^m*(d+e*x^2)^p,x]},  
   Dist[a+b*ArcTan[c*x],u,x] - b*c*Int[SimplifyIntegrand[u/(1+c^2*x^2),x],x]] /;
 FreeQ[{a,b,c,d,e,m,p},x] && (
   PositiveIntegerQ[p] && Not[NegativeIntegerQ[(m-1)/2] && m+2*p+3>0] || 
@@ -1644,7 +1888,7 @@ FreeQ[{a,b,c,d,e,m,p},x] && (
 
 
 Int[x_^m_.*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcCot[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[x^m*(d+e*x^2)^p,x]]},  
+  Module[{u=IntHide[x^m*(d+e*x^2)^p,x]},  
   Dist[a+b*ArcCot[c*x],u,x] + b*c*Int[SimplifyIntegrand[u/(1+c^2*x^2),x],x]] /;
 FreeQ[{a,b,c,d,e,m,p},x] && (
   PositiveIntegerQ[p] && Not[NegativeIntegerQ[(m-1)/2] && m+2*p+3>0] || 
@@ -1783,72 +2027,327 @@ Int[ArcCot[a_.*x_]/(c_+d_.*x_^n_.),x_Symbol] :=
 FreeQ[{a,c,d},x] && IntegerQ[n] && Not[n==2 && ZeroQ[d-a^2*c]]
 
 
-Int[(a_.+b_.*ArcTan[c_.*x_])*(d_.+e_.*Log[f_.+g_.*x_^2]),x_Symbol] :=
-  x*(a+b*ArcTan[c*x])*(d+e*Log[f+g*x^2]) - 
+Int[(d_.+e_.*Log[f_.+g_.*x_^2])*(a_.+b_.*ArcTan[c_.*x_]),x_Symbol] :=
+  x*(d+e*Log[f+g*x^2])*(a+b*ArcTan[c*x]) - 
   2*e*g*Int[x^2*(a+b*ArcTan[c*x])/(f+g*x^2),x] - 
   b*c*Int[x*(d+e*Log[f+g*x^2])/(1+c^2*x^2),x] /;
 FreeQ[{a,b,c,d,e,f,g},x]
 
 
-Int[(a_.+b_.*ArcCot[c_.*x_])*(d_.+e_.*Log[f_.+g_.*x_^2]),x_Symbol] :=
-  x*(a+b*ArcCot[c*x])*(d+e*Log[f+g*x^2]) - 
+Int[(d_.+e_.*Log[f_.+g_.*x_^2])*(a_.+b_.*ArcCot[c_.*x_]),x_Symbol] :=
+  x*(d+e*Log[f+g*x^2])*(a+b*ArcCot[c*x]) - 
   2*e*g*Int[x^2*(a+b*ArcCot[c*x])/(f+g*x^2),x] + 
   b*c*Int[x*(d+e*Log[f+g*x^2])/(1+c^2*x^2),x] /;
 FreeQ[{a,b,c,d,e,f,g},x]
 
 
-Int[x_^m_.*(a_.+b_.*ArcTan[c_.*x_])*(d_.+e_.*Log[f_.+g_.*x_^2]),x_Symbol] :=
-  x^(m+1)*(a+b*ArcTan[c*x])*(d+e*Log[f+g*x^2])/(m+1) - 
+Int[x_^m_.*(d_.+e_.*Log[f_.+g_.*x_^2])*(a_.+b_.*ArcTan[c_.*x_]),x_Symbol] :=
+  x^(m+1)*(d+e*Log[f+g*x^2])*(a+b*ArcTan[c*x])/(m+1) - 
   2*e*g/(m+1)*Int[x^(m+2)*(a+b*ArcTan[c*x])/(f+g*x^2),x] - 
   b*c/(m+1)*Int[x^(m+1)*(d+e*Log[f+g*x^2])/(1+c^2*x^2),x] /;
 FreeQ[{a,b,c,d,e,f,g},x] && NegativeIntegerQ[m/2]
 
 
-Int[x_^m_.*(a_.+b_.*ArcCot[c_.*x_])*(d_.+e_.*Log[f_.+g_.*x_^2]),x_Symbol] :=
-  x^(m+1)*(a+b*ArcCot[c*x])*(d+e*Log[f+g*x^2])/(m+1) - 
+Int[x_^m_.*(d_.+e_.*Log[f_.+g_.*x_^2])*(a_.+b_.*ArcCot[c_.*x_]),x_Symbol] :=
+  x^(m+1)*(d+e*Log[f+g*x^2])*(a+b*ArcCot[c*x])/(m+1) - 
   2*e*g/(m+1)*Int[x^(m+2)*(a+b*ArcCot[c*x])/(f+g*x^2),x] + 
   b*c/(m+1)*Int[x^(m+1)*(d+e*Log[f+g*x^2])/(1+c^2*x^2),x] /;
 FreeQ[{a,b,c,d,e,f,g},x] && NegativeIntegerQ[m/2]
 
 
-Int[x_^m_.*(a_.+b_.*ArcTan[c_.*x_])*(d_.+e_.*Log[f_.+g_.*x_^2]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[x^m*(d+e*Log[f+g*x^2]),x]]},  
+Int[x_^m_.*(d_.+e_.*Log[f_.+g_.*x_^2])*(a_.+b_.*ArcTan[c_.*x_]),x_Symbol] :=
+  Module[{u=IntHide[x^m*(d+e*Log[f+g*x^2]),x]},  
   Dist[a+b*ArcTan[c*x],u,x] - b*c*Int[ExpandIntegrand[u/(1+c^2*x^2),x],x]] /;
 FreeQ[{a,b,c,d,e,f,g},x] && PositiveIntegerQ[(m+1)/2]
 
 
-Int[x_^m_.*(a_.+b_.*ArcCot[c_.*x_])*(d_.+e_.*Log[f_.+g_.*x_^2]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[x^m*(d+e*Log[f+g*x^2]),x]]},  
+Int[x_^m_.*(d_.+e_.*Log[f_.+g_.*x_^2])*(a_.+b_.*ArcCot[c_.*x_]),x_Symbol] :=
+  Module[{u=IntHide[x^m*(d+e*Log[f+g*x^2]),x]},  
   Dist[a+b*ArcCot[c*x],u,x] + b*c*Int[ExpandIntegrand[u/(1+c^2*x^2),x],x]] /;
 FreeQ[{a,b,c,d,e,f,g},x] && PositiveIntegerQ[(m+1)/2]
 
 
-Int[x_^m_.*(a_.+b_.*ArcTan[c_.*x_])*(d_.+e_.*Log[f_.+g_.*x_^2]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[x^m*(a+b*ArcTan[c*x]),x]]},  
+Int[x_^m_.*(d_.+e_.*Log[f_.+g_.*x_^2])*(a_.+b_.*ArcTan[c_.*x_]),x_Symbol] :=
+  Module[{u=IntHide[x^m*(a+b*ArcTan[c*x]),x]},  
   Dist[d+e*Log[f+g*x^2],u,x] - 2*e*g*Int[ExpandIntegrand[x*u/(f+g*x^2),x],x]] /;
 FreeQ[{a,b,c,d,e,f,g},x] && IntegerQ[m] && m!=-1
 
 
-Int[x_^m_.*(a_.+b_.*ArcCot[c_.*x_])*(d_.+e_.*Log[f_.+g_.*x_^2]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[x^m*(a+b*ArcCot[c*x]),x]]},  
+Int[x_^m_.*(d_.+e_.*Log[f_.+g_.*x_^2])*(a_.+b_.*ArcCot[c_.*x_]),x_Symbol] :=
+  Module[{u=IntHide[x^m*(a+b*ArcCot[c*x]),x]},  
   Dist[d+e*Log[f+g*x^2],u,x] - 2*e*g*Int[ExpandIntegrand[x*u/(f+g*x^2),x],x]] /;
 FreeQ[{a,b,c,d,e,f,g},x] && IntegerQ[m] && m!=-1
 
 
-Int[x_*(a_.+b_.*ArcTan[c_.*x_])^2*(d_.+e_.*Log[f_+g_.*x_^2]),x_Symbol] :=
-  (f+g*x^2)*(a+b*ArcTan[c*x])^2*(d+e*Log[f+g*x^2])/(2*g) - 
+Int[x_*(d_.+e_.*Log[f_+g_.*x_^2])*(a_.+b_.*ArcTan[c_.*x_])^2,x_Symbol] :=
+  (f+g*x^2)*(d+e*Log[f+g*x^2])*(a+b*ArcTan[c*x])^2/(2*g) - 
   e*x^2*(a+b*ArcTan[c*x])^2/2 - 
-  b/c*Int[(a+b*ArcTan[c*x])*(d+e*Log[f+g*x^2]),x] + 
+  b/c*Int[(d+e*Log[f+g*x^2])*(a+b*ArcTan[c*x]),x] + 
   b*c*e*Int[x^2*(a+b*ArcTan[c*x])/(1+c^2*x^2),x] /;
 FreeQ[{a,b,c,d,e,f,g},x] && ZeroQ[g-c^2*f]
 
 
-Int[x_*(a_.+b_.*ArcCot[c_.*x_])^2*(d_.+e_.*Log[f_+g_.*x_^2]),x_Symbol] :=
-  (f+g*x^2)*(a+b*ArcCot[c*x])^2*(d+e*Log[f+g*x^2])/(2*g) - 
+Int[x_*(d_.+e_.*Log[f_+g_.*x_^2])*(a_.+b_.*ArcCot[c_.*x_])^2,x_Symbol] :=
+  (f+g*x^2)*(d+e*Log[f+g*x^2])*(a+b*ArcCot[c*x])^2/(2*g) - 
   e*x^2*(a+b*ArcCot[c*x])^2/2 + 
-  b/c*Int[(a+b*ArcCot[c*x])*(d+e*Log[f+g*x^2]),x] - 
+  b/c*Int[(d+e*Log[f+g*x^2])*(a+b*ArcCot[c*x]),x] - 
   b*c*e*Int[x^2*(a+b*ArcCot[c*x])/(1+c^2*x^2),x] /;
 FreeQ[{a,b,c,d,e,f,g},x] && ZeroQ[g-c^2*f]
+
+
+(* ::Subsection::Closed:: *)
+(*Inverse Sine Functions*)
+
+
+Int[(a_.+b_.*ArcSin[c_+d_.*x_])^n_.,x_Symbol] :=
+  1/d*Subst[Int[(a+b*ArcSin[x])^n,x],x,c+d*x] /;
+FreeQ[{a,b,c,d,n},x]
+
+
+Int[(a_.+b_.*ArcCos[c_+d_.*x_])^n_.,x_Symbol] :=
+  1/d*Subst[Int[(a+b*ArcCos[x])^n,x],x,c+d*x] /;
+FreeQ[{a,b,c,d,n},x]
+
+
+Int[(e_.+f_.*x_)^m_.*(a_.+b_.*ArcSin[c_+d_.*x_])^n_.,x_Symbol] :=
+  1/d*Subst[Int[((d*e-c*f)/d+f*x/d)^m*(a+b*ArcSin[x])^n,x],x,c+d*x] /;
+FreeQ[{a,b,c,d,e,f,m,n},x]
+
+
+Int[(e_.+f_.*x_)^m_.*(a_.+b_.*ArcCos[c_+d_.*x_])^n_.,x_Symbol] :=
+  1/d*Subst[Int[((d*e-c*f)/d+f*x/d)^m*(a+b*ArcCos[x])^n,x],x,c+d*x] /;
+FreeQ[{a,b,c,d,e,f,m,n},x]
+
+
+Int[(A_.+B_.*x_+C_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_+d_.*x_])^n_.,x_Symbol] :=
+  1/d*Subst[Int[(-C/d^2+C/d^2*x^2)^p*(a+b*ArcSin[x])^n,x],x,c+d*x] /;
+FreeQ[{a,b,c,d,A,B,C,n,p},x] && ZeroQ[B*(1-c^2)+2*A*c*d] && ZeroQ[2*c*C-B*d]
+
+
+Int[(A_.+B_.*x_+C_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_+d_.*x_])^n_.,x_Symbol] :=
+  1/d*Subst[Int[(-C/d^2+C/d^2*x^2)^p*(a+b*ArcCos[x])^n,x],x,c+d*x] /;
+FreeQ[{a,b,c,d,A,B,C,n,p},x] && ZeroQ[B*(1-c^2)+2*A*c*d] && ZeroQ[2*c*C-B*d]
+
+
+Int[(e_.+f_.*x_)^m_.*(A_.+B_.*x_+C_.*x_^2)^p_.*(a_.+b_.*ArcSin[c_+d_.*x_])^n_.,x_Symbol] :=
+  1/d*Subst[Int[((d*e-c*f)/d+f*x/d)^m*(-C/d^2+C/d^2*x^2)^p*(a+b*ArcSin[x])^n,x],x,c+d*x] /;
+FreeQ[{a,b,c,d,e,f,A,B,C,m,n,p},x] && ZeroQ[B*(1-c^2)+2*A*c*d] && ZeroQ[2*c*C-B*d]
+
+
+Int[(e_.+f_.*x_)^m_.*(A_.+B_.*x_+C_.*x_^2)^p_.*(a_.+b_.*ArcCos[c_+d_.*x_])^n_.,x_Symbol] :=
+  1/d*Subst[Int[((d*e-c*f)/d+f*x/d)^m*(-C/d^2+C/d^2*x^2)^p*(a+b*ArcCos[x])^n,x],x,c+d*x] /;
+FreeQ[{a,b,c,d,e,f,A,B,C,m,n,p},x] && ZeroQ[B*(1-c^2)+2*A*c*d] && ZeroQ[2*c*C-B*d]
+
+
+Int[Sqrt[a_.+b_.*ArcSin[c_+d_.*x_^2]],x_Symbol] :=
+  x*Sqrt[a+b*ArcSin[c+d*x^2]] - 
+  Sqrt[Pi]*x*(Cos[a/(2*b)]+c*Sin[a/(2*b)])*FresnelC[Sqrt[c/(Pi*b)]*Sqrt[a+b*ArcSin[c+d*x^2]]]/
+    (Sqrt[c/b]*(Cos[ArcSin[c+d*x^2]/2]-c*Sin[ArcSin[c+d*x^2]/2])) + 
+  Sqrt[Pi]*x*(Cos[a/(2*b)]-c*Sin[a/(2*b)])*FresnelS[Sqrt[c/(Pi*b)]*Sqrt[a+b*ArcSin[c+d*x^2]]]/
+    (Sqrt[c/b]*(Cos[ArcSin[c+d*x^2]/2]-c*Sin[ArcSin[c+d*x^2]/2])) /;
+FreeQ[{a,b,c,d},x] && ZeroQ[c^2-1]
+
+
+Int[Sqrt[a_.+b_.*ArcCos[1+d_.*x_^2]],x_Symbol] :=
+  -2*Sqrt[a+b*ArcCos[1+d*x^2]]*Sin[ArcCos[1+d*x^2]/2]^2/(d*x) - 
+  2*Sqrt[Pi]*Sin[a/(2*b)]*Sin[ArcCos[1+d*x^2]/2]*FresnelC[Sqrt[1/(Pi*b)]*Sqrt[a+b*ArcCos[1+d*x^2]]]/(Sqrt[1/b]*d*x) + 
+  2*Sqrt[Pi]*Cos[a/(2*b)]*Sin[ArcCos[1+d*x^2]/2]*FresnelS[Sqrt[1/(Pi*b)]*Sqrt[a+b*ArcCos[1+d*x^2]]]/(Sqrt[1/b]*d*x) /;
+FreeQ[{a,b,d},x]
+
+
+Int[Sqrt[a_.+b_.*ArcCos[-1+d_.*x_^2]],x_Symbol] :=
+  2*Sqrt[a+b*ArcCos[-1+d*x^2]]*Cos[(1/2)*ArcCos[-1+d*x^2]]^2/(d*x) - 
+  2*Sqrt[Pi]*Cos[a/(2*b)]*Cos[ArcCos[-1+d*x^2]/2]*FresnelC[Sqrt[1/(Pi*b)]*Sqrt[a+b*ArcCos[-1+d*x^2]]]/(Sqrt[1/b]*d*x) - 
+  2*Sqrt[Pi]*Sin[a/(2*b)]*Cos[ArcCos[-1+d*x^2]/2]*FresnelS[Sqrt[1/(Pi*b)]*Sqrt[a+b*ArcCos[-1+d*x^2]]]/(Sqrt[1/b]*d*x) /;
+FreeQ[{a,b,d},x]
+
+
+Int[(a_.+b_.*ArcSin[c_+d_.*x_^2])^n_,x_Symbol] :=
+  x*(a+b*ArcSin[c+d*x^2])^n + 
+  2*b*n*Sqrt[-2*c*d*x^2-d^2*x^4]*(a+b*ArcSin[c+d*x^2])^(n-1)/(d*x) - 
+  4*b^2*n*(n-1)*Int[(a+b*ArcSin[c+d*x^2])^(n-2),x] /;
+FreeQ[{a,b,c,d},x] && ZeroQ[c^2-1] && RationalQ[n] && n>1
+
+
+Int[(a_.+b_.*ArcCos[c_+d_.*x_^2])^n_,x_Symbol] :=
+  x*(a+b*ArcCos[c+d*x^2])^n - 
+  2*b*n*Sqrt[-2*c*d*x^2-d^2*x^4]*(a+b*ArcCos[c+d*x^2])^(n-1)/(d*x) - 
+  4*b^2*n*(n-1)*Int[(a+b*ArcCos[c+d*x^2])^(n-2),x] /;
+FreeQ[{a,b,c,d},x] && ZeroQ[c^2-1] && RationalQ[n] && n>1
+
+
+Int[1/(a_.+b_.*ArcSin[c_+d_.*x_^2]),x_Symbol] :=
+  -x*(c*Cos[a/(2*b)]-Sin[a/(2*b)])*CosIntegral[(c/(2*b))*(a+b*ArcSin[c+d*x^2])]/
+    (2*b*(Cos[ArcSin[c+d*x^2]/2]-c*Sin[ArcSin[c+d*x^2]/2])) - 
+  x*(c*Cos[a/(2*b)]+Sin[a/(2*b)])*SinIntegral[(c/(2*b))*(a+b*ArcSin[c+d*x^2])]/
+    (2*b*(Cos[ArcSin[c+d*x^2]/2]-c*Sin[ArcSin[c+d*x^2]/2])) /;
+FreeQ[{a,b,c,d},x] && ZeroQ[c^2-1]
+
+
+Int[1/(a_.+b_.*ArcCos[1+d_.*x_^2]),x_Symbol] :=
+  x*Cos[a/(2*b)]*CosIntegral[(a+b*ArcCos[1+d*x^2])/(2*b)]/(Sqrt[2]*b*Sqrt[-d*x^2]) + 
+  x*Sin[a/(2*b)]*SinIntegral[(a+b*ArcCos[1+d*x^2])/(2*b)]/(Sqrt[2]*b*Sqrt[-d*x^2]) /;
+FreeQ[{a,b,d},x]
+
+
+Int[1/(a_.+b_.*ArcCos[-1+d_.*x_^2]),x_Symbol] :=
+  x*Sin[a/(2*b)]*CosIntegral[(a+b*ArcCos[-1+d*x^2])/(2*b)]/(Sqrt[2]*b*Sqrt[d*x^2]) - 
+  x*Cos[a/(2*b)]*SinIntegral[(a+b*ArcCos[-1+d*x^2])/(2*b)]/(Sqrt[2]*b*Sqrt[d*x^2]) /;
+FreeQ[{a,b,d},x]
+
+
+Int[1/Sqrt[a_.+b_.*ArcSin[c_+d_.*x_^2]],x_Symbol] :=
+  -Sqrt[Pi]*x*(Cos[a/(2*b)]-c*Sin[a/(2*b)])*FresnelC[1/(Sqrt[b*c]*Sqrt[Pi])*Sqrt[a+b*ArcSin[c+d*x^2]]]/
+    (Sqrt[b*c]*(Cos[ArcSin[c+d*x^2]/2]-c*Sin[ArcSin[c+d*x^2]/2])) - 
+  Sqrt[Pi]*x*(Cos[a/(2*b)]+c*Sin[a/(2*b)])*FresnelS[(1/(Sqrt[b*c]*Sqrt[Pi]))*Sqrt[a+b*ArcSin[c+d*x^2]]]/
+    (Sqrt[b*c]*(Cos[ArcSin[c+d*x^2]/2]-c*Sin[ArcSin[c+d*x^2]/2])) /;
+FreeQ[{a,b,c,d},x] && ZeroQ[c^2-1]
+
+
+Int[1/Sqrt[a_.+b_.*ArcCos[1+d_.*x_^2]],x_Symbol] :=
+  -2*Sqrt[Pi/b]*Cos[a/(2*b)]*Sin[ArcCos[1+d*x^2]/2]*FresnelC[Sqrt[1/(Pi*b)]*Sqrt[a+b*ArcCos[1+d*x^2]]]/(d*x) - 
+   2*Sqrt[Pi/b]*Sin[a/(2*b)]*Sin[ArcCos[1+d*x^2]/2]*FresnelS[Sqrt[1/(Pi*b)]*Sqrt[a+b*ArcCos[1+d*x^2]]]/(d*x) /;
+FreeQ[{a,b,d},x]
+
+
+Int[1/Sqrt[a_.+b_.*ArcCos[-1+d_.*x_^2]],x_Symbol] :=
+  2*Sqrt[Pi/b]*Sin[a/(2*b)]*Cos[ArcCos[-1+d*x^2]/2]*FresnelC[Sqrt[1/(Pi*b)]*Sqrt[a+b*ArcCos[-1+d*x^2]]]/(d*x) - 
+  2*Sqrt[Pi/b]*Cos[a/(2*b)]*Cos[ArcCos[-1+d*x^2]/2]*FresnelS[Sqrt[1/(Pi*b)]*Sqrt[a+b*ArcCos[-1+d*x^2]]]/(d*x) /;
+FreeQ[{a,b,d},x]
+
+
+Int[1/(a_.+b_.*ArcSin[c_+d_.*x_^2])^(3/2),x_Symbol] :=
+  -Sqrt[-2*c*d*x^2-d^2*x^4]/(b*d*x*Sqrt[a+b*ArcSin[c+d*x^2]]) - 
+  (c/b)^(3/2)*Sqrt[Pi]*x*(Cos[a/(2*b)]+c*Sin[a/(2*b)])*FresnelC[Sqrt[c/(Pi*b)]*Sqrt[a+b*ArcSin[c+d*x^2]]]/
+    (Cos[(1/2)*ArcSin[c+d*x^2]]-c*Sin[ArcSin[c+d*x^2]/2]) + 
+  (c/b)^(3/2)*Sqrt[Pi]*x*(Cos[a/(2*b)]-c*Sin[a/(2*b)])*FresnelS[Sqrt[c/(Pi*b)]*Sqrt[a+b*ArcSin[c+d*x^2]]]/
+    (Cos[(1/2)*ArcSin[c+d*x^2]]-c*Sin[ArcSin[c+d*x^2]/2]) /;
+FreeQ[{a,b,c,d},x] && ZeroQ[c^2-1]
+
+
+Int[1/(a_.+b_.*ArcCos[1+d_.*x_^2])^(3/2),x_Symbol] :=
+  Sqrt[-2*d*x^2-d^2*x^4]/(b*d*x*Sqrt[a+b*ArcCos[1+d*x^2]]) - 
+  2*(1/b)^(3/2)*Sqrt[Pi]*Sin[a/(2*b)]*Sin[ArcCos[1+d*x^2]/2]*FresnelC[Sqrt[1/(Pi*b)]*Sqrt[a+b*ArcCos[1+d*x^2]]]/(d*x) + 
+  2*(1/b)^(3/2)*Sqrt[Pi]*Cos[a/(2*b)]*Sin[ArcCos[1+d*x^2]/2]*FresnelS[Sqrt[1/(Pi*b)]*Sqrt[a+b*ArcCos[1+d*x^2]]]/(d*x) /;
+FreeQ[{a,b,d},x]
+
+
+Int[1/(a_.+b_.*ArcCos[-1+d_.*x_^2])^(3/2),x_Symbol] :=
+  Sqrt[2*d*x^2-d^2*x^4]/(b*d*x*Sqrt[a+b*ArcCos[-1+d*x^2]]) - 
+  2*(1/b)^(3/2)*Sqrt[Pi]*Cos[a/(2*b)]*Cos[ArcCos[-1+d*x^2]/2]*FresnelC[Sqrt[1/(Pi*b)]*Sqrt[a+b*ArcCos[-1+d*x^2]]]/(d*x) - 
+  2*(1/b)^(3/2)*Sqrt[Pi]*Sin[a/(2*b)]*Cos[ArcCos[-1+d*x^2]/2]*FresnelS[Sqrt[1/(Pi*b)]*Sqrt[a+b*ArcCos[-1+d*x^2]]]/(d*x) /;
+FreeQ[{a,b,d},x]
+
+
+Int[1/(a_.+b_.*ArcSin[c_+d_.*x_^2])^2,x_Symbol] :=
+  -Sqrt[-2*c*d*x^2-d^2*x^4]/(2*b*d*x*(a+b*ArcSin[c+d*x^2])) - 
+  x*(Cos[a/(2*b)]+c*Sin[a/(2*b)])*CosIntegral[(c/(2*b))*(a+b*ArcSin[c+d*x^2])]/
+    (4*b^2*(Cos[ArcSin[c+d*x^2]/2]-c*Sin[ArcSin[c+d*x^2]/2])) + 
+  x*(Cos[a/(2*b)]-c*Sin[a/(2*b)])*SinIntegral[(c/(2*b))*(a+b*ArcSin[c+d*x^2])]/
+    (4*b^2*(Cos[ArcSin[c+d*x^2]/2]-c*Sin[ArcSin[c+d*x^2]/2])) /;
+FreeQ[{a,b,c,d},x] && ZeroQ[c^2-1]
+
+
+Int[1/(a_.+b_.*ArcCos[1+d_.*x_^2])^2,x_Symbol] :=
+  Sqrt[-2*d*x^2-d^2*x^4]/(2*b*d*x*(a+b*ArcCos[1+d*x^2])) + 
+  x*Sin[a/(2*b)]*CosIntegral[(a+b*ArcCos[1+d*x^2])/(2*b)]/(2*Sqrt[2]*b^2*Sqrt[(-d)*x^2]) - 
+  x*Cos[a/(2*b)]*SinIntegral[(a+b*ArcCos[1+d*x^2])/(2*b)]/(2*Sqrt[2]*b^2*Sqrt[(-d)*x^2]) /;
+FreeQ[{a,b,d},x]
+
+
+Int[1/(a_.+b_.*ArcCos[-1+d_.*x_^2])^2,x_Symbol] :=
+  Sqrt[2*d*x^2-d^2*x^4]/(2*b*d*x*(a+b*ArcCos[-1+d*x^2])) - 
+  x*Cos[a/(2*b)]*CosIntegral[(a+b*ArcCos[-1+d*x^2])/(2*b)]/(2*Sqrt[2]*b^2*Sqrt[d*x^2]) - 
+  x*Sin[a/(2*b)]*SinIntegral[(a+b*ArcCos[-1+d*x^2])/(2*b)]/(2*Sqrt[2]*b^2*Sqrt[d*x^2]) /;
+FreeQ[{a,b,d},x]
+
+
+Int[(a_.+b_.*ArcSin[c_+d_.*x_^2])^n_,x_Symbol] :=
+  x*(a+b*ArcSin[c+d*x^2])^(n+2)/(4*b^2*(n+1)*(n+2)) + 
+  Sqrt[-2*c*d*x^2-d^2*x^4]*(a+b*ArcSin[c+d*x^2])^(n+1)/(2*b*d*(n+1)*x) - 
+  1/(4*b^2*(n+1)*(n+2))*Int[(a+b*ArcSin[c+d*x^2])^(n+2),x] /;
+FreeQ[{a,b,c,d},x] && ZeroQ[c^2-1] && RationalQ[n] && n<-1 && n!=-2
+
+
+Int[(a_.+b_.*ArcCos[c_+d_.*x_^2])^n_,x_Symbol] :=
+  x*(a+b*ArcCos[c+d*x^2])^(n+2)/(4*b^2*(n+1)*(n+2)) - 
+  Sqrt[-2*c*d*x^2-d^2*x^4]*(a+b*ArcCos[c+d*x^2])^(n+1)/(2*b*d*(n+1)*x) - 
+  1/(4*b^2*(n+1)*(n+2))*Int[(a+b*ArcCos[c+d*x^2])^(n+2),x] /;
+FreeQ[{a,b,c,d},x] && ZeroQ[c^2-1] && RationalQ[n] && n<-1 && n!=-2
+
+
+Int[ArcSin[a_.*x_^p_]^n_./x_,x_Symbol] :=
+  1/p*Subst[Int[x^n*Cot[x],x],x,ArcSin[a*x^p]] /;
+FreeQ[{a,p},x] && PositiveIntegerQ[n]
+
+
+Int[ArcCos[a_.*x_^p_]^n_./x_,x_Symbol] :=
+  -1/p*Subst[Int[x^n*Tan[x],x],x,ArcCos[a*x^p]] /;
+FreeQ[{a,p},x] && PositiveIntegerQ[n]
+
+
+Int[u_.*ArcSin[c_./(a_.+b_.*x_^n_.)]^m_.,x_Symbol] :=
+  Int[u*ArcCsc[a/c+b*x^n/c]^m,x] /;
+FreeQ[{a,b,c,n,m},x]
+
+
+Int[u_.*ArcCos[c_./(a_.+b_.*x_^n_.)]^m_.,x_Symbol] :=
+  Int[u*ArcSec[a/c+b*x^n/c]^m,x] /;
+FreeQ[{a,b,c,n,m},x]
+
+
+Int[u_.*f_^(c_.*ArcSin[a_.+b_.*x_]^n_.),x_Symbol] :=
+  1/b*Subst[Int[ReplaceAll[u,x->-a/b+Sin[x]/b]*f^(c*x^n)*Cos[x],x],x,ArcSin[a+b*x]] /;
+FreeQ[{a,b,c,f},x] && PositiveIntegerQ[n]
+
+
+Int[u_.*f_^(c_.*ArcCos[a_.+b_.*x_]^n_.),x_Symbol] :=
+  -1/b*Subst[Int[ReplaceAll[u,x->-a/b+Cos[x]/b]*f^(c*x^n)*Sin[x],x],x,ArcCos[a+b*x]] /;
+FreeQ[{a,b,c,f},x] && PositiveIntegerQ[n]
+
+
+Int[ArcSin[u_],x_Symbol] :=
+  x*ArcSin[u] -
+  Int[SimplifyIntegrand[x*D[u,x]/Sqrt[1-u^2],x],x] /;
+InverseFunctionFreeQ[u,x] && Not[FunctionOfExponentialQ[u,x]]
+
+
+Int[ArcCos[u_],x_Symbol] :=
+  x*ArcCos[u] +
+  Int[SimplifyIntegrand[x*D[u,x]/Sqrt[1-u^2],x],x] /;
+InverseFunctionFreeQ[u,x] && Not[FunctionOfExponentialQ[u,x]]
+
+
+Int[(c_.+d_.*x_)^m_.*(a_.+b_.*ArcSin[u_]),x_Symbol] :=
+  (c+d*x)^(m+1)*(a+b*ArcSin[u])/(d*(m+1)) -
+  b/(d*(m+1))*Int[SimplifyIntegrand[(c+d*x)^(m+1)*D[u,x]/Sqrt[1-u^2],x],x] /;
+FreeQ[{a,b,c,d,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[(c+d*x)^(m+1),u,x]] && Not[FunctionOfExponentialQ[u,x]]
+
+
+Int[(c_.+d_.*x_)^m_.*(a_.+b_.*ArcCos[u_]),x_Symbol] :=
+  (c+d*x)^(m+1)*(a+b*ArcCos[u])/(d*(m+1)) +
+  b/(d*(m+1))*Int[SimplifyIntegrand[(c+d*x)^(m+1)*D[u,x]/Sqrt[1-u^2],x],x] /;
+FreeQ[{a,b,c,d,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[(c+d*x)^(m+1),u,x]] && Not[FunctionOfExponentialQ[u,x]]
+
+
+Int[v_*(a_.+b_.*ArcSin[u_]),x_Symbol] :=
+  Module[{w=IntHide[v,x]},  
+  Dist[(a+b*ArcSin[u]),w,x] -
+  b*Int[SimplifyIntegrand[w*D[u,x]/Sqrt[1-u^2],x],x] /;
+ InverseFunctionFreeQ[w,x]] /;
+FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, (c_.+d_.*x)^m_. /; FreeQ[{c,d,m},x]]]
+
+
+Int[v_*(a_.+b_.*ArcCos[u_]),x_Symbol] :=
+  Module[{w=IntHide[v,x]},  
+  Dist[(a+b*ArcCos[u]),w,x] +
+  b*Int[SimplifyIntegrand[w*D[u,x]/Sqrt[1-u^2],x],x] /;
+ InverseFunctionFreeQ[w,x]] /;
+FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, (c_.+d_.*x)^m_. /; FreeQ[{c,d,m},x]]]
+
+
+(* ::Subsection::Closed:: *)
+(*Inverse Tangent Functions*)
 
 
 Int[(a_.+b_.*ArcTan[c_+d_.*x_])^n_.,x_Symbol] :=
@@ -1909,84 +2408,6 @@ FreeQ[{a,b,c,d,e,f,A,B,C,m,n,p},x] && ZeroQ[B*(1+c^2)-2*A*c*d] && ZeroQ[2*c*C-B*
 Int[(e_.+f_.*x_)^m_.*(A_.+B_.*x_+C_.*x_^2)^p_.*(a_.+b_.*ArcCot[c_+d_.*x_])^n_.,x_Symbol] :=
   1/d*Subst[Int[((d*e-c*f)/d+f*x/d)^m*(C/d^2+C/d^2*x^2)^p*(a+b*ArcCot[x])^n,x],x,c+d*x] /;
 FreeQ[{a,b,c,d,e,f,A,B,C,m,n,p},x] && ZeroQ[B*(1+c^2)-2*A*c*d] && ZeroQ[2*c*C-B*d]
-
-
-(* ::Subsection::Closed:: *)
-(*Inverse Sine Functions*)
-
-
-Int[ArcSin[a_.*x_^p_]^n_./x_,x_Symbol] :=
-  1/p*Subst[Int[x^n*Cot[x],x],x,ArcSin[a*x^p]] /;
-FreeQ[{a,p},x] && IntegerQ[n] && n>0
-
-
-Int[ArcCos[a_.*x_^p_]^n_./x_,x_Symbol] :=
-  -1/p*Subst[Int[x^n*Tan[x],x],x,ArcCos[a*x^p]] /;
-FreeQ[{a,p},x] && IntegerQ[n] && n>0
-
-
-Int[u_.*ArcSin[c_./(a_.+b_.*x_^n_.)]^m_.,x_Symbol] :=
-  Int[u*ArcCsc[a/c+b*x^n/c]^m,x] /;
-FreeQ[{a,b,c,n,m},x]
-
-
-Int[u_.*ArcCos[c_./(a_.+b_.*x_^n_.)]^m_.,x_Symbol] :=
-  Int[u*ArcSec[a/c+b*x^n/c]^m,x] /;
-FreeQ[{a,b,c,n,m},x]
-
-
-Int[u_.*f_^(c_.*ArcSin[a_.+b_.*x_]^n_.),x_Symbol] :=
-  1/b*Subst[Int[ReplaceAll[u,x->-a/b+Sin[x]/b]*f^(c*x^n)*Cos[x],x],x,ArcSin[a+b*x]] /;
-FreeQ[{a,b,c,f},x] && PositiveIntegerQ[n]
-
-
-Int[u_.*f_^(c_.*ArcCos[a_.+b_.*x_]^n_.),x_Symbol] :=
-  -1/b*Subst[Int[ReplaceAll[u,x->-a/b+Cos[x]/b]*f^(c*x^n)*Sin[x],x],x,ArcCos[a+b*x]] /;
-FreeQ[{a,b,c,f},x] && PositiveIntegerQ[n]
-
-
-Int[ArcSin[u_],x_Symbol] :=
-  x*ArcSin[u] -
-  Int[SimplifyIntegrand[x*D[u,x]/Sqrt[1-u^2],x],x] /;
-InverseFunctionFreeQ[u,x] && Not[FunctionOfExponentialQ[u,x]]
-
-
-Int[ArcCos[u_],x_Symbol] :=
-  x*ArcCos[u] +
-  Int[SimplifyIntegrand[x*D[u,x]/Sqrt[1-u^2],x],x] /;
-InverseFunctionFreeQ[u,x] && Not[FunctionOfExponentialQ[u,x]]
-
-
-Int[(c_.+d_.*x_)^m_.*(a_.+b_.*ArcSin[u_]),x_Symbol] :=
-  (c+d*x)^(m+1)*(a+b*ArcSin[u])/(d*(m+1)) -
-  b/(d*(m+1))*Int[SimplifyIntegrand[(c+d*x)^(m+1)*D[u,x]/Sqrt[1-u^2],x],x] /;
-FreeQ[{a,b,c,d,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[(c+d*x)^(m+1),u,x]] && Not[FunctionOfExponentialQ[u,x]]
-
-
-Int[(c_.+d_.*x_)^m_.*(a_.+b_.*ArcCos[u_]),x_Symbol] :=
-  (c+d*x)^(m+1)*(a+b*ArcCos[u])/(d*(m+1)) +
-  b/(d*(m+1))*Int[SimplifyIntegrand[(c+d*x)^(m+1)*D[u,x]/Sqrt[1-u^2],x],x] /;
-FreeQ[{a,b,c,d,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[FunctionOfQ[(c+d*x)^(m+1),u,x]] && Not[FunctionOfExponentialQ[u,x]]
-
-
-Int[v_*(a_.+b_.*ArcSin[u_]),x_Symbol] :=
-  Module[{w=Block[{ShowSteps=False,StepCounter=Null}, Int[v,x]]},  
-  Dist[(a+b*ArcSin[u]),w,x] -
-  b*Int[SimplifyIntegrand[w*D[u,x]/Sqrt[1-u^2],x],x] /;
- InverseFunctionFreeQ[w,x]] /;
-FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, (c_.+d_.*x)^m_. /; FreeQ[{c,d,m},x]]]
-
-
-Int[v_*(a_.+b_.*ArcCos[u_]),x_Symbol] :=
-  Module[{w=Block[{ShowSteps=False,StepCounter=Null}, Int[v,x]]},  
-  Dist[(a+b*ArcCos[u]),w,x] +
-  b*Int[SimplifyIntegrand[w*D[u,x]/Sqrt[1-u^2],x],x] /;
- InverseFunctionFreeQ[w,x]] /;
-FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, (c_.+d_.*x)^m_. /; FreeQ[{c,d,m},x]]]
-
-
-(* ::Subsection::Closed:: *)
-(*Inverse Tangent Functions*)
 
 
 Int[ArcTan[a_+b_.*x_]/(c_+d_.*x_^n_.),x_Symbol] :=
@@ -2760,13 +3181,13 @@ FreeQ[{a,b,c,m,n},x]
 
 
 Int[(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcSec[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[(d+e*x^2)^p,x]]},  
+  Module[{u=IntHide[(d+e*x^2)^p,x]},  
   Dist[(a+b*ArcSec[c*x]),u,x] - b*c*x/Sqrt[c^2*x^2]*Int[SimplifyIntegrand[u/(x*Sqrt[c^2*x^2-1]),x],x]] /;
 FreeQ[{a,b,c,d,e},x] && (PositiveIntegerQ[p] || NegativeIntegerQ[p+1/2])
 
 
 Int[(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcCsc[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[(d+e*x^2)^p,x]]},  
+  Module[{u=IntHide[(d+e*x^2)^p,x]},  
   Dist[(a+b*ArcCsc[c*x]),u,x] + b*c*x/Sqrt[c^2*x^2]*Int[SimplifyIntegrand[u/(x*Sqrt[c^2*x^2-1]),x],x]] /;
 FreeQ[{a,b,c,d,e},x] && (PositiveIntegerQ[p] || NegativeIntegerQ[p+1/2])
 
@@ -2824,7 +3245,7 @@ FreeQ[{a,b,c,d,e,p},x] && NonzeroQ[p+1]
 
 
 Int[x_^m_.*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcSec[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[x^m*(d+e*x^2)^p,x]]},  
+  Module[{u=IntHide[x^m*(d+e*x^2)^p,x]},  
   Dist[(a+b*ArcSec[c*x]),u,x] - b*c*x/Sqrt[c^2*x^2]*Int[SimplifyIntegrand[u/(x*Sqrt[c^2*x^2-1]),x],x]] /;
 FreeQ[{a,b,c,d,e,m,p},x] && (
   PositiveIntegerQ[p] && Not[NegativeIntegerQ[(m-1)/2] && m+2*p+3>0] || 
@@ -2833,7 +3254,7 @@ FreeQ[{a,b,c,d,e,m,p},x] && (
 
 
 Int[x_^m_.*(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcCsc[c_.*x_]),x_Symbol] :=
-  Module[{u=Block[{ShowSteps=False,StepCounter=Null}, Int[x^m*(d+e*x^2)^p,x]]},  
+  Module[{u=IntHide[x^m*(d+e*x^2)^p,x]},  
   Dist[(a+b*ArcCsc[c*x]),u,x] + b*c*x/Sqrt[c^2*x^2]*Int[SimplifyIntegrand[u/(x*Sqrt[c^2*x^2-1]),x],x]] /;
 FreeQ[{a,b,c,d,e,m,p},x] && (
   PositiveIntegerQ[p] && Not[NegativeIntegerQ[(m-1)/2] && m+2*p+3>0] || 
@@ -2991,14 +3412,14 @@ FreeQ[{a,b,c,d,m},x] && NonzeroQ[m+1] && InverseFunctionFreeQ[u,x] && Not[Functi
 
 
 Int[v_*(a_.+b_.*ArcSec[u_]),x_Symbol] :=
-  Module[{w=Block[{ShowSteps=False,StepCounter=Null}, Int[v,x]]},  
+  Module[{w=IntHide[v,x]},  
   Dist[(a+b*ArcSec[u]),w,x] - b*u/Sqrt[u^2]*Int[SimplifyIntegrand[w*D[u,x]/(u*Sqrt[u^2-1]),x],x] /;
  InverseFunctionFreeQ[w,x]] /;
 FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, (c_.+d_.*x)^m_. /; FreeQ[{c,d,m},x]]]
 
 
 Int[v_*(a_.+b_.*ArcCsc[u_]),x_Symbol] :=
-  Module[{w=Block[{ShowSteps=False,StepCounter=Null}, Int[v,x]]},  
+  Module[{w=IntHide[v,x]},  
   Dist[(a+b*ArcCsc[u]),w,x] + b*u/Sqrt[u^2]*Int[SimplifyIntegrand[w*D[u,x]/(u*Sqrt[u^2-1]),x],x] /;
  InverseFunctionFreeQ[w,x]] /;
 FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, (c_.+d_.*x)^m_. /; FreeQ[{c,d,m},x]]]
