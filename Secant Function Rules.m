@@ -3316,16 +3316,6 @@ Int[(g_.*csc[e_.+f_.*x_])^p_.*(a_+b_.*csc[e_.+f_.*x_])^m_.*(c_+d_.*csc[e_.+f_.*x
 FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
 
 
-Int[(g_.*cos[e_.+f_.*x_])^p_.*(a_.+b_.*sec[e_.+f_.*x_])^m_.*(c_+d_.*sec[e_.+f_.*x_])^n_.,x_Symbol] :=
-  (g*Cos[e+f*x])^p*(g*Sec[e+f*x])^p*Int[(a+b*Sec[e+f*x])^m*(c+d*Sec[e+f*x])^n/(g*Sec[e+f*x])^p,x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n,p},x] && NonzeroQ[b*c-a*d]
-
-
-Int[(g_.*sin[e_.+f_.*x_])^p_.*(a_.+b_.*csc[e_.+f_.*x_])^m_.*(c_+d_.*csc[e_.+f_.*x_])^n_.,x_Symbol] :=
-  (g*Sin[e+f*x])^p*(g*Csc[e+f*x])^p*Int[(a+b*Csc[e+f*x])^m*(c+d*Csc[e+f*x])^n/(g*Csc[e+f*x])^p,x] /;
-FreeQ[{a,b,c,d,e,f,g,m,n,p},x] && NonzeroQ[b*c-a*d]
-
-
 Int[sec[e_.+f_.*x_]*(A_+B_.*sec[e_.+f_.*x_])/(Sqrt[a_+b_.*sec[e_.+f_.*x_]]*(c_+d_.*sec[e_.+f_.*x_])^(3/2)),x_Symbol] :=
   2*A*(1+Sec[e+f*x])*Sqrt[(b*c-a*d)*(1-Sec[e+f*x])/((a+b)*(c+d*Sec[e+f*x]))]/
     (f*(b*c-a*d)*Rt[(c+d)/(a+b),2]*Tan[e+f*x]*Sqrt[-(b*c-a*d)*(1+Sec[e+f*x])/((a-b)*(c+d*Sec[e+f*x]))])*

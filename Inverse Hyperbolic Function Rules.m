@@ -2607,6 +2607,16 @@ Int[x_^m_.*E^(n_*ArcTanh[a_.*x_]),x_Symbol] :=
 FreeQ[{a,m,n},x] && Not[OddQ[n]]
 
 
+Int[(c_+d_.*x_)^p_.*E^(n_.*ArcTanh[a_.*x_]),x_Symbol] :=
+  c^n*Int[(c+d*x)^(p-n)*(1-a^2*x^2)^(n/2),x] /;
+FreeQ[{a,c,d,p},x] && ZeroQ[a*c+d] && IntegerQ[(n-1)/2] && IntegerQ[2*p]
+
+
+Int[(e_.+f_.*x_)^m_.*(c_+d_.*x_)^p_.*E^(n_.*ArcTanh[a_.*x_]),x_Symbol] :=
+  c^n*Int[(e+f*x)^m*(c+d*x)^(p-n)*(1-a^2*x^2)^(n/2),x] /;
+FreeQ[{a,c,d,e,f,m,p},x] && ZeroQ[a*c+d] && IntegerQ[(n-1)/2] && (IntegerQ[p] || ZeroQ[p-n/2] || ZeroQ[p-n/2-1]) && IntegerQ[2*p]
+
+
 Int[u_.*(c_+d_.*x_)^p_.*E^(n_.*ArcTanh[a_.*x_]),x_Symbol] :=
   c^p*Int[u*(1+d*x/c)^p*(1+a*x)^(n/2)/(1-a*x)^(n/2),x] /;
 FreeQ[{a,c,d,n,p},x] && ZeroQ[a^2*c^2-d^2] && (IntegerQ[p] || PositiveQ[c])
@@ -2858,6 +2868,31 @@ Int[x_^m_*E^(n_*ArcCoth[a_.*x_]),x_Symbol] :=
 FreeQ[{a,m,n},x] && Not[IntegerQ[n]] && Not[IntegerQ[m]]
 
 
+Int[(c_+d_.*x_)^p_.*E^(n_.*ArcCoth[a_.*x_]),x_Symbol] :=
+  (1+a*x)*(c+d*x)^p*E^(n*ArcCoth[a*x])/(a*(p+1)) /;
+FreeQ[{a,c,d,n,p},x] && ZeroQ[a*c+d] && ZeroQ[p-n/2] && Not[IntegerQ[n/2]]
+
+
+(* Int[(c_+d_.*x_)^p_.*E^(n_.*ArcCoth[a_.*x_]),x_Symbol] :=
+  -(-a)^n*c^n*Subst[Int[(d+c*x)^(p-n)*(1-x^2/a^2)^(n/2)/x^(p+2),x],x,1/x] /;
+FreeQ[{a,c,d},x] && ZeroQ[a*c+d] && IntegerQ[(n-1)/2] && IntegerQ[p] *)
+
+
+(* Int[x_^m_.*(c_+d_.*x_)^p_.*E^(n_.*ArcCoth[a_.*x_]),x_Symbol] :=
+  -(-a)^n*c^n*Subst[Int[(d+c*x)^(p-n)*(1-x^2/a^2)^(n/2)/x^(m+p+2),x],x,1/x] /;
+FreeQ[{a,c,d},x] && ZeroQ[a*c+d] && IntegerQ[(n-1)/2] && IntegerQ[m] && IntegerQ[p] *)
+
+
+(* Int[(c_+d_.*x_)^p_.*E^(n_.*ArcCoth[a_.*x_]),x_Symbol] :=
+  -(-a)^n*c^n*Sqrt[c+d*x]/(Sqrt[x]*Sqrt[d+c/x])*Subst[Int[(d+c*x)^(p-n)*(1-x^2/a^2)^(n/2)/x^(p+2),x],x,1/x] /;
+FreeQ[{a,c,d},x] && ZeroQ[a*c+d] && IntegerQ[(n-1)/2] && IntegerQ[p-1/2] *)
+
+
+(* Int[x_^m_.*(c_+d_.*x_)^p_.*E^(n_.*ArcCoth[a_.*x_]),x_Symbol] :=
+  -(-a)^n*c^n*Sqrt[c+d*x]/(Sqrt[x]*Sqrt[d+c/x])*Subst[Int[(d+c*x)^(p-n)*(1-x^2/a^2)^(n/2)/x^(m+p+2),x],x,1/x] /;
+FreeQ[{a,c,d},x] && ZeroQ[a*c+d] && IntegerQ[(n-1)/2] && IntegerQ[m] && IntegerQ[p-1/2] *)
+
+
 Int[u_.*(c_+d_.*x_)^p_.*E^(n_.*ArcCoth[a_.*x_]),x_Symbol] :=
   d^p*Int[u*x^p*(1+c/(d*x))^p*E^(n*ArcCoth[a*x]),x] /;
 FreeQ[{a,c,d,n},x] && ZeroQ[a^2*c^2-d^2] && Not[IntegerQ[n/2]] && IntegerQ[p]
@@ -2866,6 +2901,17 @@ FreeQ[{a,c,d,n},x] && ZeroQ[a^2*c^2-d^2] && Not[IntegerQ[n/2]] && IntegerQ[p]
 Int[u_.*(c_+d_.*x_)^p_*E^(n_.*ArcCoth[a_.*x_]),x_Symbol] :=
   (c+d*x)^p/(x^p*(1+c/(d*x))^p)*Int[u*x^p*(1+c/(d*x))^p*E^(n*ArcCoth[a*x]),x] /;
 FreeQ[{a,c,d,n,p},x] && ZeroQ[a^2*c^2-d^2] && Not[IntegerQ[n/2]] && Not[IntegerQ[p]]
+
+
+Int[(c_+d_./x_)^p_.*E^(n_.*ArcCoth[a_.*x_]),x_Symbol] :=
+  -c^n*Subst[Int[(c+d*x)^(p-n)*(1-x^2/a^2)^(n/2)/x^2,x],x,1/x] /;
+FreeQ[{a,c,d,p},x] && ZeroQ[c+a*d] && IntegerQ[(n-1)/2] && (IntegerQ[p] || ZeroQ[p-n/2] || ZeroQ[p-n/2-1]) && IntegerQ[2*p]
+
+
+Int[x_^m_.*(c_+d_./x_)^p_.*E^(n_.*ArcCoth[a_.*x_]),x_Symbol] :=
+  -c^n*Subst[Int[(c+d*x)^(p-n)*(1-x^2/a^2)^(n/2)/x^(m+2),x],x,1/x] /;
+FreeQ[{a,c,d,p},x] && ZeroQ[c+a*d] && IntegerQ[(n-1)/2] && IntegerQ[m] && (IntegerQ[p] || ZeroQ[p-n/2] || ZeroQ[p-n/2-1] || -5<m<-1) && 
+  IntegerQ[2*p]
 
 
 Int[(c_+d_./x_)^p_.*E^(n_.*ArcCoth[a_.*x_]),x_Symbol] :=

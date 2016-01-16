@@ -202,7 +202,13 @@ FreeQ[{a,b,m,n},x] && Not[IntegerQ[m]] && Not[IntegerQ[n]] && Not[IntegerQ[m+n]]
 (* ::Code:: *)
 Int[u_.*(a_+b_.*v_)^m_.*(c_+d_.*v_)^n_.,x_Symbol] :=
   (b/d)^m*Int[u*(c+d*v)^(m+n),x] /;
-FreeQ[{a,b,c,d,m,n},x] && ZeroQ[b*c-a*d] && (IntegerQ[m] || PositiveQ[b/d]) && (Not[IntegerQ[n]] || LeafCount[c+d*x]<=LeafCount[a+b*x])
+FreeQ[{a,b,c,d,n},x] && ZeroQ[b*c-a*d] && IntegerQ[m] && (Not[IntegerQ[n]] || SimplerQ[c+d*x,a+b*x])
+
+
+(* ::Code:: *)
+Int[u_.*(a_+b_.*v_)^m_*(c_+d_.*v_)^n_,x_Symbol] :=
+  (b/d)^m*Int[u*(c+d*v)^(m+n),x] /;
+FreeQ[{a,b,c,d,m,n},x] && ZeroQ[b*c-a*d] && PositiveQ[b/d] && Not[IntegerQ[m] || IntegerQ[n]]
 
 
 (* ::Code:: *)
@@ -250,7 +256,7 @@ FreeQ[{a,b,c,d,m,n,p},x] && ZeroQ[j-2*n] && ZeroQ[m+p] && ZeroQ[b^2*c+a^2*d] && 
 (* ::Code:: *)
 Int[u_.*(a_.*x_^r_.+b_.*x_^s_.)^m_.,x_Symbol] :=
   Int[u*x^(m*r)*(a+b*x^(s-r))^m,x] /;
-FreeQ[{a,b,m,r,s},x] && IntegerQ[m] && PosQ[s-r]
+FreeQ[{a,b,r,s},x] && IntegerQ[m] && PosQ[s-r]
 
 
 

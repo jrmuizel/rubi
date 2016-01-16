@@ -252,9 +252,6 @@ SqrtQ[u_] :=
 ExpQ[u_] :=
   PowerQ[u] && u[[1]]===E
 
-ImaginaryQ[u_] :=\
-  Head[u]===Complex && Re[u]===0
-
 
 FractionalPowerFreeQ[u_] :=
   If[AtomQ[u],
@@ -481,7 +478,7 @@ RemainingTerms[u_] :=
 LeadFactor[u_] :=
   If[ProductQ[u],
     LeadFactor[First[u]],
-  If[ImaginaryQ[u],
+  If[Head[u]===Complex && Re[u]===0,
     If[Im[u]===1,
       u,
     LeadFactor[Im[u]]],
@@ -492,7 +489,7 @@ LeadFactor[u_] :=
 RemainingFactors[u_] :=
   If[ProductQ[u],
     RemainingFactors[First[u]]*Rest[u],
-  If[ImaginaryQ[u],
+  If[Head[u]===Complex && Re[u]===0,
     If[Im[u]===1,
       1,
     I*RemainingFactors[Im[u]]],
@@ -5021,6 +5018,8 @@ SimplerQ[u_,v_] :=
     True],
   If[Head[v]===Rational,
     False,
+  If[(Re[u]===0 || Re[u]===0.0) && (Re[v]===0 || Re[v]===0.0),
+    SimplerQ[Im[u],Im[v]],
   If[Head[u]===Complex,
     If[Head[v]===Complex,
       If[Re[u]==Re[v],
@@ -5043,7 +5042,7 @@ SimplerQ[u_,v_] :=
     If[Length[u]==Length[v],
       Catch[Do[If[u[[ii]]===v[[ii]],Null,Throw[SimplerQ[u[[ii]],v[[ii]]]]],{ii,Length[u]}]; False],
     Length[u]<Length[v]],
-  LeafCount[u]<LeafCount[v]]]]]]]]]]]
+  LeafCount[u]<LeafCount[v]]]]]]]]]]]]
 
 
 (* SimplerIntegrandQ[u,v,x] returns True iff u is simpler to integrate wrt x than v. *)
@@ -5108,6 +5107,10 @@ SumSimplerAuxQ[u_,v_] :=
 
 (* SimplerSqrtQ[u,v] returns True iff Rt[u,2] is simpler than Rt[v,2]. *)
 SimplerSqrtQ[u_,v_] :=
+  If[NegativeQ[v] && Not[NegativeQ[u]],
+    True,
+  If[NegativeQ[u] && Not[NegativeQ[v]],
+    False,
   Module[{sqrtu=Rt[u,2],sqrtv=Rt[v,2]},
   If[IntegerQ[sqrtu],
     If[IntegerQ[sqrtv],
@@ -5127,7 +5130,7 @@ SimplerSqrtQ[u_,v_] :=
     True],
   If[PosQ[v],
     False,
-  LeafCount[sqrtu]<LeafCount[sqrtv]]]]]]]]
+  LeafCount[sqrtu]<LeafCount[sqrtv]]]]]]]]]]
 
 
 ClearAll[FixIntRules,FixIntRule,FixRhsIntRule]
