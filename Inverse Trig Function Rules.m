@@ -2636,6 +2636,11 @@ Int[v_*(a_.+b_.*ArcCot[u_]),x_Symbol] :=
 FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, (c_.+d_.*x)^m_. /; FreeQ[{c,d,m},x]]] && FalseQ[FunctionOfLinear[v*(a+b*ArcCot[u]),x]]
 
 
+Int[ArcTan[v_]*Log[w_]/(a_.+b_.*x_),x_Symbol] :=
+  I/2*Int[Log[1-I*v]*Log[w]/(a+b*x),x] - I/2*Int[Log[1+I*v]*Log[w]/(a+b*x),x] /;
+FreeQ[{a,b},x] && LinearQ[v,x] && LinearQ[w,x] && ZeroQ[Simplify[D[v/(a+b*x),x]]] && ZeroQ[Simplify[D[w/(a+b*x),x]]]
+
+
 Int[ArcTan[v_]*Log[w_],x_Symbol] :=
   x*ArcTan[v]*Log[w] - 
   Int[SimplifyIntegrand[x*Log[w]*D[v,x]/(1+v^2),x],x] - 

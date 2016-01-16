@@ -47,22 +47,17 @@ FreeQ[{a,b,c},x] && NonzeroQ[b^2-4*a*c] && NegQ[b^2-4*a*c]
 
 Int[1/Sqrt[a_+b_.*x_+c_.*x_^2],x_Symbol] :=
   ArcSinh[(b+2*c*x)/(Rt[c,2]*Sqrt[4*a-b^2/c])]/Rt[c,2] /;
-FreeQ[{a,b,c},x] && NonzeroQ[b^2-4*a*c] && PosQ[c] && PositiveQ[4*a-b^2/c]
-
-
-Int[1/Sqrt[a_+b_.*x_+c_.*x_^2],x_Symbol] :=
-  ArcTanh[(b+2*c*x)/(2*Rt[c,2]*Sqrt[a+b*x+c*x^2])]/Rt[c,2] /;
-FreeQ[{a,b,c},x] && NonzeroQ[b^2-4*a*c] && PosQ[c] && Not[PositiveQ[4*a-b^2/c]]
+FreeQ[{a,b,c},x] && NonzeroQ[b^2-4*a*c] && PositiveQ[4*a-b^2/c] && PosQ[c]
 
 
 Int[1/Sqrt[a_+b_.*x_+c_.*x_^2],x_Symbol] :=
   -ArcSin[(b+2*c*x)/(Rt[-c,2]*Sqrt[4*a-b^2/c])]/Rt[-c,2] /;
-FreeQ[{a,b,c},x] && NonzeroQ[b^2-4*a*c] && NegQ[c] && PositiveQ[4*a-b^2/c]
+FreeQ[{a,b,c},x] && NonzeroQ[b^2-4*a*c] && PositiveQ[4*a-b^2/c] && NegQ[c]
 
 
 Int[1/Sqrt[a_+b_.*x_+c_.*x_^2],x_Symbol] :=
-  -ArcTan[(b+2*c*x)/(2*Rt[-c,2]*Sqrt[a+b*x+c*x^2])]/Rt[-c,2] /;
-FreeQ[{a,b,c},x] && NonzeroQ[b^2-4*a*c] && NegQ[c] && Not[PositiveQ[4*a-b^2/c]]
+  2*Subst[Int[1/(4*c-x^2),x],x,(b+2*c*x)/Sqrt[a+b*x+c*x^2]] /;
+FreeQ[{a,b,c},x] && NonzeroQ[b^2-4*a*c] && Not[PositiveQ[4*a-b^2/c]]
 
 
 Int[1/(a_+b_.*x_+c_.*x_^2)^(3/2),x_Symbol] :=
@@ -249,23 +244,13 @@ FreeQ[{a,c,d,e,m},x] && ZeroQ[c*d^2+a*e^2] && IntegerQ[p]
 
 
 Int[1/(Sqrt[d_.+e_.*x_]*Sqrt[a_.+b_.*x_+c_.*x_^2]),x_Symbol] :=
-  2*ArcTan[e*Sqrt[a+b*x+c*x^2]/(Rt[2*c*d-b*e,2]*Sqrt[d+e*x])]/Rt[2*c*d-b*e,2] /;
-FreeQ[{a,b,c,d,e},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[c*d^2-b*d*e+a*e^2] && PosQ[2*c*d-b*e]
+  2*e*Subst[Int[1/(2*c*d-b*e+e^2*x^2),x],x,Sqrt[a+b*x+c*x^2]/Sqrt[d+e*x]] /;
+FreeQ[{a,b,c,d,e},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[c*d^2-b*d*e+a*e^2]
 
 
-Int[1/(Sqrt[d_+e_.*x_]*Sqrt[a_+c_.*x_^2]),x_Symbol] :=
-  2*ArcTan[e*Sqrt[a+c*x^2]/(Rt[2*c*d,2]*Sqrt[d+e*x])]/Rt[2*c*d,2] /;
-FreeQ[{a,c,d,e},x] && ZeroQ[c*d^2+a*e^2] && PosQ[c*d]
-
-
-Int[1/(Sqrt[d_.+e_.*x_]*Sqrt[a_.+b_.*x_+c_.*x_^2]),x_Symbol] :=
-  -2*ArcTanh[e*Sqrt[a+b*x+c*x^2]/(Rt[b*e-2*c*d,2]*Sqrt[d+e*x])]/Rt[b*e-2*c*d,2] /;
-FreeQ[{a,b,c,d,e},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[c*d^2-b*d*e+a*e^2] && NegQ[2*c*d-b*e]
-
-
-Int[1/(Sqrt[d_+e_.*x_]*Sqrt[a_+c_.*x_^2]),x_Symbol] :=
-  -2*ArcTanh[e*Sqrt[a+c*x^2]/(Rt[-2*c*d,2]*Sqrt[d+e*x])]/Rt[-2*c*d,2] /;
-FreeQ[{a,c,d,e},x] && ZeroQ[c*d^2+a*e^2] && NegQ[c*d]
+Int[1/(Sqrt[d_.+e_.*x_]*Sqrt[a_+c_.*x_^2]),x_Symbol] :=
+  2*e*Subst[Int[1/(2*c*d+e^2*x^2),x],x,Sqrt[a+c*x^2]/Sqrt[d+e*x]] /;
+FreeQ[{a,c,d,e},x] && ZeroQ[c*d^2+a*e^2]
 
 
 Int[(d_.+e_.*x_)^m_*(a_.+b_.*x_+c_.*x_^2)^p_.,x_Symbol] :=
@@ -414,13 +399,8 @@ FreeQ[{a,b,c,d,e},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[2*c*d-b*e]
 
 
 Int[1/((d_+e_.*x_)*Sqrt[a_.+b_.*x_+c_.*x_^2]),x_Symbol] :=
-  2/(e*Rt[(b^2-4*a*c)/c,2])*ArcTan[2*Sqrt[a+b*x+c*x^2]/Rt[(b^2-4*a*c)/c,2]] /;
-FreeQ[{a,b,c,d,e},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[2*c*d-b*e] && PosQ[(b^2-4*a*c)/c]
-
-
-Int[1/((d_+e_.*x_)*Sqrt[a_.+b_.*x_+c_.*x_^2]),x_Symbol] :=
-  -2/(e*Rt[(4*a*c-b^2)/c,2])*ArcTanh[2*Sqrt[a+b*x+c*x^2]/Rt[(4*a*c-b^2)/c,2]] /;
-FreeQ[{a,b,c,d,e},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[2*c*d-b*e] && NegQ[(b^2-4*a*c)/c]
+  4*c*Subst[Int[1/(b^2*e-4*a*c*e+4*c*e*x^2),x],x,Sqrt[a+b*x+c*x^2]] /;
+FreeQ[{a,b,c,d,e},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[2*c*d-b*e]
 
 
 Int[1/((d_+e_.*x_)*(a_.+b_.*x_+c_.*x_^2)),x_Symbol] :=
@@ -676,25 +656,13 @@ FreeQ[{a,c,d,e,p},x] && NonzeroQ[c*d^2+a*e^2] && Not[RationalQ[p] && p<=-1]
 
 
 Int[1/((d_.+e_.*x_)*Sqrt[a_.+b_.*x_+c_.*x_^2]),x_Symbol] :=
-  -1/Rt[c*d^2-b*d*e+a*e^2,2]*
-  ArcTanh[(2*a*e-b*d-(2*c*d-b*e)*x)/(2*Rt[c*d^2-b*d*e+a*e^2,2]*Sqrt[a+b*x+c*x^2])] /;
-FreeQ[{a,b,c,d,e},x] && NonzeroQ[b^2-4*a*c] && NonzeroQ[2*c*d-b*e] && PosQ[c*d^2-b*d*e+a*e^2]
+  -2*Subst[Int[1/(4*c*d^2-4*b*d*e+4*a*e^2-x^2),x],x,(2*a*e-b*d-(2*c*d-b*e)*x)/Sqrt[a+b*x+c*x^2]] /;
+FreeQ[{a,b,c,d,e},x] && NonzeroQ[b^2-4*a*c] && NonzeroQ[2*c*d-b*e]
 
 
 Int[1/((d_+e_.*x_)*Sqrt[a_+c_.*x_^2]),x_Symbol] :=
-  -1/Rt[c*d^2+a*e^2,2]*ArcTanh[(a*e-c*d*x)/(Rt[c*d^2+a*e^2,2]*Sqrt[a+c*x^2])] /;
-FreeQ[{a,c,d,e},x] && PosQ[c*d^2+a*e^2]
-
-
-Int[1/((d_.+e_.*x_)*Sqrt[a_.+b_.*x_+c_.*x_^2]),x_Symbol] :=
-  1/Rt[-c*d^2+b*d*e-a*e^2,2]*
-  ArcTan[(2*a*e-b*d-(2*c*d-b*e)*x)/(2*Rt[-c*d^2+b*d*e-a*e^2,2]*Sqrt[a+b*x+c*x^2])] /;
-FreeQ[{a,b,c,d,e},x] && NonzeroQ[b^2-4*a*c] && NonzeroQ[2*c*d-b*e] && NegQ[c*d^2-b*d*e+a*e^2]
-
-
-Int[1/((d_+e_.*x_)*Sqrt[a_+c_.*x_^2]),x_Symbol] :=
-  1/Rt[-c*d^2-a*e^2,2]*ArcTan[(a*e-c*d*x)/(Rt[-c*d^2-a*e^2,2]*Sqrt[a+c*x^2])] /;
-FreeQ[{a,c,d,e},x] && NegQ[c*d^2+a*e^2]
+  -Subst[Int[1/(c*d^2+a*e^2-x^2),x],x,(a*e-c*d*x)/Sqrt[a+c*x^2]] /;
+FreeQ[{a,c,d,e},x]
 
 
 Int[(d_.+e_.*x_)^m_*(a_.+b_.*x_+c_.*x_^2)^p_,x_Symbol] :=
@@ -1261,6 +1229,11 @@ Int[(A_.+B_.*x_)/(Sqrt[d_+e_.*x_]*Sqrt[a_+c_.*x_^2]),x_Symbol] :=
 FreeQ[{a,c,d,e,A,B},x] && NonzeroQ[B*d-A*e] && NonzeroQ[c*d^2+a*e^2]
 
 
+Int[(A_+B_.*x_)/((d_.+e_.*x_)*Sqrt[a_.+b_.*x_+c_.*x_^2]),x_Symbol] :=
+  4*A*(a-d)/(b*d-a*e)*Subst[Int[1/(4*(a-d)-x^2),x],x,(2*(a-d)+(b-e)*x)/Sqrt[a+b*x+c*x^2]] /;
+FreeQ[{a,b,c,d,e,A,B},x] && ZeroQ[4*c*(a-d)-(b-e)^2] && ZeroQ[A*e*(b-e)-2*B*(b*d-a*e)] && NonzeroQ[b*d-a*e]
+
+
 Int[(A_.+B_.*x_)*(a_.+b_.*x_+c_.*x_^2)^p_/(d_.+e_.*x_),x_Symbol] :=
   B/e*Int[(a+b*x+c*x^2)^p,x] + 
   (A*e-B*d)/e*Int[(a+b*x+c*x^2)^p/(d+e*x),x] /;
@@ -1456,6 +1429,16 @@ FreeQ[{a,b,c,d,e,f,g,m},x] && NonzeroQ[b^2-4*a*c] && NonzeroQ[c*d^2-b*d*e+a*e^2]
 (* Int[(d_.+e_.*x_)^m_*(f_.+g_.*x_)^n_*(a_+c_.*x_^2)^p_.,x_Symbol] :=
   Int[ExpandIntegrand[(d+e*x)^m,(f+g*x)^n*(a+c*x^2)^p,x],x] /;
 FreeQ[{a,c,d,e,f,g,m},x] && NonzeroQ[c*d^2+a*e^2] && IntegersQ[n,p] && Not[RationalQ[m]] *)
+
+
+Int[(d_.+e_.*x_)^m_*(f_.+g_.*x_)^n_*(a_.+b_.*x_+c_.*x_^2),x_Symbol] :=
+  Int[(a+b*x)*(d+e*x)^m*(f+g*x)^n,x] + c*Int[x^2*(d+e*x)^m*(f+g*x)^n,x] /;
+FreeQ[{a,b,c,d,e,f,g},x] && NonzeroQ[b^2-4*a*c] && NonzeroQ[c*d^2-b*d*e+a*e^2] && RationalQ[m,n]
+
+
+Int[(d_.+e_.*x_)^m_*(f_.+g_.*x_)^n_*(a_+c_.*x_^2),x_Symbol] :=
+  a*Int[(d+e*x)^m*(f+g*x)^n,x] + c*Int[x^2*(d+e*x)^m*(f+g*x)^n,x] /;
+FreeQ[{a,c,d,e,f,g},x] && NonzeroQ[c*d^2+a*e^2] && RationalQ[m,n]
 
 
 Int[(d_.+e_.*x_)^m_*(f_.+g_.*x_)^n_/(a_.+b_.*x_+c_.*x_^2),x_Symbol] :=
@@ -1694,11 +1677,36 @@ Int[(a_+b_.*x_+c_.*x_^2)*(d_+f_.*x_^2)^p_,x_Symbol] :=
 FreeQ[{d,f,a,b,c,p},x] && Not[PositiveIntegerQ[p]] && Not[RationalQ[p] && p<=-1] && NonzeroQ[3*a*f-c*d+2*a*f*p]
 
 
+(* Int[(a_+b_.*x_+c_.*x_^2)^m_*(d_.+e_.*x_+f_.*x_^2)^p_,x_Symbol] :=
+  1/(2^(2*m+2*p+1)*c*(-c/(b^2-4*a*c))^m*(-f/(e^2-4*d*f))^p)*
+    Subst[Int[(1-x^2/(b^2-4*a*c))^m*(1+e*x^2/(b*(4*c*d-b*e)))^p,x],x,b+2*c*x] /;
+FreeQ[{a,b,c,d,e,f,m,p},x] && NonzeroQ[b^2-4*a*c] && NonzeroQ[e^2-4*d*f] && ZeroQ[c*e-b*f] && 
+  (IntegerQ[m] || PositiveQ[-c/(b^2-4*a*c)]) && (IntegerQ[p] || PositiveQ[-f/(e^2-4*d*f)]) *)
+
+
+(* Int[(a_+b_.*x_+c_.*x_^2)^m_*(d_.+e_.*x_+f_.*x_^2)^p_,x_Symbol] :=
+  (d+e*x+f*x^2)^p/(2^(2*m+2*p+1)*c*(-c/(b^2-4*a*c))^m*(-f*(d+e*x+f*x^2)/(e^2-4*d*f))^p)*
+    Subst[Int[(1-x^2/(b^2-4*a*c))^m*(1+e*x^2/(b*(4*c*d-b*e)))^p,x],x,b+2*c*x] /;
+FreeQ[{a,b,c,d,e,f,m,p},x] && NonzeroQ[b^2-4*a*c] && NonzeroQ[e^2-4*d*f] && ZeroQ[c*e-b*f] && 
+  (IntegerQ[m] || PositiveQ[-c/(b^2-4*a*c)]) && Not[IntegerQ[p] || PositiveQ[-f/(e^2-4*d*f)]] *)
+
+
+(* Int[(a_+b_.*x_+c_.*x_^2)^m_*(d_.+e_.*x_+f_.*x_^2)^p_,x_Symbol] :=
+  (a+b*x+c*x^2)^m*(d+e*x+f*x^2)^p/(2^(2*m+2*p+1)*c*(-c*(a+b*x+c*x^2)/(b^2-4*a*c))^m*(-f*(d+e*x+f*x^2)/(e^2-4*d*f))^p)*
+    Subst[Int[(1-x^2/(b^2-4*a*c))^m*(1+e*x^2/(b*(4*c*d-b*e)))^p,x],x,b+2*c*x] /;
+FreeQ[{a,b,c,d,e,f,m,p},x] && NonzeroQ[b^2-4*a*c] && NonzeroQ[e^2-4*d*f] && ZeroQ[c*e-b*f] *)
+
+
+Int[1/((a_+b_.*x_+c_.*x_^2)*Sqrt[d_.+e_.*x_+f_.*x_^2]),x_Symbol] :=
+  -2*e*Subst[Int[1/(e*(b*e-4*a*f)-(b*d-a*e)*x^2),x],x,(e+2*f*x)/Sqrt[d+e*x+f*x^2]] /;
+FreeQ[{a,b,c,d,e,f},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[c*e-b*f]
+
+
 Int[1/((a_+b_.*x_+c_.*x_^2)*Sqrt[d_.+e_.*x_+f_.*x_^2]),x_Symbol] :=
   Module[{q=Rt[b^2-4*a*c,2]},
   2*c/q*Int[1/((b-q+2*c*x)*Sqrt[d+e*x+f*x^2]),x] -
   2*c/q*Int[1/((b+q+2*c*x)*Sqrt[d+e*x+f*x^2]),x]] /;
-FreeQ[{a,b,c,d,e,f},x] && NonzeroQ[b^2-4*a*c]
+FreeQ[{a,b,c,d,e,f},x] && NonzeroQ[b^2-4*a*c] && NonzeroQ[c*e-b*f]
 
 
 Int[1/((a_+c_.*x_^2)*Sqrt[d_.+e_.*x_+f_.*x_^2]),x_Symbol] :=
@@ -1712,6 +1720,37 @@ Int[1/((a_+b_.*x_+c_.*x_^2)*Sqrt[d_+f_.*x_^2]),x_Symbol] :=
   2*c/q*Int[1/((b-q+2*c*x)*Sqrt[d+f*x^2]),x] -
   2*c/q*Int[1/((b+q+2*c*x)*Sqrt[d+f*x^2]),x]] /;
 FreeQ[{a,b,c,d,f},x] && NonzeroQ[b^2-4*a*c]
+
+
+Int[1/((a_+b_.*x_+c_.*x_^2)^2*Sqrt[d_.+e_.*x_+f_.*x_^2]),x_Symbol] :=
+  -b*(e+2*f*x)*Sqrt[d+e*x+f*x^2]/((b*d-a*e)*(b*e-4*a*f)*(a+b*x+c*x^2)) - 
+  e*(4*c*d+b*e-8*a*f)/(2*(b*d-a*e)*(b*e-4*a*f))*Int[1/((a+b*x+c*x^2)*Sqrt[d+e*x+f*x^2]),x] /;
+FreeQ[{a,b,c,d,e,f},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[c*e-b*f] && NonzeroQ[b*d-a*e] && NonzeroQ[b*e-4*a*f]
+
+
+Int[1/((a_+b_.*x_+c_.*x_^2)^2*Sqrt[d_.+e_.*x_+f_.*x_^2]),x_Symbol] :=
+  e*(b*(3*c*d-b*e)+c*(2*c*d-b*e)*x)*Sqrt[d+e*x+f*x^2]/(a*d*(4*c*d-b*e)*(c*e-b*f)*(a+b*x+c*x^2)) + 
+  e/(2*a*d*(4*c*d-b*e)*(c*e-b*f))*
+    Int[Simp[(4*c*d-b*e)*(c*d+b*e-2*a*f)+c*e*(2*c*d-b*e+2*a*f)*x,x]/((a+b*x+c*x^2)*Sqrt[d+e*x+f*x^2]),x] /;
+FreeQ[{a,b,c,d,e,f},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[b*d-a*e] && NonzeroQ[c*e-b*f] && NonzeroQ[4*c*d-b*e]
+
+
+Int[1/((a_+b_.*x_+c_.*x_^2)^2*Sqrt[d_.+e_.*x_+f_.*x_^2]),x_Symbol] :=
+  -2*c^2*Sqrt[d+e*x+f*x^2]/((c*e-b*f)*(b^2-4*a*c)*(a+b*x+c*x^2)) - 
+  c/((c*e-b*f)*(b^2-4*a*c))*Int[(3*c*e-2*b*f+2*c*f*x)/((a+b*x+c*x^2)*Sqrt[d+e*x+f*x^2]),x] /;
+FreeQ[{a,b,c,d,e,f},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[b^2*f-c*(b*e-2*(c*d-a*f))]
+
+
+Int[1/((a_+c_.*x_^2)^2*Sqrt[d_.+e_.*x_+f_.*x_^2]),x_Symbol] :=
+  Sqrt[d+e*x+f*x^2]/(2*a*e*(a+c*x^2)) + 
+  1/(4*a*e)*Int[(3*e+2*f*x)/((a+c*x^2)*Sqrt[d+e*x+f*x^2]),x] /;
+FreeQ[{a,c,d,e,f},x] && ZeroQ[c*d-a*f]
+
+
+Int[1/((a_+b_.*x_+c_.*x_^2)^2*Sqrt[d_+f_.*x_^2]),x_Symbol] :=
+  2*c^2*Sqrt[d+f*x^2]/(b*f*(b^2-4*a*c)*(a+b*x+c*x^2)) - 
+  2*c/(b*(b^2-4*a*c))*Int[(b-c*x)/((a+b*x+c*x^2)*Sqrt[d+f*x^2]),x] /;
+FreeQ[{a,b,c,d,f},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[b^2*f+2*c*(c*d-a*f)]
 
 
 Int[(a_.+b_.*x_+c_.*x_^2)^m_.*(d_.+e_.*x_+f_.*x_^2)^p_.,x_Symbol] :=
@@ -1787,6 +1826,59 @@ FreeQ[{m,p},x] && QuadraticQ[{u,v},x] && Not[QuadraticMatchQ[{u,v},x]]
 (*3.1.5 (A+B x) (a+b x+c x^2)^m (d+e x+f x^2)^p*)
 
 
+Int[(A_+B_.*x_)/((a_+b_.*x_+c_.*x_^2)*Sqrt[d_.+e_.*x_+f_.*x_^2]),x_Symbol] :=
+  -2*A*Subst[Int[1/(b*d-a*e-b*x^2),x],x,Sqrt[d+e*x+f*x^2]] /;
+FreeQ[{a,b,c,d,e,f,A,B},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[c*e-b*f] && ZeroQ[B*e-2*A*f]
+
+
+Int[(A_.+B_.*x_)/((a_+b_.*x_+c_.*x_^2)*Sqrt[d_.+e_.*x_+f_.*x_^2]),x_Symbol] :=
+  -(B*e-2*A*f)/(2*f)*Int[1/((a+b*x+c*x^2)*Sqrt[d+e*x+f*x^2]),x] + 
+  B/(2*f)*Int[(e+2*f*x)/((a+b*x+c*x^2)*Sqrt[d+e*x+f*x^2]),x] /;
+FreeQ[{a,b,c,d,e,f,A,B},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[c*e-b*f] && NonzeroQ[B*e-2*A*f]
+
+
+Int[(A_+B_.*x_)/((a_+b_.*x_+c_.*x_^2)*Sqrt[d_+e_.*x_+f_.*x_^2]),x_Symbol] :=
+  A*Subst[Int[1/(a+(c*d-a*f)*x^2),x],x,x/Sqrt[d+e*x+f*x^2]] /;
+FreeQ[{a,b,c,d,e,f,A,B},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[b*d-a*e] && ZeroQ[2*B*d-A*e]
+
+
+Int[(A_+B_.*x_)/((d_.+e_.*x_+f_.*x_^2)*Sqrt[a_.+b_.*x_+c_.*x_^2]),x_Symbol] :=
+  2*A*(2*B*d-A*e)*Subst[Int[1/Simp[A*(2*B*d-A*e)*(e^2-4*d*f)-(b*d-a*e)*x^2,x],x],x,Simp[2*B*d-A*e+(B*e-2*A*f)*x,x]/Sqrt[a+b*x+c*x^2]] /;
+FreeQ[{a,b,c,d,e,f,A,B},x] && NonzeroQ[e^2-4*d*f] && NonzeroQ[b*d-a*e] && ZeroQ[A^2*(c*e-b*f)+B^2*(b*d-a*e)-2*A*B*(c*d-a*f)]
+
+
+Int[(A_+B_.*x_)/((d_+f_.*x_^2)*Sqrt[a_.+b_.*x_+c_.*x_^2]),x_Symbol] :=
+  -2*A*B*Subst[Int[1/(2*A*B*d*f+b*x^2),x],x,(B*d-A*f*x)/Sqrt[a+b*x+c*x^2]] /;
+FreeQ[{a,b,c,d,f,A,B},x] && ZeroQ[A^2*b*f-b*B^2*d+2*A*B*(c*d-a*f)]
+
+
+Int[(A_+B_.*x_)/((d_.+e_.*x_+f_.*x_^2)*Sqrt[a_+c_.*x_^2]),x_Symbol] :=
+  2*A*(2*B*d-A*e)*Subst[Int[1/Simp[A*(2*B*d-A*e)*(e^2-4*d*f)+a*e*x^2,x],x],x,Simp[2*B*d-A*e+(B*e-2*A*f)*x,x]/Sqrt[a+c*x^2]] /;
+FreeQ[{a,c,d,e,f,A,B},x] && NonzeroQ[e^2-4*d*f] && ZeroQ[A^2*c*e-B^2*a*e-2*A*B*(c*d-a*f)]
+
+
+Int[(A_+B_.*x_)/((d_.+e_.*x_+f_.*x_^2)*Sqrt[a_.+b_.*x_+c_.*x_^2]),x_Symbol] :=
+  Module[{R,S,lst=Solve[{R^2*(c*e-b*f)+S^2*(b*d-a*e)-2*R*S*(c*d-a*f)==0, (A-R)^2*(c*e-b*f)+(B-S)^2*(b*d-a*e)-2*(A-R)*(B-S)*(c*d-a*f)==0},{R,S}]},
+  Int[Simp[lst[[1,1,2]]+lst[[1,2,2]]*x,x]/((d+e*x+f*x^2)*Sqrt[a+b*x+c*x^2]),x] + Int[Simp[A-lst[[1,1,2]]+(B-lst[[1,2,2]])*x,x]/((d+e*x+f*x^2)*Sqrt[a+b*x+c*x^2]),x] /;
+ Length[lst]==2] /;
+FreeQ[{a,b,c,d,e,f,A,B},x] && NonzeroQ[e^2-4*d*f] && NonzeroQ[b*d-a*e] && NonzeroQ[A^2*(c*e-b*f)+B^2*(b*d-a*e)-2*A*B*(c*d-a*f)] && 
+  RationalQ[a,b,c] && NegQ[e^2-4*d*f]
+
+
+Int[(A_+B_.*x_)/((d_+f_.*x_^2)*Sqrt[a_.+b_.*x_+c_.*x_^2]),x_Symbol] :=
+  Module[{R,S,lst=Solve[{R^2*b*f-S^2*b*d+2*R*S*(c*d-a*f)==0, (A-R)^2*b*f-(B-S)^2*b*d+2*(A-R)*(B-S)*(c*d-a*f)==0},{R,S}]},
+  Int[Simp[lst[[1,1,2]]+lst[[1,2,2]]*x,x]/((d+f*x^2)*Sqrt[a+b*x+c*x^2]),x] + Int[Simp[A-lst[[1,1,2]]+(B-lst[[1,2,2]])*x,x]/((d+f*x^2)*Sqrt[a+b*x+c*x^2]),x] /;
+ Length[lst]==2] /;
+FreeQ[{a,b,c,d,f,A,B},x] && NonzeroQ[A^2*b*f-b*B^2*d+2*A*B*(c*d-a*f)] && RationalQ[a,b,c] && PosQ[d*f]
+
+
+Int[(A_+B_.*x_)/((d_.+e_.*x_+f_.*x_^2)*Sqrt[a_+c_.*x_^2]),x_Symbol] :=
+  Module[{R,S,lst=Solve[{R^2*c*e-S^2*a*e-2*R*S*(c*d-a*f)==0, (A-R)^2*c*e-(B-S)^2*a*e-2*(A-R)*(B-S)*(c*d-a*f)==0},{R,S}]},
+  Int[Simp[lst[[1,1,2]]+lst[[1,2,2]]*x,x]/((d+e*x+f*x^2)*Sqrt[a+c*x^2]),x] + Int[Simp[A-lst[[1,1,2]]+(B-lst[[1,2,2]])*x,x]/((d+e*x+f*x^2)*Sqrt[a+c*x^2]),x] /;
+ Length[lst]==2] /;
+FreeQ[{a,c,d,e,f,A,B},x] && NonzeroQ[e^2-4*d*f] && NonzeroQ[A^2*c*e-B^2*a*e-2*A*B*(c*d-a*f)] && RationalQ[a,c] && NegQ[e^2-4*d*f]
+
+
 Int[(A_.+B_.*x_)/((a_+b_.*x_+c_.*x_^2)*Sqrt[d_.+e_.*x_+f_.*x_^2]),x_Symbol] :=
   Module[{q=Rt[b^2-4*a*c,2]},
   (2*c*A-B*(b-q))/q*Int[1/((b-q+2*c*x)*Sqrt[d+e*x+f*x^2]),x] -
@@ -1813,6 +1905,48 @@ Int[(A_+B_.*x_)/((a_+c_.*x_^2)*Sqrt[d_+f_.*x_^2]),x_Symbol] :=
   (c*A+B*q)/(2*q)*Int[1/((-q+c*x)*Sqrt[d+f*x^2]),x] -
   (c*A-B*q)/(2*q)*Int[1/((q+c*x)*Sqrt[d+f*x^2]),x]] /;
 FreeQ[{a,c,d,f,A,B},x] && NonzeroQ[c*A^2+a*B^2] && Not[NegativeQ[-a*c]]
+
+
+Int[(A_.+B_.*x_)/((a_+b_.*x_+c_.*x_^2)^2*Sqrt[d_.+e_.*x_+f_.*x_^2]),x_Symbol] :=
+  -(e*(A*b-2*a*B)-b*(B*e-2*A*f)*x)*Sqrt[d+e*x+f*x^2]/((b*d-a*e)*(b*e-4*a*f)*(a+b*x+c*x^2)) - 
+  1/(2*(b*d-a*e)*(b*e-4*a*f))*
+    Int[Simp[2*a*e*(B*e-4*A*f)-b*(2*B*d*e-A*(e^2+4*d*f))+B*e*(b*e-4*a*f)*x,x]/((a+b*x+c*x^2)*Sqrt[d+e*x+f*x^2]),x] /;
+FreeQ[{a,b,c,d,e,f,A,B},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[c*e-b*f] && NonzeroQ[b*d-a*e] && NonzeroQ[b*e-4*a*f]
+
+
+Int[(A_.+B_.*x_)/((a_+b_.*x_+c_.*x_^2)^2*Sqrt[d_.+e_.*x_+f_.*x_^2]),x_Symbol] :=
+  -(b*(B*d*(2*c*d-b*e)-A*e*(3*c*d-b*e))-c*e*(b*B*d+A*(2*c*d-b*e))*x)*Sqrt[d+e*x+f*x^2]/(a*d*(c*e-b*f)*(4*c*d-b*e)*(a+b*x+c*x^2)) + 
+  e/(2*a*d*(c*e-b*f)*(4*c*d-b*e))*
+    Int[Simp[(4*c*d-b*e)*(A*(c*d+b*e-2*a*f)-b*B*d)+c*(A*e*(2*c*d-b*e+2*a*f)+B*d*(b*e-4*a*f))*x,x]/((a+b*x+c*x^2)*Sqrt[d+e*x+f*x^2]),x] /;
+FreeQ[{a,b,c,d,e,f,A,B},x] && NonzeroQ[b^2-4*a*c] && ZeroQ[b*d-a*e] && NonzeroQ[c*e-b*f] && NonzeroQ[4*c*d-b*e]
+
+
+Int[1/((a_+b_.*x_^3)*Sqrt[d_.+e_.*x_+f_.*x_^2]),x_Symbol] :=
+  Module[{r=Numerator[Rt[a/b,3]], s=Denominator[Rt[a/b,3]]},
+  r/(3*a)*Int[1/((r+s*x)*Sqrt[d+e*x+f*x^2]),x] +
+  r/(3*a)*Int[(2*r-s*x)/((r^2-r*s*x+s^2*x^2)*Sqrt[d+e*x+f*x^2]),x]] /;
+FreeQ[{a,b,d,e,f},x] && PosQ[a/b]
+
+
+Int[1/((a_+b_.*x_^3)*Sqrt[d_.+f_.*x_^2]),x_Symbol] :=
+  Module[{r=Numerator[Rt[a/b,3]], s=Denominator[Rt[a/b,3]]},
+  r/(3*a)*Int[1/((r+s*x)*Sqrt[d+f*x^2]),x] +
+  r/(3*a)*Int[(2*r-s*x)/((r^2-r*s*x+s^2*x^2)*Sqrt[d+f*x^2]),x]] /;
+FreeQ[{a,b,d,f},x] && PosQ[a/b]
+
+
+Int[1/((a_+b_.*x_^3)*Sqrt[d_.+e_.*x_+f_.*x_^2]),x_Symbol] :=
+  Module[{r=Numerator[Rt[-a/b,3]], s=Denominator[Rt[-a/b,3]]},
+  r/(3*a)*Int[1/((r-s*x)*Sqrt[d+e*x+f*x^2]),x] +
+  r/(3*a)*Int[(2*r+s*x)/((r^2+r*s*x+s^2*x^2)*Sqrt[d+e*x+f*x^2]),x]] /;
+FreeQ[{a,b,d,e,f},x] && NegQ[a/b]
+
+
+Int[1/((a_+b_.*x_^3)*Sqrt[d_.+f_.*x_^2]),x_Symbol] :=
+  Module[{r=Numerator[Rt[-a/b,3]], s=Denominator[Rt[-a/b,3]]},
+  r/(3*a)*Int[1/((r-s*x)*Sqrt[d+f*x^2]),x] +
+  r/(3*a)*Int[(2*r+s*x)/((r^2+r*s*x+s^2*x^2)*Sqrt[d+f*x^2]),x]] /;
+FreeQ[{a,b,d,f},x] && NegQ[a/b]
 
 
 Int[(A_.+B_.*x_)*(a_.+b_.*x_+c_.*x_^2)^m_.*(d_.+e_.*x_+f_.*x_^2)^p_.,x_Symbol] :=
@@ -2086,6 +2220,16 @@ Int[(a_+b_.*u_^n_+c_.*v_^j_.)^p_,x_Symbol] :=
 FreeQ[{a,b,c,n,p},x] && ZeroQ[j-2*n] && ZeroQ[u-v] && LinearQ[u,x] && NonzeroQ[u-x]
 
 
+Int[(a_.+b_.*(d_./x_)^n_+c_.*x_^j_.)^p_.,x_Symbol] :=
+  -d*Subst[Int[(a+b*x^n+c/d^(2*n)*x^(2*n))^p/x^2,x],x,d/x] /;
+FreeQ[{a,b,c,d,n,p},x] && ZeroQ[j+2*n] && IntegerQ[2*n]
+
+
+Int[(a_.+b_.*(d_./x_)^n_+c_.*(d_./x_)^j_.)^p_.,x_Symbol] :=
+  -d*Subst[Int[(a+b*x^n+c*x^(2*n))^p/x^2,x],x,d/x] /;
+FreeQ[{a,b,c,d,n,p},x] && ZeroQ[j-2*n]
+
+
 Int[u_^p_,x_Symbol] :=
   Int[ExpandToSum[u,x]^p,x] /;
 FreeQ[p,x] && TrinomialQ[u,x] && Not[TrinomialMatchQ[u,x]]
@@ -2303,24 +2447,9 @@ Int[x_^m_./(a_+b_.*x_^n_+c_.*x_^j_.),x_Symbol] :=
 FreeQ[{a,b,c,m,n},x] && ZeroQ[j-2*n] && NonzeroQ[b^2-4*a*c]
 
 
-Int[1/(x_*Sqrt[a_+b_.*x_^n_+c_.*x_^j_.]),x_Symbol] :=
-  1/n*Subst[Int[1/(x*Sqrt[a+b*x+c*x^2]),x],x,x^n] /;
-FreeQ[{a,b,c,n},x] && ZeroQ[j-2*n] && NonzeroQ[b^2-4*a*c]
-
-
 Int[(a_+b_.*x_^n_+c_.*x_^j_.)^p_/x_,x_Symbol] :=
-  (a+b*x^n+c*x^(2*n))^p/(2*n*p) + 
-  1/2*Int[(2*a+b*x^n)*(a+b*x^n+c*x^(2*n))^(p-1)/x,x] /;
-FreeQ[{a,b,c},x] && ZeroQ[j-2*n] && NonzeroQ[b^2-4*a*c] && Not[PositiveIntegerQ[p]] && 
-  PositiveIntegerQ[n] && RationalQ[p] && p>0
-
-
-Int[(a_+b_.*x_^n_+c_.*x_^j_.)^p_/x_,x_Symbol] :=
-  -(b^2-2*a*c+b*c*x^n)*(a+b*x^n+c*x^(2*n))^(p+1)/(a*n*(p+1)*(b^2-4*a*c)) + 
-  1/(a*(p+1)*(b^2-4*a*c))*
-    Int[Simp[b^2*(p+1)-4*a*c*(p+1)+b*c*(2*p+3)*x^n,x]*(a+b*x^n+c*x^(2*n))^(p+1)/x,x] /;
-FreeQ[{a,b,c},x] && ZeroQ[j-2*n] && NonzeroQ[b^2-4*a*c] && Not[PositiveIntegerQ[p]] && 
-  PositiveIntegerQ[n] && RationalQ[p] && p<-1
+  1/n*Subst[Int[(a+b*x+c*x^2)^p/x,x],x,x^n] /;
+FreeQ[{a,b,c,n},x] && ZeroQ[j-2*n] && NonzeroQ[b^2-4*a*c] && Not[PositiveIntegerQ[p]]
 
 
 Int[x_^2/Sqrt[a_+b_.*x_^2+c_.*x_^4], x_Symbol] :=
@@ -2423,12 +2552,6 @@ FreeQ[{a,b,c},x] && ZeroQ[j-2*n] && NonzeroQ[b^2-4*a*c] && Not[PositiveIntegerQ[
   NonzeroQ[m+1] && NonzeroQ[p+1] && PositiveIntegerQ[n] && RationalQ[m,p] && -1<=p<0 && m<-1
 
 
-Int[(a_+b_.*x_^n_+c_.*x_^j_.)^p_/x_,x_Symbol] :=
-  (a+b*x^n+c*x^(2*n))^p/(2*n*p*(1+(b-Sqrt[b^2-4*a*c])/(2*c*x^n))^p*(1+(b+Sqrt[b^2-4*a*c])/(2*c*x^n))^p)*
-    AppellF1[-2*p,-p,-p,1-2*p,-(b+Sqrt[b^2-4*a*c])/(2*c*x^n),-(b-Sqrt[b^2-4*a*c])/(2*c*x^n)] /;
-FreeQ[{a,b,c,n,p},x] && ZeroQ[j-2*n] && Not[PositiveIntegerQ[p]]
-
-
 Int[x_^m_.*(a_+b_.*x_^n_+c_.*x_^j_.)^p_,x_Symbol] :=
   x^(m+1)*(a+b*x^n+c*x^(2*n))^p/((m+1)*(1-2*c*x^n/(-b+Sqrt[b^2-4*a*c]))^p*(1+2*c*x^n/(b+Sqrt[b^2-4*a*c]))^p)*
     AppellF1[(m+1)/n,-p,-p,1+(m+1)/n,-2*c*x^n/(b+Sqrt[b^2-4*a*c]),2*c*x^n/(-b+Sqrt[b^2-4*a*c])] /;
@@ -2438,6 +2561,26 @@ FreeQ[{a,b,c,m,n,p},x] && ZeroQ[j-2*n] && Not[PositiveIntegerQ[p]] && NonzeroQ[m
 Int[u_^m_.*(a_+b_.*v_^n_+c_.*w_^j_.)^p_,x_Symbol] :=
   u^m/(Coefficient[v,x,1]*v^m)*Subst[Int[x^m*(a+b*x^n+c*x^(2*n))^p,x],x,v] /;
 FreeQ[{a,b,c,m,n,p},x] && ZeroQ[j-2*n] && LinearPairQ[u,v,x] && ZeroQ[v-w]
+
+
+Int[x_^m_.*(a_.+b_.*(d_./x_)^n_+c_.*x_^j_.)^p_.,x_Symbol] :=
+  -d^(m+1)*Subst[Int[(a+b*x^n+c/d^(2*n)*x^(2*n))^p/x^(m+2),x],x,d/x] /;
+FreeQ[{a,b,c,d,n,p},x] && ZeroQ[j+2*n] && IntegerQ[2*n] && IntegerQ[m]
+
+
+Int[x_^m_.*(a_.+b_.*(d_./x_)^n_+c_.*(d_./x_)^j_.)^p_.,x_Symbol] :=
+  -d^(m+1)*Subst[Int[(a+b*x^n+c*x^(2*n))^p/x^(m+2),x],x,d/x] /;
+FreeQ[{a,b,c,d,n,p},x] && ZeroQ[j-2*n] && IntegerQ[m]
+
+
+Int[x_^m_.*(a_.+b_.*(d_./x_)^n_+c_.*x_^j_.)^p_.,x_Symbol] :=
+  -d*x^m*(d/x)^m*Subst[Int[(a+b*x^n+c/d^(2*n)*x^(2*n))^p/x^(m+2),x],x,d/x] /;
+FreeQ[{a,b,c,d,n,p},x] && ZeroQ[j+2*n] && IntegerQ[2*n] && Not[IntegerQ[m]]
+
+
+Int[x_^m_.*(a_.+b_.*(d_./x_)^n_+c_.*(d_./x_)^j_.)^p_.,x_Symbol] :=
+  -d*x^m*(d/x)^m*Subst[Int[(a+b*x^n+c*x^(2*n))^p/x^(m+2),x],x,d/x] /;
+FreeQ[{a,b,c,d,m,n,p},x] && ZeroQ[j-2*n] && Not[IntegerQ[m]]
 
 
 Int[x_^m_.*u_^p_.,x_Symbol] :=

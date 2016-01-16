@@ -2900,14 +2900,14 @@ FreeQ[{a,b},x]
 
 
 Int[x_^m_.*ArcSech[a_+b_.*x_],x_Symbol] :=
-  -((-a)^(m+1)-b^(m+1)*x^(m+1))*ArcSech[a+b*x]/(b^(m+1)*(m+1)) - 
-  1/(b^(m+1)*(m+1))*Subst[Int[(((-a)*x)^(m+1)-(1-a*x)^(m+1))*Sqrt[(-1+x)/(1+x)]/(x^(m+1)*(1-x)),x],x,1/(a+b*x)] /;
+  -((-a)^(m+1)-b^(m+1)*x^(m+1))*ArcSech[a+b*x]/(b^(m+1)*(m+1)) + 
+  1/(b^(m+1)*(m+1))*Subst[Int[((-a*x)^(m+1)-(1-a*x)^(m+1))/(x^(m+1)*Sqrt[-1+x]*Sqrt[1+x]),x],x,1/(a+b*x)] /;
 FreeQ[{a,b,m},x] && IntegerQ[m] && NonzeroQ[m+1]
 
 
 Int[x_^m_.*ArcCsch[a_+b_.*x_],x_Symbol] :=
   -((-a)^(m+1)-b^(m+1)*x^(m+1))*ArcCsch[a+b*x]/(b^(m+1)*(m+1)) + 
-  1/(b^(m+1)*(m+1))*Subst[Int[(((-a)*x)^(m+1)-(1-a*x)^(m+1))/(x^(m+1)*Sqrt[1+x^2]),x],x,1/(a+b*x)] /;
+  1/(b^(m+1)*(m+1))*Subst[Int[((-a*x)^(m+1)-(1-a*x)^(m+1))/(x^(m+1)*Sqrt[1+x^2]),x],x,1/(a+b*x)] /;
 FreeQ[{a,b,m},x] && IntegerQ[m] && NonzeroQ[m+1]
 
 

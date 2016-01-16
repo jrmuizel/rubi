@@ -261,27 +261,63 @@ Int[u_,x_Symbol] :=
 
 
 (* ::Code:: *)
-Int[u_.*(c_.*v_^m_.*w_^n_.)^p_,x_Symbol] :=
-  c^(p-1/2)*Sqrt[c*v^m*w^n]/(v^(m/2)*w^(n/2))*Int[u*v^(m*p)*w^(n*p),x] /;
-FreeQ[{c,m,n,p},x] && Not[FreeQ[v,x]] && Not[FreeQ[w,x]] && PositiveIntegerQ[p+1/2]
+Int[u_.*(a_*v_)^p_,x_Symbol] :=
+  a^(p-1/2)*Sqrt[a*v]/Sqrt[v]*Int[u*v^p,x] /;
+FreeQ[a,x] && PositiveIntegerQ[p+1/2]
 
 
 (* ::Code:: *)
-Int[u_.*(c_.*v_^m_.*w_^n_.)^p_,x_Symbol] :=
-  c^(p+1/2)*v^(m/2)*w^(n/2)/Sqrt[c*v^m*w^n]*Int[u*v^(m*p)*w^(n*p),x] /;
-FreeQ[{c,m,n,p},x] && Not[FreeQ[v,x]] && Not[FreeQ[w,x]] && NegativeIntegerQ[p-1/2]
+Int[u_.*(a_*v_)^p_,x_Symbol] :=
+  a^(p+1/2)*Sqrt[v]/Sqrt[a*v]*Int[u*v^p,x] /;
+FreeQ[a,x] && NegativeIntegerQ[p-1/2]
 
 
 (* ::Code:: *)
-Int[u_.*(c_.*v_^m_.*w_^n_.)^p_,x_Symbol] :=
-  (c*v^m*w^n)^p/(v^(m*p)*w^(n*p))*Int[u*v^(m*p)*w^(n*p),x] /;
-FreeQ[{c,m,n,p},x] && Not[FreeQ[v,x]] && Not[FreeQ[w,x]] && Not[IntegerQ[2*p]]
+Int[u_.*(a_*v_)^p_,x_Symbol] :=
+  (a*v)^p/(v^p)*Int[u*v^p,x] /;
+FreeQ[{a,p},x] && Not[IntegerQ[2*p]]
 
 
 (* ::Code:: *)
-Int[u_.*(c_.*v_^m_.*w_^n_.*z_^q_.)^p_,x_Symbol] :=
-  (c*v^m*w^n*z^q)^p/(v^(m*p)*w^(n*p)*z^(p*q))*Int[u*v^(m*p)*w^(n*p)*z^(p*q),x] /;
-FreeQ[{c,m,n,p,q},x] && Not[FreeQ[v,x]] && Not[FreeQ[w,x]] && Not[FreeQ[z,x]] && Not[IntegerQ[p]]
+Int[u_.*(v_^m_)^p_,x_Symbol] :=
+  Sqrt[v^m]/v^(m/2)*Int[u*v^(m*p),x] /;
+FreeQ[m,x] && PositiveIntegerQ[p+1/2]
+
+
+(* ::Code:: *)
+Int[u_.*(v_^m_)^p_,x_Symbol] :=
+  v^(m/2)/Sqrt[v^m]*Int[u*v^(m*p),x] /;
+FreeQ[m,x] && NegativeIntegerQ[p-1/2]
+
+
+(* ::Code:: *)
+Int[u_.*(v_^m_)^p_,x_Symbol] :=
+  (v^m)^p/(v^(m*p))*Int[u*v^(m*p),x] /;
+FreeQ[{m,p},x] && Not[IntegerQ[2*p]]
+
+
+(* ::Code:: *)
+Int[u_.*(v_^m_.*w_^n_.)^p_,x_Symbol] :=
+  Sqrt[v^m*w^n]/(v^(m/2)*w^(n/2))*Int[u*v^(m*p)*w^(n*p),x] /;
+FreeQ[{m,n},x] && PositiveIntegerQ[p+1/2]
+
+
+(* ::Code:: *)
+Int[u_.*(v_^m_.*w_^n_.)^p_,x_Symbol] :=
+  v^(m/2)*w^(n/2)/Sqrt[v^m*w^n]*Int[u*v^(m*p)*w^(n*p),x] /;
+FreeQ[{m,n},x] && NegativeIntegerQ[p-1/2]
+
+
+(* ::Code:: *)
+Int[u_.*(v_^m_.*w_^n_.)^p_,x_Symbol] :=
+  (v^m*w^n)^p/(v^(m*p)*w^(n*p))*Int[u*v^(m*p)*w^(n*p),x] /;
+FreeQ[{m,n,p},x] && Not[IntegerQ[2*p]]
+
+
+(* ::Code:: *)
+Int[u_.*(v_^m_.*w_^n_.*z_^q_.)^p_,x_Symbol] :=
+  (v^m*w^n*z^q)^p/(v^(m*p)*w^(n*p)*z^(p*q))*Int[u*v^(m*p)*w^(n*p)*z^(p*q),x] /;
+FreeQ[{m,n,p,q},x] && Not[IntegerQ[p]]
 
 
 (* ::Code:: *)
@@ -538,57 +574,6 @@ FreeQ[{a,b,c,d,m,n,p,q},x] && ZeroQ[a+d] && ZeroQ[b+c] && ZeroQ[m+n] && ZeroQ[p+
 Int[u_*(a_+b_.*x_^n_.+c_.*x_^j_.)^p_, x_Symbol] :=
   Sqrt[a+b*x^n+c*x^(2*n)]/((4*c)^(p-1/2)*(b+2*c*x^n))*Int[u*(b+2*c*x^n)^(2*p),x] /;
 FreeQ[{a,b,c,n,p},x] && ZeroQ[j-2*n] && ZeroQ[b^2-4*a*c] && IntegerQ[p-1/2]
-
-
-(* ::Code:: *)
-Int[u_.*v_^p_, x_Symbol] :=
-  v^FractionalPart[p]/v[[1]]^(FractionalPart[p]*v[[2]])*Int[u*v[[1]]^(p*v[[2]]),x] /;
-FractionQ[p] && NonsumQ[u] && Not[MatchQ[u,x^m_.*w_ /; FreeQ[m,x] && SumQ[w]]] && PowerQ[v] && FreeQ[v[[2]],x]
-
-
-(* ::Code:: *)
-Int[u_.*v_^p_, x_Symbol] :=
-  Module[{q=FractionalPart[p],w=Factor[Simplify[Together[v]]]},
-  w^q/w[[1]]^(q*w[[2]])*Int[u*w[[1]]^(p*w[[2]]),x] /;
- PowerQ[w] && FreeQ[w[[2]],x]] /;
-FractionQ[p] && NonsumQ[u] && Not[MatchQ[u,x^m_.*w_ /; FreeQ[m,x] && SumQ[w]]]
-
-
-(* ::Code:: *)
-Int[u_.*v_^p_, x_Symbol] :=
-  v^FractionalPart[p]/Map[Function[LeadBase[#]^(FractionalPart[p]*LeadDegree[#])],v]*
-    Int[SimplifyIntegrand[u*Map[Function[LeadBase[#]^(p*LeadDegree[#])],v],x],x] /;
-FractionQ[p] && NonsumQ[u] && Not[MatchQ[u,x^m_.*w_ /; FreeQ[m,x] && SumQ[w]]] && ProductQ[v]
-
-
-(* ::Code:: *)
-Int[u_.*v_^p_, x_Symbol] :=
-  Module[{q=FractionalPart[p],w=Factor[Simplify[Together[v]]]},
-  w^q/Map[Function[LeadBase[#]^(q*LeadDegree[#])],w]*
-    Int[SimplifyIntegrand[u*Map[Function[LeadBase[#]^(p*LeadDegree[#])],w],x],x] /;
- ProductQ[w]] /;
-FractionQ[p] && NonsumQ[u] && Not[MatchQ[u,x^m_.*w_ /; FreeQ[m,x] && SumQ[w]]]
-
-
-(* ::Code:: *)
-Int[u_.*(a_.*v_^m_)^p_, x_Symbol] :=
-  Module[{q=FractionalPart[p]},
-  a^(p-q)*(a*v^m)^q/v^(m*q)*Int[u*v^(m*p),x]] /;
-FreeQ[{a,m},x] && FractionQ[p]
-
-
-(* ::Code:: *)
-Int[u_.*(a_.*v_^m_.*w_^n_.)^p_, x_Symbol] :=
-  Module[{q=FractionalPart[p]},
-  a^(p-q)*(a*v^m*w^n)^q/(v^(m*q)*w^(n*q))*Int[u*v^(m*p)*w^(n*p),x]] /;
-FreeQ[{a,m,n},x] && FractionQ[p]
-
-
-(* ::Code:: *)
-Int[u_.*(a_.*v_^m_.*w_^n_.*z_^r_.)^p_, x_Symbol] :=
-  Module[{q=FractionalPart[p]},
-  a^(p-q)*(a*v^m*w^n*z^r)^q/(v^(m*q)*w^(n*q)*z^(r*q))*Int[u*v^(m*p)*w^(n*p)*z^(r*p),x]] /;
-FreeQ[{a,m,n},x] && FractionQ[p]
 
 
 (* ::Code:: *)

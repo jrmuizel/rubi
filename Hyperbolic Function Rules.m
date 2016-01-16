@@ -1663,12 +1663,12 @@ FreeQ[{a,b,c,m,n,p},x] && NonzeroQ[b^2*n^2*p^2-(m+1)^2]
 
 
 Int[Sech[b_.*Log[c_.*x_^n_.]]^p_.,x_Symbol] :=
-  Int[(2/((c*x^n)^b+1/(c*x^n)^b))^p,x] /;
+  2^p*Int[((c*x^n)^b/(1+(c*x^n)^(2*b)))^p,x] /;
 FreeQ[c,x] && RationalQ[b,n,p]
 
 
 Int[Csch[b_.*Log[c_.*x_^n_.]]^p_.,x_Symbol] :=
-  Int[(2/((c*x^n)^b - 1/(c*x^n)^b))^p,x] /;
+  2^p*Int[((c*x^n)^b/(-1+(c*x^n)^(2*b)))^p,x] /;
 FreeQ[c,x] && RationalQ[b,n,p]
 
 
@@ -1734,13 +1734,13 @@ Int[Csch[a_.+b_.*Log[c_.*x_^n_.]]^p_.,x_Symbol] :=
 FreeQ[{a,b,c,n,p},x] && NonzeroQ[b^2*n^2*p^2-1]
 
 
-Int[x_^m_.Sech[b_.*Log[c_.*x_^n_.]]^p_.,x_Symbol] :=
-  Int[x^m*(2/((c*x^n)^b+1/(c*x^n)^b))^p,x] /;
+Int[x_^m_.*Sech[b_.*Log[c_.*x_^n_.]]^p_.,x_Symbol] :=
+  2^p*Int[x^m*((c*x^n)^b/(1+(c*x^n)^(2*b)))^p,x] /;
 FreeQ[c,x] && RationalQ[b,m,n,p]
 
 
 Int[x_^m_.*Csch[b_.*Log[c_.*x_^n_.]]^p_.,x_Symbol] :=
-  Int[x^m*(2/((c*x^n)^b - 1/(c*x^n)^b))^p,x] /;
+  2^p*Int[x^m*((c*x^n)^b/(-1+(c*x^n)^(2*b)))^p,x] /;
 FreeQ[c,x] && RationalQ[b,m,n,p]
 
 

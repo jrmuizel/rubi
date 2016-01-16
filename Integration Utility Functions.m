@@ -444,13 +444,15 @@ PosAux[u_] :=
     If[PossibleZeroQ[Re[v]],
       Im[v]>0,
     Re[v]>0]],
+  If[PowerQ[u] && OddQ[u[[2]]],
+    PosAux[u[[1]]],
   If[ProductQ[u],
     If[PosAux[First[u]],
       PosAux[Rest[u]],
     Not[PosAux[Rest[u]]]],
   If[SumQ[u],
     PosAux[First[u]],
-  True]]]]]
+  True]]]]]]
 
 
 NegQ[u_] :=
@@ -2385,7 +2387,7 @@ ExpandIntegrand[x_^m_.*(e_+f_.*x_)^p_.*F_^(b_.*(c_.+d_.*x_)^n_.),x_Symbol] :=
     ExpandLinearProduct[(e+f*x)^p*F^(b*(c+d*x)^n),x^m,e,f,x],
   If[PositiveIntegerQ[p],
     Distribute[x^m*F^(b*(c+d*x)^n)*Expand[(e+f*x)^p,x],Plus,Times],
-  Distribute[F^(b*(c+d*x)^n)*ExpandIntegrand[x^m*(e+f*x)^p,x],Plus,Times]]] /;
+  ExpandIntegrand[F^(b*(c+d*x)^n),x^m*(e+f*x)^p,x]]] /;
 FreeQ[{F,b,c,d,e,f,m,n,p},x]
 
 
@@ -2394,7 +2396,7 @@ ExpandIntegrand[x_^m_.*(e_+f_.*x_)^p_.*F_^(a_.+b_.*(c_.+d_.*x_)^n_.),x_Symbol] :
     ExpandLinearProduct[(e+f*x)^p*F^(a+b*(c+d*x)^n),x^m,e,f,x],
   If[PositiveIntegerQ[p],
     Distribute[x^m*F^(a+b*(c+d*x)^n)*Expand[(e+f*x)^p,x],Plus,Times],
-  Distribute[F^(a+b*(c+d*x)^n)*ExpandIntegrand[x^m*(e+f*x)^p,x],Plus,Times]]] /;
+  ExpandIntegrand[F^(a+b*(c+d*x)^n),x^m*(e+f*x)^p,x]]] /;
 FreeQ[{F,a,b,c,d,e,f,m,n,p},x]
 
 
@@ -2413,7 +2415,7 @@ FreeQ[{a,b,c,d,e,f,m,n},x] && PolynomialQ[u,x]
 
 
 ExpandIntegrand[u_*(a_.+b_.*x_)^m_.*Log[c_.*(d_.+e_.*x_^n_.)^p_.],x_Symbol] :=
-  Distribute[Log[c*(d+e*x^n)^p]*ExpandIntegrand[u*(a+b*x)^m,x],Plus,Times] /; 
+  ExpandIntegrand[Log[c*(d+e*x^n)^p],u*(a+b*x)^m,x] /; 
 FreeQ[{a,b,c,d,e,m,n,p},x] && PolynomialQ[u,x]
 
 
@@ -2437,16 +2439,6 @@ FreeQ[{a,b,c,d,e,n,p},x] && PolynomialQ[u,x]
 ExpandIntegrand[u_*(a_.+b_.*F_[c_.+d_.*x_])^n_,x_Symbol] :=
   ExpandLinearProduct[(a+b*F[c+d*x])^n,u,c,d,x] /;
 FreeQ[{a,b,c,d,n},x] && PolynomialQ[u,x] && MemberQ[{ArcSin,ArcCos,ArcSinh,ArcCosh},F]
-
-
-(* ExpandIntegrand[u_.*x_^m_.*(v_+a_.*x_^n_.)^p_,x_Symbol] :=
-  Distribute[(v+a*x^n)^p*ExpandIntegrand[u*x^m,x],Plus,Times] /;
-FreeQ[a,x] && IntegersQ[m,n] && 0<n<=m && Not[IntegerQ[p]] && Not[LinearQ[v+a*x^n,x]] *)
-
-
-ExpandIntegrand[u_.*v_^p_,x_Symbol] :=
-  Distribute[NormalizeIntegrand[v^p,x]*ExpandIntegrand[u,x],Plus,Times] /;
-Not[IntegerQ[p]] && Not[LinearQ[v,x]]
 
 
 ExpandIntegrand[u_./(a_.*x_^n_+b_.*Sqrt[c_+d_.*x_^j_]),x_Symbol] :=
@@ -2485,6 +2477,20 @@ ExpandIntegrand[u_*(a_.+b_.*x_)^m_,x_Symbol] :=
   tmp1]]] /;
 FreeQ[{a,b,m},x] && PolynomialQ[u,x] && 
   Not[PositiveIntegerQ[m] && MatchQ[u,v_.*(c_+d_.*x)^n_ /; FreeQ[{c,d},x] && IntegerQ[n] && n>m]]
+
+
+(* ::Code:: *)
+(* ExpandIntegrand[1/(a_+b_.*u_^3),x_Symbol] :=
+  Module[{r=Numerator[Rt[-a/b,3]],s=Denominator[Rt[-a/b,3]]},
+  r/(3*a*(r-s*u)) + r*(2*r+s*u)/(3*a*(r^2+r*s*u+s^2*u^2))] /;
+FreeQ[{a,b},x] *)
+
+
+(* ::Code:: *)
+ExpandIntegrand[1/(a_+b_.*u_^n_),x_Symbol] :=
+  Module[{r=Numerator[Rt[-a/b,2]],s=Denominator[Rt[-a/b,2]]},
+  r/(2*a*(r-s*u^(n/2))) + r/(2*a*(r+s*u^(n/2)))] /;
+FreeQ[{a,b},x] && PositiveIntegerQ[n/4]
 
 
 (* ::Code:: *)
@@ -2573,6 +2579,11 @@ PolynomialQ[u,x] && PolynomialQ[v,x] && BinomialQ[v,x] && Exponent[u,x]==Exponen
 ExpandIntegrand[u_/v_,x_Symbol] :=
   PolynomialDivide[u,v,x] /;
 PolynomialQ[u,x] && PolynomialQ[v,x] && Exponent[u,x]>=Exponent[v,x]
+
+
+ExpandIntegrand[u_.*v_^p_,x_Symbol] :=
+  ExpandIntegrand[NormalizeIntegrand[v^p,x],u,x] /;
+Not[IntegerQ[p]]
 
 
 ExpandIntegrand[u_,x_Symbol] :=
@@ -4718,6 +4729,23 @@ Rt[u_,n_Integer] :=
   RtAux[TogetherSimplify[u],n]
 
 
+RtAux[Complex[a_,b_],n_] :=
+  1/RtAux[a/(a^2+b^2)-b/(a^2+b^2)*I,n] /;
+RationalQ[a,b] && (Not[IntegerQ[a]] || Not[IntegerQ[b]]) && IntegerQ[a/(a^2+b^2)] && IntegerQ[b/(a^2+b^2)]
+
+
+RtAux[-v_^m_,n_] :=
+  RtAux[-v,n]^m /;
+OddQ[m] && SumQ[v] && NumericFactor[v[[1]]]<0
+
+RtAux[u_.*v_^m_.*w_^p_.,n_] :=
+  RtAux[u,n]*RtAux[-v,n]^m*RtAux[-w,n]^p /;
+OddQ[m] && OddQ[p] && SumQ[v] && SumQ[w] && NumericFactor[v[[1]]]<0 && SumQ[w] && NumericFactor[w[[1]]]<0
+
+RtAux[-u_*v_^m_.,n_] :=
+  RtAux[u,n]*RtAux[-v^m,n] /;
+EvenQ[n] && OddQ[m] && SumQ[v] && NumericFactor[v[[1]]]<0
+
 RtAux[u_^m_,n_] :=
   1/RtAux[u^-m,n] /;
 RationalQ[m] && m<0
@@ -4728,10 +4756,6 @@ RtAux[v_.*u_^w_,n_] :=
  m>1] /;
 Not[NegativeOrZeroQ[v]]
 
-
-RtAux[u_,n_] :=
-  Map[Function[RtAux[#,n]],u] /;
-ProductQ[u] && OddQ[n]
 
 RtAux[u_,n_] :=
   Module[{i}, Catch[
@@ -4758,6 +4782,10 @@ RtAux[u_,n_] :=
   Map[Function[RtAux[#,n]],u]]]] /;
 ProductQ[u] && EvenQ[n] && Not[u[[1]]===-1 && Length[u]==2]
 
+
+RtAux[u_,n_] :=
+  Map[Function[RtAux[#,n]],u] /;
+OddQ[n] && ProductQ[u]
 
 RtAux[u_,n_] :=
   -RtAux[-u,n] /;
