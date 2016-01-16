@@ -1,7 +1,7 @@
 (* ::Package:: *)
 
 (* ::Section:: *)
-(*Trig Function Rules*)
+(*Miscellaneous Trig Function Rules*)
 
 
 (* ::Subsection::Closed:: *)
@@ -386,7 +386,7 @@ FreeQ[{a,b,c,d,m},x] && InertTrigQ[F,G] && IntegerQ[n] && n>2
 
 
 (* ::Subsection::Closed:: *)
-(*4 Inert Trig Functions Rules*)
+(*4 Inert trig functions*)
 
 
 Int[u_*F_[c_.*(a_.+b_.*x_)],x_Symbol] :=
@@ -466,14 +466,14 @@ Int[u_,x_Symbol] :=
   ShowStep["","Int[F[Cot[a+b*x]],x]","-1/b*Subst[Int[F[x]/(1+x^2),x],x,Cot[a+b*x]]",Hold[
   Module[{d=FreeFactors[Cot[v],x]},
   Dist[-d/Coefficient[v,x,1],Subst[Int[SubstFor[1/(1+d^2*x^2),Cot[v]/d,u,x],x],x,Cot[v]/d],x]]]] /;
- NotFalseQ[v] && FunctionOfQ[NonfreeFactors[Cot[v],x],u,x,True] && TryPureTanSubst[ActivateTrig[u],x]] /;
+ Not[FalseQ[v]] && FunctionOfQ[NonfreeFactors[Cot[v],x],u,x,True] && TryPureTanSubst[ActivateTrig[u],x]] /;
 SimplifyFlag,
 
 Int[u_,x_Symbol] :=
   Module[{v=FunctionOfTrig[u,x]},
   Module[{d=FreeFactors[Cot[v],x]},
   Dist[-d/Coefficient[v,x,1],Subst[Int[SubstFor[1/(1+d^2*x^2),Cot[v]/d,u,x],x],x,Cot[v]/d],x]] /;
- NotFalseQ[v] && FunctionOfQ[NonfreeFactors[Cot[v],x],u,x,True] && TryPureTanSubst[ActivateTrig[u],x]]]
+ Not[FalseQ[v]] && FunctionOfQ[NonfreeFactors[Cot[v],x],u,x,True] && TryPureTanSubst[ActivateTrig[u],x]]]
 
 
 If[ShowSteps,
@@ -483,14 +483,14 @@ Int[u_,x_Symbol] :=
   ShowStep["","Int[F[Tan[a+b*x]],x]","1/b*Subst[Int[F[x]/(1+x^2),x],x,Tan[a+b*x]]",Hold[
   Module[{d=FreeFactors[Tan[v],x]},
   Dist[d/Coefficient[v,x,1],Subst[Int[SubstFor[1/(1+d^2*x^2),Tan[v]/d,u,x],x],x,Tan[v]/d],x]]]] /;
- NotFalseQ[v] && FunctionOfQ[NonfreeFactors[Tan[v],x],u,x,True] && TryPureTanSubst[ActivateTrig[u],x]] /;
+ Not[FalseQ[v]] && FunctionOfQ[NonfreeFactors[Tan[v],x],u,x,True] && TryPureTanSubst[ActivateTrig[u],x]] /;
 SimplifyFlag,
 
 Int[u_,x_Symbol] :=
   Module[{v=FunctionOfTrig[u,x]},
   Module[{d=FreeFactors[Tan[v],x]},
   Dist[d/Coefficient[v,x,1],Subst[Int[SubstFor[1/(1+d^2*x^2),Tan[v]/d,u,x],x],x,Tan[v]/d],x]] /;
- NotFalseQ[v] && FunctionOfQ[NonfreeFactors[Tan[v],x],u,x,True] && TryPureTanSubst[ActivateTrig[u],x]]]
+ Not[FalseQ[v]] && FunctionOfQ[NonfreeFactors[Tan[v],x],u,x,True] && TryPureTanSubst[ActivateTrig[u],x]]]
 
 
 Int[F_[a_.+b_.*x_]^p_.*G_[c_.+d_.*x_]^q_.,x_Symbol] :=
@@ -594,14 +594,14 @@ Int[u_,x_Symbol] :=
   ShowStep["","Int[F[Sin[a+b*x]]*Cos[a+b*x],x]","Subst[Int[F[x],x],x,Sin[a+b*x]]/b",Hold[
   Module[{d=FreeFactors[Sin[v],x]},
   Dist[d/Coefficient[v,x,1],Subst[Int[SubstFor[1,Sin[v]/d,u/Cos[v],x],x],x,Sin[v]/d],x]]]] /;
- NotFalseQ[v] && FunctionOfQ[NonfreeFactors[Sin[v],x],u/Cos[v],x]] /;
+ Not[FalseQ[v]] && FunctionOfQ[NonfreeFactors[Sin[v],x],u/Cos[v],x]] /;
 SimplifyFlag,
 
 Int[u_,x_Symbol] :=
   Module[{v=FunctionOfTrig[u,x]},
   Module[{d=FreeFactors[Sin[v],x]},
   Dist[d/Coefficient[v,x,1],Subst[Int[SubstFor[1,Sin[v]/d,u/Cos[v],x],x],x,Sin[v]/d],x]] /;
- NotFalseQ[v] && FunctionOfQ[NonfreeFactors[Sin[v],x],u/Cos[v],x]]]
+ Not[FalseQ[v]] && FunctionOfQ[NonfreeFactors[Sin[v],x],u/Cos[v],x]]]
 
 
 If[ShowSteps,
@@ -611,14 +611,14 @@ Int[u_,x_Symbol] :=
   ShowStep["","Int[F[Cos[a+b*x]]*Sin[a+b*x],x]","-Subst[Int[F[x],x],x,Cos[a+b*x]]/b",Hold[
   Module[{d=FreeFactors[Cos[v],x]},
   Dist[-d/Coefficient[v,x,1],Subst[Int[SubstFor[1,Cos[v]/d,u/Sin[v],x],x],x,Cos[v]/d],x]]]] /;
- NotFalseQ[v] && FunctionOfQ[NonfreeFactors[Cos[v],x],u/Sin[v],x]] /;
+ Not[FalseQ[v]] && FunctionOfQ[NonfreeFactors[Cos[v],x],u/Sin[v],x]] /;
 SimplifyFlag,
 
 Int[u_,x_Symbol] :=
   Module[{v=FunctionOfTrig[u,x]},
   Module[{d=FreeFactors[Cos[v],x]},
   Dist[-d/Coefficient[v,x,1],Subst[Int[SubstFor[1,Cos[v]/d,u/Sin[v],x],x],x,Cos[v]/d],x]] /;
- NotFalseQ[v] && FunctionOfQ[NonfreeFactors[Cos[v],x],u/Sin[v],x]]]
+ Not[FalseQ[v]] && FunctionOfQ[NonfreeFactors[Cos[v],x],u/Sin[v],x]]]
 
 
 Int[u_.*(a_.+b_.*cos[d_.+e_.*x_]^2+c_.*sin[d_.+e_.*x_]^2)^p_.,x_Symbol] :=
@@ -671,14 +671,14 @@ Int[u_,x_Symbol] :=
   ShowStep["","Int[F[Tan[a+b*x]],x]","1/b*Subst[Int[F[x]/(1+x^2),x],x,Tan[a+b*x]]",Hold[
   Module[{d=FreeFactors[Tan[v],x]},
   Dist[d/Coefficient[v,x,1],Subst[Int[SubstFor[1/(1+d^2*x^2),Tan[v]/d,u,x],x],x,Tan[v]/d],x]]]] /;
- NotFalseQ[v] && FunctionOfQ[NonfreeFactors[Tan[v],x],u,x]] /;
+ Not[FalseQ[v]] && FunctionOfQ[NonfreeFactors[Tan[v],x],u,x]] /;
 SimplifyFlag && InverseFunctionFreeQ[u,x],
 
 Int[u_,x_Symbol] :=
   Module[{v=FunctionOfTrig[u,x]},
   Module[{d=FreeFactors[Tan[v],x]},
   Dist[d/Coefficient[v,x,1],Subst[Int[SubstFor[1/(1+d^2*x^2),Tan[v]/d,u,x],x],x,Tan[v]/d],x]] /;
- NotFalseQ[v] && FunctionOfQ[NonfreeFactors[Tan[v],x],u,x]] /;
+ Not[FalseQ[v]] && FunctionOfQ[NonfreeFactors[Tan[v],x],u,x]] /;
 InverseFunctionFreeQ[u,x]]
 
 
@@ -788,7 +788,7 @@ Int[u_,x_Symbol] :=
   d=FreeFactors[Tan[v/2],x];
   Dist[2*d/Coefficient[v,x,1],Subst[Int[SubstFor[1/(1+d^2*x^2),Tan[v/2]/d,u,x],x],x,Tan[v/2]/d],x]]]] /;
  FreeQ[w,Int]] /;
-SimplifyFlag && InverseFunctionFreeQ[u,x] && NotFalseQ[FunctionOfTrig[u,x]],
+SimplifyFlag && InverseFunctionFreeQ[u,x] && Not[FalseQ[FunctionOfTrig[u,x]]],
 
 Int[u_,x_Symbol] :=
   Module[{w=Block[{ShowSteps=False,StepCounter=Null}, 
@@ -797,7 +797,7 @@ Int[u_,x_Symbol] :=
   d=FreeFactors[Tan[v/2],x];
   Dist[2*d/Coefficient[v,x,1],Subst[Int[SubstFor[1/(1+d^2*x^2),Tan[v/2]/d,u,x],x],x,Tan[v/2]/d],x]] /;
  FreeQ[w,Int]] /;
-InverseFunctionFreeQ[u,x] && NotFalseQ[FunctionOfTrig[u,x]]]
+InverseFunctionFreeQ[u,x] && Not[FalseQ[FunctionOfTrig[u,x]]]]
 
 
 (* If[ShowSteps,
@@ -807,14 +807,14 @@ Int[u_,x_Symbol] :=
   ShowStep["","Int[F[Sin[a+b*x],Cos[a+b*x]],x]","2/b*Subst[Int[1/(1+x^2)*F[2*x/(1+x^2),(1-x^2)/(1+x^2)],x],x,Tan[(a+b*x)/2]]",Hold[
   Module[{d=FreeFactors[Tan[v/2],x]},
   Dist[2*d/Coefficient[v,x,1],Subst[Int[SubstFor[1/(1+d^2*x^2),Tan[v/2]/d,u,x],x],x,Tan[v/2]/d],x]]]] /;
- NotFalseQ[v]] /;
+ Not[FalseQ[v]]] /;
 SimplifyFlag && InverseFunctionFreeQ[u,x],
 
 Int[u_,x_Symbol] :=
   Module[{v=FunctionOfTrig[u,x]},
   Module[{d=FreeFactors[Tan[v/2],x]},
   Dist[2*d/Coefficient[v,x,1],Subst[Int[SubstFor[1/(1+d^2*x^2),Tan[v/2]/d,u,x],x],x,Tan[v/2]/d],x]] /;
- NotFalseQ[v]] /;
+ Not[FalseQ[v]]] /;
 InverseFunctionFreeQ[u,x]] *)
 
 
@@ -822,6 +822,9 @@ Int[u_,x_Symbol] :=
   Module[{v=ActivateTrig[u]},
    Defer[Int][v,x]] /;
 Not[InertTrigFreeQ[u]]
+
+
+
 
 
 (* ::Subsection::Closed:: *)
@@ -1743,122 +1746,122 @@ FreeQ[{m,p},x] && TrigQ[F] && BinomialQ[v,x] && Not[BinomialMatchQ[v,x]]
 
 Int[(c_.*Sin[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Sin[a+b*x^n]^p]/Sin[a+b*x^n]^(p/2)*Int[Sin[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Cos[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Cos[a+b*x^n]^p]/Cos[a+b*x^n]^(p/2)*Int[Cos[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Sin[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Sin[a+b*x^n]^(p/2)/Sqrt[c*Sin[a+b*x^n]^p]*Int[Sin[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Cos[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Cos[a+b*x^n]^(p/2)/Sqrt[c*Cos[a+b*x^n]^p]*Int[Cos[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Sin[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   (c*Sin[a+b*x^n]^p)^q/Sin[a+b*x^n]^(p*q)*Int[Sin[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Cos[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   (c*Cos[a+b*x^n]^p)^q/Cos[a+b*x^n]^(p*q)*Int[Cos[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Sin[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Sin[a+b*x^n]^p]/Sin[a+b*x^n]^(p/2)*Int[x^m*Sin[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Cos[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Cos[a+b*x^n]^p]/Cos[a+b*x^n]^(p/2)*Int[x^m*Cos[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Sin[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Sin[a+b*x^n]^(p/2)/Sqrt[c*Sin[a+b*x^n]^p]*Int[x^m*Sin[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Cos[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Cos[a+b*x^n]^(p/2)/Sqrt[c*Cos[a+b*x^n]^p]*Int[x^m*Cos[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Sin[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   (c*Sin[a+b*x^n]^p)^q/Sin[a+b*x^n]^(p*q)*Int[x^m*Sin[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Cos[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   (c*Cos[a+b*x^n]^p)^q/Cos[a+b*x^n]^(p*q)*Int[x^m*Cos[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Sec[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Sec[a+b*x^n]^p]/Sec[a+b*x^n]^(p/2)*Int[Sec[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Csc[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Csc[a+b*x^n]^p]/Csc[a+b*x^n]^(p/2)*Int[Csc[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Sec[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Sec[a+b*x^n]^(p/2)/Sqrt[c*Sec[a+b*x^n]^p]*Int[Sec[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Csc[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Csc[a+b*x^n]^(p/2)/Sqrt[c*Csc[a+b*x^n]^p]*Int[Csc[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Sec[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   (c*Sec[a+b*x^n]^p)^q/Sec[a+b*x^n]^(p*q)*Int[Sec[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Csc[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   (c*Csc[a+b*x^n]^p)^q/Csc[a+b*x^n]^(p*q)*Int[Csc[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Sec[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Sec[a+b*x^n]^p]/Sec[a+b*x^n]^(p/2)*Int[x^m*Sec[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Csc[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Csc[a+b*x^n]^p]/Csc[a+b*x^n]^(p/2)*Int[x^m*Csc[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Sec[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Sec[a+b*x^n]^(p/2)/Sqrt[c*Sec[a+b*x^n]^p]*Int[x^m*Sec[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Csc[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Csc[a+b*x^n]^(p/2)/Sqrt[c*Csc[a+b*x^n]^p]*Int[x^m*Csc[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Sec[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   (c*Sec[a+b*x^n]^p)^q/Sec[a+b*x^n]^(p*q)*Int[x^m*Sec[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Csc[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   (c*Csc[a+b*x^n]^p)^q/Csc[a+b*x^n]^(p*q)*Int[x^m*Csc[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*F_[v_]^p_.)^q_,x_Symbol] :=
@@ -1869,6 +1872,9 @@ FreeQ[{c,p,q},x] && TrigQ[F] && BinomialQ[v,x] && Not[BinomialMatchQ[v,x]]
 Int[x_^m_.*(c_.*F_[v_]^p_.)^q_,x_Symbol] :=
   Int[x^m*(c*F[ExpandToSum[v,x]]^p)^q,x] /;
 FreeQ[{c,m,p,q},x] && TrigQ[F] && BinomialQ[v,x] && Not[BinomialMatchQ[v,x]]
+
+
+
 
 
 (* ::Subsection::Closed:: *)
@@ -2728,7 +2734,7 @@ FreeQ[{a,b,m,n},x] && RationalQ[p] && p>0 && NonzeroQ[m-n+1]
 
 
 (* ::Subsection::Closed:: *)
-(*11 Active Trig Functions Rules*)
+(*11 Active trig functions*)
 
 
 Int[Sin[a_./(c_.+d_.*x_)]^n_.,x_Symbol] :=

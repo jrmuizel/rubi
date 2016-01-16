@@ -5,7 +5,7 @@
 
 
 (* ::Subsection::Closed:: *)
-(*9.1 (c+d x)^m hyper(a+b x)^n*)
+(*1 (c+d x)^m hyper(a+b x)^n*)
 
 
 Int[(c_.+d_.*x_)^m_.*Sinh[a_.+b_.*x_],x_Symbol] :=
@@ -379,13 +379,13 @@ FreeQ[{a,b,c,d,m,n},x] && PositiveIntegerQ[p/2]
 
 
 Int[(c_.+d_.*x_)^m_.*Sech[a_.+b_.*x_]^n_.*Tanh[a_.+b_.*x_]^p_.,x_Symbol] :=
-  Module[{u=IntHide[Sech[a+b*x]^n*Tanh[a+b*x]^p,x]},
+  With[{u=IntHide[Sech[a+b*x]^n*Tanh[a+b*x]^p,x]},
   Dist[(c+d*x)^m,u,x] - d*m*Int[(c+d*x)^(m-1)*u,x]] /;
 FreeQ[{a,b,c,d,n,p},x] && PositiveIntegerQ[m] && (EvenQ[n] || OddQ[p])
 
 
 Int[(c_.+d_.*x_)^m_.*Csch[a_.+b_.*x_]^n_.*Coth[a_.+b_.*x_]^p_.,x_Symbol] :=
-  Module[{u=IntHide[Csch[a+b*x]^n*Coth[a+b*x]^p,x]},
+  With[{u=IntHide[Csch[a+b*x]^n*Coth[a+b*x]^p,x]},
   Dist[(c+d*x)^m,u,x] - d*m*Int[(c+d*x)^(m-1)*u,x]] /;
 FreeQ[{a,b,c,d,n,p},x] && PositiveIntegerQ[m] && (EvenQ[n] || OddQ[p])
 
@@ -396,7 +396,7 @@ FreeQ[{a,b,c,d},x] && RationalQ[m] && IntegerQ[n]
 
 
 Int[(c_.+d_.*x_)^m_.*Csch[a_.+b_.*x_]^n_.*Sech[a_.+b_.*x_]^p_., x_Symbol] :=
-  Module[{u=IntHide[Csch[a+b*x]^n*Sech[a+b*x]^p,x]},
+  With[{u=IntHide[Csch[a+b*x]^n*Sech[a+b*x]^p,x]},
   Dist[(c+d*x)^m,u,x] - d*m*Int[(c+d*x)^(m-1)*u,x]] /;
 FreeQ[{a,b,c,d},x] && IntegersQ[n,p] && RationalQ[m] && m>0 && n!=p
 
@@ -464,17 +464,17 @@ FreeQ[{a,b,c,d,e,f,m},x] && MemberQ[{Sinh,Cosh},F] && MemberQ[{Sech,Csch},G] &&
 
 
 (* ::Subsection::Closed:: *)
-(*9.2 x^m hyper(a+b x^n)^p*)
+(*2 x^m hyper(a+b x^n)^p*)
 
 
 Int[Sinh[a_.+b_.*x_^n_]^p_.,x_Symbol] :=
-  Module[{g=Numerator[1/n]},
+  With[{g=Numerator[1/n]},
   g*Subst[Int[x^(g-1)*Sinh[a+b*x^(n*g)]^p,x],x,x^(1/g)]] /;
 FreeQ[{a,b,p},x] && RationalQ[n] && (n<0 || FractionQ[n])
 
 
 Int[Cosh[a_.+b_.*x_^n_]^p_.,x_Symbol] :=
-  Module[{g=Numerator[1/n]},
+  With[{g=Numerator[1/n]},
   g*Subst[Int[x^(g-1)*Cosh[a+b*x^(n*g)]^p,x],x,x^(1/g)]] /;
 FreeQ[{a,b,p},x] && RationalQ[n] && (n<0 || FractionQ[n])
 
@@ -570,7 +570,7 @@ FreeQ[{a,b},x] && RationalQ[m,n] && (0<n<m+1 || m+1<n<0)
 
 
 Int[x_^m_.*Sinh[a_.+b_.*x_^n_],x_Symbol] :=
-  Module[{mn=Simplify[m-n]},
+  With[{mn=Simplify[m-n]},
   x^(mn+1)*Cosh[a+b*x^n]/(b*n) - 
   (mn+1)/(b*n)*Int[x^mn*Cosh[a+b*x^n],x]] /;
 FreeQ[{a,b,m,n},x] && NonzeroQ[m-n+1] && PositiveIntegerQ[Simplify[(m+1)/n]]
@@ -583,7 +583,7 @@ FreeQ[{a,b},x] && RationalQ[m,n] && (0<n<m+1 || m+1<n<0)
 
 
 Int[x_^m_.*Cosh[a_.+b_.*x_^n_],x_Symbol] :=
-  Module[{mn=Simplify[m-n]},
+  With[{mn=Simplify[m-n]},
   x^(mn+1)*Sinh[a+b*x^n]/(b*n) - 
   (mn+1)/(b*n)*Int[x^mn*Sinh[a+b*x^n],x]] /;
 FreeQ[{a,b,m,n},x] && NonzeroQ[m-n+1] && PositiveIntegerQ[Simplify[(m+1)/n]]
@@ -867,122 +867,122 @@ FreeQ[{m,p},x] && HyperbolicQ[F] && BinomialQ[v,x] && Not[BinomialMatchQ[v,x]]
 
 Int[(c_.*Sinh[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Sinh[a+b*x^n]^p]/Sinh[a+b*x^n]^(p/2)*Int[Sinh[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Cosh[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Cosh[a+b*x^n]^p]/Cosh[a+b*x^n]^(p/2)*Int[Cosh[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Sinh[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Sinh[a+b*x^n]^(p/2)/Sqrt[c*Sinh[a+b*x^n]^p]*Int[Sinh[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Cosh[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Cosh[a+b*x^n]^(p/2)/Sqrt[c*Cosh[a+b*x^n]^p]*Int[Cosh[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Sinh[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   (c*Sinh[a+b*x^n]^p)^q/Sinh[a+b*x^n]^(p*q)*Int[Sinh[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Cosh[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   (c*Cosh[a+b*x^n]^p)^q/Cosh[a+b*x^n]^(p*q)*Int[Cosh[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Sinh[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Sinh[a+b*x^n]^p]/Sinh[a+b*x^n]^(p/2)*Int[x^m*Sinh[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Cosh[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Cosh[a+b*x^n]^p]/Cosh[a+b*x^n]^(p/2)*Int[x^m*Cosh[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Sinh[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Sinh[a+b*x^n]^(p/2)/Sqrt[c*Sinh[a+b*x^n]^p]*Int[x^m*Sinh[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Cosh[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Cosh[a+b*x^n]^(p/2)/Sqrt[c*Cosh[a+b*x^n]^p]*Int[x^m*Cosh[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Sinh[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   (c*Sinh[a+b*x^n]^p)^q/Sinh[a+b*x^n]^(p*q)*Int[x^m*Sinh[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Cosh[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   (c*Cosh[a+b*x^n]^p)^q/Cosh[a+b*x^n]^(p*q)*Int[x^m*Cosh[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Sech[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Sech[a+b*x^n]^p]/Sech[a+b*x^n]^(p/2)*Int[Sech[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Csch[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Csch[a+b*x^n]^p]/Csch[a+b*x^n]^(p/2)*Int[Csch[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Sech[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Sech[a+b*x^n]^(p/2)/Sqrt[c*Sech[a+b*x^n]^p]*Int[Sech[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Csch[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Csch[a+b*x^n]^(p/2)/Sqrt[c*Csch[a+b*x^n]^p]*Int[Csch[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && NegativeIntegerQ[q-1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Sech[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   (c*Sech[a+b*x^n]^p)^q/Sech[a+b*x^n]^(p*q)*Int[Sech[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*Csch[a_.+b_.*x_^n_]^p_.)^q_,x_Symbol] :=
   (c*Csch[a+b*x^n]^p)^q/Csch[a+b*x^n]^(p*q)*Int[Csch[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Sech[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Sech[a+b*x^n]^p]/Sech[a+b*x^n]^(p/2)*Int[x^m*Sech[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Csch[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q-1/2)*Sqrt[c*Csch[a+b*x^n]^p]/Csch[a+b*x^n]^(p/2)*Int[x^m*Csch[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && PositiveIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Sech[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Sech[a+b*x^n]^(p/2)/Sqrt[c*Sech[a+b*x^n]^p]*Int[x^m*Sech[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Csch[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   c^(q+1/2)*Csch[a+b*x^n]^(p/2)/Sqrt[c*Csch[a+b*x^n]^p]*Int[x^m*Csch[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q+1/2] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && NegativeIntegerQ[q+1/2] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Sech[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   (c*Sech[a+b*x^n]^p)^q/Sech[a+b*x^n]^(p*q)*Int[x^m*Sech[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[x_^m_.*(c_.*Csch[a_.+b_.*x_^n_.]^p_.)^q_,x_Symbol] :=
   (c*Csch[a+b*x^n]^p)^q/Csch[a+b*x^n]^(p*q)*Int[x^m*Csch[a+b*x^n]^(p*q),x] /;
-FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[OneQ[c,p]]
+FreeQ[{a,b,c,m,n,p,q},x] && Not[IntegerQ[q+1/2]] && Not[EqQ[c,1] && EqQ[p,1]]
 
 
 Int[(c_.*F_[v_]^p_.)^q_,x_Symbol] :=
@@ -995,8 +995,11 @@ Int[x_^m_.*(c_.*F_[v_]^p_.)^q_,x_Symbol] :=
 FreeQ[{c,m,p,q},x] && HyperbolicQ[F] && BinomialQ[v,x] && Not[BinomialMatchQ[v,x]]
 
 
+
+
+
 (* ::Subsection::Closed:: *)
-(*9.3 (d+e x)^m hyper(a+b x+c x^2)^n*)
+(*3 (d+e x)^m hyper(a+b x+c x^2)^n*)
 
 
 Int[Sinh[a_.+b_.*x_+c_.*x_^2],x_Symbol] :=
@@ -1180,7 +1183,7 @@ FreeQ[{a,b,c,d,e,m,n},x]
 
 
 (* ::Subsection::Closed:: *)
-(*9.4 (e+f x)^m (a+b hyper(c+d x)^n)^p*)
+(*4 (e+f x)^m (a+b hyper(c+d x)^n)^p*)
 
 
 Int[(e_.+f_.*x_)^m_.*(a_+b_.*Sinh[c_.+d_.*x_])^n_,x_Symbol] :=
@@ -1252,7 +1255,7 @@ FreeQ[{a,b,c,d},x] && NonzeroQ[a+b] && IntegersQ[m,n] && m>0 && n<0 && (n==-1 ||
 
 
 (* ::Subsection::Closed:: *)
-(*9.5 F^(c (a+b x)) hyper(d+e x)^n*)
+(*5 F^(c (a+b x)) hyper(d+e x)^n*)
 
 
 Int[F_^(c_.*(a_.+b_.*x_))*Sinh[d_.+e_.*x_],x_Symbol] :=
@@ -1445,13 +1448,13 @@ FreeQ[{F,c,n},x] && HyperbolicQ[G] && LinearQ[{u,v},x] && Not[LinearMatchQ[{u,v}
 
 
 Int[x_^m_.*F_^(c_.*(a_.+b_.*x_))*Sinh[d_.+e_.*x_]^n_.,x_Symbol] :=
-  Module[{u=IntHide[F^(c*(a+b*x))*Sinh[d+e*x]^n,x]},
+  With[{u=IntHide[F^(c*(a+b*x))*Sinh[d+e*x]^n,x]},
   x^m*u - Dist[m,Int[x^(m-1)*u,x]]] /;
 FreeQ[{F,a,b,c,d,e},x] && RationalQ[m] && m>0 && PositiveIntegerQ[n]
 
 
 Int[x_^m_.*F_^(c_.*(a_.+b_.*x_))*Cosh[d_.+e_.*x_]^n_.,x_Symbol] :=
-  Module[{u=IntHide[F^(c*(a+b*x))*Cosh[d+e*x]^n,x]},
+  With[{u=IntHide[F^(c*(a+b*x))*Cosh[d+e*x]^n,x]},
   x^m*u - Dist[m,Int[x^(m-1)*u,x]]] /;
 FreeQ[{F,a,b,c,d,e},x] && RationalQ[m] && m>0 && PositiveIntegerQ[n]
 
@@ -1487,7 +1490,7 @@ FreeQ[F,x] && (LinearQ[u,x] || QuadraticQ[u,x]) && (LinearQ[v,x] || QuadraticQ[v
 
 
 (* ::Subsection::Closed:: *)
-(*9.6 x^m hyper(a+b log(c x^n))^p*)
+(*6 x^m hyper(a+b log(c x^n))^p*)
 
 
 Int[Sinh[b_.*Log[c_.*x_^n_.]]^p_.,x_Symbol] :=
@@ -1859,7 +1862,7 @@ FreeQ[{a,b},x] && RationalQ[m,n,p] && p>0 && NonzeroQ[m-n+1]
 
 
 (* ::Subsection::Closed:: *)
-(*9.7 Active Hyperbolic Functions Rules*)
+(*7 Active hyperbolic functions*)
 
 
 Int[Sinh[a_./(c_.+d_.*x_)]^n_.,x_Symbol] :=
@@ -1883,13 +1886,13 @@ FreeQ[{a,b,c,d},x] && PositiveIntegerQ[n] && NonzeroQ[b*c-a*d]
 
 
 Int[Sinh[u_]^n_.,x_Symbol] :=
-  Module[{lst=QuotientOfLinearsParts[u,x]},
+  With[{lst=QuotientOfLinearsParts[u,x]},
   Int[Sinh[(lst[[1]]+lst[[2]]*x)/(lst[[3]]+lst[[4]]*x)]^n,x]] /;
 PositiveIntegerQ[n] && QuotientOfLinearsQ[u,x]
 
 
 Int[Cosh[u_]^n_.,x_Symbol] :=
-  Module[{lst=QuotientOfLinearsParts[u,x]},
+  With[{lst=QuotientOfLinearsParts[u,x]},
   Int[Cosh[(lst[[1]]+lst[[2]]*x)/(lst[[3]]+lst[[4]]*x)]^n,x]] /;
 PositiveIntegerQ[n] && QuotientOfLinearsQ[u,x]
 

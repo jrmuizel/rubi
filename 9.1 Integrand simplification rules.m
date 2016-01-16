@@ -56,9 +56,15 @@ FreeQ[{a,b,c,n,p},x] && ZeroQ[j-2*n] && ZeroQ[c]
 
 
 (* ::Code:: *)
-Int[u_.*v_^m_,x_Symbol] :=
-  Int[u*v^Simplify[m],x] /;
-PolynomialQ[v,x] && Not[RationalQ[m]] && FreeQ[m,x] && RationalQ[Simplify[m]]
+Int[u_.*(a_.*v_+b_.*v_+w_.)^p_.,x_Symbol] :=
+  Int[u*((a+b)*v+w)^p,x] /;
+FreeQ[{a,b},x] && Not[FreeQ[v,x]]
+
+
+(* ::Code:: *)
+Int[u_.*Pm_^p_,x_Symbol] :=
+  Int[u*Pm^Simplify[p],x] /;
+PolyQ[Pm,x] && Not[RationalQ[p]] && FreeQ[p,x] && RationalQ[Simplify[p]]
 
 
 (* ::Code:: *)
@@ -81,7 +87,7 @@ Int[-u_,x_Symbol] :=
 (* ::Code:: *)
 Int[Complex[0,a_]*u_,x_Symbol] :=
   Complex[Identity[0],a]*Int[u,x] /;
-FreeQ[a,x] && OneQ[a^2]
+FreeQ[a,x] && EqQ[a^2,1]
 
 
 (* ::Code:: *)
@@ -128,21 +134,9 @@ FreeQ[{c,n,p},x] && Not[IntegerQ[2*p]] *)
 
 
 (* ::Code:: *)
-Int[u_.*(c_.*(a_.+b_.* x_)^n_)^p_,x_Symbol] :=
-  c^(p-1/2)*Sqrt[c*(a+b*x)^n]/(a+b*x)^(n/2)*Int[u*(a+b*x)^(n*p),x] /;
-FreeQ[{a,b,c,n,p},x] && PositiveIntegerQ[p+1/2]
-
-
-(* ::Code:: *)
-Int[u_.*(c_.*(a_.+b_.* x_)^n_)^p_,x_Symbol] :=
-  c^(p+1/2)*(a+b*x)^(n/2)/Sqrt[c*(a+b*x)^n]*Int[u*(a+b*x)^(n*p),x] /;
-FreeQ[{a,b,c,n,p},x] && NegativeIntegerQ[p-1/2]
-
-
-(* ::Code:: *)
-Int[u_.*(c_.*(a_.+b_.* x_)^n_)^p_,x_Symbol] :=
-  (c*(a+b*x)^n)^p/((a+b*x)^(n*p))*Int[u*(a+b*x)^(n*p),x] /;
-FreeQ[{a,b,c,n,p},x] && Not[IntegerQ[2*p]]
+Int[u_*(c_.*(a_.+b_.* x_)^n_)^p_,x_Symbol] :=
+  c^IntPart[p]*(c*(a+b*x)^n)^FracPart[p]/(a+b*x)^(n*FracPart[p])*Int[u*(a+b*x)^(n*p),x] /;
+FreeQ[{a,b,c,n,p},x] && Not[IntegerQ[p]]
 
 
 (* ::Code:: *)
@@ -195,7 +189,7 @@ FreeQ[{a,b,m,n},x] && Not[IntegerQ[m]] && Not[IntegerQ[n]] && IntegerQ[m+n]
 
 (* ::Code:: *)
 Int[u_.*(a_.*v_)^m_*(b_.*v_)^n_,x_Symbol] :=
-  (b*v)^n/(a*v)^n*Int[u*(a*v)^(m+n),x] /;
+  b^IntPart[n]*(b*v)^FracPart[n]/(a^IntPart[n]*(a*v)^FracPart[n])*Int[u*(a*v)^(m+n),x] /;
 FreeQ[{a,b,m,n},x] && Not[IntegerQ[m]] && Not[IntegerQ[n]] && Not[IntegerQ[m+n]]
 
 
@@ -254,9 +248,71 @@ FreeQ[{a,b,c,d,m,n,p},x] && ZeroQ[j-2*n] && ZeroQ[m+p] && ZeroQ[b^2*c+a^2*d] && 
 
 
 (* ::Code:: *)
-Int[u_.*(a_.*x_^r_.+b_.*x_^s_.)^m_.,x_Symbol] :=
-  Int[u*x^(m*r)*(a+b*x^(s-r))^m,x] /;
-FreeQ[{a,b,r,s},x] && IntegerQ[m] && PosQ[s-r]
+Int[u_.*(a_+b_.*x_+c_.*x_^2)^p_.,x_Symbol] :=
+  Int[u*Cancel[(b/2+c*x)^(2*p)/c^p],x] /;
+FreeQ[{a,b,c},x] && ZeroQ[b^2-4*a*c] && IntegerQ[p]
+
+
+(* ::Code:: *)
+Int[u_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_.,x_Symbol] :=
+  1/c^p*Int[u*(b/2+c*x^n)^(2*p),x] /;
+FreeQ[{a,b,c,n},x] && ZeroQ[n2-2*n] && ZeroQ[b^2-4*a*c] && IntegerQ[p]
+
+
+(* ::Code:: *)
+Int[(d_+e_.*x_)*(a_.+b_.*x_+c_.*x_^2)^p_.,x_Symbol] :=
+  d/b*Subst[Int[x^p,x],x,a+b*x+c*x^2] /;
+FreeQ[{a,b,c,d,e,p},x] && ZeroQ[2*c*d-b*e]
+
+
+(* ::Code:: *)
+Int[u_.*(a_.*x_^m_.+b_.*x_^n_.)^p_.,x_Symbol] :=
+  Int[u*x^(m*p)*(a+b*x^(n-m))^p,x] /;
+FreeQ[{a,b,m,n},x] && IntegerQ[p] && PosQ[n-m]
+
+
+(* ::Code:: *)
+Int[x_^m_./(a_+b_.*x_^n_),x_Symbol] :=
+  Log[RemoveContent[a+b*x^n,x]]/(b*n) /;
+FreeQ[{a,b,m,n},x] && ZeroQ[m-n+1]
+
+
+(* ::Code:: *)
+Int[x_^m_.*(a_+b_.*x_^n_)^p_,x_Symbol] :=
+  (a+b*x^n)^(p+1)/(b*n*(p+1)) /;
+FreeQ[{a,b,m,n,p},x] && ZeroQ[m-n+1] && NonzeroQ[p+1]
+
+
+(* ::Code:: *)
+Int[(a_.+b_.*Pm_^n_.)^p_.*Qm_,x_Symbol] :=
+  Module[{m=Expon[Pm,x]},
+  Coeff[Qm,x,m-1]/(m*Coeff[Pm,x,m])*Subst[Int[(a+b*x^n)^p,x],x,Pm] /;
+ Expon[Qm,x]==m-1 && ZeroQ[Coeff[Qm,x,m-1]*D[Pm,x]-m*Coeff[Pm,x,m]*Qm]] /;
+FreeQ[{a,b,n,p},x] && PolyQ[Pm,x] && PolyQ[Qm,x]
+
+
+(* ::Code:: *)
+Int[(a_.+b_.*Pm_^n_.+c_.*Pm_^n2_.)^p_.*Qm_,x_Symbol] :=
+  Module[{m=Expon[Pm,x]},
+  Coeff[Qm,x,m-1]/(m*Coeff[Pm,x,m])*Subst[Int[(a+b*x^n+c*x^(2*n))^p,x],x,Pm] /;
+ Expon[Qm,x]==m-1 && ZeroQ[Coeff[Qm,x,m-1]*D[Pm,x]-m*Coeff[Pm,x,m]*Qm]] /;
+FreeQ[{a,b,c,n,p},x] && ZeroQ[n2-2*n] && PolyQ[Pm,x] && PolyQ[Qm,x]
+
+
+(* ::Code:: *)
+Int[u_.*Pq_^m_*Qr_^p_,x_Symbol] :=
+  Module[{gcd=PolyGCD[Pq,Qr,x]},
+  Int[u*gcd^(m+p)*PolynomialQuotient[Pq,gcd,x]^m*PolynomialQuotient[Qr,gcd,x]^p,x] /;
+ NonzeroQ[gcd-1]] /;
+PositiveIntegerQ[m] && NegativeIntegerQ[p] && PolyQ[Pq,x] && PolyQ[Qr,x]
+
+
+(* ::Code:: *)
+Int[u_.*Pq_*Qr_^p_,x_Symbol] :=
+  Module[{gcd=PolyGCD[Pq,Qr,x]},
+  Int[u*gcd^(p+1)*PolynomialQuotient[Pq,gcd,x]*PolynomialQuotient[Qr,gcd,x]^p,x] /;
+ NonzeroQ[gcd-1]] /;
+NegativeIntegerQ[p] && PolyQ[Pq,x] && PolyQ[Qr,x]
 
 
 

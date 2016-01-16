@@ -147,51 +147,51 @@ FreeQ[{a,b,m,n,p},x]
 
 
 (* ::Code:: *)
-Int[u_.*(a_.+b_.*y_^n_+c_.*v_^j_.)^p_,x_Symbol] :=
+Int[u_.*(a_.+b_.*y_^n_+c_.*v_^n2_.)^p_,x_Symbol] :=
   Module[{q=DerivativeDivides[y,u,x]},
   q*Subst[Int[(a+b*x^n+c*x^(2*n))^p,x],x,y] /;
  Not[FalseQ[q]]] /;
-FreeQ[{a,b,c,n,p},x] && ZeroQ[j-2*n] && ZeroQ[y-v]
+FreeQ[{a,b,c,n,p},x] && ZeroQ[n2-2*n] && ZeroQ[y-v]
 
 
 (* ::Code:: *)
-Int[u_.*(A_+B_.*y_^n_)(a_.+b_.*v_^n_+c_.*w_^j_.)^p_.,x_Symbol] :=
+Int[u_.*(A_+B_.*y_^n_)(a_.+b_.*v_^n_+c_.*w_^n2_.)^p_.,x_Symbol] :=
   Module[{q=DerivativeDivides[y,u,x]},
   q*Subst[Int[(A+B*x^n)*(a+b*x^n+c*x^(2*n))^p,x],x,y] /;
  Not[FalseQ[q]]] /;
-FreeQ[{a,b,c,A,B,n,p},x] && ZeroQ[j-2*n] && ZeroQ[y-v] && ZeroQ[y-w]
+FreeQ[{a,b,c,A,B,n,p},x] && ZeroQ[n2-2*n] && ZeroQ[y-v] && ZeroQ[y-w]
 
 
 (* ::Code:: *)
-Int[u_.*(A_+B_.*y_^n_)(a_.+c_.*w_^j_.)^p_.,x_Symbol] :=
+Int[u_.*(A_+B_.*y_^n_)(a_.+c_.*w_^n2_.)^p_.,x_Symbol] :=
   Module[{q=DerivativeDivides[y,u,x]},
   q*Subst[Int[(A+B*x^n)*(a+c*x^(2*n))^p,x],x,y] /;
  Not[FalseQ[q]]] /;
-FreeQ[{a,c,A,B,n,p},x] && ZeroQ[j-2*n] && ZeroQ[y-w]
+FreeQ[{a,c,A,B,n,p},x] && ZeroQ[n2-2*n] && ZeroQ[y-w]
 
 
 (* ::Code:: *)
-Int[u_.*v_^m_.*(a_.+b_.*y_^n_+c_.*w_^j_.)^p_.,x_Symbol] :=
+Int[u_.*v_^m_.*(a_.+b_.*y_^n_+c_.*w_^n2_.)^p_.,x_Symbol] :=
   Module[{q,r},
     q*r*Subst[Int[x^m*(a+b*x^n+c*x^(2*n))^p,x],x,y] /;
   Not[FalseQ[r=Divides[y^m,v^m,x]]] && Not[FalseQ[q=DerivativeDivides[y,u,x]]]] /;
-FreeQ[{a,b,c,m,n,p},x] && ZeroQ[j-2*n] && ZeroQ[y-w]
+FreeQ[{a,b,c,m,n,p},x] && ZeroQ[n2-2*n] && ZeroQ[y-w]
 
 
 (* ::Code:: *)
-Int[u_.*z_^m_.*(A_+B_.*y_^n_)*(a_.+b_.*v_^n_+c_.*w_^j_.)^p_.,x_Symbol] :=
+Int[u_.*z_^m_.*(A_+B_.*y_^n_)*(a_.+b_.*v_^n_+c_.*w_^n2_.)^p_.,x_Symbol] :=
   Module[{q,r},
     q*r*Subst[Int[x^m*(A+B*x^n)*(a+b*x^n+c*x^(2*n))^p,x],x,y] /;
   Not[FalseQ[r=Divides[y^m,z^m,x]]] && Not[FalseQ[q=DerivativeDivides[y,u,x]]]] /;
-FreeQ[{a,b,c,A,B,m,n,p},x] && ZeroQ[j-2*n] && ZeroQ[y-v] && ZeroQ[y-w]
+FreeQ[{a,b,c,A,B,m,n,p},x] && ZeroQ[n2-2*n] && ZeroQ[y-v] && ZeroQ[y-w]
 
 
 (* ::Code:: *)
-Int[u_.*z_^m_.*(A_+B_.*y_^n_)*(a_.+c_.*w_^j_.)^p_.,x_Symbol] :=
+Int[u_.*z_^m_.*(A_+B_.*y_^n_)*(a_.+c_.*w_^n2_.)^p_.,x_Symbol] :=
   Module[{q,r},
     q*r*Subst[Int[x^m*(A+B*x^n)*(a+c*x^(2*n))^p,x],x,y] /;
   Not[FalseQ[r=Divides[y^m,z^m,x]]] && Not[FalseQ[q=DerivativeDivides[y,u,x]]]] /;
-FreeQ[{a,c,A,B,m,n,p},x] && ZeroQ[j-2*n] && ZeroQ[y-w]
+FreeQ[{a,c,A,B,m,n,p},x] && ZeroQ[n2-2*n] && ZeroQ[y-w]
 
 
 (* ::Code:: *)
@@ -301,16 +301,16 @@ If[ShowSteps,
 
 Int[u_,x_Symbol] :=
   Module[{lst=SubstForFractionalPowerOfLinear[u,x]},
-  ShowStep["","Int[f[(a+b*x)^(1/n),x],x]",
-			"n/b*Subst[Int[x^(n-1)*f[x,-a/b+x^n/b],x],x,(a+b*x)^(1/n)]",Hold[
+  ShowStep["","Int[F[(a+b*x)^(1/n),x],x]",
+			"n/b*Subst[Int[x^(n-1)*F[x,-a/b+x^n/b],x],x,(a+b*x)^(1/n)]",Hold[
   lst[[2]]*lst[[4]]*Subst[Int[lst[[1]],x],x,lst[[3]]^(1/lst[[2]])]]] /;
- NotFalseQ[lst] && SubstForFractionalPowerQ[u,lst[[3]],x]] /;
+ Not[FalseQ[lst]] && SubstForFractionalPowerQ[u,lst[[3]],x]] /;
 SimplifyFlag,
 
 Int[u_,x_Symbol] :=
   Module[{lst=SubstForFractionalPowerOfLinear[u,x]},
   lst[[2]]*lst[[4]]*Subst[Int[lst[[1]],x],x,lst[[3]]^(1/lst[[2]])] /;
- NotFalseQ[lst] && SubstForFractionalPowerQ[u,lst[[3]],x]]]
+ Not[FalseQ[lst]] && SubstForFractionalPowerQ[u,lst[[3]],x]]]
 
 
 (* ::Code:: *)
@@ -318,76 +318,34 @@ If[ShowSteps,
 
 Int[u_,x_Symbol] :=
   Module[{lst=SubstForFractionalPowerOfQuotientOfLinears[u,x]},
-  ShowStep["","Int[f[((a+b*x)/(c+d*x))^(1/n),x],x]",
-"n*(b*c-a*d)*Subst[Int[x^(n-1)*f[x,(-a+c*x^n)/(b-d*x^n)]/(b-d*x^n)^2,x],x,((a+b*x)/(c+d*x))^(1/n)]",Hold[
+  ShowStep["","Int[F[((a+b*x)/(c+d*x))^(1/n),x],x]",
+"n*(b*c-a*d)*Subst[Int[x^(n-1)*F[x,(-a+c*x^n)/(b-d*x^n)]/(b-d*x^n)^2,x],x,((a+b*x)/(c+d*x))^(1/n)]",Hold[
   lst[[2]]*lst[[4]]*Subst[Int[lst[[1]],x],x,lst[[3]]^(1/lst[[2]])]]] /;
- NotFalseQ[lst]] /;
+ Not[FalseQ[lst]]] /;
 SimplifyFlag,
 
 Int[u_,x_Symbol] :=
   Module[{lst=SubstForFractionalPowerOfQuotientOfLinears[u,x]},
   lst[[2]]*lst[[4]]*Subst[Int[lst[[1]],x],x,lst[[3]]^(1/lst[[2]])] /;
- NotFalseQ[lst]]]
+ Not[FalseQ[lst]]]]
 
 
 (* ::Code:: *)
-Int[u_.*(a_*v_)^p_,x_Symbol] :=
-  a^(p-1/2)*Sqrt[a*v]/Sqrt[v]*Int[u*v^p,x] /;
-FreeQ[a,x] && PositiveIntegerQ[p+1/2]
+Int[u_.*(a_.*v_^m_.*w_^n_.*z_^q_.)^p_,x_Symbol] :=
+  a^IntPart[p]*(a*v^m*w^n*z^q)^FracPart[p]/(v^(m*FracPart[p])*w^(n*FracPart[p])*z^(q*FracPart[p]))*Int[u*v^(m*p)*w^(n*p)*z^(p*q),x] /;
+FreeQ[{a,m,n,p,q},x] && Not[IntegerQ[p]] && Not[FreeQ[v,x]] && Not[FreeQ[w,x]] && Not[FreeQ[z,x]]
 
 
 (* ::Code:: *)
-Int[u_.*(a_*v_)^p_,x_Symbol] :=
-  a^(p+1/2)*Sqrt[v]/Sqrt[a*v]*Int[u*v^p,x] /;
-FreeQ[a,x] && NegativeIntegerQ[p-1/2]
+Int[u_.*(a_.*v_^m_.*w_^n_.)^p_,x_Symbol] :=
+  a^IntPart[p]*(a*v^m*w^n)^FracPart[p]/(v^(m*FracPart[p])*w^(n*FracPart[p]))*Int[u*v^(m*p)*w^(n*p),x] /;
+FreeQ[{a,m,n,p},x] && Not[IntegerQ[p]] && Not[FreeQ[v,x]] && Not[FreeQ[w,x]]
 
 
 (* ::Code:: *)
-Int[u_.*(a_*v_)^p_,x_Symbol] :=
-  (a*v)^p/(v^p)*Int[u*v^p,x] /;
-FreeQ[{a,p},x] && Not[IntegerQ[2*p]]
-
-
-(* ::Code:: *)
-Int[u_.*(v_^m_)^p_,x_Symbol] :=
-  Sqrt[v^m]/v^(m/2)*Int[u*v^(m*p),x] /;
-FreeQ[m,x] && PositiveIntegerQ[p+1/2]
-
-
-(* ::Code:: *)
-Int[u_.*(v_^m_)^p_,x_Symbol] :=
-  v^(m/2)/Sqrt[v^m]*Int[u*v^(m*p),x] /;
-FreeQ[m,x] && NegativeIntegerQ[p-1/2]
-
-
-(* ::Code:: *)
-Int[u_.*(v_^m_)^p_,x_Symbol] :=
-  (v^m)^p/(v^(m*p))*Int[u*v^(m*p),x] /;
-FreeQ[{m,p},x] && Not[IntegerQ[2*p]]
-
-
-(* ::Code:: *)
-Int[u_.*(v_^m_.*w_^n_.)^p_,x_Symbol] :=
-  Sqrt[v^m*w^n]/(v^(m/2)*w^(n/2))*Int[u*v^(m*p)*w^(n*p),x] /;
-FreeQ[{m,n},x] && PositiveIntegerQ[p+1/2]
-
-
-(* ::Code:: *)
-Int[u_.*(v_^m_.*w_^n_.)^p_,x_Symbol] :=
-  v^(m/2)*w^(n/2)/Sqrt[v^m*w^n]*Int[u*v^(m*p)*w^(n*p),x] /;
-FreeQ[{m,n},x] && NegativeIntegerQ[p-1/2]
-
-
-(* ::Code:: *)
-Int[u_.*(v_^m_.*w_^n_.)^p_,x_Symbol] :=
-  (v^m*w^n)^p/(v^(m*p)*w^(n*p))*Int[u*v^(m*p)*w^(n*p),x] /;
-FreeQ[{m,n,p},x] && Not[IntegerQ[2*p]]
-
-
-(* ::Code:: *)
-Int[u_.*(v_^m_.*w_^n_.*z_^q_.)^p_,x_Symbol] :=
-  (v^m*w^n*z^q)^p/(v^(m*p)*w^(n*p)*z^(p*q))*Int[u*v^(m*p)*w^(n*p)*z^(p*q),x] /;
-FreeQ[{m,n,p,q},x] && Not[IntegerQ[p]]
+Int[u_.*(a_.*v_^m_.)^p_,x_Symbol] :=
+  a^IntPart[p]*(a*v^m)^FracPart[p]/v^(m*FracPart[p])*Int[u*v^(m*p),x] /;
+FreeQ[{a,m,p},x] && Not[IntegerQ[p]] && Not[FreeQ[v,x]] && Not[EqQ[a,1] && EqQ[m,1]] && Not[EqQ[v,x] && EqQ[m,1]]
 
 
 (* ::Code:: *)
@@ -398,19 +356,21 @@ FreeQ[{a,b,p},x] && IntegerQ[p+1/2] && NegativeIntegerQ[n] && Not[RationalFuncti
 
 (* ::Code:: *)
 Int[u_.*(a_.+b_.*v_^n_)^p_,x_Symbol] :=
-  (a+b*v^n)^p/(v^(n*p)*(b+a*v^(-n))^p)*Int[u*v^(n*p)*(b+a*v^(-n))^p,x] /;
+  (a+b*v^n)^FracPart[p]/(v^(n*FracPart[p])*(b+a*v^(-n))^FracPart[p])*Int[u*v^(n*p)*(b+a*v^(-n))^p,x] /;
 FreeQ[{a,b,p},x] && Not[IntegerQ[p]] && NegativeIntegerQ[n] && BinomialQ[v,x] && Not[LinearQ[v,x]]
 
 
 (* ::Code:: *)
 Int[u_.*(a_.+b_.*x_^m_.*v_^n_)^p_,x_Symbol] :=
-  (a+b*x^m*v^n)^p/(v^(n*p)*(b*x^m+a*v^(-n))^p)*Int[u*v^(n*p)*(b*x^m+a*v^(-n))^p,x] /;
+  (a+b*x^m*v^n)^FracPart[p]/(v^(n*FracPart[p])*(b*x^m+a*v^(-n))^FracPart[p])*Int[u*v^(n*p)*(b*x^m+a*v^(-n))^p,x] /;
 FreeQ[{a,b,m,p},x] && Not[IntegerQ[p]] && NegativeIntegerQ[n] && BinomialQ[v,x]
 
 
 (* ::Code:: *)
 Int[u_.*(a_.*x_^r_.+b_.*x_^s_.)^m_,x_Symbol] :=
-  (a*x^r+b*x^s)^m/(x^(m*r)*(a+b*x^(s-r))^m)*Int[u*x^(m*r)*(a+b*x^(s-r))^m,x] /;
+  With[{v=(a*x^r+b*x^s)^FracPart[m]/(x^(r*FracPart[m])*(a+b*x^(s-r))^FracPart[m])},
+  v*Int[u*x^(m*r)*(a+b*x^(s-r))^m,x] /;
+ Not[EqQ[Simplify[v],1]]] /;
 FreeQ[{a,b,m,r,s},x] && Not[IntegerQ[m]] && PosQ[s-r]
 
 
@@ -421,56 +381,21 @@ FreeQ[{a,b},x] && PositiveIntegerQ[n]
 
 
 (* ::Code:: *)
-Int[u_*(a_.+b_.*x_^n_.+c_.*x_^j_.)^p_.,x_Symbol] :=
+Int[u_*(a_.+b_.*x_^n_.+c_.*x_^n2_.)^p_.,x_Symbol] :=
   1/(4^p*c^p)*Int[u*(b+2*c*x^n)^(2*p),x] /;
-FreeQ[{a,b,c,n},x] && ZeroQ[j-2*n] && ZeroQ[b^2-4*a*c] && IntegerQ[p] && Not[AlgebraicFunctionQ[u,x]]
+FreeQ[{a,b,c,n},x] && ZeroQ[n2-2*n] && ZeroQ[b^2-4*a*c] && IntegerQ[p] && Not[AlgebraicFunctionQ[u,x]]
 
 
 (* ::Code:: *)
-Int[u_*(a_.+b_.*x_^n_.+c_.*x_^j_.)^p_,x_Symbol] :=
+Int[u_*(a_.+b_.*x_^n_.+c_.*x_^n2_.)^p_,x_Symbol] :=
   (a+b*x^n+c*x^(2*n))^p/(b+2*c*x^n)^(2*p)*Int[u*(b+2*c*x^n)^(2*p),x] /;
-FreeQ[{a,b,c,n,p},x] && ZeroQ[j-2*n] && ZeroQ[b^2-4*a*c] && Not[IntegerQ[p]] && Not[AlgebraicFunctionQ[u,x]]
+FreeQ[{a,b,c,n,p},x] && ZeroQ[n2-2*n] && ZeroQ[b^2-4*a*c] && Not[IntegerQ[p]] && Not[AlgebraicFunctionQ[u,x]]
 
 
 (* ::Code:: *)
-Int[u_/(a_.+b_.*x_^n_.+c_.*x_^j_.),x_Symbol] :=
+Int[u_/(a_.+b_.*x_^n_.+c_.*x_^n2_.),x_Symbol] :=
   Int[RationalFunctionExpand[u/(a+b*x^n+c*x^(2*n)),x],x] /;
-FreeQ[{a,b,c},x] && ZeroQ[j-2*n] && PositiveIntegerQ[n]
-
-
-(* ::Code:: *)
-If[ShowSteps,
-
-Int[u_*v_^p_,x_Symbol] :=
-  Module[{m=Exponent[u,x],n=Exponent[v,x]},
-  Module[{c=Coefficient[u,x,m]/(Coefficient[v,x,n]*(m+1+n*p)),w},
-  w=Apart[u-c*x^(m-n)*((m-n+1)*v+(p+1)*x*D[v,x]),x];
-  If[ZeroQ[w],
-    ShowStep["
-If p>1, 1<n<=m+1, and m+1-n*p<0, let c=pm/(qn*(m+1-n*p)), then if (Pm[x]-c*x^(m-n)*((m-n+1)*Qn[x]+(1-p)*x*D[Qn[x],x]))==0,",
-	  "Int[Pm[x]/Qn[x]^p,x]", "c*x^(m-n+1)/Qn[x]^(p-1)",
-      Hold[c*x^(m-n+1)*v^(p+1)]],
-  ShowStep["If p>1, 1<n<=m+1, and m+1-n*p<0, let c=pm/(qn*(m+1-n*p)), then",
-	"Int[Pm[x]/Qn[x]^p,x]",
-	"c*x^(m-n+1)/Qn[x]^(p-1)+Int[(Pm[x]-c*x^(m-n)*((m-n+1)*Qn[x]+(1-p)*x*D[Qn[x],x]))/Qn[x]^p,x]",
-	Hold[c*x^(m-n+1)*v^(p+1) + Int[w*v^p,x]]]]] /;
- m+1>=n>1 && m+n*p<-1 && FalseQ[DerivativeDivides[v,u,x]]] /;
-SimplifyFlag && RationalQ[p] && p<-1 && PolynomialQ[u,x] && PolynomialQ[v,x] && SumQ[v] && 
-Not[MonomialQ[u,x] && BinomialQ[v,x]] && 
-Not[ZeroQ[Coefficient[u,x,0]] && ZeroQ[Coefficient[v,x,0]]],
-
-Int[u_*v_^p_,x_Symbol] :=
-  Module[{m=Exponent[u,x],n=Exponent[v,x]},
-  Module[{c=Coefficient[u,x,m]/(Coefficient[v,x,n]*(m+1+n*p)),w},
-  c=Coefficient[u,x,m]/(Coefficient[v,x,n]*(m+1+n*p));
-  w=Apart[u-c*x^(m-n)*((m-n+1)*v+(p+1)*x*D[v,x]),x];
-  If[ZeroQ[w],
-    c*x^(m-n+1)*v^(p+1),
-  c*x^(m-n+1)*v^(p+1) + Int[w*v^p,x]]] /;
- m+1>=n>1 && m+n*p<-1 && FalseQ[DerivativeDivides[v,u,x]]] /;
-RationalQ[p] && p<-1 && PolynomialQ[u,x] && PolynomialQ[v,x] && SumQ[v] && 
-Not[MonomialQ[u,x] && BinomialQ[v,x]] && 
-Not[ZeroQ[Coefficient[u,x,0]] && ZeroQ[Coefficient[v,x,0]]]]
+FreeQ[{a,b,c},x] && ZeroQ[n2-2*n] && PositiveIntegerQ[n]
 
 
 (* ::Code:: *)
@@ -520,13 +445,13 @@ Int[u_*x_^m_.,x_Symbol] :=
   ShowStep["If g=GCD[m+1,n]>1,","Int[x^m*F[x^n],x]",
 		"1/g*Subst[Int[x^((m+1)/g-1)*F[x^(n/g)],x],x,x^g]",Hold[
   1/lst[[2]]*Subst[Int[NormalizeIntegrand[Simplify[lst[[1]]/x],x],x],x,(lst[[3]]*x)^lst[[2]]]]] /;
- NotFalseQ[lst] && NonzeroQ[lst[[2]]-m-1]] /;
+ Not[FalseQ[lst]] && NonzeroQ[lst[[2]]-m-1]] /;
 SimplifyFlag && IntegerQ[m] && m!=-1 && NonsumQ[u] && (m>0 || Not[AlgebraicFunctionQ[u,x]]),
 
 Int[u_*x_^m_.,x_Symbol] :=
   Module[{lst=PowerVariableExpn[u,m+1,x]},
   1/lst[[2]]*Subst[Int[NormalizeIntegrand[Simplify[lst[[1]]/x],x],x],x,(lst[[3]]*x)^lst[[2]]] /;
- NotFalseQ[lst] && NonzeroQ[lst[[2]]-m-1]] /;
+ Not[FalseQ[lst]] && NonzeroQ[lst[[2]]-m-1]] /;
 IntegerQ[m] && m!=-1 && NonsumQ[u] && (m>0 || Not[AlgebraicFunctionQ[u,x]])]
 
 
@@ -641,9 +566,9 @@ FreeQ[{a,b,c,d,m,n,p,q},x] && ZeroQ[a+d] && ZeroQ[b+c] && ZeroQ[m+n] && ZeroQ[p+
 
 
 (* ::Code:: *)
-Int[u_*(a_+b_.*x_^n_.+c_.*x_^j_.)^p_, x_Symbol] :=
+Int[u_*(a_+b_.*x_^n_.+c_.*x_^n2_.)^p_, x_Symbol] :=
   Sqrt[a+b*x^n+c*x^(2*n)]/((4*c)^(p-1/2)*(b+2*c*x^n))*Int[u*(b+2*c*x^n)^(2*p),x] /;
-FreeQ[{a,b,c,n,p},x] && ZeroQ[j-2*n] && ZeroQ[b^2-4*a*c] && IntegerQ[p-1/2]
+FreeQ[{a,b,c,n,p},x] && ZeroQ[n2-2*n] && ZeroQ[b^2-4*a*c] && IntegerQ[p-1/2]
 
 
 (* ::Code:: *)
@@ -654,13 +579,13 @@ Int[u_,x_Symbol] :=
   ShowStep["","Int[f[(a+b*x)^(1/n),x],x]",
 			"n/b*Subst[Int[x^(n-1)*f[x,-a/b+x^n/b],x],x,(a+b*x)^(1/n)]",Hold[
   lst[[2]]*lst[[4]]*Subst[Int[lst[[1]],x],x,lst[[3]]^(1/lst[[2]])]]] /;
- NotFalseQ[lst]] /;
+ Not[FalseQ[lst]]] /;
 SimplifyFlag,
 
 Int[u_,x_Symbol] :=
   Module[{lst=SubstForFractionalPowerOfLinear[u,x]},
   lst[[2]]*lst[[4]]*Subst[Int[lst[[1]],x],x,lst[[3]]^(1/lst[[2]])] /;
- NotFalseQ[lst]]]
+ Not[FalseQ[lst]]]]
 
 
 (* ::Code:: *)

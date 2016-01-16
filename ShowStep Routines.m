@@ -1,13 +1,24 @@
 (* ::Package:: *)
 
-(* ShowSteps controls both the use of special definitions when defining rules AND the display of
-	steps when simplify expressions. *) 
+(* ShowSteps controls the use of special definitions when defining rules AND display of steps when simplify expressions. *) 
 If[ShowSteps=!=False, ShowSteps=True];
 SimplifyFlag=True;
 
 
+(* If MultiStep is True, all the rules required to integrate an expression are displayed. *)  
+If[MultiStep=!=True, MultiStep=False];
+
+
 $ConditionColor=Blue;
 $RuleColor=Red;
+
+
+StepInt[u_,x_Symbol] :=
+ Block[{ShowSteps=True},
+  FixedPoint[
+    Function[Print[#]; 
+    ReplaceAll[#,{Defer[Int]->Int,Defer[Dist]->Dist,Defer[Subst]->Subst}]],Int[u,x]];
+  Null]
 
 
 (* If func is a function defined using properly defined transformation rules,
@@ -52,7 +63,7 @@ ModifyRule[num_,rule_RuleDelayed, flag_] :=
   lhsStrg=FormatLhs[rule];
   If[rule[[2,0]]===Condition,
     condStrg=FormatConditions[Extract[rule,{2,2},Defer]];
-    If[rule[[2,1,0]]===Module || rule[[2,1,0]]===Block,
+    If[rule[[2,1,0]]===With || rule[[2,1,0]]===Module || rule[[2,1,0]]===Block,
       letStrg=FormatLets[Extract[rule,{2,1,1},Defer]];
       If[rule[[2,1,2,0]]===Condition,
         condStrg=SpliceConditionString[condStrg,letStrg,FormatConditions[Extract[rule,{2,1,2,2},Defer]]];
@@ -64,7 +75,7 @@ ModifyRule[num_,rule_RuleDelayed, flag_] :=
     condStrg=SpliceConditionString[condStrg,"",""];
 	rhsStrg=FormatRhs[Extract[rule,{2,1},Defer]];
     WrapCondition[ReplacePart[rule, ShowStep[num,condStrg,lhsStrg,rhsStrg,Extract[rule,{2,1},Hold]], {2,1}], flag]],
-  If[rule[[2,0]]===Module || rule[[2,0]]===Block,
+  If[rule[[2,0]]===With || rule[[2,0]]===Module || rule[[2,0]]===Block,
     letStrg=FormatLets[Extract[rule,{2,1},Defer]];
     If[rule[[2,2,0]]===Condition,
       condStrg=FormatConditions[Extract[rule,{2,2,2},Defer]];
@@ -170,7 +181,7 @@ DeleteCondition[func_,conditions_] :=
   Delete[conditions,{1,Position[conditions,func,{3},1][[1,2]]}]] 
 
 
-(* let is a body of a Module or Block statement.  FormatLets[let] returns the assignment as a
+(* let is a body of a With, Module or Block statement.  FormatLets[let] returns the assignment as a
 	string in the form "var=expression, then" formatted in Mathematica's StandardForm. *)
 FormatLets[let_] :=
   If[MatchQ[let,Defer[{u_}]],
@@ -227,8 +238,10 @@ ShowStep[condStrg_,lhsStrg_,rhsStrg_,rhs_] := (
   If[ShowSteps,
     Print["Rule: ",Style[condStrg,$ConditionColor]];
     Print["  ",Style[ToExpression["Defer["<>lhsStrg<>"]"],$RuleColor],Style[" \[LongRightArrow] ",Bold],Style[ToExpression["Defer["<>rhsStrg<>"]"],$RuleColor]];
+    If[MultiStep,
+      ReleaseHold[rhs],
     Block[{SimplifyFlag=False},
-    ReleaseHold[rhs]],
+    ReleaseHold[rhs]]],
   ReleaseHold[rhs]] )
 
 ShowStep[num_,condStrg_,lhsStrg_,rhsStrg_,rhs_] := (
@@ -236,8 +249,10 @@ ShowStep[num_,condStrg_,lhsStrg_,rhsStrg_,rhs_] := (
   If[ShowSteps,
     Print["Rule ",num+1,": ",Style[condStrg,$ConditionColor]];
     Print["  ",Style[ToExpression["Defer["<>lhsStrg<>"]"],$RuleColor],Style[" \[LongRightArrow] ",Bold],Style[ToExpression["Defer["<>rhsStrg<>"]"],$RuleColor]];
+    If[MultiStep,
+      ReleaseHold[rhs],
     Block[{SimplifyFlag=False},
-    ReleaseHold[rhs]],
+    ReleaseHold[rhs]]],
   ReleaseHold[rhs]] )
 
 

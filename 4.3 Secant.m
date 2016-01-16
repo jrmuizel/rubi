@@ -3293,17 +3293,13 @@ FreeQ[{a,b,c,d,e,f,m,n},x] && NonzeroQ[b*c-a*d] && IntegerQ[m-1/2] && IntegerQ[n
 
 
 Int[(g_.*sec[e_.+f_.*x_])^p_.*(a_+b_.*sec[e_.+f_.*x_])^m_.*(c_+d_.*sec[e_.+f_.*x_])^n_.,x_Symbol] :=
-  Module[{u=ExpandTrig[(a+b*sec[e+f*x])^m*(c+d*sec[e+f*x])^n*(g*sec[e+f*x])^p,x]},
-  Int[u,x] /;
- SumQ[u]] /;
-FreeQ[{a,b,c,d,e,f,g,n,p},x] && NonzeroQ[b*c-a*d]
+  Int[ExpandTrig[(a+b*sec[e+f*x])^m*(c+d*sec[e+f*x])^n*(g*sec[e+f*x])^p,x],x] /;
+FreeQ[{a,b,c,d,e,f,g,n,p},x] && NonzeroQ[b*c-a*d] && (IntegersQ[m,n] || IntegersQ[m,p] || IntegersQ[n,p])
 
 
 Int[(a_+b_.*csc[e_.+f_.*x_])^m_.*(c_+d_.*csc[e_.+f_.*x_])^n_.*(g_.*csc[e_.+f_.*x_])^p_.,x_Symbol] :=
-  Module[{u=ExpandTrig[(a+b*csc[e+f*x])^m*(c+d*csc[e+f*x])^n*(g*csc[e+f*x])^p,x]},
-  Int[u,x] /;
- SumQ[u]] /;
-FreeQ[{a,b,c,d,e,f,g,n,p},x] && NonzeroQ[b*c-a*d]
+  Int[ExpandTrig[(a+b*csc[e+f*x])^m*(c+d*csc[e+f*x])^n*(g*csc[e+f*x])^p,x],x] /;
+FreeQ[{a,b,c,d,e,f,g,n,p},x] && NonzeroQ[b*c-a*d] && (IntegersQ[m,n] || IntegersQ[m,p] || IntegersQ[n,p])
 
 
 Int[(g_.*sec[e_.+f_.*x_])^p_.*(a_+b_.*sec[e_.+f_.*x_])^m_.*(c_+d_.*sec[e_.+f_.*x_])^n_.,x_Symbol] :=
@@ -3328,6 +3324,9 @@ Int[csc[e_.+f_.*x_]*(A_+B_.*csc[e_.+f_.*x_])/(Sqrt[a_+b_.*csc[e_.+f_.*x_]]*(c_+d
     (f*(b*c-a*d)*Rt[(c+d)/(a+b),2]*Cot[e+f*x]*Sqrt[-(b*c-a*d)*(1+Csc[e+f*x])/((a-b)*(c+d*Csc[e+f*x]))])*
     EllipticE[ArcSin[Rt[(c+d)/(a+b),2]*Sqrt[a+b*Csc[e+f*x]]/Sqrt[c+d*Csc[e+f*x]]],(a+b)*(c-d)/((a-b)*(c+d))] /;
 FreeQ[{a,b,c,d,e,f,A,B},x] && NonzeroQ[b*c-a*d] && NonzeroQ[a^2-b^2] && NonzeroQ[c^2-d^2] && ZeroQ[A-B]
+
+
+
 
 
 (* ::Subsection::Closed:: *)

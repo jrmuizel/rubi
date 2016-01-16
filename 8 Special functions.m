@@ -5,7 +5,7 @@
 
 
 (* ::Subsection::Closed:: *)
-(*1. Error Functions*)
+(*1 Error functions*)
 
 
 Int[Erf[a_.+b_.*x_],x_Symbol] :=
@@ -183,7 +183,7 @@ FreeQ[{a,b},x] && PositiveIntegerQ[m]
 
 
 (* ::Subsection::Closed:: *)
-(*2. Fresnel Integral Functions*)
+(*2 Fresnel integral functions*)
 
 
 Int[FresnelS[a_.+b_.*x_],x_Symbol] :=
@@ -335,7 +335,7 @@ FreeQ[{b,c},x] && ZeroQ[c-Pi/2*b^2] && IntegerQ[m] && m<-1 && Mod[m,4]==2
 
 
 (* ::Subsection::Closed:: *)
-(*3. Exponential Integral Functions*)
+(*3 Exponential integral functions*)
 
 
 Int[ExpIntegralE[n_,a_.+b_.*x_],x_Symbol] :=
@@ -458,7 +458,7 @@ FreeQ[{a,b,m},x] && NonzeroQ[m+1]
 
 
 (* ::Subsection::Closed:: *)
-(*4. Trig Integral Functions*)
+(*4 Trig integral functions*)
 
 
 Int[SinIntegral[a_.+b_.*x_],x_Symbol] :=
@@ -634,7 +634,7 @@ FreeQ[{a,b,c,d},x] && IntegerQ[m] && m<-1
 
 
 (* ::Subsection::Closed:: *)
-(*5. Hyperbolic Integral Functions*)
+(*5 Hyperbolic integral functions*)
 
 
 Int[SinhIntegral[a_.+b_.*x_],x_Symbol] :=
@@ -810,7 +810,7 @@ FreeQ[{a,b,c,d},x] && IntegerQ[m] && m<-1
 
 
 (* ::Subsection::Closed:: *)
-(*6. Gamma Functions*)
+(*6 Gamma functions*)
 
 
 Int[Gamma[n_,a_.+b_.*x_],x_Symbol] :=
@@ -884,7 +884,7 @@ FreeQ[{a,b,c,n},x] && ZeroQ[a-c+1]
 
 
 (* ::Subsection::Closed:: *)
-(*7. Zeta Functions*)
+(*7 Zeta function*)
 
 
 Int[Zeta[2,a_.+b_.*x_],x_Symbol] :=
@@ -915,7 +915,7 @@ FreeQ[{a,b,s},x] && NonzeroQ[s-1] && NonzeroQ[s-2] && RationalQ[m] && m<-1
 
 
 (* ::Subsection::Closed:: *)
-(*8. Polylogarithm Functions*)
+(*8 Polylogarithm function*)
 
 
 Int[PolyLog[n_,a_.*(b_.*x_^p_.)^q_.],x_Symbol] :=
@@ -983,14 +983,14 @@ FreeQ[{F,a,b,c,d,e,f,n,p},x] && RationalQ[m] && m>0
 
 
 Int[u_*PolyLog[n_,v_],x_Symbol] :=
-  Module[{w=DerivativeDivides[v,u*v,x]},
+  With[{w=DerivativeDivides[v,u*v,x]},
   w*PolyLog[n+1,v] /;
  Not[FalseQ[w]]] /;
 FreeQ[n,x]
 
 
 Int[u_*Log[w_]*PolyLog[n_,v_],x_Symbol] :=
-  Module[{z=DerivativeDivides[v,u*v,x]},
+  With[{z=DerivativeDivides[v,u*v,x]},
   z*Log[w]*PolyLog[n+1,v] - 
   Int[SimplifyIntegrand[z*D[w,x]*PolyLog[n+1,v]/w,x],x] /;
  Not[FalseQ[z]]] /;
@@ -998,7 +998,7 @@ FreeQ[n,x] && InverseFunctionFreeQ[w,x]
 
 
 (* ::Subsection::Closed:: *)
-(*9. Product Logarithm Functions*)
+(*9 Product logarithm function*)
 
 
 Int[(c_.*ProductLog[a_.+b_.*x_])^p_,x_Symbol] :=
