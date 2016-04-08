@@ -659,17 +659,15 @@ Int[(d_+e_.*x_^n_)^q_*(a_+c_.*x_^n2_),x_Symbol] :=
 FreeQ[{a,c,d,e,n,q},x] && ZeroQ[n2-2*n] && NonzeroQ[c*d^2+a*e^2]
 
 
+(* Int[(d_+e_.*x_^2)/(a_+c_.*x_^4),x_Symbol] :=
+  e^2/c*Subst[Int[1/(1+2*d*e*x^2),x],x,x/(d-e*x^2)] /;
+FreeQ[{a,c,d,e},x] && ZeroQ[c*d^2-a*e^2] *)
+
+
 Int[(d_+e_.*x_^2)/(a_+c_.*x_^4),x_Symbol] :=
   e^2/(2*c)*Int[1/(d-Rt[2*d*e,2]*x+e*x^2),x] + 
   e^2/(2*c)*Int[1/(d+Rt[2*d*e,2]*x+e*x^2),x] /;
 FreeQ[{a,c,d,e},x] && ZeroQ[c*d^2-a*e^2] && PosQ[d*e]
-
-
-(* Int[(d_+e_.*x_^2)/(a_+c_.*x_^4),x_Symbol] :=
-  With[{q=Rt[-2*d*e,2]},
-  d/(2*a)*Int[(d-q*x)/(d-q*x-e*x^2),x] + 
-  d/(2*a)*Int[(d+q*x)/(d+q*x-e*x^2),x]] /;
-FreeQ[{a,c,d,e},x] && ZeroQ[c*d^2-a*e^2] && NegQ[d*e] *)
 
 
 Int[(d_+e_.*x_^2)/(a_+c_.*x_^4),x_Symbol] :=
@@ -965,6 +963,36 @@ FreeQ[{a,c,d,e,n,p,q},x] && ZeroQ[n2-2*n] && ZeroQ[u-w] && LinearQ[u,x] && Nonze
 (* ::Subsection::Closed:: *)
 (*4.4 (f x)^m (d+e x^n)^q (a+b x^n+c x^(2 n))^p*)
 (**)
+
+
+Int[x_^m_.*(e_.*x_^n_)^q_*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_.,x_Symbol] :=
+  1/(n*e^((m+1)/n-1))*Subst[Int[(e*x)^(q+(m+1)/n-1)*(a+b*x+c*x^2)^p,x],x,x^n] /;
+FreeQ[{a,b,c,e,m,n,p,q},x] && ZeroQ[n2-2*n] && IntegerQ[Simplify[(m+1)/n]]
+
+
+Int[x_^m_.*(e_.*x_^n_)^q_*(a_+c_.*x_^n2_.)^p_.,x_Symbol] :=
+  1/(n*e^((m+1)/n-1))*Subst[Int[(e*x)^(q+(m+1)/n-1)*(a+c*x^2)^p,x],x,x^n] /;
+FreeQ[{a,c,e,m,n,p,q},x] && ZeroQ[n2-2*n] && IntegerQ[Simplify[(m+1)/n]]
+
+
+Int[x_^m_.*(e_.*x_^n_)^q_*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_.,x_Symbol] :=
+  e^IntPart[q]*(e*x^n)^FracPart[q]/x^(n*FracPart[q])*Int[x^(m+n*p)*(a+b*x^n+c*x^(2*n))^p,x] /;
+FreeQ[{a,b,c,e,m,n,p,q},x] && ZeroQ[n2-2*n] && Not[IntegerQ[Simplify[(m+1)/n]]]
+
+
+Int[x_^m_.*(e_.*x_^n_)^q_*(a_+c_.*x_^n2_.)^p_.,x_Symbol] :=
+  e^IntPart[q]*(e*x^n)^FracPart[q]/x^(n*FracPart[q])*Int[x^(m+n*p)*(a+c*x^(2*n))^p,x] /;
+FreeQ[{a,c,e,m,n,p,q},x] && ZeroQ[n2-2*n] && Not[IntegerQ[Simplify[(m+1)/n]]]
+
+
+Int[(f_*x_)^m_.*(e_.*x_^n_)^q_*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_.,x_Symbol] :=
+  f^IntPart[m]*(f*x)^FracPart[m]/x^FracPart[m]*Int[x^m*(e*x^n)^q*(a+b*x^n+c*x^(2*n))^p,x] /;
+FreeQ[{a,b,c,e,f,m,n,p,q},x] && ZeroQ[n2-2*n]
+
+
+Int[(f_*x_)^m_.*(e_.*x_^n_)^q_*(a_+c_.*x_^n2_.)^p_.,x_Symbol] :=
+  f^IntPart[m]*(f*x)^FracPart[m]/x^FracPart[m]*Int[x^m*(e*x^n)^q*(a+c*x^(2*n))^p,x] /;
+FreeQ[{a,c,e,f,m,n,p,q},x] && ZeroQ[n2-2*n]
 
 
 Int[x_^m_.*(d_+e_.*x_^n_)^q_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_.,x_Symbol] :=

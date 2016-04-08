@@ -230,7 +230,7 @@ NotIntegrableQ[u_,x_Symbol] :=
 
 
 (* ::Section::Closed:: *)
-(*Expression type recognizers*)
+(*Expression type predicates*)
 
 
 (* ::Subsection::Closed:: *)
@@ -525,6 +525,13 @@ EqQ[u_,v_] := ZeroQ[u-v]
 
 (* ::Subsection::Closed:: *)
 (*PolyQ[u,x]*)
+
+
+(* PolyQ[u,x,n] returns True iff u is a polynomial of degree n. *)
+PolyQ[u_,x_Symbol,n_Integer] :=
+  If[ListQ[u],
+    Catch[Scan[Function[If[Not[PolyQ[#,x,n]],Throw[False]]],u]; True],
+  PolynomialQ[u,x] && Exponent[u,x]==n && Coefficient[u,x,n]=!=0]
 
 
 (* Mathematica's built-in PolynomialQ, Exponent and Coefficient functions can return erroneous results because they do not *)
@@ -1411,25 +1418,13 @@ PowerOfLinearQ[u_^m_.,x_Symbol] :=
 
 
 (* ::Item:: *)
-(*QuadraticQ[u,x] returns True iff u is a polynomial of degree 2*)
+(*QuadraticQ[u,x] returns True iff u is a polynomial of degree 2 and not a monomial of the form a x^2.*)
 
 
 QuadraticQ[u_,x_Symbol] :=
-  PolyQ[u,x,2]
-
-
-(* ::Input:: *)
-(* *)
-
-
-(* ::Item:: *)
-(*PolyQ[u,x,n] returns True iff u is a polynomial of degree n.*)
-
-
-PolyQ[u_,x_Symbol,n_Integer] :=
   If[ListQ[u],
-    Catch[Scan[Function[If[Not[PolyQ[#,x,n]],Throw[False]]],u]; True],
-  PolynomialQ[u,x] && Exponent[u,x]==n && Coefficient[u,x,n]=!=0]
+    Catch[Scan[Function[If[Not[QuadraticQ[#,x]],Throw[False]]],u]; True],
+  PolyQ[u,x,2] && Not[Coefficient[u,x,0]===0 && Coefficient[u,x,1]===0]]
 
 
 (* ::Input:: *)
@@ -1442,10 +1437,6 @@ PolyQ[u_,x_Symbol,n_Integer] :=
 
 LinearPairQ[u_,v_,x_Symbol] :=
   LinearQ[u,x] && LinearQ[v,x] && NonzeroQ[u-x] && ZeroQ[Coefficient[u,x,0]*Coefficient[v,x,1]-Coefficient[u,x,1]*Coefficient[v,x,0]]
-
-
-(* ::Input:: *)
-(* *)
 
 
 (* ::Input:: *)
@@ -3685,7 +3676,7 @@ FreeQ[{a,b,c},x] && IntegerQ[n] && ZeroQ[j-2*n] && NegativeIntegerQ[p] && Nonzer
 ExpandIntegrand[u_^m_.*(a_.+b_.*u_^n_.+c_.*u_^j_.)^p_,x_Symbol] :=
   Module[{q},
   ReplaceAll[ExpandIntegrand[1/(4^p*c^p),x^m*(b-q+2*c*x^n)^p*(b+q+2*c*x^n)^p,x],{q->Rt[b^2-4*a*c,2],x->u}]] /;
-FreeQ[{a,b,c},x] && IntegersQ[m,n,j] && ZeroQ[j-2*n] && NegativeIntegerQ[p] && 0<m<2*n && m!=n && NonzeroQ[b^2-4*a*c]
+FreeQ[{a,b,c},x] && IntegersQ[m,n,j] && ZeroQ[j-2*n] && NegativeIntegerQ[p] && 0<m<2*n && Not[m==n && p==-1] && NonzeroQ[b^2-4*a*c]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -4034,6 +4025,21 @@ Dist[u_,v_,x_] :=
   If[ShowSteps=!=True,
     Simp[u*v,x],
   Defer[Dist][u,v,x]]]]]]]]]
+
+
+(* ::Subsection::Closed:: *)
+(*DistributeDegree*)
+
+
+(* DistributeDegree[u,m] returns the product of the factors of u each raised to the mth degree. *)
+DistributeDegree[u_,m_] :=
+  If[AtomQ[u],
+    u^m,
+  If[PowerQ[u],
+    u[[1]]^(u[[2]]*m),
+  If[ProductQ[u],
+    Map[Function[DistributeDegree[#,m]],u],
+  u^m]]]
 
 
 (* ::Section::Closed:: *)
@@ -6131,144 +6137,231 @@ FixInertTrigFunction[u_.*(a_*(b_+v_))^n_,x_] :=
 FreeQ[{a,b,n},x] && Not[FreeQ[v,x]]
 
 
-FixInertTrigFunction[sec[v_]^m_.*(c_.*sin[w_])^n_.,x_] :=
-  FixInertTrigFunction[cos[v]^(-m)*(c*sin[w])^n,x] /;
-FreeQ[{c,n},x] && IntegerQ[m]
-
 FixInertTrigFunction[csc[v_]^m_.*(c_.*sin[w_])^n_.,x_] :=
-  FixInertTrigFunction[sin[v]^(-m)*(c*sin[w])^n,x] /;
+  sin[v]^(-m)*(c*sin[w])^n /;
 FreeQ[{c,n},x] && IntegerQ[m]
 
 FixInertTrigFunction[sec[v_]^m_.*(c_.*cos[w_])^n_.,x_] :=
-  FixInertTrigFunction[cos[v]^(-m)*(c*cos[w])^n,x] /;
+  cos[v]^(-m)*(c*cos[w])^n /;
+FreeQ[{c,n},x] && IntegerQ[m]
+
+FixInertTrigFunction[cot[v_]^m_.*(c_.*tan[w_])^n_.,x_] :=
+  tan[v]^(-m)*(c*tan[w])^n /;
+FreeQ[{c,n},x] && IntegerQ[m]
+
+FixInertTrigFunction[tan[v_]^m_.*(c_.*cot[w_])^n_.,x_] :=
+  cot[v]^(-m)*(c*cot[w])^n /;
+FreeQ[{c,n},x] && IntegerQ[m]
+
+FixInertTrigFunction[cos[v_]^m_.*(c_.*sec[w_])^n_.,x_] :=
+  sec[v]^(-m)*(c*sec[w])^n /;
+FreeQ[{c,n},x] && IntegerQ[m]
+
+FixInertTrigFunction[sin[v_]^m_.*(c_.*csc[w_])^n_.,x_] :=
+  csc[v]^(-m)*(c*csc[w])^n /;
+FreeQ[{c,n},x] && IntegerQ[m]
+
+
+FixInertTrigFunction[sec[v_]^m_.*(c_.*sin[w_])^n_.,x_] :=
+  cos[v]^(-m)*(c*sin[w])^n /;
 FreeQ[{c,n},x] && IntegerQ[m]
 
 FixInertTrigFunction[csc[v_]^m_.*(c_.*cos[w_])^n_.,x_] :=
-  FixInertTrigFunction[sin[v]^(-m)*(c*cos[w])^n,x] /;
+  sin[v]^(-m)*(c*cos[w])^n /;
 FreeQ[{c,n},x] && IntegerQ[m]
 
+FixInertTrigFunction[cos[v_]^m_.*(c_.*tan[w_])^n_.,x_] :=
+  sec[v]^(-m)*(c*tan[w])^n /;
+FreeQ[{c,n},x] && IntegerQ[m]
+
+FixInertTrigFunction[sin[v_]^m_.*(c_.*cot[w_])^n_.,x_] :=
+  csc[v]^(-m)*(c*cot[w])^n /;
+FreeQ[{c,n},x] && IntegerQ[m]
+
+FixInertTrigFunction[sin[v_]^m_.*(c_.*sec[w_])^n_.,x_] :=
+  csc[v]^(-m)*(c*sec[w])^n /;
+FreeQ[{c,n},x] && IntegerQ[m]
+
+FixInertTrigFunction[cos[v_]^m_.*(c_.*csc[w_])^n_.,x_] :=
+  sec[v]^(-m)*(c*csc[w])^n /;
+FreeQ[{c,n},x] && IntegerQ[m]
+
+
+FixInertTrigFunction[cot[v_]^m_.*(c_.*sin[w_])^n_.,x_] :=
+  tan[v]^(-m)*(c*sin[w])^n /;
+FreeQ[{c,n},x] && IntegerQ[m]
+
+FixInertTrigFunction[tan[v_]^m_.*(c_.*cos[w_])^n_.,x_] :=
+  cot[v]^(-m)*(c*cos[w])^n /;
+FreeQ[{c,n},x] && IntegerQ[m]
+
+FixInertTrigFunction[csc[v_]^m_.*(c_.*tan[w_])^n_.,x_] :=
+  sin[v]^(-m)*(c*tan[w])^n /;
+FreeQ[{c,n},x] && IntegerQ[m]
+
+FixInertTrigFunction[sec[v_]^m_.*(c_.*cot[w_])^n_.,x_] :=
+  cos[v]^(-m)*(c*cot[w])^n /;
+FreeQ[{c,n},x] && IntegerQ[m]
+
+FixInertTrigFunction[cot[v_]^m_.*(c_.*sec[w_])^n_.,x_] :=
+  tan[v]^(-m)*(c*sec[w])^n /;
+FreeQ[{c,n},x] && IntegerQ[m]
+
+FixInertTrigFunction[tan[v_]^m_.*(c_.*csc[w_])^n_.,x_] :=
+  cot[v]^(-m)*(c*csc[w])^n /;
+FreeQ[{c,n},x] && IntegerQ[m]
+
+
 FixInertTrigFunction[sec[v_]^m_.*sec[w_]^n_.,x_] :=
-  FixInertTrigFunction[cos[v]^(-m)*cos[w]^(-n),x] /;
+  cos[v]^(-m)*cos[w]^(-n) /;
 IntegersQ[m,n]
 
 FixInertTrigFunction[csc[v_]^m_.*csc[w_]^n_.,x_] :=
-  FixInertTrigFunction[sin[v]^(-m)*sin[w]^(-n),x] /;
+  sin[v]^(-m)*sin[w]^(-n) /;
 IntegersQ[m,n]
 
 
-(* FixInertTrigFunction[u_.*csc[v_]^m_.*sec[v_]^n_.,x_] :=
-  FixInertTrigFunction[u*sin[v]^(-m)*cos[v]^(-n),x] /;
-FreeQ[{c,d},x] && IntegersQ[m,n] *)
+FixInertTrigFunction[u_.*(c_.*sin[v_]^n_.)^p_.*w_,x_] :=
+  (c*sin[v]^n)^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sin,x]
+
+FixInertTrigFunction[u_.*(c_.*cos[v_]^n_.)^p_.*w_,x_] :=
+  (c*cos[v]^n)^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,cos,x]
+
+FixInertTrigFunction[u_.*(c_.*tan[v_]^n_.)^p_.*w_,x_] :=
+  (c*tan[v]^n)^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,tan,x]
+
+FixInertTrigFunction[u_.*(c_.*cot[v_]^n_.)^p_.*w_,x_] :=
+  (c*cot[v]^n)^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,cot,x]
+
+FixInertTrigFunction[u_.*(c_.*sec[v_]^n_.)^p_.*w_,x_] :=
+  (c*sec[v]^n)^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sec,x]
+
+FixInertTrigFunction[u_.*(c_.*csc[v_]^n_.)^p_.*w_,x_] :=
+  (c*csc[v]^n)^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,csc,x]
 
 
 FixInertTrigFunction[cot[v_]^m_.*(a_+b_.*(c_.*sin[w_])^p_)^n_.,x_] :=
-  FixInertTrigFunction[tan[v]^(-m)*(a+b*(c*sin[w])^p)^n,x] /;
+  tan[v]^(-m)*(a+b*(c*sin[w])^p)^n /;
 FreeQ[{a,b,c,n,p},x] && IntegerQ[m]
 
 FixInertTrigFunction[u_.*tan[v_]^m_.*(a_+b_.*sin[w_])^n_.,x_] :=
-  FixInertTrigFunction[u*sin[v]^m/cos[v]^m*(a+b*sin[w])^n,x] /;
+  sin[v]^m/cos[v]^m*FixInertTrigFunction[u*(a+b*sin[w])^n,x] /;
 FreeQ[{a,b,n},x] && IntegerQ[m]
 
 FixInertTrigFunction[u_.*cot[v_]^m_.*(a_+b_.*sin[w_])^n_.,x_] :=
-  FixInertTrigFunction[u*cos[v]^m/sin[v]^m*(a+b*sin[w])^n,x] /;
+  cos[v]^m/sin[v]^m*FixInertTrigFunction[u*(a+b*sin[w])^n,x] /;
 FreeQ[{a,b,n},x] && IntegerQ[m]
 
-FixInertTrigFunction[u_.*sec[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*cos[v]^(-m)*w,x] /;
-InertTrigSumQ[w,sin,x] && IntegerQ[m]
+FixInertTrigFunction[u_.*(c_.*sec[v_]^n_.)^p_.*w_,x_] :=
+  (c*cos[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sin,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*csc[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*sin[v]^(-m)*w,x] /;
-InertTrigSumQ[w,sin,x] && IntegerQ[m]
+FixInertTrigFunction[u_.*(c_.*csc[v_]^n_.)^p_.*w_,x_] :=
+  (c*sin[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sin,x] && IntegerQ[n]
 
 
 FixInertTrigFunction[tan[v_]^m_.*(a_+b_.*(c_.*cos[w_])^p_)^n_.,x_] :=
-  FixInertTrigFunction[cot[v]^(-m)*(a+b*(c*cos[w])^p)^n,x] /;
+  cot[v]^(-m)*(a+b*(c*cos[w])^p)^n /;
 FreeQ[{a,b,c,n,p},x] && IntegerQ[m]
 
 FixInertTrigFunction[u_.*tan[v_]^m_.*(a_+b_.*cos[w_])^n_.,x_] :=
-  FixInertTrigFunction[u*sin[v]^m/cos[v]^m*(a+b*cos[w])^n,x] /;
+  sin[v]^m/cos[v]^m*FixInertTrigFunction[u*(a+b*cos[w])^n,x] /;
 FreeQ[{a,b,n},x] && IntegerQ[m]
 
 FixInertTrigFunction[u_.*cot[v_]^m_.*(a_+b_.*cos[w_])^n_.,x_] :=
-  FixInertTrigFunction[u*cos[v]^m/sin[v]^m*(a+b*cos[w])^n,x] /;
+  cos[v]^m/sin[v]^m*FixInertTrigFunction[u*(a+b*cos[w])^n,x] /;
 FreeQ[{a,b,n},x] && IntegerQ[m]
 
-FixInertTrigFunction[u_.*sec[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*cos[v]^(-m)*w,x] /;
-InertTrigSumQ[w,cos,x] && IntegerQ[m]
+FixInertTrigFunction[u_.*(c_.*csc[v_]^n_.)^p_.*w_,x_] :=
+  (c*sin[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,cos,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*csc[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*sin[v]^(-m)*w,x] /;
-InertTrigSumQ[w,cos,x] && IntegerQ[m]
-
-
-FixInertTrigFunction[u_.*cot[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*tan[v]^(-m)*w,x] /;
-InertTrigSumQ[w,tan,x] && IntegerQ[m]
-
-FixInertTrigFunction[u_.*sec[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*cos[v]^(-m)*w,x] /;
-InertTrigSumQ[w,tan,x] && IntegerQ[m]
-
-FixInertTrigFunction[u_.*csc[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*sin[v]^(-m)*w,x] /;
-InertTrigSumQ[w,tan,x] && IntegerQ[m]
+FixInertTrigFunction[u_.*(c_.*sec[v_]^n_.)^p_.*w_,x_] :=
+  (c*cos[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,cos,x] && IntegerQ[n]
 
 
-FixInertTrigFunction[u_.*tan[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*cot[v]^(-m)*w,x] /;
-InertTrigSumQ[w,cot,x] && IntegerQ[m]
+FixInertTrigFunction[u_.*(c_.*cot[v_]^n_.)^p_.*w_,x_] :=
+  (c*tan[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,tan,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*sec[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*cos[v]^(-m)*w,x] /;
-InertTrigSumQ[w,cot,x] && IntegerQ[m]
+(* FixInertTrigFunction[u_.*sec[v_]^m_.*w_,x_] :=
+  cos[v]^(-m)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,tan,x] && IntegerQ[m] *)
 
-FixInertTrigFunction[u_.*csc[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*sin[v]^(-m)*w,x] /;
-InertTrigSumQ[w,cot,x] && IntegerQ[m]
+FixInertTrigFunction[u_.*(c_.*cos[v_]^n_.)^p_.*w_,x_] :=
+  (c*sec[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,tan,x] && IntegerQ[n]
 
-
-FixInertTrigFunction[u_.*cos[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*sec[v]^(-m)*w,x] /;
-InertTrigSumQ[w,sec,x] && IntegerQ[m]
-
-FixInertTrigFunction[u_.*cot[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*tan[v]^(-m)*w,x] /;
-InertTrigSumQ[w,sec,x] && IntegerQ[m]
-
-FixInertTrigFunction[u_.*csc[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*sin[v]^(-m)*w,x] /;
-InertTrigSumQ[w,sec,x] && IntegerQ[m]
+FixInertTrigFunction[u_.*(c_.*csc[v_]^n_.)^p_.*w_,x_] :=
+  (c*sin[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,tan,x] && IntegerQ[n]
 
 
-FixInertTrigFunction[u_.*sin[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*csc[v]^(-m)*w,x] /;
-InertTrigSumQ[w,csc,x] && IntegerQ[m]
+FixInertTrigFunction[u_.*(c_.*tan[v_]^n_.)^p_.*w_,x_] :=
+  (c*cot[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*tan[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*cot[v]^(-m)*w,x] /;
-InertTrigSumQ[w,csc,x] && IntegerQ[m]
+FixInertTrigFunction[u_.*(c_.*sec[v_]^n_.)^p_.*w_,x_] :=
+  (c*cos[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*sec[v_]^m_.*w_,x_] :=
-  FixInertTrigFunction[u*cos[v]^(-m)*w,x] /;
-InertTrigSumQ[w,csc,x] && IntegerQ[m]
+(* FixInertTrigFunction[u_.*csc[v_]^m_.*w_,x_] :=
+  sin[v]^(-m)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[m] *)
+
+FixInertTrigFunction[u_.*(c_.*sin[v_]^n_.)^p_.*w_,x_] :=
+  (c*csc[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[n]
+
+
+FixInertTrigFunction[u_.*(c_.*cos[v_]^n_.)^p_.*w_,x_] :=
+  (c*sec[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sec,x] && IntegerQ[n]
+
+FixInertTrigFunction[u_.*(c_.*cot[v_]^n_.)^p_.*w_,x_] :=
+  (c*tan[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sec,x] && IntegerQ[n]
+
+FixInertTrigFunction[u_.*(c_.*csc[v_]^n_.)^p_.*w_,x_] :=
+  (c*sin[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sec,x] && IntegerQ[n]
+
+
+FixInertTrigFunction[u_.*(c_.*sin[v_]^n_.)^p_.*w_,x_] :=
+  (c*csc[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,csc,x] && IntegerQ[n]
+
+FixInertTrigFunction[u_.*(c_.*tan[v_]^n_.)^p_.*w_,x_] :=
+  (c*cot[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,csc,x] && IntegerQ[n]
+
+FixInertTrigFunction[u_.*(c_.*sec[v_]^n_.)^p_.*w_,x_] :=
+  (c*cos[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,csc,x] && IntegerQ[n]
 
 
 FixInertTrigFunction[u_.*tan[v_]^m_.*(a_.*sin[v_]+b_.*cos[v_])^n_.,x_] :=
-  FixInertTrigFunction[u*sin[v]^m*cos[v]^(-m)*(a*sin[v]+b*cos[v])^n,x] /;
+  sin[v]^m*cos[v]^(-m)*FixInertTrigFunction[u*(a*sin[v]+b*cos[v])^n,x] /;
 FreeQ[{a,b,n},x] && IntegerQ[m]
 
 FixInertTrigFunction[u_.*cot[v_]^m_.*(a_.*sin[v_]+b_.*cos[v_])^n_.,x_] :=
-  FixInertTrigFunction[u*cos[v]^m*sin[v]^(-m)*(a*sin[v]+b*cos[v])^n,x] /;
+  cos[v]^m*sin[v]^(-m)*FixInertTrigFunction[u*(a*sin[v]+b*cos[v])^n,x] /;
 FreeQ[{a,b,n},x] && IntegerQ[m]
 
 FixInertTrigFunction[u_.*sec[v_]^m_.*(a_.*sin[v_]+b_.*cos[v_])^n_.,x_] :=
-  FixInertTrigFunction[u*cos[v]^(-m)*(a*sin[v]+b*cos[v])^n,x] /;
+  cos[v]^(-m)*FixInertTrigFunction[u*(a*sin[v]+b*cos[v])^n,x] /;
 FreeQ[{a,b,n},x] && IntegerQ[m]
 
 FixInertTrigFunction[u_.*csc[v_]^m_.*(a_.*sin[v_]+b_.*cos[v_])^n_.,x_] :=
-  FixInertTrigFunction[u*sin[v]^(-m)*(a*sin[v]+b*cos[v])^n,x] /;
+  sin[v]^(-m)*FixInertTrigFunction[u*(a*sin[v]+b*cos[v])^n,x] /;
 FreeQ[{a,b,n},x] && IntegerQ[m]
 
 
@@ -6293,7 +6386,7 @@ FreeQ[{a,b,A,C,n},x] && IntegerQ[m] && (InertReciprocalQ[f,g] || InertReciprocal
 FixInertTrigFunction[u_,x_] := u
 
 
-InertTrigSumQ[u_,func_,x_] :=
+PowerOfInertTrigSumQ[u_,func_,x_] :=
   MatchQ[u, (a_+b_.*(c_.*func[w_])^p_.)^n_. /; FreeQ[{a,b,c,n,p},x]] || 
   MatchQ[u, (a_.+b_.*(d_.*func[w_])^p_.+c_.*(d_.*func[w_])^q_.)^n_. /; FreeQ[{a,b,c,d,n,p,q},x]]
 
@@ -6411,15 +6504,43 @@ ProductOfLinearPowersQ[u_,x_Symbol] :=
 
 
 (* ::Section::Closed:: *)
-(*Simplest nth root functions*)
+(*Simplest nth root function*)
 
 
 (* ::Subsection::Closed:: *)
 (*Rt[u,n]*)
 
 
+(* Rt[u,n] returns the simplest nth root of u. *)
 Rt[u_,n_Integer] :=
   RtAux[TogetherSimplify[u],n]
+
+
+(* ::Subsection::Closed:: *)
+(*NthRoot[u,n]*)
+
+
+NthRoot[u_,n_] := u^(1/n)
+
+
+(* ::Subsection::Closed:: *)
+(*TrigSquare[u]*)
+
+
+(* If u is an expression of the form a-a*Sin[z]^2 or a-a*Cos[z]^2, TrigSquare[u] returns Cos[z]^2 or Sin[z]^2 respectively, else it returns False. *)
+TrigSquare[u_] :=
+  If[SumQ[u],
+    With[{lst=SplitSum[Function[SplitProduct[TrigSquareQ,#]],u]},
+    If[Not[AtomQ[lst]] && ZeroQ[lst[[1,2]]+lst[[2]]],
+      If[Head[lst[[1,1]][[1]]]===Sin,
+        lst[[2]]*Cos[lst[[1,1]][[1,1]]]^2,
+      lst[[2]]*Sin[lst[[1,1]][[1,1]]]^2],
+    False]],
+  False]
+
+
+(* ::Section::Closed:: *)
+(*Simplest nth root helper functions*)
 
 
 (* ::Subsection::Closed:: *)
@@ -6468,6 +6589,9 @@ RtAux[u_,n_] :=
     If[ListQ[lst] && ListQ[SplitProduct[NegSumBaseQ,lst[[2]]]],
       RtAux[-lst[[1]],n]*RtAux[-lst[[2]],n],
     Map[Function[RtAux[#,n]],u]]]]]],
+  With[{v=TrigSquare[u]},
+  If[Not[AtomQ[v]],
+    RtAux[v,n],
   If[OddQ[n] && NegativeQ[u],
     -RtAux[-u,n],
   If[ComplexNumberQ[u],
@@ -6476,14 +6600,7 @@ RtAux[u_,n_] :=
 (* Basis: a+b*I==1/(a/(a^2+b^2)-b/(a^2+b^2)*I) *)
       1/RtAux[a/(a^2+b^2)-b/(a^2+b^2)*I,n],
     NthRoot[u,n]]],
-  NthRoot[u,n]]]]]
-
-
-(* ::Subsection::Closed:: *)
-(*NthRoot[u,n]*)
-
-
-NthRoot[u_,n_] := u^(1/n)
+  NthRoot[u,n]]]]]]]
 
 
 (* ::Subsection::Closed:: *)
@@ -6524,6 +6641,15 @@ SomeNegTermQ[u_] :=
 
 
 (* ::Subsection::Closed:: *)
+(*TrigSquareQ[u]*)
+
+
+(* If u is an expression of the form Sin[z]^2 or Cos[z]^2, TrigSquareQ[u] returns True, else it returns False. *)
+TrigSquareQ[u_] :=
+  PowerQ[u] && EqQ[u[[2]],2] && MemberQ[{Sin,Cos},Head[u[[1]]]]
+
+
+(* ::Subsection::Closed:: *)
 (*SplitProduct[func,u]*)
 
 
@@ -6538,6 +6664,24 @@ SplitProduct[func_,u_] :=
     {lst[[1]],First[u]*lst[[2]]}]]],
   If[func[u],
     {u, 1},
+  False]]
+
+
+(* ::Subsection::Closed:: *)
+(*SplitSum[func,u]*)
+
+
+(* If func[v] is nonatomic for a term v of u, SplitSum[func,u] returns {func[v], u-v} where v is the first such term; else it returns False. *)
+SplitSum[func_,u_] :=
+  If[SumQ[u],
+    If[Not[AtomQ[func[First[u]]]],
+      {func[First[u]], Rest[u]},
+    With[{lst=SplitSum[func,Rest[u]]},
+    If[AtomQ[lst],
+      False,
+    {lst[[1]],First[u]+lst[[2]]}]]],
+  If[Not[AtomQ[func[u]]],
+    {func[u], 0},
   False]]
 
 

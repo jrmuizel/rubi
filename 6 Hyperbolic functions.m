@@ -1476,17 +1476,20 @@ FreeQ[{F,a,b,c,d,e},x] && PositiveIntegerQ[m,n] && HyperbolicQ[G] && HyperbolicQ
 
 Int[F_^u_*Sinh[v_]^n_.,x_Symbol] :=
   Int[ExpandTrigToExp[F^u,Sinh[v]^n,x],x] /;
-FreeQ[F,x] && (LinearQ[u,x] || QuadraticQ[u,x]) && (LinearQ[v,x] || QuadraticQ[v,x]) && PositiveIntegerQ[n]
+FreeQ[F,x] && (LinearQ[u,x] || PolyQ[u,x,2]) && (LinearQ[v,x] || PolyQ[v,x,2]) && PositiveIntegerQ[n]
 
 
 Int[F_^u_*Cosh[v_]^n_.,x_Symbol] :=
   Int[ExpandTrigToExp[F^u,Cosh[v]^n,x],x] /;
-FreeQ[F,x] && (LinearQ[u,x] || QuadraticQ[u,x]) && (LinearQ[v,x] || QuadraticQ[v,x]) && PositiveIntegerQ[n]
+FreeQ[F,x] && (LinearQ[u,x] || PolyQ[u,x,2]) && (LinearQ[v,x] || PolyQ[v,x,2]) && PositiveIntegerQ[n]
 
 
 Int[F_^u_*Sinh[v_]^m_.*Cosh[v_]^n_.,x_Symbol] :=
   Int[ExpandTrigToExp[F^u,Sinh[v]^m*Cosh[v]^n,x],x] /;
-FreeQ[F,x] && (LinearQ[u,x] || QuadraticQ[u,x]) && (LinearQ[v,x] || QuadraticQ[v,x]) && PositiveIntegerQ[m,n]
+FreeQ[F,x] && (LinearQ[u,x] || PolyQ[u,x,2]) && (LinearQ[v,x] || PolyQ[v,x,2]) && PositiveIntegerQ[m,n]
+
+
+
 
 
 (* ::Subsection::Closed:: *)

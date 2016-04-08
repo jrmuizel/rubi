@@ -116,42 +116,6 @@ FreeQ[{c,m},x] && SumQ[u] && Not[MatchQ[u,a_+b_.*v_ /; FreeQ[{a,b},x] && Inverse
 
 
 (* ::Code:: *)
-(* Int[u_.*(c_.*x_^n_)^p_,x_Symbol] :=
-  c^(p-1/2)*Sqrt[c*x^n]/x^(n/2)*Int[u*x^(n*p),x] /;
-FreeQ[{c,n,p},x] && PositiveIntegerQ[p+1/2] *)
-
-
-(* ::Code:: *)
-(* Int[u_.*(c_.*x_^n_)^p_,x_Symbol] :=
-  c^(p+1/2)*x^(n/2)/Sqrt[c*x^n]*Int[u*x^(n*p),x] /;
-FreeQ[{c,n,p},x] && NegativeIntegerQ[p-1/2] *)
-
-
-(* ::Code:: *)
-(* Int[u_.*(c_.*x_^n_)^p_,x_Symbol] :=
-  (c*x^n)^p/(x^(n*p))*Int[u*x^(n*p),x] /;
-FreeQ[{c,n,p},x] && Not[IntegerQ[2*p]] *)
-
-
-(* ::Code:: *)
-Int[u_*(c_.*(a_.+b_.* x_)^n_)^p_,x_Symbol] :=
-  c^IntPart[p]*(c*(a+b*x)^n)^FracPart[p]/(a+b*x)^(n*FracPart[p])*Int[u*(a+b*x)^(n*p),x] /;
-FreeQ[{a,b,c,n,p},x] && Not[IntegerQ[p]]
-
-
-(* ::Code:: *)
-Int[u_.*(c_.*(d_*(a_.+b_.* x_))^p_)^q_,x_Symbol] :=
-  (c*(d*(a+b*x))^p)^q/(a+b*x)^(p*q)*Int[u*(a+b*x)^(p*q),x] /;
-FreeQ[{a,b,c,d,p,q},x] && Not[IntegerQ[p]] && Not[IntegerQ[q]]
-
-
-(* ::Code:: *)
-Int[u_.*(c_.*(d_.*(a_.+b_.* x_)^n_)^p_)^q_,x_Symbol] :=
-  (c*(d*(a+b*x)^n)^p)^q/(a+b*x)^(n*p*q)*Int[u*(a+b*x)^(n*p*q),x] /;
-FreeQ[{a,b,c,d,n,p,q},x] && Not[IntegerQ[p]] && Not[IntegerQ[q]]
-
-
-(* ::Code:: *)
 Int[u_.*v_^m_.*(b_*v_)^n_,x_Symbol] :=
   1/b^m*Int[u*(b*v)^(m+n),x] /;
 FreeQ[{b,n},x] && IntegerQ[m]
@@ -212,15 +176,17 @@ FreeQ[{a,b,c,d,m,n},x] && ZeroQ[b*c-a*d] && Not[IntegerQ[m] || IntegerQ[n] || Po
 
 
 (* ::Code:: *)
-Int[u_.*(a_+b_.*v_)^m_.*(c_+d_.*v_)^n_.,x_Symbol] :=
-  (b/d)^m*Int[u*(c+d*v)^(m+n),x] /;
-FreeQ[{a,b,c,d,m,n},x] && ZeroQ[b*c-a*d] && (IntegerQ[m] || PositiveQ[b/d]) && (Not[IntegerQ[n]] || LeafCount[c+d*x]<=LeafCount[a+b*x])
+(* Int[u_.*(a_+b_.*v_)^m_.*(c_+d_.*v_)^m_.,x_Symbol] :=
+  Int[u*(a*c+b*d*v^2)^m,x] /;
+FreeQ[{a,b,c,d,m},x] && ZeroQ[b*c+a*d] && (IntegerQ[m] || PositiveQ[a] && PositiveQ[c]) && 
+  (Not[AlgebraicFunctionQ[u,x]] || Not[MatchQ[v,e_.*x^n_. /; FreeQ[{e,n},x]]]) *)
 
 
 (* ::Code:: *)
-Int[u_.*(a_+b_.*v_)^m_*(c_+d_.*v_)^n_,x_Symbol] :=
-  (a+b*v)^m/(c+d*v)^m*Int[u*(c+d*v)^(m+n),x] /;
-FreeQ[{a,b,c,d,m,n},x] && ZeroQ[b*c-a*d] && Not[IntegerQ[m] || IntegerQ[n] || PositiveQ[b/d]]
+(* Int[u_.*(a_+b_.*v_)^m_*(c_+d_.*v_)^m_,x_Symbol] :=
+  (a+b*v)^FracPart[m]*(c+d*v)^FracPart[m]/(a*c+b*d*v^2)^FracPart[m]*Int[u*(a*c+b*d*v^2)^m,x] /;
+FreeQ[{a,b,c,d,m},x] && ZeroQ[b*c+a*d] && Not[IntegerQ[m]] && 
+  (Not[AlgebraicFunctionQ[u,x]] || Not[MatchQ[v,e_.*x^n_. /; FreeQ[{e,n},x]]]) *)
 
 
 (* ::Code:: *)

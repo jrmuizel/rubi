@@ -271,12 +271,12 @@ Int[Pq_*(a_+b_.*x_^n_.)^p_,x_Symbol] :=
 FreeQ[{a,b},x] && PolyQ[Pq,x] && PositiveIntegerQ[n,p] && NonzeroQ[Coeff[Pq,x,n-1]]
 
 
-Int[(c_.*x_)^m_.*Pq_*(a_.+b_.*x_^n_.)^p_.,x_Symbol] :=
+Int[(c_.*x_)^m_.*Pq_*(a_+b_.*x_^n_.)^p_.,x_Symbol] :=
   Int[ExpandIntegrand[(c*x)^m*Pq*(a+b*x^n)^p,x],x] /;
 FreeQ[{a,b,c,m,n},x] && PolyQ[Pq,x] && (PositiveIntegerQ[p] || ZeroQ[n-1])
 
 
-Int[Pq_*(a_.+b_.*x_^n_.)^p_.,x_Symbol] :=
+Int[Pq_*(a_+b_.*x_^n_.)^p_.,x_Symbol] :=
   Int[ExpandIntegrand[Pq*(a+b*x^n)^p,x],x] /;
 FreeQ[{a,b,n},x] && PolyQ[Pq,x] && (PositiveIntegerQ[p] || ZeroQ[n-1])
 
@@ -813,12 +813,12 @@ Int[(A_+B_.*x_^m_)*(a_+b_.*x_^n_)^p_.,x_Symbol] :=
 FreeQ[{a,b,A,B,m,n,p},x] && ZeroQ[m-n+1]
 
 
-Int[(c_.*x_)^m_.*Pq_*(a_.+b_.*x_^n_)^p_.,x_Symbol] :=
+Int[(c_.*x_)^m_.*Pq_*(a_+b_.*x_^n_)^p_.,x_Symbol] :=
   Int[ExpandIntegrand[(c*x)^m*Pq*(a+b*x^n)^p,x],x] /;
 FreeQ[{a,b,c,m,n,p},x] && (PolyQ[Pq,x] || PolyQ[Pq,x^n])
 
 
-Int[Pq_*(a_.+b_.*x_^n_)^p_.,x_Symbol] :=
+Int[Pq_*(a_+b_.*x_^n_)^p_.,x_Symbol] :=
   Int[ExpandIntegrand[Pq*(a+b*x^n)^p,x],x] /;
 FreeQ[{a,b,n,p},x] && (PolyQ[Pq,x] || PolyQ[Pq,x^n])
 
@@ -925,7 +925,7 @@ FreeQ[{a,b,c},x] && ZeroQ[n2-2*n] && PolyQ[Pq,x] && NonzeroQ[b^2-4*a*c] && Posit
 
 
 Int[Pq_*(a_+b_.*x_^n_+c_.*x_^n2_)^p_,x_Symbol] :=
-  Module[{q=Expon[Pq,x]},
+  With[{q=Expon[Pq,x]},
   Module[{Q=PolynomialQuotient[(b*c)^(Floor[(q-1)/n]+1)*Pq,a+b*x^n+c*x^(2*n),x],
           R=PolynomialRemainder[(b*c)^(Floor[(q-1)/n]+1)*Pq,a+b*x^n+c*x^(2*n),x],i},
   -x*(a+b*x^n+c*x^(2*n))^(p+1)/(a*n*(p+1)*(b^2-4*a*c)*(b*c)^(Floor[(q-1)/n]+1))*
@@ -1530,7 +1530,7 @@ FreeQ[{a,b,d},x] && PositiveIntegerQ[p] && NonzeroQ[4*b^3+27*a^2*d]
 
 Int[(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
   With[{u=Factor[a+b*x+d*x^3]},
-  Int[Map[Function[#^p],u],x] /;
+  FreeFactors[u,x]^p*Int[DistributeDegree[NonfreeFactors[u,x],p],x] /;
  ProductQ[NonfreeFactors[u,x]]] /;
 FreeQ[{a,b,d},x] && NegativeIntegerQ[p] && NonzeroQ[4*b^3+27*a^2*d]
 
@@ -1550,9 +1550,9 @@ FreeQ[{a,b,d,p},x] && Not[IntegerQ[p]] && ZeroQ[4*b^3+27*a^2*d]
 
 
 Int[(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=Factor[a+b*x+d*x^3]},
-  (a+b*x+d*x^3)^p/Map[Function[#^p],u]*Int[Map[Function[#^p],u],x] /;
- ProductQ[NonfreeFactors[u,x]]] /;
+  With[{u=NonfreeFactors[Factor[a+b*x+d*x^3],x]},
+  (a+b*x+d*x^3)^p/DistributeDegree[u,p]*Int[DistributeDegree[u,p],x] /;
+ ProductQ[u]] /;
 FreeQ[{a,b,d,p},x] && Not[IntegerQ[p]] && NonzeroQ[4*b^3+27*a^2*d]
 
 
@@ -1579,7 +1579,7 @@ FreeQ[{a,b,d,e,f,m},x] && PositiveIntegerQ[p] && NonzeroQ[4*b^3+27*a^2*d]
 
 Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
   With[{u=Factor[a+b*x+d*x^3]},
-  Int[(e+f*x)^m*Map[Function[#^p],u],x] /;
+  FreeFactors[u,x]^p*Int[(e+f*x)^m*DistributeDegree[NonfreeFactors[u,x],p],x] /;
  ProductQ[NonfreeFactors[u,x]]] /;
 FreeQ[{a,b,d,e,f,m},x] && NegativeIntegerQ[p] && NonzeroQ[4*b^3+27*a^2*d]
 
@@ -1599,9 +1599,9 @@ FreeQ[{a,b,d,e,f,m,p},x] && Not[IntegerQ[p]] && ZeroQ[4*b^3+27*a^2*d]
 
 
 Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=Factor[a+b*x+d*x^3]},
-  (a+b*x+d*x^3)^p/Map[Function[#^p],u]*Int[(e+f*x)^m*Map[Function[#^p],u],x] /;
- ProductQ[NonfreeFactors[u,x]]] /;
+  With[{u=NonfreeFactors[Factor[a+b*x+d*x^3],x]},
+  (a+b*x+d*x^3)^p/DistributeDegree[u,p]*Int[(e+f*x)^m*DistributeDegree[u,p],x] /;
+ ProductQ[u]] /;
 FreeQ[{a,b,d,e,f,m,p},x] && Not[IntegerQ[p]] && NonzeroQ[4*b^3+27*a^2*d]
 
 
@@ -1628,7 +1628,7 @@ FreeQ[{a,c,d},x] && PositiveIntegerQ[p] && NonzeroQ[4*c^3+27*a*d^2]
 
 Int[(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
   With[{u=Factor[a+c*x^2+d*x^3]},
-  Int[Map[Function[#^p],u],x] /;
+  FreeFactors[u,x]^p*Int[DistributeDegree[NonfreeFactors[u,x],p],x] /;
  ProductQ[NonfreeFactors[u,x]]] /;
 FreeQ[{a,c,d},x] && NegativeIntegerQ[p] && NonzeroQ[4*c^3+27*a*d^2]
 
@@ -1648,9 +1648,9 @@ FreeQ[{a,c,d,p},x] && Not[IntegerQ[p]] && ZeroQ[4*c^3+27*a*d^2]
 
 
 Int[(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=Factor[a+c*x^2+d*x^3]},
-  (a+c*x^2+d*x^3)^p/Map[Function[#^p],u]*Int[Map[Function[#^p],u],x] /;
- ProductQ[NonfreeFactors[u,x]]] /;
+  With[{u=NonfreeFactors[Factor[a+c*x^2+d*x^3],x]},
+  (a+c*x^2+d*x^3)^p/DistributeDegree[u,p]*Int[DistributeDegree[u,p],x] /;
+ ProductQ[u]] /;
 FreeQ[{a,c,d,p},x] && Not[IntegerQ[p]] && NonzeroQ[4*c^3+27*a*d^2]
 
 
@@ -1677,7 +1677,7 @@ FreeQ[{a,c,d,e,f,m},x] && PositiveIntegerQ[p] && NonzeroQ[4*c^3+27*a*d^2]
 
 Int[(e_.+f_.*x_)^m_.*(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
   With[{u=Factor[a+c*x^2+d*x^3]},
-  Int[(e+f*x)^m*Map[Function[#^p],u],x] /;
+  FreeFactors[u,x]^p*Int[(e+f*x)^m*DistributeDegree[NonfreeFactors[u,x],p],x] /;
  ProductQ[NonfreeFactors[u,x]]] /;
 FreeQ[{a,c,d,e,f,m},x] && NegativeIntegerQ[p] && NonzeroQ[4*c^3+27*a*d^2]
 
@@ -1697,9 +1697,9 @@ FreeQ[{a,c,d,e,f,m,p},x] && Not[IntegerQ[p]] && ZeroQ[4*c^3+27*a*d^2]
 
 
 Int[(e_.+f_.*x_)^m_.*(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=Factor[a+c*x^2+d*x^3]},
-  (a+c*x^2+d*x^3)^p/Map[Function[#^p],u]*Int[(e+f*x)^m*Map[Function[#^p],u],x] /;
- ProductQ[NonfreeFactors[u,x]]] /;
+  With[{u=NonfreeFactors[Factor[a+c*x^2+d*x^3],x]},
+  (a+c*x^2+d*x^3)^p/DistributeDegree[u,p]*Int[(e+f*x)^m*DistributeDegree[u,p],x] /;
+ ProductQ[u]] /;
 FreeQ[{a,c,d,e,f,m,p},x] && Not[IntegerQ[p]] && NonzeroQ[4*c^3+27*a*d^2]
 
 
@@ -1743,7 +1743,7 @@ FreeQ[{a,b,c,d},x] && PositiveIntegerQ[p] && NonzeroQ[c^2-3*b*d] && NonzeroQ[b^2
 
 Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
   With[{u=Factor[a+b*x+c*x^2+d*x^3]},
-  Int[Map[Function[#^p],u],x] /;
+  FreeFactors[u,x]^p*Int[DistributeDegree[NonfreeFactors[u,x],p],x] /;
  ProductQ[NonfreeFactors[u,x]]] /;
 FreeQ[{a,b,c,d},x] && NegativeIntegerQ[p] && NonzeroQ[c^2-3*b*d] && NonzeroQ[b^2-3*a*c]
 
@@ -1782,9 +1782,9 @@ FreeQ[{a,b,c,d,p},x] && Not[IntegerQ[p]] && NonzeroQ[c^2-3*b*d] && ZeroQ[b^2-3*a
 
 
 Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=Factor[a+b*x+c*x^2+d*x^3]},
-  (a+b*x+c*x^2+d*x^3)^p/Map[Function[#^p],u]*Int[Map[Function[#^p],u],x] /;
- ProductQ[NonfreeFactors[u,x]]] /;
+  With[{u=NonfreeFactors[Factor[a+b*x+c*x^2+d*x^3],x]},
+  (a+b*x+c*x^2+d*x^3)^p/DistributeDegree[u,p]*Int[DistributeDegree[u,p],x] /;
+ ProductQ[u]] /;
 FreeQ[{a,b,c,d,p},x] && Not[IntegerQ[p]] && NonzeroQ[c^2-3*b*d] && NonzeroQ[b^2-3*a*c]
 
 
@@ -1834,7 +1834,7 @@ FreeQ[{a,b,c,d,e,f,m},x] && PositiveIntegerQ[p] && NonzeroQ[c^2-3*b*d] && Nonzer
 
 Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
   With[{u=Factor[a+b*x+c*x^2+d*x^3]},
-  Int[(e+f*x)^m*Map[Function[#^p],u],x] /;
+  FreeFactors[u,x]^p*Int[(e+f*x)^m*DistributeDegree[NonfreeFactors[u,x],p],x] /;
  ProductQ[NonfreeFactors[u,x]]] /;
 FreeQ[{a,b,c,d,e,f,m},x] && NegativeIntegerQ[p] && NonzeroQ[c^2-3*b*d] && NonzeroQ[b^2-3*a*c]
 
@@ -1873,9 +1873,9 @@ FreeQ[{a,b,c,d,e,f,m,p},x] && Not[IntegerQ[p]] && NonzeroQ[c^2-3*b*d] && ZeroQ[b
 
 
 Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=Factor[a+b*x+c*x^2+d*x^3]},
-  (a+b*x+c*x^2+d*x^3)^p/Map[Function[#^p],u]*Int[(e+f*x)^m*Map[Function[#^p],u],x] /;
- ProductQ[NonfreeFactors[u,x]]] /;
+  With[{u=NonfreeFactors[Factor[a+b*x+c*x^2+d*x^3],x]},
+  (a+b*x+c*x^2+d*x^3)^p/DistributeDegree[u,p]*Int[(e+f*x)^m*DistributeDegree[u,p],x] /;
+ ProductQ[u]] /;
 FreeQ[{a,b,c,d,e,f,m,p},x] && Not[IntegerQ[p]] && NonzeroQ[c^2-3*b*d] && NonzeroQ[b^2-3*a*c]
 
 
@@ -1899,6 +1899,9 @@ FreeQ[{a,b,c,d,e,f,m,p},x] && Not[IntegerQ[p]] && NonzeroQ[c^2-3*b*d] && Nonzero
 Int[u_^m_.*v_^p_.,x_Symbol] :=
   Int[ExpandToSum[u,x]^m*ExpandToSum[v,x]^p,x] /;
 FreeQ[{m,p},x] && LinearQ[u,x] && PolyQ[v,x,3] && Not[LinearMatchQ[u,x] && CubicMatchQ[v,x]]
+
+
+
 
 
 (* ::Subsection::Closed:: *)
