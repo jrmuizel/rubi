@@ -400,7 +400,9 @@ FreeQ[{a,b,m,r,s},x] && Not[IntegerQ[m]] && PosQ[s-r]
 
 (* ::Code:: *)
 Int[u_/(a_+b_.*x_^n_),x_Symbol] :=
-  Int[RationalFunctionExpand[u/(a+b*x^n),x],x] /;
+  With[{v=RationalFunctionExpand[u/(a+b*x^n),x]},
+  Int[v,x] /;
+ SumQ[v]] /;
 FreeQ[{a,b},x] && PositiveIntegerQ[n]
 
 
@@ -418,7 +420,9 @@ FreeQ[{a,b,c,n,p},x] && ZeroQ[n2-2*n] && ZeroQ[b^2-4*a*c] && Not[IntegerQ[p]] &&
 
 (* ::Code:: *)
 Int[u_/(a_.+b_.*x_^n_.+c_.*x_^n2_.),x_Symbol] :=
-  Int[RationalFunctionExpand[u/(a+b*x^n+c*x^(2*n)),x],x] /;
+  With[{v=RationalFunctionExpand[u/(a+b*x^n+c*x^(2*n)),x]},
+  Int[v,x] /;
+ SumQ[v]] /;
 FreeQ[{a,b,c},x] && ZeroQ[n2-2*n] && PositiveIntegerQ[n]
 
 
@@ -600,8 +604,8 @@ If[ShowSteps,
 
 Int[u_,x_Symbol] :=
   Module[{lst=SubstForFractionalPowerOfLinear[u,x]},
-  ShowStep["","Int[f[(a+b*x)^(1/n),x],x]",
-			"n/b*Subst[Int[x^(n-1)*f[x,-a/b+x^n/b],x],x,(a+b*x)^(1/n)]",Hold[
+  ShowStep["","Int[F[(a+b*x)^(1/n),x],x]",
+			"n/b*Subst[Int[x^(n-1)*F[x,-a/b+x^n/b],x],x,(a+b*x)^(1/n)]",Hold[
   lst[[2]]*lst[[4]]*Subst[Int[lst[[1]],x],x,lst[[3]]^(1/lst[[2]])]]] /;
  Not[FalseQ[lst]]] /;
 SimplifyFlag,

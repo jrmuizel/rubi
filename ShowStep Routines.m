@@ -271,11 +271,3 @@ SetDownValues[func_Symbol,lst_List] := (
     DownValues[func]=Take[lst,Min[529,Length[lst]]];
     Scan[Function[ReplacePart[ReplacePart[#,#[[1,1]],1],SetDelayed,0]],Drop[lst,Min[529,Length[lst]]]]] );
   Protect[func])
-
-
-LoadPackage[filename_String] :=
-  Module[{object},
-  object=PrintTemporary["Loading "<>filename<>".m..."];
-  Get[NotebookDirectory[]<>filename<>".m"];
-  NotebookDelete[object];
-  Null]

@@ -5,7 +5,7 @@
 
 
 (* ::Subsection::Closed:: *)
-(*1 Error functions*)
+(*8.1 Error functions*)
 
 
 Int[Erf[a_.+b_.*x_],x_Symbol] :=
@@ -183,7 +183,7 @@ FreeQ[{a,b},x] && PositiveIntegerQ[m]
 
 
 (* ::Subsection::Closed:: *)
-(*2 Fresnel integral functions*)
+(*8.2 Fresnel integral functions*)
 
 
 Int[FresnelS[a_.+b_.*x_],x_Symbol] :=
@@ -335,7 +335,7 @@ FreeQ[{b,c},x] && ZeroQ[c-Pi/2*b^2] && IntegerQ[m] && m<-1 && Mod[m,4]==2
 
 
 (* ::Subsection::Closed:: *)
-(*3 Exponential integral functions*)
+(*8.3 Exponential integral functions*)
 
 
 Int[ExpIntegralE[n_,a_.+b_.*x_],x_Symbol] :=
@@ -458,7 +458,7 @@ FreeQ[{a,b,m},x] && NonzeroQ[m+1]
 
 
 (* ::Subsection::Closed:: *)
-(*4 Trig integral functions*)
+(*8.4 Trig integral functions*)
 
 
 Int[SinIntegral[a_.+b_.*x_],x_Symbol] :=
@@ -634,7 +634,7 @@ FreeQ[{a,b,c,d},x] && IntegerQ[m] && m<-1
 
 
 (* ::Subsection::Closed:: *)
-(*5 Hyperbolic integral functions*)
+(*8.5 Hyperbolic integral functions*)
 
 
 Int[SinhIntegral[a_.+b_.*x_],x_Symbol] :=
@@ -810,7 +810,7 @@ FreeQ[{a,b,c,d},x] && IntegerQ[m] && m<-1
 
 
 (* ::Subsection::Closed:: *)
-(*6 Gamma functions*)
+(*8.6 Gamma functions*)
 
 
 Int[Gamma[n_,a_.+b_.*x_],x_Symbol] :=
@@ -884,7 +884,7 @@ FreeQ[{a,b,c,n},x] && ZeroQ[a-c+1]
 
 
 (* ::Subsection::Closed:: *)
-(*7 Zeta function*)
+(*8.7 Zeta function*)
 
 
 Int[Zeta[2,a_.+b_.*x_],x_Symbol] :=
@@ -915,7 +915,7 @@ FreeQ[{a,b,s},x] && NonzeroQ[s-1] && NonzeroQ[s-2] && RationalQ[m] && m<-1
 
 
 (* ::Subsection::Closed:: *)
-(*8 Polylogarithm function*)
+(*8.8 Polylogarithm function*)
 
 
 Int[PolyLog[n_,a_.*(b_.*x_^p_.)^q_.],x_Symbol] :=
@@ -998,7 +998,7 @@ FreeQ[n,x] && InverseFunctionFreeQ[w,x]
 
 
 (* ::Subsection::Closed:: *)
-(*9 Product logarithm function*)
+(*8.9 Product logarithm function*)
 
 
 Int[(c_.*ProductLog[a_.+b_.*x_])^p_,x_Symbol] :=

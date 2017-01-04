@@ -290,14 +290,6 @@ FractionalPowerQ[u_] :=
 
 
 (* ::Subsection::Closed:: *)
-(*SqrtQ[u]*)
-
-
-SqrtQ[u_] :=
-  PowerQ[u] && u[[2]]===1/2
-
-
-(* ::Subsection::Closed:: *)
 (*FractionalPowerFreeQ[u]*)
 
 
@@ -2579,13 +2571,13 @@ FixSimplify[w_.*(u_.+a_.*Sqrt[v_Plus]+b_.*Sqrt[v_])] :=
 (*Basis: If  a>0, then a^(m/4) Sqrt[b(c+d Sqrt[a])]==Sqrt[b(c a^(m/2)+d a^((m+1)/2))]*)
 
 
-FixSimplify[u_.*a_^m_*Sqrt[b_.*(c_+d_.*Sqrt[a_])]] :=
+(* FixSimplify[u_.*a_^m_*Sqrt[b_.*(c_+d_.*Sqrt[a_])]] :=
   Sqrt[Together[b*(c*a^(2*m)+d*a^(2*m+1/2))]]*FixSimplify[u] /;
 RationalQ[a,b,c,d,m] && a>0 && Denominator[m]==4
 
 FixSimplify[u_.*a_^m_/Sqrt[b_.*(c_+d_.*Sqrt[a_])]] :=
   FixSimplify[u]/Sqrt[Together[b*(c/a^(2*m)+d/a^(2*m-1/2))]] /;
-RationalQ[a,b,c,d,m] && a>0 && Denominator[m]==4
+RationalQ[a,b,c,d,m] && a>0 && Denominator[m]==4 *)
 
 
 (* ::Item:: *)
@@ -3693,10 +3685,14 @@ FreeQ[{a,b,c,d,n},x] && ZeroQ[j-2*n]
 (*Basis: If  q=Sqrt[b^2-4a c] and r=(2 c d-b e)/q, then (d+e z)/(a+b z+c z^2)==(e+r)/(b-q+2 c z)+(e-r)/(b+q+2 c z)*)
 
 
-ExpandIntegrand[(d_.+e_.*u_^n_.)/(a_.+b_.*u_^n_.+c_.*u_^j_.),x_Symbol] :=
-  With[{q=Rt[b^2-4*a*c,2]}, With[{r=TogetherSimplify[(2*c*d-b*e)/q]},
-  (e+r)/(b-q+2*c*u^n) + (e-r)/(b+q+2*c*u^n)]] /;
-FreeQ[{a,b,c,d,e,n},x] && ZeroQ[j-2*n] && NonzeroQ[b^2-4*a*c]
+ExpandIntegrand[(d_.+e_.*(f_.+g_.*u_^n_.))/(a_.+b_.*u_^n_.+c_.*u_^j_.),x_Symbol] :=
+  With[{q=Rt[b^2-4*a*c,2]}, With[{r=TogetherSimplify[(2*c*(d+e*f)-b*e*g)/q]},
+  (e*g+r)/(b-q+2*c*u^n) + (e*g-r)/(b+q+2*c*u^n)]] /;
+FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[j-2*n] && NonzeroQ[b^2-4*a*c]
+
+
+(* ::Subsubsection::Closed:: *)
+(*Basis: Miscellaneous*)
 
 
 ExpandIntegrand[u_/v_,x_Symbol] :=
@@ -3785,11 +3781,13 @@ CollectReciprocals[u_,x_Symbol] := u
     involving fractional powers resulting in hard to integrate expressions. *)
 SmartApart[u_,x_Symbol] :=
   With[{alst=MakeAssocList[u,x]},
-  KernelSubst[Apart[GensymSubst[u,x,alst]],x,alst]]
+  With[{tmp=KernelSubst[Apart[GensymSubst[u,x,alst]],x,alst]},
+  If[tmp===Indeterminate, u, tmp]]]
 
 SmartApart[u_,v_,x_Symbol] :=
   With[{alst=MakeAssocList[u,x]},
-  KernelSubst[Apart[GensymSubst[u,x,alst],v],x,alst]]
+  With[{tmp=KernelSubst[Apart[GensymSubst[u,x,alst],v],x,alst]},
+  If[tmp===Indeterminate, u, tmp]]]
 
 
 (* MakeAssocList[u,x,alst] returns an association list of gensymed symbols with the nonatomic 
@@ -3825,7 +3823,7 @@ GensymSubst[u_,x_Symbol,alst_List] :=
   u]]]]
 
 
-(* KernelSubst[u,x,alst] returns u with the gensymed names in alst freplaced by kernels free of x. *)
+(* KernelSubst[u,x,alst] returns u with the gensymed names in alst replaced by kernels free of x. *)
 KernelSubst[u_,x_Symbol,alst_List] :=
   If[AtomQ[u],
     With[{tmp=Select[alst,Function[#[[1]]===u],1]},
@@ -3833,7 +3831,10 @@ KernelSubst[u_,x_Symbol,alst_List] :=
       u,
     tmp[[1,2]]]],
   If[IntegerPowerQ[u],
-    KernelSubst[u[[1]],x,alst]^u[[2]],
+    With[{tmp=KernelSubst[u[[1]],x,alst]},
+    If[u[[2]]<0 && ZeroQ[tmp],
+      Indeterminate,
+    tmp^u[[2]]]],
   If[ProductQ[u] || SumQ[u],
     Map[Function[KernelSubst[#,x,alst]],u],
   u]]]
@@ -6260,11 +6261,11 @@ FreeQ[{a,b,n},x] && IntegerQ[m]
 
 FixInertTrigFunction[u_.*(c_.*sec[v_]^n_.)^p_.*w_,x_] :=
   (c*cos[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sin,x] && IntegerQ[n]
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sin,x] && IntegerQ[n] && IntegerQ[p]
 
 FixInertTrigFunction[u_.*(c_.*csc[v_]^n_.)^p_.*w_,x_] :=
   (c*sin[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sin,x] && IntegerQ[n]
+FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sin,x] && IntegerQ[n] && IntegerQ[p]
 
 
 FixInertTrigFunction[tan[v_]^m_.*(a_+b_.*(c_.*cos[w_])^p_)^n_.,x_] :=
@@ -6292,11 +6293,11 @@ FixInertTrigFunction[u_.*(c_.*cot[v_]^n_.)^p_.*w_,x_] :=
   (c*tan[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
 FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,tan,x] && IntegerQ[n]
 
-(* FixInertTrigFunction[u_.*sec[v_]^m_.*w_,x_] :=
-  cos[v]^(-m)*FixInertTrigFunction[u*w,x] /;
-PowerOfInertTrigSumQ[w,tan,x] && IntegerQ[m] *)
+FixInertTrigFunction[u_.*cos[v_]^n_.*w_,x_] :=
+  sec[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,tan,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*(c_.*cos[v_]^n_.)^p_.*w_,x_] :=
+FixInertTrigFunction[u_.*(c_.*cos[v_]^n_)^p_.*w_,x_] :=
   (c*sec[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
 FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,tan,x] && IntegerQ[n]
 
@@ -6309,16 +6310,16 @@ FixInertTrigFunction[u_.*(c_.*tan[v_]^n_.)^p_.*w_,x_] :=
   (c*cot[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
 FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*(c_.*sec[v_]^n_.)^p_.*w_,x_] :=
-  (c*cos[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FixInertTrigFunction[u_.*sin[v_]^n_.*w_,x_] :=
+  csc[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[n]
+
+FixInertTrigFunction[u_.*(c_.*sin[v_]^n_)^p_.*w_,x_] :=
+  (c*csc[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
 FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[n]
 
-(* FixInertTrigFunction[u_.*csc[v_]^m_.*w_,x_] :=
-  sin[v]^(-m)*FixInertTrigFunction[u*w,x] /;
-PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[m] *)
-
-FixInertTrigFunction[u_.*(c_.*sin[v_]^n_.)^p_.*w_,x_] :=
-  (c*csc[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
+FixInertTrigFunction[u_.*(c_.*sec[v_]^n_.)^p_.*w_,x_] :=
+  (c*cos[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
 FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[n]
 
 
@@ -6507,7 +6508,7 @@ ProductOfLinearPowersQ[u_,x_Symbol] :=
 (*Simplest nth root function*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Rt[u,n]*)
 
 
@@ -6516,14 +6517,14 @@ Rt[u_,n_Integer] :=
   RtAux[TogetherSimplify[u],n]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*NthRoot[u,n]*)
 
 
 NthRoot[u_,n_] := u^(1/n)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TrigSquare[u]*)
 
 
@@ -6543,7 +6544,7 @@ TrigSquare[u_] :=
 (*Simplest nth root helper functions*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*RtAux[u,n]*)
 
 
@@ -6600,7 +6601,9 @@ RtAux[u_,n_] :=
 (* Basis: a+b*I==1/(a/(a^2+b^2)-b/(a^2+b^2)*I) *)
       1/RtAux[a/(a^2+b^2)-b/(a^2+b^2)*I,n],
     NthRoot[u,n]]],
-  NthRoot[u,n]]]]]]]
+  If[OddQ[n] && NegQ[u] && PosQ[-u],
+    -RtAux[-u,n],
+  NthRoot[u,n]]]]]]]]
 
 
 (* ::Subsection::Closed:: *)

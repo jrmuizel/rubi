@@ -5,76 +5,124 @@
 
 
 (* ::Subsection::Closed:: *)
-(*1 Miscellaneous exponentials*)
+(*2.1 (c+d x)^m (a+b (F^(g (e+f x)))^n)^p*)
 
 
 $UseGamma=False;
 
 
-Int[F_^(c_.*(a_.+b_.*x_)),x_Symbol] :=
-  F^(c*(a+b*x))/(b*c*Log[F]) /;
-FreeQ[{F,a,b,c},x]
+Int[(c_.+d_.*x_)^m_.*(b_.*F_^(g_.*(e_.+f_.*x_)))^n_.,x_Symbol] :=
+  (c+d*x)^m*(b*F^(g*(e+f*x)))^n/(f*g*n*Log[F]) - 
+  d*m/(f*g*n*Log[F])*Int[(c+d*x)^(m-1)*(b*F^(g*(e+f*x)))^n,x] /;
+FreeQ[{F,b,c,d,e,f,g,n},x] && RationalQ[m] && m>0 && IntegerQ[2*m] && Not[$UseGamma===True]
 
 
-Int[(d_.+e_.*x_)^m_.*F_^(c_.*(a_.+b_.*x_)),x_Symbol] :=
-  (d+e*x)^m*F^(c*(a+b*x))/(b*c*Log[F]) - 
-  e*m/(b*c*Log[F])*Int[(d+e*x)^(m-1)*F^(c*(a+b*x)),x] /;
-FreeQ[{F,a,b,c,d,e},x] && IntegerQ[2*m] && Not[$UseGamma===True] && m>0 (* && (IntegerQ[m] || m<2) *)
+Int[(c_.+d_.*x_)^m_*(b_.*F_^(g_.*(e_.+f_.*x_)))^n_.,x_Symbol] :=
+  (c+d*x)^(m+1)*(b*F^(g*(e+f*x)))^n/(d*(m+1)) - 
+  f*g*n*Log[F]/(d*(m+1))*Int[(c+d*x)^(m+1)*(b*F^(g*(e+f*x)))^n,x] /;
+FreeQ[{F,b,c,d,e,f,g,n},x] && RationalQ[m] && m<-1 && IntegerQ[2*m] && Not[$UseGamma===True]
 
 
-Int[F_^(c_.*(a_.+b_.*x_))/(d_.+e_.*x_),x_Symbol] :=
-  1/e*F^(c*(a-b*d/e))*ExpIntegralEi[b*c*(d+e*x)*Log[F]/e] /;
-FreeQ[{F,a,b,c,d,e},x] && Not[$UseGamma===True]
+Int[F_^(g_.*(e_.+f_.*x_))/(c_.+d_.*x_),x_Symbol] :=
+  F^(g*(e-c*f/d))/d*ExpIntegralEi[f*g*(c+d*x)*Log[F]/d] /;
+FreeQ[{F,c,d,e,f,g},x] && Not[$UseGamma===True]
 
 
-Int[F_^(c_.*(a_.+b_.*x_))/Sqrt[d_.+e_.*x_],x_Symbol] :=
-  2/e*Subst[Int[F^(c*(a-b*d/e)+b*c*x^2/e),x],x,Sqrt[d+e*x]] /;
-FreeQ[{F,a,b,c,d,e},x] && Not[$UseGamma===True]
+Int[(c_.+d_.*x_)^m_.*F_^(g_.*(e_.+f_.*x_)),x_Symbol] :=
+  (-d)^m*F^(g*(e-c*f/d))/(f^(m+1)*g^(m+1)*Log[F]^(m+1))*Gamma[m+1,-f*g*Log[F]/d*(c+d*x)] /;
+FreeQ[{F,c,d,e,f,g},x] && IntegerQ[m]
 
 
-Int[(d_.+e_.*x_)^m_*F_^(c_.*(a_.+b_.*x_)),x_Symbol] :=
-  (d+e*x)^(m+1)*F^(c*(a+b*x))/(e*(m+1)) - 
-  b*c*Log[F]/(e*(m+1))*Int[(d+e*x)^(m+1)*F^(c*(a+b*x)),x] /;
-FreeQ[{F,a,b,c,d,e},x] && IntegerQ[2*m] && Not[$UseGamma===True] && m<-1 (* && m>-3 *)
+Int[F_^(g_.*(e_.+f_.*x_))/Sqrt[c_.+d_.*x_],x_Symbol] :=
+  2/d*Subst[Int[F^(g*(e-c*f/d)+f*g*x^2/d),x],x,Sqrt[c+d*x]] /;
+FreeQ[{F,c,d,e,f,g},x] && Not[$UseGamma===True]
 
 
-Int[(d_.+e_.*x_)^m_.*F_^(c_.*(a_.+b_.*x_)),x_Symbol] :=
-  (-e)^m*F^(c*(a-b*d/e))/(b^(m+1)*c^(m+1)*Log[F]^(m+1))*Gamma[m+1,-b*c*Log[F]/e*(d+e*x)] /;
-FreeQ[{F,a,b,c,d,e},x] && IntegerQ[m] (* && $UseGamma===True *)
+Int[(c_.+d_.*x_)^m_*F_^(g_.*(e_.+f_.*x_)),x_Symbol] :=
+  -F^(g*(e-c*f/d))*(c+d*x)^FracPart[m]/(d*(-f*g*Log[F]/d)^(IntPart[m]+1)*(-f*g*Log[F]*(c+d*x)/d)^FracPart[m])*
+    Gamma[m+1,(-f*g*Log[F]/d)*(c+d*x)] /;
+FreeQ[{F,c,d,e,f,g,m},x] && Not[IntegerQ[m]]
 
 
-Int[(d_.+e_.*x_)^m_*F_^(c_.*(a_.+b_.*x_)),x_Symbol] :=
-  (-e)^(m-1/2)*F^(c*(a-b*d/e))*Sqrt[d+e*x]/(b^(m+1/2)*c^(m+1/2)*Log[F]^(m+1/2)*Sqrt[(-b*c*Log[F]/e)*(d+e*x)])*
-    Gamma[m+1,-b*c*Log[F]/e*(d+e*x)] /;
-FreeQ[{F,a,b,c,d,e},x] && PositiveIntegerQ[m+1/2] (* && $UseGamma===True *)
+Int[(c_.+d_.*x_)^m_.*(b_.*F_^(g_.*(e_.+f_.*x_)))^n_,x_Symbol] :=
+  (b*F^(g*(e+f*x)))^n/F^(g*n*(e+f*x))*Int[(c+d*x)^m*F^(g*n*(e+f*x)),x] /;
+FreeQ[{F,b,c,d,e,f,g,m,n},x]
 
 
-Int[(d_.+e_.*x_)^m_*F_^(c_.*(a_.+b_.*x_)),x_Symbol] :=
-  (-e)^(m+1/2)*F^(c*(a-b*d/e))*Sqrt[-b*c*Log[F]/e*(d+e*x)]/(b^(m+3/2)*c^(m+3/2)*Log[F]^(m+3/2)*Sqrt[d+e*x])*
-    Gamma[m+1,-b*c*Log[F]/e*(d+e*x)] /;
-FreeQ[{F,a,b,c,d,e},x] && NegativeIntegerQ[m-1/2] (* && $UseGamma===True *)
+Int[(c_.+d_.*x_)^m_.*(a_+b_.*(F_^(g_.*(e_.+f_.*x_)))^n_.)^p_.,x_Symbol] :=
+  Int[ExpandIntegrand[(c+d*x)^m,(a+b*(F^(g*(e+f*x)))^n)^p,x],x] /;
+FreeQ[{F,a,b,c,d,e,f,g,m,n},x] && PositiveIntegerQ[p]
 
 
-Int[(d_.+e_.*x_)^m_*E^(c_.*(a_.+b_.*x_)),x_Symbol] :=
-  E^(c*(a-b*d/e))*(d+e*x)^m/(b*c*(-b*c/e*(d+e*x))^m)*Gamma[m+1,-b*c/e*(d+e*x)] /;
-FreeQ[{a,b,c,d,e,m},x] (* && Not[IntegerQ[2*m]] *) && Not[SumSimplerQ[m,1]]
+Int[(c_.+d_.*x_)^m_./(a_+b_.*(F_^(g_.*(e_.+f_.*x_)))^n_.),x_Symbol] :=
+  -(c+d*x)^m/(a*f*g*n*Log[F])*Log[1+a/(b*(F^(g*(e+f*x)))^n)] + 
+  d*m/(a*f*g*n*Log[F])*Int[(c+d*x)^(m-1)*Log[1+a/(b*(F^(g*(e+f*x)))^n)],x] /;
+FreeQ[{F,a,b,c,d,e,f,g,n},x] && RationalQ[m] && m>0
 
 
-Int[(d_.+e_.*x_)^m_*F_^(c_.*(a_.+b_.*x_)),x_Symbol] :=
-  -F^(c*(a-b*d/e))*(d+e*x)^(m+1)/(e*(-b*c*Log[F]*(d+e*x)/e)^(m+1))*Gamma[m+1,-b*c*Log[F]*(d+e*x)/e] /;
-FreeQ[{F,a,b,c,d,e,m},x] (* && Not[IntegerQ[2*m]] *)
+Int[(c_.+d_.*x_)^m_.*(a_+b_.*(F_^(g_.*(e_.+f_.*x_)))^n_.)^p_,x_Symbol] :=
+  With[{u=IntHide[(a+b*(F^(g*(e+f*x)))^n)^p,x]},
+  Dist[(c+d*x)^m,u,x] - d*m*Int[(c+d*x)^(m-1)*u,x]] /;
+FreeQ[{F,a,b,c,d,e,f,g,n},x] && RationalQ[m,p] && m>0 && p<-1
 
 
-Int[u_^m_.*F_^(c_.*v_),x_Symbol] :=
-  Int[NormalizePowerOfLinear[u,x]^m*F^(c*ExpandToSum[v,x]),x] /;
-FreeQ[{F,c},x] && LinearQ[v,x] && PowerOfLinearQ[u,x] && Not[LinearMatchQ[v,x] && PowerOfLinearMatchQ[u,x]] && IntegerQ[m]
+Int[u_^m_.*(a_.+b_.*(F_^(g_.*v_))^n_.)^p_.,x_Symbol] :=
+  Int[NormalizePowerOfLinear[u,x]^m*(a+b*(F^(g*ExpandToSum[v,x]))^n)^p,x] /;
+FreeQ[{F,a,b,g,n,p},x] && LinearQ[v,x] && PowerOfLinearQ[u,x] && Not[LinearMatchQ[v,x] && PowerOfLinearMatchQ[u,x]] && IntegerQ[m]
 
 
-Int[u_^m_.*F_^(c_.*v_),x_Symbol] :=
+Int[u_^m_.*(a_.+b_.*(F_^(g_.*v_))^n_.)^p_.,x_Symbol] :=
   Module[{uu=NormalizePowerOfLinear[u,x],z},
   z=If[PowerQ[uu] && FreeQ[uu[[2]],x], uu[[1]]^(m*uu[[2]]), uu^m];
-  uu^m/z*Int[z*F^(c*ExpandToSum[v,x]),x]] /; 
-FreeQ[{F,c,m},x] && LinearQ[v,x] && PowerOfLinearQ[u,x] && Not[LinearMatchQ[v,x] && PowerOfLinearMatchQ[u,x]] && Not[IntegerQ[m]]
+  uu^m/z*Int[z*(a+b*(F^(g*ExpandToSum[v,x]))^n)^p,x]] /; 
+FreeQ[{F,a,b,g,m,n,p},x] && LinearQ[v,x] && PowerOfLinearQ[u,x] && Not[LinearMatchQ[v,x] && PowerOfLinearMatchQ[u,x]] && 
+  Not[IntegerQ[m]]
+
+
+Int[(c_.+d_.*x_)^m_.*(a_+b_.*(F_^(g_.*(e_.+f_.*x_)))^n_.)^p_.,x_Symbol] :=
+  Defer[Int][(c+d*x)^m*(a+b*(F^(g*(e+f*x)))^n)^p,x] /;
+FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
+
+
+
+
+
+(* ::Subsection::Closed:: *)
+(*2.2 (c+d x)^m (F^(g (e+f x)))^n (a+b (F^(g (e+f x)))^n)^p*)
+
+
+Int[(c_.+d_.*x_)^m_.*(F_^(g_.*(e_.+f_.*x_)))^n_./(a_+b_.*(F_^(g_.*(e_.+f_.*x_)))^n_.),x_Symbol] :=
+  (c+d*x)^m/(b*f*g*n*Log[F])*Log[1+b*(F^(g*(e+f*x)))^n/a] - 
+  d*m/(b*f*g*n*Log[F])*Int[(c+d*x)^(m-1)*Log[1+b*(F^(g*(e+f*x)))^n/a],x] /;
+FreeQ[{F,a,b,c,d,e,f,g,n},x] && RationalQ[m] && m>0
+
+
+Int[(c_.+d_.*x_)^m_.*(F_^(g_.*(e_.+f_.*x_)))^n_.*(a_.+b_.*(F_^(g_.*(e_.+f_.*x_)))^n_.)^p_.,x_Symbol] :=
+  (c+d*x)^m*(a+b*(F^(g*(e+f*x)))^n)^(p+1)/(b*f*g*n*(p+1)*Log[F]) - 
+  d*m/(b*f*g*n*(p+1)*Log[F])*Int[(c+d*x)^(m-1)*(a+b*(F^(g*(e+f*x)))^n)^(p+1),x] /;
+FreeQ[{F,a,b,c,d,e,f,g,m,n,p},x] && NonzeroQ[p+1]
+
+
+Int[(c_.+d_.*x_)^m_.*(F_^(g_.*(e_.+f_.*x_)))^n_.*(a_.+b_.*(F_^(g_.*(e_.+f_.*x_)))^n_.)^p_.,x_Symbol] :=
+  Defer[Int][(c+d*x)^m*(F^(g*(e+f*x)))^n*(a+b*(F^(g*(e+f*x)))^n)^p,x] /;
+FreeQ[{F,a,b,c,d,e,f,g,m,n,p},x]
+
+
+Int[(c_.+d_.*x_)^m_.*(k_.*G_^(j_.*(h_.+i_.*x_)))^q_.*(a_.+b_.*(F_^(g_.*(e_.+f_.*x_)))^n_.)^p_.,x_Symbol] :=
+  (k*G^(j*(h+i*x)))^q/(F^(g*(e+f*x)))^n*Int[(c+d*x)^m*(F^(g*(e+f*x)))^n*(a+b*(F^(g*(e+f*x)))^n)^p,x] /;
+FreeQ[{F,a,b,c,d,e,f,g,h,i,j,k,m,n,p,q},x] && ZeroQ[f*g*n*Log[F]-i*j*q*Log[G]] && NonzeroQ[(k*G^(j*(h+i*x)))^q-(F^(g*(e+f*x)))^n]
+
+
+
+
+
+(* ::Subsection::Closed:: *)
+(*2.3 Miscellaneous exponentials*)
+
+
+Int[(F_^(c_.*(a_.+b_.*x_)))^n_.,x_Symbol] :=
+  (F^(c*(a+b*x)))^n/(b*c*n*Log[F]) /;
+FreeQ[{F,a,b,c,n},x]
 
 
 Int[u_*F_^(c_.*v_),x_Symbol] :=
@@ -365,35 +413,6 @@ Int[u_^m_.*F_^v_,x_Symbol] :=
 FreeQ[{F,m},x] && LinearQ[u,x] && QuadraticQ[v,x] && Not[LinearMatchQ[u,x] && QuadraticMatchQ[v,x]]
 
 
-Int[x_^m_.*(a_+b_.*F_^(e_.*(c_.+d_.*x_)))^n_,x_Symbol] :=
-  Int[ExpandIntegrand[x^m*(a+b*F^(e*(c+d*x)))^n,x],x] /;
-FreeQ[{F,a,b,c,d,e,m},x] && PositiveIntegerQ[n]
-
-
-Int[(f_.+g_.*x_)^m_./(a_+b_.*F_^(e_.*(c_.+d_.*x_))),x_Symbol] :=
-  (f+g*x)^(m+1)/(a*g*(m+1)) - 
-  b/a*Int[(f+g*x)^m*F^(e*(c+d*x))/(a+b*F^(e*(c+d*x))),x] /;
-FreeQ[{F,a,b,c,d,e,f,g},x] && RationalQ[m] && m>0
-
-
-Int[(f_.+g_.*x_)^m_.*(a_+b_.*F_^(e_.*(c_.+d_.*x_)))^n_,x_Symbol] :=
-  With[{u=IntHide[(a+b*F^(e*(c+d*x)))^n,x]},
-  Dist[(f+g*x)^m,u,x] - g*m*Int[(f+g*x)^(m-1)*u,x]] /;
-FreeQ[{F,a,b,c,d,e,f,g},x] && RationalQ[m,n] && m>0 && n<-1
-
-
-Int[(f_.+g_.*x_)^m_.*F_^(e_.*(c_.+d_.*x_))/(a_+b_.*F_^(e_.*(c_.+d_.*x_))),x_Symbol] :=
-  (f+g*x)^m*Log[1+b*F^(e*(c+d*x))/a]/(b*d*e*Log[F]) - 
-  g*m/(b*d*e*Log[F])*Int[(f+g*x)^(m-1)*Log[1+b/a*F^(e*(c+d*x))],x] /;
-FreeQ[{F,a,b,c,d,e,f,g},x] && RationalQ[m] && m>=1
-
-
-Int[(f_.+g_.*x_)^m_.*F_^(e_.*(c_.+d_.*x_))*(a_.+b_.*F_^(e_.*(c_.+d_.*x_)))^p_.,x_Symbol] :=
-  (f+g*x)^m*(a+b*F^(e*(c+d*x)))^(p+1)/(b*d*e*(p+1)*Log[F]) - 
-  g*m/(b*d*e*(p+1)*Log[F])*Int[(f+g*x)^(m-1)*(a+b*F^(e*(c+d*x)))^(p+1),x] /;
-FreeQ[{F,a,b,c,d,e,f,g,m,p},x] && NonzeroQ[p+1]
-
-
 Int[x_^m_.*F_^(e_.*(c_.+d_.*x_))*(a_.+b_.*F_^v_)^n_,x_Symbol] :=
   With[{u=IntHide[F^(e*(c+d*x))*(a+b*F^v)^n,x]},
   Dist[x^m,u,x] - m*Int[x^(m-1)*u,x]] /;
@@ -487,18 +506,21 @@ FreeQ[{F,a,b,c,d,e,m,n,p},x] && NonzeroQ[p+1]
 
 Int[(f_.+g_.*x_)^m_./(a_.+b_.*F_^u_+c_.*F_^v_),x_Symbol] :=
   With[{q=Rt[b^2-4*a*c,2]},
-  2*c/q*Int[(f+g*x)^m/(b-q+2*c*F^u),x] - 
-  2*c/q*Int[(f+g*x)^m/(b+q+2*c*F^u),x] /;
- NonzeroQ[q]] /;
-FreeQ[{F,a,b,c,f,g},x] && ZeroQ[v-2*u] && LinearQ[u,x] && PositiveIntegerQ[m]
+  2*c/q*Int[(f+g*x)^m/(b-q+2*c*F^u),x] - 2*c/q*Int[(f+g*x)^m/(b+q+2*c*F^u),x]] /;
+FreeQ[{F,a,b,c,f,g},x] && ZeroQ[v-2*u] && LinearQ[u,x] && NonzeroQ[b^2-4*a*c] && PositiveIntegerQ[m]
 
 
-Int[(f_.+g_.*x_)^m_.*(d_.+e_.*F_^u_)/(a_.+b_.*F_^u_+c_.*F_^v_),x_Symbol] :=
+Int[(f_.+g_.*x_)^m_.*F_^u_/(a_.+b_.*F_^u_+c_.*F_^v_),x_Symbol] :=
   With[{q=Rt[b^2-4*a*c,2]},
-  (Simplify[(2*c*d-b*e)/q]+e)*Int[(f+g*x)^m/(b-q+2*c*F^u),x] - 
-  (Simplify[(2*c*d-b*e)/q]-e)*Int[(f+g*x)^m/(b+q+2*c*F^u),x] /;
- NonzeroQ[q]] /;
-FreeQ[{F,a,b,c,d,e,f,g},x] && ZeroQ[v-2*u] && LinearQ[u,x] && PositiveIntegerQ[m]
+  2*c/q*Int[(f+g*x)^m*F^u/(b-q+2*c*F^u),x] - 2*c/q*Int[(f+g*x)^m*F^u/(b+q+2*c*F^u),x]] /;
+FreeQ[{F,a,b,c,f,g},x] && ZeroQ[v-2*u] && LinearQ[u,x] && NonzeroQ[b^2-4*a*c] && PositiveIntegerQ[m]
+
+
+Int[(f_.+g_.*x_)^m_.*(h_+i_.*F_^u_)/(a_.+b_.*F_^u_+c_.*F_^v_),x_Symbol] :=
+  With[{q=Rt[b^2-4*a*c,2]},
+  (Simplify[(2*c*h-b*i)/q]+i)*Int[(f+g*x)^m/(b-q+2*c*F^u),x] - 
+  (Simplify[(2*c*h-b*i)/q]-i)*Int[(f+g*x)^m/(b+q+2*c*F^u),x]] /;
+FreeQ[{F,a,b,c,f,g,h,i},x] && ZeroQ[v-2*u] && LinearQ[u,x] && NonzeroQ[b^2-4*a*c] && PositiveIntegerQ[m]
 
 
 Int[x_^m_./(a_.*F_^(c_.+d_.*x_)+b_.*F_^v_),x_Symbol] :=
@@ -548,11 +570,14 @@ Int[x_^m_.*(E^x_+x_^m_.)^n_,x_Symbol] :=
 RationalQ[m,n] && m>0 && n<0 && n!=-1
 
 
-Int[Log[d_+e_.*(F_^(c_.*(a_.+b_.*x_)))^n_.],x_Symbol] :=
-  x*Log[d+e*(F^(c*(a+b*x)))^n] - 
-  x*Log[1+e/d*(F^(c*(a+b*x)))^n] + 
-  Int[Log[1+e/d*(F^(c*(a+b*x)))^n],x] /;
-FreeQ[{F,a,b,c,d,e,n},x] && NonzeroQ[d-1]
+Int[Log[a_+b_.*(F_^(e_.*(c_.+d_.*x_)))^n_.],x_Symbol] :=
+  1/(d*e*n*Log[F])*Subst[Int[Log[a+b*x]/x,x],x,(F^(e*(c+d*x)))^n] /;
+FreeQ[{F,a,b,c,d,e,n},x] && PositiveQ[a]
+
+
+Int[Log[a_+b_.*(F_^(e_.*(c_.+d_.*x_)))^n_.],x_Symbol] :=
+  x*Log[a+b*(F^(e*(c+d*x)))^n] - b*d*e*n*Log[F]*Int[x*(F^(e*(c+d*x)))^n/(a+b*(F^(e*(c+d*x)))^n),x] /;
+FreeQ[{F,a,b,c,d,e,n},x] && Not[PositiveQ[a]]
 
 
 (* Int[u_.*(a_.*F_^v_)^n_,x_Symbol] :=
@@ -608,3 +633,6 @@ Int[F_^u_*v_^n_.*w_,x_Symbol] :=
   Coefficient[w,x,Exponent[w,x]]/Coefficient[z,x,Exponent[z,x]]*F^u*v^(n+1) /;
  Exponent[w,x]==Exponent[z,x] && ZeroQ[w*Coefficient[z,x,Exponent[z,x]]-z*Coefficient[w,x,Exponent[w,x]]]] /;
 FreeQ[{F,n},x] && PolynomialQ[u,x] && PolynomialQ[v,x] && PolynomialQ[w,x]
+
+
+

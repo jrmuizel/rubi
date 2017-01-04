@@ -232,9 +232,15 @@ FreeQ[{a,b,c,d,e,p},x] && ZeroQ[2*c*d-b*e]
 
 
 (* ::Code:: *)
-Int[u_.*(a_.*x_^m_.+b_.*x_^n_.)^p_.,x_Symbol] :=
-  Int[u*x^(m*p)*(a+b*x^(n-m))^p,x] /;
-FreeQ[{a,b,m,n},x] && IntegerQ[p] && PosQ[n-m]
+Int[u_.*(a_.*x_^p_.+b_.*x_^q_.)^m_.,x_Symbol] :=
+  Int[u*x^(m*p)*(a+b*x^(q-p))^m,x] /;
+FreeQ[{a,b,p,q},x] && IntegerQ[m] && PosQ[q-p]
+
+
+(* ::Code:: *)
+Int[u_.*(a_.*x_^p_.+b_.*x_^q_.+c_.*x_^r_.)^m_.,x_Symbol] :=
+  Int[u*x^(m*p)*(a+b*x^(q-p)+c*x^(r-p))^m,x] /;
+FreeQ[{a,b,c,p,q,r},x] && IntegerQ[m] && PosQ[q-p] && PosQ[r-p]
 
 
 (* ::Code:: *)
@@ -247,6 +253,12 @@ FreeQ[{a,b,m,n},x] && ZeroQ[m-n+1]
 Int[x_^m_.*(a_+b_.*x_^n_)^p_,x_Symbol] :=
   (a+b*x^n)^(p+1)/(b*n*(p+1)) /;
 FreeQ[{a,b,m,n,p},x] && ZeroQ[m-n+1] && NonzeroQ[p+1]
+
+
+(* ::Code:: *)
+Int[x_^m_.*(a1_+b1_.*x_^n_.)^p_*(a2_+b2_.*x_^n_.)^p_,x_Symbol] :=
+  (a1+b1*x^n)^(p+1)*(a2+b2*x^n)^(p+1)/(2*b1*b2*n*(p+1)) /;
+FreeQ[{a1,b1,a2,b2,m,n,p},x] && ZeroQ[a2*b1+a1*b2] && ZeroQ[m-2*n+1] && NonzeroQ[p+1]
 
 
 (* ::Code:: *)
