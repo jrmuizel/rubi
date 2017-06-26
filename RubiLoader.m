@@ -19,19 +19,24 @@ LoadRules[filename_String] :=
 
 
 Clear[Int];
-Int::usage="Int [expn, var]";
+Int::usage="Int[expn,var] returns the indefinite integral of <expn> with respect to <var>.";
 
 
 LoadRules["ShowStep routines"];
-LoadRules["Integration Utility Functions"];
-
-
+LoadRules["Integration utility functions"];
 LoadRules["9.1 Integrand simplification rules"];
-LoadRules["1.1 Linear products"];
-LoadRules["1.2 Quadratic products"];
-LoadRules["1.3 Binomial products"];
-LoadRules["1.4 Trinomial products"];
-LoadRules["1.5 Miscellaneous algebraic functions"];
+
+
+LoadRules["1.1.1 Linear binomial products"];
+LoadRules["1.1.3 General binomial products"];
+
+LoadRules["1.2.1 Quadratic trinomial products"];
+LoadRules["1.2.2 Quartic trinomial products"];
+LoadRules["1.2.3 General trinomial products"];
+LoadRules["1.2.4 Improper trinomial products"];
+
+LoadRules["1.1.4 Improper binomial products"];
+LoadRules["1.3 Miscellaneous algebraic functions"];
 
 
 LoadRules["9.3 Piecewise linear functions"];

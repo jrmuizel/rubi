@@ -30,7 +30,7 @@ FreeQ[m,x] && PiecewiseLinearQ[u,x]
 Int[v_/u_,x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   b*x/a - (b*u-a*v)/a*Int[1/u,x] /;
- NonzeroQ[b*u-a*v]] /;
+ NeQ[b*u-a*v]] /;
 PiecewiseLinearQ[u,v,x]
 
 
@@ -38,7 +38,7 @@ PiecewiseLinearQ[u,v,x]
 Int[v_^n_/u_,x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   v^n/(a*n) - (b*u-a*v)/a*Int[v^(n-1)/u,x] /;
- NonzeroQ[b*u-a*v]] /;
+ NeQ[b*u-a*v]] /;
 PiecewiseLinearQ[u,v,x] && RationalQ[n] && n>0 && n!=1
 
 
@@ -46,7 +46,7 @@ PiecewiseLinearQ[u,v,x] && RationalQ[n] && n>0 && n!=1
 Int[1/(u_*v_),x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   b/(b*u-a*v)*Int[1/v,x] - a/(b*u-a*v)*Int[1/u,x] /;
- NonzeroQ[b*u-a*v]] /;
+ NeQ[b*u-a*v]] /;
 PiecewiseLinearQ[u,v,x]
 
 
@@ -54,7 +54,7 @@ PiecewiseLinearQ[u,v,x]
 Int[1/(u_*Sqrt[v_]),x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   2*ArcTan[Sqrt[v]/Rt[(b*u-a*v)/a,2]]/(a*Rt[(b*u-a*v)/a,2]) /;
- NonzeroQ[b*u-a*v] && PosQ[(b*u-a*v)/a]] /;
+ NeQ[b*u-a*v] && PosQ[(b*u-a*v)/a]] /;
 PiecewiseLinearQ[u,v,x]
 
 
@@ -62,7 +62,7 @@ PiecewiseLinearQ[u,v,x]
 Int[1/(u_*Sqrt[v_]),x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   -2*ArcTanh[Sqrt[v]/Rt[-(b*u-a*v)/a,2]]/(a*Rt[-(b*u-a*v)/a,2]) /;
- NonzeroQ[b*u-a*v] && NegQ[(b*u-a*v)/a]] /;
+ NeQ[b*u-a*v] && NegQ[(b*u-a*v)/a]] /;
 PiecewiseLinearQ[u,v,x]
 
 
@@ -71,7 +71,7 @@ Int[v_^n_/u_,x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   v^(n+1)/((n+1)*(b*u-a*v)) - 
   a*(n+1)/((n+1)*(b*u-a*v))*Int[v^(n+1)/u,x] /;
- NonzeroQ[b*u-a*v]] /;
+ NeQ[b*u-a*v]] /;
 PiecewiseLinearQ[u,v,x] && RationalQ[n] && n<-1
 
 
@@ -79,7 +79,7 @@ PiecewiseLinearQ[u,v,x] && RationalQ[n] && n<-1
 Int[v_^n_/u_,x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   v^(n+1)/((n+1)*(b*u-a*v))*Hypergeometric2F1[1,n+1,n+2,-a*v/(b*u-a*v)] /;
- NonzeroQ[b*u-a*v]] /;
+ NeQ[b*u-a*v]] /;
 PiecewiseLinearQ[u,v,x] && Not[IntegerQ[n]]
 
 
@@ -87,7 +87,7 @@ PiecewiseLinearQ[u,v,x] && Not[IntegerQ[n]]
 Int[1/(Sqrt[u_]*Sqrt[v_]),x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   2/Rt[a*b,2]*ArcTanh[Rt[a*b,2]*Sqrt[u]/(a*Sqrt[v])] /;
- NonzeroQ[b*u-a*v] && PosQ[a*b]] /;
+ NeQ[b*u-a*v] && PosQ[a*b]] /;
 PiecewiseLinearQ[u,v,x]
 
 
@@ -95,7 +95,7 @@ PiecewiseLinearQ[u,v,x]
 Int[1/(Sqrt[u_]*Sqrt[v_]),x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   2/Rt[-a*b,2]*ArcTan[Rt[-a*b,2]*Sqrt[u]/(a*Sqrt[v])] /;
- NonzeroQ[b*u-a*v] && NegQ[a*b]] /;
+ NeQ[b*u-a*v] && NegQ[a*b]] /;
 PiecewiseLinearQ[u,v,x]
 
 
@@ -103,8 +103,8 @@ PiecewiseLinearQ[u,v,x]
 Int[u_^m_*v_^n_,x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   -u^(m+1)*v^(n+1)/((m+1)*(b*u-a*v)) /;
- NonzeroQ[b*u-a*v]] /;
-FreeQ[{m,n},x] && PiecewiseLinearQ[u,v,x] && ZeroQ[m+n+2] && NonzeroQ[m+1]
+ NeQ[b*u-a*v]] /;
+FreeQ[{m,n},x] && PiecewiseLinearQ[u,v,x] && EqQ[m+n+2] && NeQ[m+1]
 
 
 (* ::Code:: *)
@@ -112,8 +112,8 @@ Int[u_^m_*v_^n_.,x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   u^(m+1)*v^n/(a*(m+1)) - 
   b*n/(a*(m+1))*Int[u^(m+1)*v^(n-1),x] /;
- NonzeroQ[b*u-a*v]] /;
-FreeQ[{m,n},x] && PiecewiseLinearQ[u,v,x] (* && NonzeroQ[m+n+2] *) && NonzeroQ[m+1] && (
+ NeQ[b*u-a*v]] /;
+FreeQ[{m,n},x] && PiecewiseLinearQ[u,v,x] (* && NeQ[m+n+2] *) && NeQ[m+1] && (
   RationalQ[m,n] && m<-1 && n>0 && Not[IntegerQ[m+n] && m+n+2<0 && (FractionQ[m] || 2*n+m+1>=0)] || 
   PositiveIntegerQ[n,m] && n<=m ||
 (*NegativeIntegerQ[n,m] && n<=m || *)
@@ -126,8 +126,8 @@ Int[u_^m_*v_^n_.,x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   u^(m+1)*v^n/(a*(m+n+1)) - 
   n*(b*u-a*v)/(a*(m+n+1))*Int[u^m*v^(n-1),x] /;
- NonzeroQ[b*u-a*v]] /;
-PiecewiseLinearQ[u,v,x] && NonzeroQ[m+n+2] && RationalQ[n] && n>0 && NonzeroQ[m+n+1] && 
+ NeQ[b*u-a*v]] /;
+PiecewiseLinearQ[u,v,x] && NeQ[m+n+2] && RationalQ[n] && n>0 && NeQ[m+n+1] && 
   Not[PositiveIntegerQ[m] && (Not[IntegerQ[n]] || 0<m<n)] && 
   Not[IntegerQ[m+n] && m+n+2<0]
 
@@ -137,8 +137,8 @@ Int[u_^m_*v_^n_,x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   u^(m+1)*v^n/(a*(m+n+1)) - 
   n*(b*u-a*v)/(a*(m+n+1))*Int[u^m*v^Simplify[n-1],x] /;
- NonzeroQ[b*u-a*v]] /;
-PiecewiseLinearQ[u,v,x] && NonzeroQ[m+n+1] && Not[RationalQ[n]] && SumSimplerQ[n,-1]
+ NeQ[b*u-a*v]] /;
+PiecewiseLinearQ[u,v,x] && NeQ[m+n+1] && Not[RationalQ[n]] && SumSimplerQ[n,-1]
 
 
 (* ::Code:: *)
@@ -146,8 +146,8 @@ Int[u_^m_*v_^n_,x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   -u^(m+1)*v^(n+1)/((m+1)*(b*u-a*v)) + 
   b*(m+n+2)/((m+1)*(b*u-a*v))*Int[u^(m+1)*v^n,x] /;
- NonzeroQ[b*u-a*v]] /;
-PiecewiseLinearQ[u,v,x] && NonzeroQ[m+n+2] && RationalQ[m] && m<-1
+ NeQ[b*u-a*v]] /;
+PiecewiseLinearQ[u,v,x] && NeQ[m+n+2] && RationalQ[m] && m<-1
 
 
 (* ::Code:: *)
@@ -155,7 +155,7 @@ Int[u_^m_*v_^n_,x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   -u^(m+1)*v^(n+1)/((m+1)*(b*u-a*v)) + 
   b*(m+n+2)/((m+1)*(b*u-a*v))*Int[u^Simplify[m+1]*v^n,x] /;
- NonzeroQ[b*u-a*v]] /;
+ NeQ[b*u-a*v]] /;
 PiecewiseLinearQ[u,v,x] && Not[RationalQ[m]] && SumSimplerQ[m,1]
 
 
@@ -163,7 +163,7 @@ PiecewiseLinearQ[u,v,x] && Not[RationalQ[m]] && SumSimplerQ[m,1]
 Int[u_^m_*v_^n_,x_Symbol] :=
   Module[{a=Simplify[D[u,x]],b=Simplify[D[v,x]]},
   u^m*v^(n+1)/(b*(n+1)*(b*u/(b*u-a*v))^m)*Hypergeometric2F1[-m,n+1,n+2,-a*v/(b*u-a*v)] /;
- NonzeroQ[b*u-a*v]] /;
+ NeQ[b*u-a*v]] /;
 PiecewiseLinearQ[u,v,x] && Not[IntegerQ[m]] && Not[IntegerQ[n]]
 
 
@@ -190,7 +190,7 @@ Int[u_^n_.*(a_.+b_.*x_)^m_.*Log[a_.+b_.*x_],x_Symbol] :=
   u^n*(a+b*x)^(m+1)*Log[a+b*x]/(b*(m+1)) - 
   1/(m+1)*Int[u^n*(a+b*x)^m,x] - 
   c*n/(b*(m+1))*Int[u^(n-1)*(a+b*x)^(m+1)*Log[a+b*x],x]] /;
-FreeQ[{a,b,m},x] && PiecewiseLinearQ[u,x] && Not[LinearQ[u,x]] && RationalQ[n] && n>0 && NonzeroQ[m+1]
+FreeQ[{a,b,m},x] && PiecewiseLinearQ[u,x] && Not[LinearQ[u,x]] && RationalQ[n] && n>0 && NeQ[m+1]
 
 
 

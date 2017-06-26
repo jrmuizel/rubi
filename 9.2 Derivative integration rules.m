@@ -76,19 +76,19 @@ FreeQ[{a,f,g},x] && FunctionOfQ[f[x]*g[x],u,x]
 (* ::Code:: *)
 Int[u_*(a_.*Derivative[m_][f_][x_]*g_[x_]+a_.*Derivative[m1_][f_][x_]*Derivative[1][g_][x_]),x_Symbol] :=
   a*Subst[Int[SimplifyIntegrand[SubstFor[Derivative[m-1][f][x]*g[x],u,x],x],x],x,Derivative[m-1][f][x]*g[x]] /;
-FreeQ[{a,f,g,m},x] && ZeroQ[m1-m+1] && FunctionOfQ[Derivative[m-1][f][x]*g[x],u,x]
+FreeQ[{a,f,g,m},x] && EqQ[m1-m+1] && FunctionOfQ[Derivative[m-1][f][x]*g[x],u,x]
 
 
 (* ::Code:: *)
 Int[u_*(a_.*Derivative[m_][f_][x_]*Derivative[n1_][g_][x_]+a_.*Derivative[m1_][f_][x_]*Derivative[n_][g_][x_]),x_Symbol] :=
   a*Subst[Int[SimplifyIntegrand[SubstFor[Derivative[m-1][f][x]*Derivative[n-1][g][x],u,x],x],x],x,Derivative[m-1][f][x]*Derivative[n-1][g][x]] /;
-FreeQ[{a,f,g,m,n},x] && ZeroQ[m1-m+1] && ZeroQ[n1-n+1] && FunctionOfQ[Derivative[m-1][f][x]*Derivative[n-1][g][x],u,x]
+FreeQ[{a,f,g,m,n},x] && EqQ[m1-m+1] && EqQ[n1-n+1] && FunctionOfQ[Derivative[m-1][f][x]*Derivative[n-1][g][x],u,x]
 
 
 (* ::Code:: *)
 Int[u_*f_[x_]^p_.*(a_.*Derivative[1][f_][x_]*g_[x_]+b_.*f_[x_]*Derivative[1][g_][x_]),x_Symbol] :=
   b*Subst[Int[SimplifyIntegrand[SubstFor[f[x]^(p+1)*g[x],u,x],x],x],x,f[x]^(p+1)*g[x]] /;
-FreeQ[{a,b,f,g,p},x] && ZeroQ[a-b*(p+1)] && FunctionOfQ[f[x]^(p+1)*g[x],u,x]
+FreeQ[{a,b,f,g,p},x] && EqQ[a-b*(p+1)] && FunctionOfQ[f[x]^(p+1)*g[x],u,x]
 
 
 (* ::Code:: *)
@@ -96,7 +96,7 @@ Int[u_*Derivative[m1_][f_][x_]^p_.*
     (a_.*Derivative[m_][f_][x_]*g_[x_]+b_.*Derivative[m1_][f_][x_]*Derivative[1][g_][x_]),x_Symbol] :=
   b*Subst[Int[SimplifyIntegrand[SubstFor[Derivative[m-1][f][x]^(p+1)*g[x],u,x],x],x],x,
     Derivative[m-1][f][x]^(p+1)*g[x]] /;
-FreeQ[{a,b,f,g,m,p},x] && ZeroQ[m1-m+1] && ZeroQ[a-b*(p+1)] && FunctionOfQ[Derivative[m-1][f][x]^(p+1)*g[x],u,x]
+FreeQ[{a,b,f,g,m,p},x] && EqQ[m1-m+1] && EqQ[a-b*(p+1)] && FunctionOfQ[Derivative[m-1][f][x]^(p+1)*g[x],u,x]
 
 
 (* ::Code:: *)
@@ -104,7 +104,7 @@ Int[u_*g_[x_]^q_.*
     (a_.*Derivative[m_][f_][x_]*g_[x_]+b_.*Derivative[m1_][f_][x_]*Derivative[1][g_][x_]),x_Symbol] :=
   a*Subst[Int[SimplifyIntegrand[SubstFor[Derivative[m-1][f][x]*g[x]^(q+1),u,x],x],x],x,
     Derivative[m-1][f][x]*g[x]^(q+1)] /;
-FreeQ[{a,b,f,g,m,q},x] && ZeroQ[m1-m+1] && ZeroQ[a*(q+1)-b] && FunctionOfQ[Derivative[m-1][f][x]*g[x]^(q+1),u,x]
+FreeQ[{a,b,f,g,m,q},x] && EqQ[m1-m+1] && EqQ[a*(q+1)-b] && FunctionOfQ[Derivative[m-1][f][x]*g[x]^(q+1),u,x]
 
 
 (* ::Code:: *)
@@ -112,14 +112,14 @@ Int[u_*Derivative[m1_][f_][x_]^p_.*
     (a_.*Derivative[m_][f_][x_]*Derivative[n1_][g_][x_]+b_.*Derivative[m1_][f_][x_]*Derivative[n_][g_][x_]),x_Symbol] :=
   b*Subst[Int[SimplifyIntegrand[SubstFor[Derivative[m-1][f][x]^(p+1)*Derivative[n-1][g][x],u,x],x],x],x,
     Derivative[m-1][f][x]^(p+1)*Derivative[n-1][g][x]] /;
-FreeQ[{a,b,f,g,m,n,p},x] && ZeroQ[m1-m+1] && ZeroQ[n1-n+1] && ZeroQ[a-b*(p+1)] && 
+FreeQ[{a,b,f,g,m,n,p},x] && EqQ[m1-m+1] && EqQ[n1-n+1] && EqQ[a-b*(p+1)] && 
   FunctionOfQ[Derivative[m-1][f][x]^(p+1)*Derivative[n-1][g][x],u,x]
 
 
 (* ::Code:: *)
 Int[u_*f_[x_]^p_.*g_[x_]^q_.*(a_.*Derivative[1][f_][x_]*g_[x_]+b_.*f_[x_]*Derivative[1][g_][x_]),x_Symbol] :=
   a/(p+1)*Subst[Int[SimplifyIntegrand[SubstFor[f[x]^(p+1)*g[x]^(q+1),u,x],x],x],x,f[x]^(p+1)*g[x]^(q+1)] /;
-FreeQ[{a,b,f,g,p,q},x] && ZeroQ[a*(q+1)-b*(p+1)] && FunctionOfQ[f[x]^(p+1)*g[x]^(q+1),u,x]
+FreeQ[{a,b,f,g,p,q},x] && EqQ[a*(q+1)-b*(p+1)] && FunctionOfQ[f[x]^(p+1)*g[x]^(q+1),u,x]
 
 
 (* ::Code:: *)
@@ -127,7 +127,7 @@ Int[u_*Derivative[m1_][f_][x_]^p_.*g_[x_]^q_.*
     (a_.*Derivative[m_][f_][x_]*g_[x_]+b_.*Derivative[m1_][f_][x_]*Derivative[1][g_][x_]),x_Symbol] :=
   a/(p+1)*Subst[Int[SimplifyIntegrand[SubstFor[Derivative[m-1][f][x]^(p+1)*g[x]^(q+1),u,x],x],x],x,
     Derivative[m-1][f][x]^(p+1)*g[x]^(q+1)] /;
-FreeQ[{a,b,f,g,m,p,q},x] && ZeroQ[m1-m+1] && ZeroQ[a*(q+1)-b*(p+1)] && FunctionOfQ[Derivative[m-1][f][x]^(p+1)*g[x]^(q+1),u,x]
+FreeQ[{a,b,f,g,m,p,q},x] && EqQ[m1-m+1] && EqQ[a*(q+1)-b*(p+1)] && FunctionOfQ[Derivative[m-1][f][x]^(p+1)*g[x]^(q+1),u,x]
 
 
 (* ::Code:: *)
@@ -135,7 +135,7 @@ Int[u_*Derivative[m1_][f_][x_]^p_.*Derivative[n1_][g_][x_]^q_.*
     (a_.*Derivative[m_][f_][x_]*Derivative[n1_][g_][x_]+b_.*Derivative[m1_][f_][x_]*Derivative[n_][g_][x_]),x_Symbol] :=
   a/(p+1)*Subst[Int[SimplifyIntegrand[SubstFor[Derivative[m-1][f][x]^(p+1)*Derivative[n-1][g][x]^(q+1),u,x],x],x],x,
     Derivative[m-1][f][x]^(p+1)*Derivative[n-1][g][x]^(q+1)] /;
-FreeQ[{a,b,f,g,m,n,p,q},x] && ZeroQ[m1-m+1] && ZeroQ[n1-n+1] && ZeroQ[a*(q+1)-b*(p+1)] && 
+FreeQ[{a,b,f,g,m,n,p,q},x] && EqQ[m1-m+1] && EqQ[n1-n+1] && EqQ[a*(q+1)-b*(p+1)] && 
   FunctionOfQ[Derivative[m-1][f][x]^(p+1)*Derivative[n-1][g][x]^(q+1),u,x]
 
 

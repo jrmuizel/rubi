@@ -64,23 +64,6 @@ FalseQ[u_] := u===False
 
 
 (* ::Subsection::Closed:: *)
-(*ZeroQ[u]*)
-
-
-(* ZeroQ[u1,u2,...] returns True if u1, u2, ... are all 0; else it returns False. *)
-ZeroQ[u_] := Quiet[PossibleZeroQ[u]]
-
-ZeroQ[u__] := Catch[Scan[Function[If[ZeroQ[#],Null,Throw[False]]],{u}];True]
-
-
-(* ::Subsection::Closed:: *)
-(*NonzeroQ[u]*)
-
-
-NonzeroQ[u_] := Not[ZeroQ[u]]
-
-
-(* ::Subsection::Closed:: *)
 (*IntegersQ[u]*)
 
 
@@ -124,8 +107,8 @@ RationalQ[u__] := Catch[Scan[Function[If[IntegerQ[#] || Head[#]===Rational,Null,
 (*ComplexNumberQ[u]*)
 
 
-(* ComplexNumberQ[m,n,...] returns True if m, n, ... are all explicit complex numbers; else it returns False. *)
-ComplexNumberQ[u__] := Catch[Scan[Function[If[Head[#]===Complex,Null,Throw[False]]],{u}]; True]
+(* ComplexNumberQ[u] returns True if u is an explicit complex number; else it returns False. *)
+ComplexNumberQ[u_] := Head[u]===Complex
 
 
 (* ::Subsection::Closed:: *)
@@ -133,7 +116,7 @@ ComplexNumberQ[u__] := Catch[Scan[Function[If[Head[#]===Complex,Null,Throw[False
 
 
 (* RealNumericQ[u] returns True if u is a real numeric quantity, else returns False. *)
-RealNumericQ[u_] := NumericQ[u] && (ZeroQ[Im[u]] || ZeroQ[Im[N[u]]])
+RealNumericQ[u_] := NumericQ[u] && (EqQ[Im[u],0] || EqQ[Im[N[u]],0])
 
 
 (* ::Subsection::Closed:: *)
@@ -154,26 +137,6 @@ PositiveQ[u_] :=
 NegativeQ[u_] :=
   With[{v=Simplify[u]},
   RealNumericQ[v] && Re[N[v]]<0]
-
-
-(* ::Subsection::Closed:: *)
-(*PositiveOrZeroQ[u]*)
-
-
-(* PositiveOrZeroQ[u] returns True if u is a nonpositive numeric quantity, else returns False. *)
-PositiveOrZeroQ[u_] :=
-  With[{v=Simplify[u]},
-  RealNumericQ[v] && Re[N[v]]>=0]
-
-
-(* ::Subsection::Closed:: *)
-(*NegativeOrZeroQ[u]*)
-
-
-(* NegativeQ[u] returns True if u is a negative numeric quantity, else returns False. *)
-NegativeOrZeroQ[u_] :=
-  With[{v=Simplify[u]},
-  RealNumericQ[v] && Re[N[v]]<=0]
 
 
 (* ::Subsection::Closed:: *)
@@ -464,51 +427,64 @@ InverseFunctionFreeQ[u_,x_Symbol] :=
   False]] *)
 
 
-(* ::Subsection::Closed:: *)
-(*RealQ[u]*)
-
-
-(* Real[u] returns True if u is a real-valued quantity, else returns False. *)
-RealQ[u_] :=
-  MapAnd[RealQ,u] /;
-ListQ[u]
-
-RealQ[u_] :=
-  ZeroQ[Im[N[u]]] /;
-NumericQ[u]
-
-RealQ[u_^v_] :=
-  RealQ[u] && RealQ[v] && (IntegerQ[v] || PositiveOrZeroQ[u])  
-
-RealQ[u_*v_] :=
-  RealQ[u] && RealQ[v]
-
-RealQ[u_+v_] :=
-  RealQ[u] && RealQ[v]
-
-RealQ[f_[u_]] :=
-  If[MemberQ[{Sin,Cos,Tan,Cot,Sec,Csc,ArcTan,ArcCot,Erf},f],
-    RealQ[u],
-  If[MemberQ[{ArcSin,ArcCos},f],
-    LE[-1,u,1],
-  If[f===Log,
-    PositiveOrZeroQ[u],
-  False]]]
-
-RealQ[u_] :=
-  False
-
-
 (* ::Section::Closed:: *)
 (*Equality and inequality predicates*)
 
 
 (* ::Subsection::Closed:: *)
-(*EqQ[u,v]*)
+(*Equality predicates*)
 
 
-(* If u=v, EqQ[u,v] returns True; else it returns False. *)
-EqQ[u_,v_] := ZeroQ[u-v]
+(* If u-v equals 0, EqQ[u,v] returns True; else it returns False. *)
+EqQ[u_] := Quiet[PossibleZeroQ[u]]
+
+EqQ[u_,v_] := Quiet[PossibleZeroQ[u-v]]
+
+
+(* If u-v equals 0, EqQ[u,v] returns False; else it returns True. *)
+NeQ[u_] := Not[Quiet[PossibleZeroQ[u]]]
+
+NeQ[u_,v_] := Not[Quiet[PossibleZeroQ[u-v]]]
+
+
+(* ::Subsection::Closed:: *)
+(*Integer inequality predicates*)
+
+
+(* num is a rational.  If u is an integer and u>n, IGtQ[u,n] returns True; else it returns False. *)
+IGtQ[u_,n_] := IntegerQ[u] && u>n
+
+
+(* num is a rational.  If u is an integer and u<n, ILtQ[u,n] returns True; else it returns False. *)
+ILtQ[u_,n_] := IntegerQ[u] && u<n
+
+
+(* num is a rational.  If u is an integer and u>=n, IGeQ[u,n] returns True; else it returns False. *)
+IGeQ[u_,n_] := IntegerQ[u] && u>=n
+
+
+(* num is a rational.  If u is an integer and u<=n, ILeQ[u,n] returns True; else it returns False. *)
+ILeQ[u_,n_] := IntegerQ[u] && u<=n
+
+
+(* ::Subsection::Closed:: *)
+(*Numeric inequality predicates*)
+
+
+(* num is a rational.  If u is a rational and u>n, GtQ[u,n] returns True; else it returns False. *)
+GtQ[u_,n_] := RationalQ[u] && u>n
+
+
+(* num is a rational.  If u is a rational and u<n, LtQ[u,n] returns True; else it returns False. *)
+LtQ[u_,n_] := RationalQ[u] && u<n
+
+
+(* num is a rational.  If u is a rational and u>=n, GeQ[u,n] returns True; else it returns False. *)
+GeQ[u_,n_] := RationalQ[u] && u>=n
+
+
+(* num is a rational.  If u is a rational and u<=n, LeQ[u,n] returns True; else it returns False. *)
+LeQ[u_,n_] := RationalQ[u] && u<=n
 
 
 (* ::Section::Closed:: *)
@@ -548,6 +524,15 @@ FreeQ[n,x]
 
 PolyQ[u_,u_] :=
   False
+
+
+(* ::Subsection::Closed:: *)
+(*ProperPolyQ[u,x]*)
+
+
+(* If u is a polynomial in x and the constant term is nonzero, ProperPolyQ[u,x] returns True; else it returns False. *)
+ProperPolyQ[u_,x_Symbol] :=
+  PolyQ[u,x] && NeQ[Coeff[u,x,0],0]
 
 
 (* ::Subsection::Closed:: *)
@@ -621,20 +606,22 @@ PosAux[u_] :=
   If[RationalQ[u],
     u>0,
   If[NumberQ[u],
-    If[ZeroQ[Re[u]],
+    If[EqQ[Re[u],0],
       Im[u]>0,
     Re[u]>0],
-  If[NumericQ[u],
-    With[{v=N[u]},
-    If[ZeroQ[Re[v]],
-      Im[v]>0,
-    Re[v]>0]],
-  If[PowerQ[u] && OddQ[u[[2]]],
-    PosAux[u[[1]]],
+  If[PowerQ[u],
+    If[IntegerQ[u[[2]]],
+      EvenQ[u[[2]]] || PosAux[u[[1]]],
+    True],
   If[ProductQ[u],
     If[PosAux[First[u]],
       PosAux[Rest[u]],
     Not[PosAux[Rest[u]]]],
+  If[NumericQ[u],
+    With[{v=N[u]},
+    If[EqQ[Re[v],0],
+      Im[v]>0,
+    Re[v]>0]],
   If[SumQ[u],
     PosAux[First[u]],
   True]]]]]]
@@ -645,7 +632,7 @@ PosAux[u_] :=
 
 
 NegQ[u_] :=
-  Not[PosQ[u]] && NonzeroQ[u]
+  Not[PosQ[u]] && NeQ[u,0]
 
 
 (* ::Subsection::Closed:: *)
@@ -675,7 +662,7 @@ NiceSqrtAuxQ[u_] :=
 	and n1, n2, ... are even, PerfectSquareQ[u] returns True; else it returns False. *)
 PerfectSquareQ[u_] :=
   If[RationalQ[u],
-    u>0 && u!=1 && RationalQ[Sqrt[u]],
+    u>0 && RationalQ[Sqrt[u]],
   If[PowerQ[u],
     EvenQ[u[[2]]],
   If[ProductQ[u],
@@ -697,9 +684,11 @@ PerfectSquareQ[u_] :=
 SimplerQ[u_,v_] :=
   If[IntegerQ[u],
     If[IntegerQ[v],
-      If[Abs[u]==Abs[v],
+      If[u==v,
+        False,
+      If[u==-v,
         v<0,
-      Abs[u]<Abs[v]],
+      Abs[u]<Abs[v]]],
     True],
   If[IntegerQ[v],
     False,
@@ -893,17 +882,17 @@ BinomialParts[u_,x_Symbol] :=
     If[AtomQ[lst2],
       False,
     With[{a=lst1[[1]],b=lst1[[2]],m=lst1[[3]], c=lst2[[1]],d=lst2[[2]],n=lst2[[3]]},
-    If[ZeroQ[a],
-      If[ZeroQ[c],
+    If[EqQ[a,0],
+      If[EqQ[c,0],
         {0,b*d,m+n},
-      If[ZeroQ[m+n],
+      If[EqQ[m+n,0],
         {b*d,b*c,m},
       False]],
-    If[ZeroQ[c],
-      If[ZeroQ[m+n],
+    If[EqQ[c,0],
+      If[EqQ[m+n,0],
         {b*d,a*d,n},
       False],
-    If[EqQ[m,n] && ZeroQ[a*d+b*c],
+    If[EqQ[m,n] && EqQ[a*d+b*c,0],
       {a*c,b*d,2*m},
     False]]]]]]]]]],
   If[SumQ[u],
@@ -944,15 +933,15 @@ TrinomialDegree[u_,x_Symbol] :=
 TrinomialParts[u_,x_Symbol] :=
   If[PolynomialQ[u,x],
     With[{lst=CoefficientList[u,x]},
-    If[Length[lst]<3 || EvenQ[Length[lst]] || ZeroQ[lst[[(Length[lst]+1)/2]]],
+    If[Length[lst]<3 || EvenQ[Length[lst]] || EqQ[lst[[(Length[lst]+1)/2]],0],
       False,
     Catch[
-      Scan[Function[If[ZeroQ[#],Null,Throw[False]]],Drop[Drop[Drop[lst,{(Length[lst]+1)/2}],1],-1]];
+      Scan[Function[If[EqQ[#,0],Null,Throw[False]]],Drop[Drop[Drop[lst,{(Length[lst]+1)/2}],1],-1]];
       {First[lst],lst[[(Length[lst]+1)/2]],Last[lst],(Length[lst]-1)/2}]]],
   If[PowerQ[u],
     If[EqQ[u[[2]],2],
       With[{lst=BinomialParts[u[[1]],x]},
-      If[AtomQ[lst] || ZeroQ[lst[[1]]],
+      If[AtomQ[lst] || EqQ[lst[[1]],0],
         False,
       {lst[[1]]^2,2*lst[[1]]*lst[[2]],lst[[2]]^2,lst[[3]]}]],
     False],
@@ -974,7 +963,7 @@ TrinomialParts[u_,x_Symbol] :=
     If[AtomQ[lst2],
       False,
     With[{a=lst1[[1]],b=lst1[[2]],m=lst1[[3]], c=lst2[[1]],d=lst2[[2]],n=lst2[[3]]},
-    If[EqQ[m,n] && NonzeroQ[a*d+b*c],
+    If[EqQ[m,n] && NeQ[a*d+b*c,0],
       {a*c,a*d+b*c,b*d,m},
     False]]]]]]]],
   If[SumQ[u],
@@ -1003,9 +992,9 @@ TrinomialParts[u_,x_Symbol] :=
         If[EqQ[lst4[[3]],2*lst3[[3]]],
           {lst3[[1]]+lst4[[1]],lst3[[2]],lst4[[2]],lst3[[3]]},
         False]]]],
-      If[EqQ[lst3[[3]],lst2[[4]]] && NonzeroQ[lst3[[2]]+lst2[[2]]],
+      If[EqQ[lst3[[3]],lst2[[4]]] && NeQ[lst3[[2]]+lst2[[2]],0],
         {lst3[[1]]+lst2[[1]],lst3[[2]]+lst2[[2]],lst2[[3]],lst2[[4]]},
-      If[EqQ[lst3[[3]],2*lst2[[4]]] && NonzeroQ[lst3[[2]]+lst2[[3]]],
+      If[EqQ[lst3[[3]],2*lst2[[4]]] && NeQ[lst3[[2]]+lst2[[3]],0],
         {lst3[[1]]+lst2[[1]],lst2[[2]],lst3[[2]]+lst2[[3]],lst2[[4]]},
       False]]]]]],
     With[{lst2=TrinomialParts[Rest[u],x]},
@@ -1013,12 +1002,12 @@ TrinomialParts[u_,x_Symbol] :=
       With[{lst4=BinomialParts[Rest[u],x]},
       If[AtomQ[lst4],
         False,
-      If[EqQ[lst4[[3]],lst1[[4]]] && NonzeroQ[lst1[[2]]+lst4[[2]]],
+      If[EqQ[lst4[[3]],lst1[[4]]] && NeQ[lst1[[2]]+lst4[[2]],0],
         {lst1[[1]]+lst4[[1]],lst1[[2]]+lst4[[2]],lst1[[3]],lst1[[4]]},
-      If[EqQ[lst4[[3]],2*lst1[[4]]] && NonzeroQ[lst1[[3]]+lst4[[2]]],
+      If[EqQ[lst4[[3]],2*lst1[[4]]] && NeQ[lst1[[3]]+lst4[[2]],0],
         {lst1[[1]]+lst4[[1]],lst1[[2]],lst1[[3]]+lst4[[2]],lst1[[4]]},
       False]]]],
-    If[EqQ[lst1[[4]],lst2[[4]]] && NonzeroQ[lst1[[2]]+lst2[[2]]] && NonzeroQ[lst1[[3]]+lst2[[3]]],
+    If[EqQ[lst1[[4]],lst2[[4]]] && NeQ[lst1[[2]]+lst2[[2]],0] && NeQ[lst1[[3]]+lst2[[3]],0],
       {lst1[[1]]+lst2[[1]],lst1[[2]]+lst2[[2]],lst1[[3]]+lst2[[3]],lst1[[4]]},
     False]]]]]]],
   False]]]]
@@ -1049,13 +1038,13 @@ FreeQ[a,x]
 GeneralizedBinomialParts[x_^m_.*u_,x_Symbol] :=
   With[{lst=GeneralizedBinomialParts[u,x]},
   {lst[[1]], lst[[2]], m+lst[[3]], m+lst[[4]]} /;
- ListQ[lst] && NonzeroQ[m+lst[[3]]] && NonzeroQ[m+lst[[4]]]] /;
+ ListQ[lst] && NeQ[m+lst[[3]],0] && NeQ[m+lst[[4]],0]] /;
 FreeQ[m,x]
 
 GeneralizedBinomialParts[x_^m_.*u_,x_Symbol] :=
   With[{lst=BinomialParts[u,x]},
   {lst[[1]], lst[[2]], m+lst[[3]], m} /;
- ListQ[lst] && NonzeroQ[m+lst[[3]]]] /;
+ ListQ[lst] && NeQ[m+lst[[3]],0]] /;
 FreeQ[m,x]
 
 GeneralizedBinomialParts[u_,x_Symbol] :=
@@ -1084,16 +1073,23 @@ GeneralizedTrinomialParts[a_*u_,x_Symbol] :=
  ListQ[lst]] /;
 FreeQ[a,x]
 
+GeneralizedTrinomialParts[u_,x_Symbol] :=
+  With[{lst=Expon[u,x,List]},
+  If[Length[lst]==3 && NeQ[lst[[0]],0] && EqQ[lst[[3]],2*lst[[2]]-lst[[1]]],
+    {Coeff[u,x,lst[[1]]],Coeff[u,x,lst[[2]]],Coeff[u,x,lst[[3]]],lst[[2]],lst[[1]]},
+  False]] /;
+PolyQ[u,x]
+
 GeneralizedTrinomialParts[x_^m_.*u_,x_Symbol] :=
   With[{lst=GeneralizedTrinomialParts[u,x]},
   {lst[[1]], lst[[2]], lst[[3]], m+lst[[4]], m+lst[[5]]} /;
- ListQ[lst] && NonzeroQ[m+lst[[4]]] && NonzeroQ[m+lst[[5]]]] /;
+ ListQ[lst] && NeQ[m+lst[[4]],0] && NeQ[m+lst[[5]],0]] /;
 FreeQ[m,x]
 
 GeneralizedTrinomialParts[x_^m_.*u_,x_Symbol] :=
   With[{lst=TrinomialParts[u,x]},
   {lst[[1]], lst[[2]], lst[[3]], m+lst[[4]], m} /;
- ListQ[lst] && NonzeroQ[m+lst[[4]]]] /;
+ ListQ[lst] && NeQ[m+lst[[4]],0]] /;
 FreeQ[m,x]
 
 GeneralizedTrinomialParts[u_,x_Symbol] :=
@@ -1109,18 +1105,16 @@ GeneralizedTrinomialParts[u_,x_Symbol] :=
 
 
 (* IntPart[u] returns the sum of the integer terms of u. *) 
-IntPart[n_*u_] :=
-  n*IntPart[u] /;
-IntegerQ[n]
+IntPart[m_*u_,n_:1] :=
+  IntPart[u,m*n] /;
+RationalQ[m]
 
-IntPart[u_] :=
-  If[IntegerQ[u],
-    u,
-  If[FractionQ[u],
-    IntegerPart[u],
+IntPart[u_,n_:1] :=
+  If[RationalQ[u],
+    IntegerPart[n*u],
   If[SumQ[u],
-    Map[IntPart,u],
-  0]]]
+    Map[Function[IntPart[#,n]],u],
+  0]]
 
 
 (* ::Subsection::Closed:: *)
@@ -1128,18 +1122,16 @@ IntPart[u_] :=
 
 
 (* IntPart[u] returns the sum of the non-integer terms of u. *) 
-FracPart[n_*u_] :=
-  n*FracPart[u] /;
-IntegerQ[n]
+FracPart[m_*u_,n_:1] :=
+  FracPart[u,m*n] /;
+RationalQ[m]
 
-FracPart[u_] :=
-  If[IntegerQ[u],
-    0,
-  If[FractionQ[u],
-    FractionalPart[u],
+FracPart[u_,n_:1] :=
+  If[RationalQ[u],
+    FractionalPart[n*u],
   If[SumQ[u],
-    Map[FracPart,u],
-  u]]]
+    Map[Function[FracPart[#,n]],u],
+  n*u]]
 
 
 (* ::Subsection::Closed:: *)
@@ -1149,9 +1141,9 @@ FracPart[u_] :=
 (* NumericFactor[u] returns the real numeric factor of u. *)
 NumericFactor[u_] :=
   If[NumberQ[u],
-    If[ZeroQ[Im[u]],
+    If[EqQ[Im[u],0],
       u,
-    If[ZeroQ[Re[u]],
+    If[EqQ[Re[u],0],
       Im[u],
     1]],
   If[PowerQ[u],
@@ -1175,9 +1167,9 @@ NumericFactor[u_] :=
 (* NonnumericFactors[u] returns the product of the factors of u that are not real numbers. *)
 NonnumericFactors[u_] :=
   If[NumberQ[u],
-    If[ZeroQ[Im[u]],
+    If[EqQ[Im[u],0],
       1,    
-    If[ZeroQ[Re[u]],
+    If[EqQ[Re[u],0],
       I,
     u]],
   If[PowerQ[u],
@@ -1297,7 +1289,7 @@ Coeff[expr_,form_] :=
   Coefficient[Together[expr],form]
 
 Coeff[expr_,form_,n_] :=
-  Block[{coef1=Coefficient[expr,form,n],coef2=Coefficient[Together[expr],form,n]},
+  With[{coef1=Coefficient[expr,form,n],coef2=Coefficient[Together[expr],form,n]},
   If[Simplify[coef1-coef2]===0,
     coef1,
   coef2]]
@@ -1377,6 +1369,40 @@ LeadDegree[u_] :=
   1]]
 
 
+(* ::Subsection::Closed:: *)
+(*Numer[u]*)
+
+
+(* Numer[u] returns the numerator of u. *)
+Numer[m_Integer^n_Rational] :=
+  1 /;
+n<0
+
+
+Numer[u_*v_] :=
+  Numer[u]*Numer[v]
+
+
+Numer[u_] := Numerator[u]
+
+
+(* ::Subsection::Closed:: *)
+(*Denom[u]*)
+
+
+(* Denom[u] returns the denominator of u. *)
+Denom[m_Integer^n_Rational] :=
+  m^-n /;
+n<0
+
+
+Denom[u_*v_] :=
+  Denom[u]*Denom[v]
+
+
+Denom[u_] := Denominator[u]
+
+
 (* ::Section::Closed:: *)
 (*Multinomial functions*)
 
@@ -1428,7 +1454,7 @@ QuadraticQ[u_,x_Symbol] :=
 
 
 LinearPairQ[u_,v_,x_Symbol] :=
-  LinearQ[u,x] && LinearQ[v,x] && NonzeroQ[u-x] && ZeroQ[Coefficient[u,x,0]*Coefficient[v,x,1]-Coefficient[u,x,1]*Coefficient[v,x,0]]
+  LinearQ[u,x] && LinearQ[v,x] && NeQ[u,x] && EqQ[Coefficient[u,x,0]*Coefficient[v,x,1]-Coefficient[u,x,1]*Coefficient[v,x,0],0]
 
 
 (* ::Input:: *)
@@ -1584,7 +1610,7 @@ GeneralizedBinomialMatchQ[u_,x_Symbol] :=
 TrinomialMatchQ[u_,x_Symbol] :=
   If[ListQ[u],
     Catch[Scan[Function[If[Not[TrinomialMatchQ[#,x]],Throw[False]]],u]; True],
-  MatchQ[u, a_.+b_.*x^n_.+c_.*x^j_. /; FreeQ[{a,b,c,n},x] && ZeroQ[j-2*n]]]
+  MatchQ[u, a_.+b_.*x^n_.+c_.*x^j_. /; FreeQ[{a,b,c,n},x] && EqQ[j-2*n,0]]]
 
 
 (* ::Input:: *)
@@ -1598,7 +1624,7 @@ TrinomialMatchQ[u_,x_Symbol] :=
 GeneralizedTrinomialMatchQ[u_,x_Symbol] :=
   If[ListQ[u],
     Catch[Scan[Function[If[Not[GeneralizedTrinomialMatchQ[#,x]],Throw[False]]],u]; True],
-  MatchQ[u, a_.*x^q_.+b_.*x^n_.+c_.*x^r_. /; FreeQ[{a,b,c,n,q},x] && ZeroQ[r-(2*n-q)]]]
+  MatchQ[u, a_.*x^q_.+b_.*x^n_.+c_.*x^r_. /; FreeQ[{a,b,c,n,q},x] && EqQ[r-(2*n-q),0]]]
 
 
 (* ::Input:: *)
@@ -1676,7 +1702,7 @@ PseudoBinomialParts[u_,x_Symbol] :=
     d=Rt[Coefficient[u,x,n],n];
     c=Coefficient[u,x,n-1]/(n*d^(n-1));
     a=Simplify[u-(c+d*x)^n];
-    If[NonzeroQ[a] && FreeQ[a,x],
+    If[NeQ[a,0] && FreeQ[a,x],
       {a,1,c,d,n},
     False]],
   False]
@@ -1887,7 +1913,7 @@ AlgebraicFunctionQ[u_,x_Symbol,flag_:False] :=
 QuotientOfLinearsQ[u_,x_Symbol] :=
   If[ListQ[u],
     Catch[Scan[Function[If[Not[QuotientOfLinearsQ[#,x]],Throw[False]]],u]; True],
-  QuotientOfLinearsP[u,x] && Function[NonzeroQ[#[[2]]] && NonzeroQ[#[[4]]]][QuotientOfLinearsParts[u,x]]]
+  QuotientOfLinearsP[u,x] && Function[NeQ[#[[2]],0] && NeQ[#[[4]],0]][QuotientOfLinearsParts[u,x]]]
 
 
 QuotientOfLinearsP[a_*u_,x_] :=
@@ -1962,7 +1988,7 @@ SubstForFractionalPowerOfQuotientOfLinears[u_,x_Symbol] :=
   With[{n=lst[[1]],tmp=lst[[2]]},
   lst=QuotientOfLinearsParts[tmp,x];
   With[{a=lst[[1]],b=lst[[2]],c=lst[[3]],d=lst[[4]]},
-  If[ZeroQ[d],
+  If[EqQ[d,0],
     False,
   lst=Simplify[x^(n-1)*SubstForFractionalPower[u,tmp,n,(-a+c*x^n)/(b-d*x^n),x]/(b-d*x^n)^2];
   {NonfreeFactors[lst,x],n,tmp,FreeFactors[lst,x]*(b*c-a*d)}]]]]]
@@ -1980,7 +2006,7 @@ SubstForFractionalPowerQ[u_,v_,x_Symbol] :=
 SubstForFractionalPowerAuxQ[u_,v_,x_] :=
   If[AtomQ[u],
     False,
-  If[FractionalPowerQ[u] && ZeroQ[u[[1]]-v],
+  If[FractionalPowerQ[u] && EqQ[u[[1]],v],
     True,
   Catch[Scan[Function[If[SubstForFractionalPowerAuxQ[#,v,x],Throw[True]]],u];False]]]
 
@@ -1992,7 +2018,7 @@ FractionalPowerOfQuotientOfLinears[u_,n_,v_,x_] :=
     {n,v},
   If[CalculusQ[u],
     False,
-  If[FractionalPowerQ[u] && QuotientOfLinearsQ[u[[1]],x] && Not[LinearQ[u[[1]],x]] && (FalseQ[v] || ZeroQ[u[[1]]-v]),
+  If[FractionalPowerQ[u] && QuotientOfLinearsQ[u[[1]],x] && Not[LinearQ[u[[1]],x]] && (FalseQ[v] || EqQ[u[[1]],v]),
     {LCM[Denominator[u[[2]]],n],u[[1]]},
   Catch[Module[{lst={n,v}},
     Scan[Function[If[AtomQ[lst=FractionalPowerOfQuotientOfLinears[#,lst[[1]],lst[[2]],x]],Throw[False]]],u];
@@ -2039,7 +2065,7 @@ SubstForFractionalPower[u_,v_,n_,w_,x_Symbol] :=
     If[u===x,
       w,
     u],
-  If[FractionalPowerQ[u] && ZeroQ[u[[1]]-v],
+  If[FractionalPowerQ[u] && EqQ[u[[1]],v],
     x^(n*u[[2]]),
   Map[Function[SubstForFractionalPower[#,v,n,w,x]],u]]]
 
@@ -2057,7 +2083,7 @@ SubstForInverseFunction[u_,v_,w_,x_Symbol] :=
     If[u===x,
       w,
     u],
-  If[Head[u]===Head[v] && ZeroQ[u[[1]]-v[[1]]],
+  If[Head[u]===Head[v] && EqQ[u[[1]],v[[1]]],
     x,
   Map[Function[SubstForInverseFunction[#,v,w,x]],u]]]
 
@@ -2301,7 +2327,7 @@ NormalizePowerOfLinear[u_,x_Symbol] :=
 
 MergeMonomials[u_.*(a_.+b_.*x_)^m_.*(c_.+d_.*x_)^n_.,x_Symbol] :=
   u*b^m/d^m*(c+d*x)^(m+n) /;
-FreeQ[{a,b,c,d},x] && IntegerQ[m] && ZeroQ[b*c-a*d]
+FreeQ[{a,b,c,d},x] && IntegerQ[m] && EqQ[b*c-a*d,0]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -2356,8 +2382,7 @@ SimplifyTerm[u_,x_Symbol] :=
 
 TogetherSimplify[u_] :=
   TimeConstrained[
-    Module[{v},
-    v=Together[Simplify[Together[u]]];
+    With[{v=Together[Simplify[Together[u]]]},
     TimeConstrained[FixSimplify[v],TimeLimit/3,v]],
   TimeLimit,u]
 
@@ -2391,6 +2416,7 @@ SubstForExpn[u_,v_,w_] :=
 Simp[u_,x_] :=
   TimeConstrained[NormalizeSumFactors[SimpHelp[u,x]],TimeLimit,u]
 
+
 SimpHelp[E^(u_.*(v_.*Log[a_]+w_)),x_] :=
   a^(u*v)*SimpHelp[E^(u*w),x]
 
@@ -2405,6 +2431,12 @@ SimpHelp[u_,x_] :=
       v,
     u]],
   If[ProductQ[u],
+    If[EqQ[First[u],1/2] && MatchQ[Rest[u],a_.+n_*Pi+b_.*v_ /; FreeQ[{a,b},x] && Not[FreeQ[v,x]] && EqQ[n^2,1/4]],
+      If[MatchQ[Rest[u],n_*Pi+b_.*v_ /; FreeQ[b,x] && Not[FreeQ[v,x]] && EqQ[n^2,1/4]],
+        Map[Function[1/2*#],Rest[u]],
+      If[MatchQ[Rest[u],m_*a_.+n_*Pi+p_*b_.*v_ /; FreeQ[{a,b},x] && Not[FreeQ[v,x]] && IntegersQ[m/2,p/2]],
+        Map[Function[1/2*#],Rest[u]],
+      u]],
     Module[{v=FreeFactors[u,x],w=NonfreeFactors[u,x]},
     v=NumericFactor[v]*SmartSimplify[NonnumericFactors[v]*x^2]/x^2;
     w=If[ProductQ[w], Map[Function[SimpHelp[#,x]],w], SimpHelp[w,x]];
@@ -2412,8 +2444,10 @@ SimpHelp[u_,x_] :=
     v=MergeFactors[v,w];
     If[ProductQ[v],
       Map[Function[SimpFixFactor[#,x]],v],
-    v]],
+    v]]],
   If[SumQ[u],
+    If[MatchQ[u,a_.+n_*Pi+b_.*x /; FreeQ[{a,b},x] && EqQ[n^2,1/16]],
+      u,
     If[PolynomialQ[u,x] && Exponent[u,x]<=0,
       SimpHelp[Coefficient[u,x,0],x],
     If[PolynomialQ[u,x] && Exponent[u,x]==1 && Coefficient[u,x,0]===0,
@@ -2422,8 +2456,76 @@ SimpHelp[u_,x_] :=
     Scan[Function[If[FreeQ[#,x],v=#+v,w=#+w]],u];
     v=SmartSimplify[v];
     w=If[SumQ[w], Map[Function[SimpHelp[#,x]],w], SimpHelp[w,x]];
-    v+w]]],
-  Map[Function[SimpHelp[#,x]],u]]]]]]
+    v+w]]]],
+  If[TrigQ[u],
+    With[{v=SimpHelp[u[[1]],x]},
+    If[LinearQ[v,x] && MatchQ[Coefficient[v,x,0],m_.*(n_.*Pi+r_.)+s_. /; RationalQ[m,n]],
+      NormalizeTrig[Head[u],Coefficient[v,x,0],Coefficient[v,x,1],x],
+    Head[u][v]]],
+  If[HyperbolicQ[u],
+    With[{v=SimpHelp[u[[1]],x]},
+    If[LinearQ[v,x] && MatchQ[Coefficient[v,x,0],m_.*(n_.*Complex[0,nz_]*Pi+r_.)+s_. /; RationalQ[m,n,nz]],
+      NormalizeHyperbolic[Head[u],Coefficient[v,x,0],Coefficient[v,x,1],x],
+    Head[u][v]]],
+  Map[Function[SimpHelp[#,x]],u]]]]]]]]
+
+
+NormalizeTrig[func_,m_.*(n_.*Pi+r_.)+s_.,b_,x_] :=
+  If[m*n==1/4 && NegQ[b],
+    Switch[func,
+	  Sin, Cos[Pi/4-m*r-s-b*x],        (* Sin[Pi/4-z] == Cos[Pi/4+z] *)
+	  Cos, Sin[Pi/4-m*r-s-b*x],        (* Cos[Pi/4-z] == Sin[Pi/4+z] *)
+	  Tan, Cot[Pi/4-m*r-s-b*x],        (* Tan[Pi/4-z] == Cot[Pi/4+z] *)
+	  Cot, Tan[Pi/4-m*r-s-b*x],        (* Cot[Pi/4-z] == Tan[Pi/4+z] *)
+	  Sec, Csc[Pi/4-m*r-s-b*x],        (* Sec[Pi/4-z] == Csc[Pi/4+z] *)
+	  Csc, Sec[Pi/4-m*r-s-b*x]],       (* Csc[Pi/4-z] == Sec[Pi/4+z] *)
+  If[m*n==-1/4,
+    If[PosQ[b],
+      Switch[func,
+	    Sin, -Cos[Pi/4+m*r+s+b*x],     (* Sin[-Pi/4+z] == -Cos[Pi/4+z] *)
+	    Cos, Sin[Pi/4+m*r+s+b*x],      (* Cos[-Pi/4+z] == Sin[Pi/4+z] *)
+	    Tan, -Cot[Pi/4+m*r+s+b*x],     (* Tan[-Pi/4+z] == -Cot[Pi/4+z] *)
+	    Cot, -Tan[Pi/4+m*r+s+b*x],     (* Cot[-Pi/4+z] == -Tan[Pi/4+z] *)
+	    Sec, Csc[Pi/4+m*r+s+b*x],      (* Sec[-Pi/4+z] == Csc[Pi/4+z] *)
+	    Csc, -Sec[Pi/4+m*r+s+b*x]],    (* Csc[-Pi/4+z] == -Sec[Pi/4+z] *)
+    Switch[func,
+	  Sin, -Sin[Pi/4-m*r-s-b*x],       (* Sin[-Pi/4-z] == -Sin[Pi/4+z] *)
+	  Cos, Cos[Pi/4-m*r-s-b*x],        (* Cos[-Pi/4-z] == Cos[Pi/4+z] *)
+	  Tan, -Tan[Pi/4-m*r-s-b*x],       (* Tan[-Pi/4-z] == -Tan[Pi/4+z] *)
+	  Cot, -Cot[Pi/4-m*r-s-b*x],       (* Cot[-Pi/4-z] == -Cot[Pi/4+z] *)
+	  Sec, Sec[Pi/4-m*r-s-b*x],        (* Sec[-Pi/4-z] == Sec[Pi/4+z] *)
+	  Csc, -Csc[Pi/4-m*r-s-b*x]]],     (* Csc[-Pi/4-z] == -Csc[Pi/4+z] *)
+  func[m*n*Pi+m*r+s+b*x]]] /;
+RationalQ[m,n]
+
+
+NormalizeHyperbolic[func_,m_.*(n_.*Complex[0,nz_]*Pi+r_.)+s_.,b_,x_] :=
+  If[m*n*nz==1/4 && NegQ[b],
+    Switch[func,
+	  Sinh, I*Cosh[I*Pi/4-m*r-s-b*x],        (* Sinh[I*Pi/4-z] == I*Cosh[I*Pi/4+z] *)
+	  Cosh, -I*Sinh[I*Pi/4-m*r-s-b*x],       (* Cosh[I*Pi/4-z] == -I*Sinh[I*Pi/4+z] *)
+	  Tanh, -Coth[I*Pi/4-m*r-s-b*x],         (* Tanh[I*Pi/4-z] == -Coth[I*Pi/4+z] *)
+	  Coth, -Tanh[I*Pi/4-m*r-s-b*x],         (* Coth[I*Pi/4-z] == -Tanh[I*Pi/4+z] *)
+	  Sech, I*Csch[I*Pi/4-m*r-s-b*x],        (* Sech[I*Pi/4-z] == I*Csch[I*Pi/4+z] *)
+	  Csch, -I*Sech[I*Pi/4-m*r-s-b*x]],      (* Csch[I*Pi/4-z] == -I*Sech[I*Pi/4+z] *)
+  If[m*n*nz==-1/4,
+    If[PosQ[b],
+      Switch[func,
+	    Sinh, -I*Cosh[I*Pi/4+m*r+s+b*x],     (* Sinh[-I*Pi/4+z] == -I*Cosh[I*Pi/4+z] *)
+	    Cosh, -I*Sinh[I*Pi/4+m*r+s+b*x],     (* Cosh[-I*Pi/4+z] == -I*Sinh[I*Pi/4+z] *)
+	    Tanh, Coth[I*Pi/4+m*r+s+b*x],        (* Tanh[-I*Pi/4+z] == Coth[I*Pi/4+z] *)
+	    Coth, Tanh[I*Pi/4+m*r+s+b*x],        (* Coth[-I*Pi/4+z] == Tanh[I*Pi/4+z] *)
+	    Sech, I*Csch[I*Pi/4+m*r+s+b*x],      (* Sech[-I*Pi/4+z] == I*Csch[I*Pi/4+z] *)
+	    Csch, I*Sech[I*Pi/4+m*r+s+b*x]],     (* Csch[-I*Pi/4+z] == I*Sech[I*Pi/4+z] *)
+    Switch[func,
+	  Sinh, -Sinh[I*Pi/4-m*r-s-b*x],         (* Sinh[-I*Pi/4-z] == -Sinh[I*Pi/4+z] *)
+	  Cosh, Cosh[I*Pi/4-m*r-s-b*x],          (* Cosh[-I*Pi/4-z] == Cosh[I*Pi/4+z] *)
+	  Tanh, -Tanh[I*Pi/4-m*r-s-b*x],         (* Tanh[-I*Pi/4-z] == -Tanh[I*Pi/4+z] *)
+	  Coth, -Coth[I*Pi/4-m*r-s-b*x],         (* Coth[-I*Pi/4-z] == -Coth[I*Pi/4+z] *)
+	  Sech, Sech[I*Pi/4-m*r-s-b*x],          (* Sech[-I*Pi/4-z] == Sech[I*Pi/4+z] *)
+	  Csch, -Csch[I*Pi/4-m*r-s-b*x]]],       (* Csch[-I*Pi/4-z] == -Csch[I*Pi/4+z] *)
+  func[m*n*nz*I*Pi+m*r+s+b*x]]] /;
+RationalQ[m,n,nz]
 
 
 (* ::Subsection::Closed:: *)
@@ -2533,7 +2635,7 @@ FixSimplify[w_.*(a_+b_)^m_.*(c_+d_)^n_] :=
   With[{q=Simplify[b/d]},
   FixSimplify[w*q^m*(c+d)^(m+n)] /;
  FreeQ[q,Plus]] /;
-IntegerQ[m] && Not[IntegerQ[n]] && ZeroQ[b*c-a*d]
+IntegerQ[m] && Not[IntegerQ[n]] && EqQ[b*c-a*d,0]
 
 
 (* ::Item:: *)
@@ -2586,7 +2688,7 @@ RationalQ[a,b,c,d,m] && a>0 && Denominator[m]==4 *)
 
 FixSimplify[u_.*v_^m_*w_^n_] :=
   -FixSimplify[u*v^(m-1)] /;
-RationalQ[m] && Not[RationalQ[w]] && FractionQ[n] && n<0 && ZeroQ[v+w^(-n)]
+RationalQ[m] && Not[RationalQ[w]] && FractionQ[n] && n<0 && EqQ[v+w^(-n),0]
 
 
 (* ::Item:: *)
@@ -2595,7 +2697,7 @@ RationalQ[m] && Not[RationalQ[w]] && FractionQ[n] && n<0 && ZeroQ[v+w^(-n)]
 
 FixSimplify[u_.*v_^m_*w_^n_.] :=
   (-1)^(n)*FixSimplify[u*v^(m+n)] /;
-RationalQ[m] && Not[RationalQ[w]] && IntegerQ[n] && ZeroQ[v+w]
+RationalQ[m] && Not[RationalQ[w]] && IntegerQ[n] && EqQ[v+w,0]
 
 
 (* ::Item:: *)
@@ -2604,7 +2706,7 @@ RationalQ[m] && Not[RationalQ[w]] && IntegerQ[n] && ZeroQ[v+w]
 
 FixSimplify[u_.*(-v_^p_.)^m_*w_^n_.] :=
   (-1)^(n/p)*FixSimplify[u*(-v^p)^(m+n/p)] /;
-RationalQ[m] && Not[RationalQ[w]] && IntegerQ[n/p] && ZeroQ[v-w]
+RationalQ[m] && Not[RationalQ[w]] && IntegerQ[n/p] && EqQ[v-w,0]
 
 
 (* ::Item:: *)
@@ -2613,12 +2715,12 @@ RationalQ[m] && Not[RationalQ[w]] && IntegerQ[n/p] && ZeroQ[v-w]
 
 FixSimplify[u_.*(-v_^p_.)^m_*w_^n_.] :=
   (-1)^(n+n/p)*FixSimplify[u*(-v^p)^(m+n/p)] /;
-RationalQ[m] && Not[RationalQ[w]] && IntegersQ[n,n/p] && ZeroQ[v+w]
+RationalQ[m] && Not[RationalQ[w]] && IntegersQ[n,n/p] && EqQ[v+w,0]
 
 
-FixSimplify[u_.*(a-b)^m_.*(a+b)^m_.] :=
+FixSimplify[u_.*(a_-b_)^m_.*(a_+b_)^m_.] :=
   u*(a^2-b^2)^m /;
-IntegerQ[m]
+IntegerQ[m] && AtomQ[a] && AtomQ[b]
 
 FixSimplify[u_.*(c*d^2-e*(b*d-a*e))^m_.] :=
   u*(c*d^2-b*d*e+a*e^2)^m /;
@@ -2809,10 +2911,10 @@ TrigSimplifyAux[u_+v_.*csc[z_]^2+w_.] := v*Cot[z]^2+w /; u===-v
 
 
 (* Basis: If a^2-b^2==0, Sin[z]^2/(a+b*Cos[z]) == 1/a-Cos[z]/b *)
-TrigSimplifyAux[u_.*sin[v_]^2/(a_+b_.*cos[v_])] := u*(1/a - Cos[v]/b) /; ZeroQ[a^2-b^2]
+TrigSimplifyAux[u_.*sin[v_]^2/(a_+b_.*cos[v_])] := u*(1/a - Cos[v]/b) /; EqQ[a^2-b^2,0]
 
 (* Basis: If a^2-b^2==0, Cos[z]^2/(a+b*Sin[z]) == 1/a-Sin[z]/b *)
-TrigSimplifyAux[u_.*cos[v_]^2/(a_+b_.*sin[v_])] := u*(1/a - Sin[v]/b) /; ZeroQ[a^2-b^2]
+TrigSimplifyAux[u_.*cos[v_]^2/(a_+b_.*sin[v_])] := u*(1/a - Sin[v]/b) /; EqQ[a^2-b^2,0]
 
 
 (* Basis: If n is an integer, Tan[z]^n/(a+b*Tan[z]^n) == 1/(b+a*Cot[z]^n) *)
@@ -2903,23 +3005,23 @@ IntegersQ[m,n,p]
 
 
 TrigSimplifyAux[u_.*(a_.*csc[v_]^m_.+b_.*sin[v_]^n_.)^p_.] :=
-  If[ZeroQ[m+n-2] && ZeroQ[a+b],
+  If[EqQ[m+n-2,0] && EqQ[a+b,0],
     u*(a*Cos[v]^2/Sin[v]^m)^p,
   u*((a+b*Sin[v]^(m+n))/Sin[v]^m)^p] /;
 IntegersQ[m,n]
 
 TrigSimplifyAux[u_.*(a_.*sec[v_]^m_.+b_.*cos[v_]^n_.)^p_.] :=
-  If[ZeroQ[m+n-2] && ZeroQ[a+b],
+  If[EqQ[m+n-2,0] && EqQ[a+b,0],
     u*(a*Sin[v]^2/Cos[v]^m)^p,
   u*((a+b*Cos[v]^(m+n))/Cos[v]^m)^p] /;
 IntegersQ[m,n]
 
 
 (* (* Basis: Csc[z]+Cot[z] == Cot[z/2] *)
-TrigSimplifyAux[(a_.*csc[v_]+b_.*cot[v_])^n_] := a^n*Cot[v/2]^n /; EvenQ[n] && ZeroQ[a-b]
+TrigSimplifyAux[(a_.*csc[v_]+b_.*cot[v_])^n_] := a^n*Cot[v/2]^n /; EvenQ[n] && EqQ[a-b,0]
 
 (* Basis: Csc[z]-Cot[z] == Tan[z/2] *)
-TrigSimplifyAux[(a_.*csc[v_]+b_.*cot[v_])^n_] := a^n*Tan[v/2]^n /; EvenQ[n] && ZeroQ[a+b] *)
+TrigSimplifyAux[(a_.*csc[v_]+b_.*cot[v_])^n_] := a^n*Tan[v/2]^n /; EvenQ[n] && EqQ[a+b,0] *)
 
 
 (* (* Basis: Sin[z]*(a+b*Cot[z]) == a*Sin[z] + b*Cos[z] *)
@@ -2967,7 +3069,7 @@ IntegersQ[m,n,p] && n>0 && p<0 && m==-n*p *)
 (* (* Basis: If a^2+b^2=0, 1/(a*Cos[z] + b*Sin[z]) == Cos[z]/a + Sin[z]/b *)
 TrigSimplifyAux[(a_.*cos[v_]+b_.*sin[v_])^n_] :=
   (Cos[v]/a + Sin[v]/b)^(-n) /;
-IntegerQ[n] && n<0 && ZeroQ[a^2+b^2] *)
+IntegerQ[n] && n<0 && EqQ[a^2+b^2,0] *)
 
 
 TrigSimplifyAux[u_] := u
@@ -3044,8 +3146,8 @@ CommonFactors [lst_] :=
             common=common*base^num] );
         lst2=Map2[Function[#1*base^(#2-num)],lst2,lst4];
         lst1=Map[RemainingFactors,lst1],
-      If[Length[lst1]==2 && ZeroQ[LeadBase[lst1[[1]]]+LeadBase[lst1[[2]]]] && 
-         NonzeroQ[lst1[[1]]-1] && IntegerQ[lst4[[1]]] && FractionQ[lst4[[2]]],
+      If[Length[lst1]==2 && EqQ[LeadBase[lst1[[1]]]+LeadBase[lst1[[2]]],0] && 
+         NeQ[lst1[[1]],1] && IntegerQ[lst4[[1]]] && FractionQ[lst4[[2]]],
         num=Min[lst4];
         base=LeadBase[lst1[[2]]];
         ( If[num!=0,
@@ -3053,8 +3155,8 @@ CommonFactors [lst_] :=
         lst2={lst2[[1]]*(-1)^lst4[[1]],lst2[[2]]};
         lst2=Map2[Function[#1*base^(#2-num)],lst2,lst4];
         lst1=Map[RemainingFactors,lst1],
-      If[Length[lst1]==2 && ZeroQ[LeadBase[lst1[[1]]]+LeadBase[lst1[[2]]]] && 
-         NonzeroQ[lst1[[2]]-1] && IntegerQ[lst4[[2]]] && FractionQ[lst4[[1]]],
+      If[Length[lst1]==2 && EqQ[LeadBase[lst1[[1]]]+LeadBase[lst1[[2]]],0] && 
+         NeQ[lst1[[2]],1] && IntegerQ[lst4[[2]]] && FractionQ[lst4[[1]]],
         num=Min[lst4];
         base=LeadBase[lst1[[1]]];
         ( If[num!=0,
@@ -3125,7 +3227,7 @@ MonomialFactor[u_,x_Symbol] :=
     lst=Map[Function[MonomialFactor[#,x]],Apply[List,u]];
     deg=lst[[1,1]];
     Scan[Function[deg=MinimumDegree[deg,#[[1]]]],Rest[lst]];
-    If[ZeroQ[deg] || RationalQ[deg] && deg<0,
+    If[EqQ[deg,0] || RationalQ[deg] && deg<0,
       {0,u},
     {deg,Apply[Plus,Map[Function[x^(#[[1]]-deg)*#[[2]]],lst]]}]],
   {0,u}]]]]
@@ -3181,7 +3283,7 @@ ConstantFactor[u_,x_Symbol] :=
 
 (* PositiveFactors[u] returns the positive factors of u *)
 PositiveFactors[u_] :=
-  If[ZeroQ[u],
+  If[EqQ[u,0],
     1,
   If[RationalQ[u],
     Abs[u],
@@ -3194,7 +3296,7 @@ PositiveFactors[u_] :=
 
 (* NonpositiveFactors[u] returns the nonpositive factors of u *)
 NonpositiveFactors[u_] :=
-  If[ZeroQ[u],
+  If[EqQ[u,0],
     u,
   If[RationalQ[u],
     Sign[u],
@@ -3399,11 +3501,11 @@ ExpandIntegrand[(a_.+b_.*x_)^m_.*f_^(e_.*(c_.+d_.*x_)^n_.)/(g_.+h_.*x_),x_Symbol
   Module[{k},
   SimplifyTerm[tmp^m/h^m,x]*f^(e*(c+d*x)^n)/(g+h*x) + 
 	Sum[SimplifyTerm[b*tmp^(k-1)/h^k,x]*f^(e*(c+d*x)^n)*(a+b*x)^(m-k),{k,1,m}]]] /;
-FreeQ[{a,b,c,d,e,f,g,h},x] && PositiveIntegerQ[m] && ZeroQ[b*c-a*d]
+FreeQ[{a,b,c,d,e,f,g,h},x] && PositiveIntegerQ[m] && EqQ[b*c-a*d,0]
 
 
 ExpandIntegrand[x_^m_.*(e_+f_.*x_)^p_.*F_^(b_.*(c_.+d_.*x_)^n_.),x_Symbol] :=
-  If[PositiveIntegerQ[m,p] && m<=p && (EqQ[n,1] || ZeroQ[d*e-c*f]),
+  If[PositiveIntegerQ[m,p] && m<=p && (EqQ[n,1] || EqQ[d*e-c*f,0]),
     ExpandLinearProduct[(e+f*x)^p*F^(b*(c+d*x)^n),x^m,e,f,x],
   If[PositiveIntegerQ[p],
     Distribute[x^m*F^(b*(c+d*x)^n)*Expand[(e+f*x)^p,x],Plus,Times],
@@ -3412,7 +3514,7 @@ FreeQ[{F,b,c,d,e,f,m,n,p},x]
 
 
 ExpandIntegrand[x_^m_.*(e_+f_.*x_)^p_.*F_^(a_.+b_.*(c_.+d_.*x_)^n_.),x_Symbol] :=
-  If[PositiveIntegerQ[m,p] && m<=p && (EqQ[n,1] || ZeroQ[d*e-c*f]),
+  If[PositiveIntegerQ[m,p] && m<=p && (EqQ[n,1] || EqQ[d*e-c*f,0]),
     ExpandLinearProduct[(e+f*x)^p*F^(a+b*(c+d*x)^n),x^m,e,f,x],
   If[PositiveIntegerQ[p],
     Distribute[x^m*F^(a+b*(c+d*x)^n)*Expand[(e+f*x)^p,x],Plus,Times],
@@ -3467,7 +3569,7 @@ FreeQ[{a,b,c,d,n},x] && PolynomialQ[u,x] && MemberQ[{ArcSin,ArcCos,ArcSinh,ArcCo
 
 ExpandIntegrand[u_./(a_.*x_^n_+b_.*Sqrt[c_+d_.*x_^j_]),x_Symbol] :=
   ExpandIntegrand[u*(a*x^n-b*Sqrt[c+d*x^(2*n)])/(-b^2*c+(a^2-b^2*d)*x^(2*n)),x] /;
-FreeQ[{a,b,c,d,n},x] && ZeroQ[j-2*n]
+FreeQ[{a,b,c,d,n},x] && EqQ[j,2*n,0]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -3558,54 +3660,6 @@ ExpandIntegrand[1/(a_+b_.*u_^n_),x_Symbol] :=
 FreeQ[{a,b},x] && IntegerQ[n] && n>1
 
 
-(* ::Subsubsection:: *)
-(*Basis: If  (m|(n-1)/2)\[Element]\[DoubleStruckCapitalZ] \[And] 0<=m<n, let r/s=(a/b)^(1/n), then z^m/(a + b*z^n) == (r*(-(r/s))^m*Sum[1/((-1)^(2*k*(m/n))*(r + (-1)^(2*(k/n))*s*z)), {k, 1, n}])/(a*n) == (r*(-(r/s))^m*Sum[(-1)^(2*k*((m + 1)/n))/((-1)^(2*(k/n))*r + s*z), {k, 1, n}])/(a*n)*)
-
-
-(* ::Subsubsection:: *)
-(*Note: If  m+1 and n are not coprime, the second summation is used since the coefficient (-1)^(2 k (m+1)/n) will be simpler.*)
-
-
-(* ::Subsubsection::Closed:: *)
-(*Note: The code reduces the exponents by their gcd.*)
-
-
-ExpandIntegrand[u_^m_./(a_+b_.*u_^n_),x_Symbol] :=
-  With[{g=GCD[m,n],r=Numerator[Rt[a/b,n/GCD[m,n]]],s=Denominator[Rt[a/b,n/GCD[m,n]]]},
-  Module[{k},
-  If[CoprimeQ[m+g,n],
-    Sum[r*(-r/s)^(m/g)*(-1)^(-2*k*m/n)/(a*n*(r+(-1)^(2*k*g/n)*s*u^g)),{k,1,n/g}],
-  Sum[r*(-r/s)^(m/g)*(-1)^(2*k*(m+g)/n)/(a*n*((-1)^(2*k*g/n)*r+s*u^g)),{k,1,n/g}]]]] /;
-FreeQ[{a,b},x] && IntegersQ[m,n] && 0<m<n && OddQ[n/GCD[m,n]] && PosQ[a/b]
-
-
-(* ::Subsubsection:: *)
-(*Basis: If  r/s=(-(a/b))^(1/2), then z/(a+b z^2)==s/(2b(r+s z))-s/(2b(r-s z))==r^2/(2 a s (r-s z))-r^2/(2 a s (r+s z))*)
-
-
-(* ::Subsubsection:: *)
-(*Basis: If (m|n)\[Element]\[DoubleStruckCapitalZ] \[And] 0<=m<n, let r/s=(-(a/b))^(1/n), then  z^m/(a + b*z^n) == (r*(r/s)^m*Sum[1/((-1)^(2*k*(m/n))*(r - (-1)^(2*(k/n))*s*z)), {k, 1, n}])/(a*n) == (r*(r/s)^m*Sum[(-1)^(2*k*((m + 1)/n))/((-1)^(2*(k/n))*r - s*z), {k, 1, n}])/(a*n)*)
-
-
-(* ::Subsubsection:: *)
-(*Note: If  m+1 and n are not coprime, the second summation is used since the coefficient (-1)^(2 k (m+1)/n) will be simpler.*)
-
-
-(* ::Subsubsection::Closed:: *)
-(*Note: The code reduces the exponents by their gcd.*)
-
-
-ExpandIntegrand[u_^m_./(a_+b_.*u_^n_),x_Symbol] :=
-  With[{g=GCD[m,n],r=Numerator[Rt[-a/b,n/GCD[m,n]]],s=Denominator[Rt[-a/b,n/GCD[m,n]]]},
-  If[n/g==2,
-    s/(2*b*(r+s*u^g)) - s/(2*b*(r-s*u^g)),
-  Module[{k},
-  If[CoprimeQ[m+g,n],
-    Sum[r*(r/s)^(m/g)*(-1)^(-2*k*m/n)/(a*n*(r-(-1)^(2*k*g/n)*s*u^g)),{k,1,n/g}],
-  Sum[r*(r/s)^(m/g)*(-1)^(2*k*(m+g)/n)/(a*n*((-1)^(2*k*g/n)*r-s*u^g)),{k,1,n/g}]]]]] /;
-FreeQ[{a,b},x] && IntegersQ[m,n] && 0<m<n
-
-
 (* ::Subsubsection::Closed:: *)
 (*Basis: If (m|n)\[Element]\[DoubleStruckCapitalZ] \[And] 0<=m<n, let r/s=(-(a/b))^(1/n), then  (c + d*z^m)/(a + b*z^n) == (r*Sum[(c + (d*(r/s)^m)/(-1)^(2*k*(m/n)))/(r - (-1)^(2*(k/n))*s*z), {k, 1, n}])/(a*n)*)
 
@@ -3662,23 +3716,23 @@ FreeQ[{a,c},x] && IntegersQ[m,n/2] && NegativeIntegerQ[p] && 0<m<n && m!=n/2
 ExpandIntegrand[(a_.+b_.*u_^n_.+c_.*u_^j_.)^p_,x_Symbol] :=
   Module[{q},
   ReplaceAll[ExpandIntegrand[1/(4^p*c^p),(b-q+2*c*x)^p*(b+q+2*c*x)^p,x],{q->Rt[b^2-4*a*c,2],x->u^n}]] /;
-FreeQ[{a,b,c},x] && IntegerQ[n] && ZeroQ[j-2*n] && NegativeIntegerQ[p] && NonzeroQ[b^2-4*a*c]
+FreeQ[{a,b,c},x] && IntegerQ[n] && EqQ[j,2*n] && NegativeIntegerQ[p] && NeQ[b^2-4*a*c,0]
 
 
 ExpandIntegrand[u_^m_.*(a_.+b_.*u_^n_.+c_.*u_^j_.)^p_,x_Symbol] :=
   Module[{q},
   ReplaceAll[ExpandIntegrand[1/(4^p*c^p),x^m*(b-q+2*c*x^n)^p*(b+q+2*c*x^n)^p,x],{q->Rt[b^2-4*a*c,2],x->u}]] /;
-FreeQ[{a,b,c},x] && IntegersQ[m,n,j] && ZeroQ[j-2*n] && NegativeIntegerQ[p] && 0<m<2*n && Not[m==n && p==-1] && NonzeroQ[b^2-4*a*c]
+FreeQ[{a,b,c},x] && IntegersQ[m,n,j] && EqQ[j,2*n] && NegativeIntegerQ[p] && 0<m<2*n && Not[m==n && p==-1] && NeQ[b^2-4*a*c,0]
 
 
 (* ::Subsubsection::Closed:: *)
 (*Basis: If  q=Sqrt[-(a/b)], then (c+d z)/(a+b z^2)==-((c-d q)/(2 b q(q+z)))-(c+d q)/(2 b q(q-z))*)
 
 
-ExpandIntegrand[(c_.+d_.*u_^n_.)/(a_+b_.*u_^j_.),x_Symbol] :=
+ExpandIntegrand[(c_+d_.*u_^n_.)/(a_+b_.*u_^j_.),x_Symbol] :=
   With[{q=Rt[-a/b,2]},
   -(c-d*q)/(2*b*q*(q+u^n)) - (c+d*q)/(2*b*q*(q-u^n))] /;
-FreeQ[{a,b,c,d,n},x] && ZeroQ[j-2*n]
+FreeQ[{a,b,c,d,n},x] && EqQ[j,2*n]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -3688,18 +3742,18 @@ FreeQ[{a,b,c,d,n},x] && ZeroQ[j-2*n]
 ExpandIntegrand[(d_.+e_.*(f_.+g_.*u_^n_.))/(a_.+b_.*u_^n_.+c_.*u_^j_.),x_Symbol] :=
   With[{q=Rt[b^2-4*a*c,2]}, With[{r=TogetherSimplify[(2*c*(d+e*f)-b*e*g)/q]},
   (e*g+r)/(b-q+2*c*u^n) + (e*g-r)/(b+q+2*c*u^n)]] /;
-FreeQ[{a,b,c,d,e,f,g,n},x] && ZeroQ[j-2*n] && NonzeroQ[b^2-4*a*c]
+FreeQ[{a,b,c,d,e,f,g,n},x] && EqQ[j,2*n] && NeQ[b^2-4*a*c,0]
 
 
 (* ::Subsubsection::Closed:: *)
 (*Basis: Miscellaneous*)
 
 
-ExpandIntegrand[u_/v_,x_Symbol] :=
+(* ExpandIntegrand[u_/v_,x_Symbol] :=
   With[{lst=CoefficientList[u,x]},
   Module[{i},
   lst[[-1]]*x^Exponent[u,x]/v + Sum[lst[[i]]*x^(i-1),{i,1,Exponent[u,x]}]/v]] /;
-PolynomialQ[u,x] && PolynomialQ[v,x] && BinomialQ[v,x] && Exponent[u,x]==Exponent[v,x]-1>=2
+PolynomialQ[u,x] && PolynomialQ[v,x] && BinomialQ[v,x] && Exponent[u,x]==Exponent[v,x]-1>=2 *)
 
 
 ExpandIntegrand[u_/v_,x_Symbol] :=
@@ -3718,7 +3772,17 @@ Not[IntegerQ[p]]
 
 
 ExpandIntegrand[u_,x_Symbol] :=
-  ExpandExpression[u,x]
+  With[{v=ExpandExpression[u,x]},
+    v /;
+ SumQ[v]]
+
+
+ExpandIntegrand[u_^m_./(a_+b_.*u_^n_),x_Symbol] :=
+  ExpandBinomial[a,b,m,n,u,x] /;
+FreeQ[{a,b},x] && IntegersQ[m,n] && 0<m<n
+
+
+ExpandIntegrand[u_,x_Symbol] := u
 
 
 (* ::Subsection::Closed:: *)
@@ -3763,13 +3827,55 @@ ExpandCleanup[u_,x_Symbol] :=
 
 CollectReciprocals[u_.+e_/(a_+b_.*x_)+f_/(c_+d_.*x_),x_Symbol] :=
   CollectReciprocals[u+(c*e+a*f)/(a*c+b*d*x^2),x] /;
-FreeQ[{a,b,c,d,e,f},x] && ZeroQ[b*c+a*d] && ZeroQ[d*e+b*f] 
+FreeQ[{a,b,c,d,e,f},x] && EqQ[b*c+a*d,0] && EqQ[d*e+b*f,0] 
 
 CollectReciprocals[u_.+e_/(a_+b_.*x_)+f_/(c_+d_.*x_),x_Symbol] :=
   CollectReciprocals[u+(d*e+b*f)*x/(a*c+b*d*x^2),x] /;
-FreeQ[{a,b,c,d,e,f},x] && ZeroQ[b*c+a*d] && ZeroQ[c*e+a*f]
+FreeQ[{a,b,c,d,e,f},x] && EqQ[b*c+a*d,0] && EqQ[c*e+a*f,0]
 
 CollectReciprocals[u_,x_Symbol] := u
+
+
+(* ::Subsection::Closed:: *)
+(*ExpandBinomial[u,x]*)
+
+
+(* ::Subsubsection:: *)
+(*Basis: If  (m|(n-1)/2)\[Element]\[DoubleStruckCapitalZ] \[And] 0<=m<n, let r/s=(a/b)^(1/n), then z^m/(a + b*z^n) == (r*(-(r/s))^m*Sum[1/((-1)^(2*k*(m/n))*(r + (-1)^(2*(k/n))*s*z)), {k, 1, n}])/(a*n) == (r*(-(r/s))^m*Sum[(-1)^(2*k*((m + 1)/n))/((-1)^(2*(k/n))*r + s*z), {k, 1, n}])/(a*n)*)
+
+
+(* ::Subsubsection:: *)
+(*Basis: If  r/s=(-(a/b))^(1/2), then z/(a+b z^2)==s/(2b(r+s z))-s/(2b(r-s z))==r^2/(2 a s (r-s z))-r^2/(2 a s (r+s z))*)
+
+
+(* ::Subsubsection:: *)
+(*Basis: If (m|n)\[Element]\[DoubleStruckCapitalZ] \[And] 0<=m<n, let r/s=(-(a/b))^(1/n), then  z^m/(a + b*z^n) == (r*(r/s)^m*Sum[1/((-1)^(2*k*(m/n))*(r - (-1)^(2*(k/n))*s*z)), {k, 1, n}])/(a*n) == (r*(r/s)^m*Sum[(-1)^(2*k*((m + 1)/n))/((-1)^(2*(k/n))*r - s*z), {k, 1, n}])/(a*n)*)
+
+
+(* ::Subsubsection:: *)
+(*Note: If  m+1 and n are not coprime, the second summation is used since the coefficient (-1)^(2 k (m+1)/n) will be simpler.*)
+
+
+(* ::Subsubsection::Closed:: *)
+(*Note: The code reduces the exponents by their gcd.*)
+
+
+(* Assumes m and n are integers and 0<m<n. *)
+(* ExpandBinomial[a,b,m,n,u,x] expands u^m/(a+b*u^n) into a sum of terms of the form 1/(r+s*u). *)
+ExpandBinomial[a_,b_,m_,n_,u_,x_Symbol] :=
+  If[OddQ[n/GCD[m,n]] && PosQ[a/b],
+    With[{g=GCD[m,n],r=Numerator[Rt[a/b,n/GCD[m,n]]],s=Denominator[Rt[a/b,n/GCD[m,n]]]},
+    Module[{k},
+    If[CoprimeQ[m+g,n],
+      Sum[r*(-r/s)^(m/g)*(-1)^(-2*k*m/n)/(a*n*(r+(-1)^(2*k*g/n)*s*u^g)),{k,1,n/g}],
+    Sum[r*(-r/s)^(m/g)*(-1)^(2*k*(m+g)/n)/(a*n*((-1)^(2*k*g/n)*r+s*u^g)),{k,1,n/g}]]]],
+  With[{g=GCD[m,n],r=Numerator[Rt[-a/b,n/GCD[m,n]]],s=Denominator[Rt[-a/b,n/GCD[m,n]]]},
+  If[n/g==2,
+    s/(2*b*(r+s*u^g)) - s/(2*b*(r-s*u^g)),
+  Module[{k},
+  If[CoprimeQ[m+g,n],
+    Sum[r*(r/s)^(m/g)*(-1)^(-2*k*m/n)/(a*n*(r-(-1)^(2*k*g/n)*s*u^g)),{k,1,n/g}],
+  Sum[r*(r/s)^(m/g)*(-1)^(2*k*(m+g)/n)/(a*n*((-1)^(2*k*g/n)*r-s*u^g)),{k,1,n/g}]]]]]]
 
 
 (* ::Subsection::Closed:: *)
@@ -3832,7 +3938,7 @@ KernelSubst[u_,x_Symbol,alst_List] :=
     tmp[[1,2]]]],
   If[IntegerPowerQ[u],
     With[{tmp=KernelSubst[u[[1]],x,alst]},
-    If[u[[2]]<0 && ZeroQ[tmp],
+    If[u[[2]]<0 && EqQ[tmp,0],
       Indeterminate,
     tmp^u[[2]]]],
   If[ProductQ[u] || SumQ[u],
@@ -3932,15 +4038,15 @@ ExpandTrigReduce[u_,x_Symbol] :=
 ExpandTrigReduceAux[u_,x_Symbol] :=
   With[{v=Expand[TrigReduce[u]]},
   If[SumQ[v],
-    Map[Function[NormalizeTrig[#,x]],v],
-  NormalizeTrig[v,x]]]
+    Map[Function[NormalizeTrigReduce[#,x]],v],
+  NormalizeTrigReduce[v,x]]]
 
 
-NormalizeTrig[a_.*F_[u_]^n_.,x_Symbol] :=
+NormalizeTrigReduce[a_.*F_[u_]^n_.,x_Symbol] :=
   a*F[ExpandToSum[u,x]]^n /;
 FreeQ[{F,a,n},x] && PolynomialQ[u,x] && Exponent[u,x]>0
 
-NormalizeTrig[u_,x_Symbol] := u
+NormalizeTrigReduce[u_,x_Symbol] := u
 
 
 (* ::Subsection::Closed:: *)
@@ -3982,12 +4088,12 @@ DownValues[Dist]={};
 UpValues[Dist]={};
 
 Dist /: Dist[u_,v_,x_]+Dist[w_,v_,x_] := 
-  If[ZeroQ[u+w],
+  If[EqQ[u+w,0],
     0,
   Dist[u+w,v,x]]
 
 Dist /: Dist[u_,v_,x_]-Dist[w_,v_,x_] := 
-  If[ZeroQ[u-w],
+  If[EqQ[u-w,0],
     0,
   Dist[u-w,v,x]]
 
@@ -4091,15 +4197,15 @@ FunctionOfLinear[u_,a_,b_,x_,flag_] :=
     If[FalseQ[a],
       {Coefficient[u,x,0],Coefficient[u,x,1]},
     With[{lst=CommonFactors[{b,Coefficient[u,x,1]}]},
-    If[ZeroQ[Coefficient[u,x,0]] && Not[flag],
+    If[EqQ[Coefficient[u,x,0],0] && Not[flag],
       {0,lst[[1]]},
-    If[ZeroQ[b*Coefficient[u,x,0]-a*Coefficient[u,x,1]],
+    If[EqQ[b*Coefficient[u,x,0]-a*Coefficient[u,x,1],0],
       {a/lst[[2]],lst[[1]]},
     {0,1}]]]],
   If[PowerQ[u] && FreeQ[u[[1]],x],
     FunctionOfLinear[Log[u[[1]]]*u[[2]],a,b,x,False],
   Module[{lst},
-  If[ProductQ[u] && NonzeroQ[(lst=MonomialFactor[u,x])[[1]]],
+  If[ProductQ[u] && NeQ[(lst=MonomialFactor[u,x])[[1]],0],
     If[False && IntegerQ[lst[[1]]] && lst[[1]]!=-1 && FreeQ[lst[[2]],x],
       If[RationalQ[LeadFactor[lst[[2]]]] && LeadFactor[lst[[2]]]<0,
         FunctionOfLinear[DivideDegreesOfFactors[-lst[[2]],lst[[1]]]*x,a,b,x,False],
@@ -4122,7 +4228,7 @@ FunctionOfLinearSubst[u_,a_,b_,x_] :=
   If[PowerQ[u] && FreeQ[u[[1]],x],
     E^FullSimplify[FunctionOfLinearSubst[Log[u[[1]]]*u[[2]],a,b,x]],
   Module[{lst},
-  If[ProductQ[u] && NonzeroQ[(lst=MonomialFactor[u,x])[[1]]],
+  If[ProductQ[u] && NeQ[(lst=MonomialFactor[u,x])[[1]],0],
     If[RationalQ[LeadFactor[lst[[2]]]] && LeadFactor[lst[[2]]]<0,
       -FunctionOfLinearSubst[DivideDegreesOfFactors[-lst[[2]],lst[[1]]]*x,a,b,x]^lst[[1]],
     FunctionOfLinearSubst[DivideDegreesOfFactors[lst[[2]],lst[[1]]]*x,a,b,x]^lst[[1]]],
@@ -4157,7 +4263,7 @@ FunctionOfInverseLinear[u_,lst_,x_] :=
       False,
     If[lst===Null,
       tmp,
-    If[ZeroQ[lst[[1]]*tmp[[2]]-lst[[2]]*tmp[[1]]],
+    If[EqQ[lst[[1]]*tmp[[2]]-lst[[2]]*tmp[[1]],0],
       lst,
     False]]]],
   If[CalculusQ[u],
@@ -4198,7 +4304,7 @@ FunctionOfExponentialFunctionAux[u_,x_] :=
   If[AtomQ[u],
     u,
   If[PowerQ[u] && FreeQ[u[[1]],x] && LinearQ[u[[2]],x],
-    If[ZeroQ[Coefficient[$expon$,x,0]],
+    If[EqQ[Coefficient[$expon$,x,0],0],
       u[[1]]^Coefficient[u[[2]],x,0]*x^FullSimplify[Log[u[[1]]]*Coefficient[u[[2]],x,1]/(Log[$base$]*Coefficient[$expon$,x,1])],
     x^FullSimplify[Log[u[[1]]]*Coefficient[u[[2]],x,1]/(Log[$base$]*Coefficient[$expon$,x,1])]],
   If[HyperbolicQ[u] && LinearQ[u[[1]],x],
@@ -4248,7 +4354,7 @@ FunctionOfExponentialTestAux[base_,expon_,x_] :=
   tmp=FullSimplify[Log[base]*Coefficient[expon,x,1]/(Log[$base$]*Coefficient[$expon$,x,1])];
   If[Not[RationalQ[tmp]],
     False,
-  If[ZeroQ[Coefficient[$expon$,x,0]] || NonzeroQ[tmp-FullSimplify[Log[base]*Coefficient[expon,x,0]/(Log[$base$]*Coefficient[$expon$,x,0])]],
+  If[EqQ[Coefficient[$expon$,x,0],0] || NeQ[tmp,FullSimplify[Log[base]*Coefficient[expon,x,0]/(Log[$base$]*Coefficient[$expon$,x,0])]],
     ( If[PositiveIntegerQ[base,$base$] && base<$base$,
         $base$=base;
         $expon$=expon;
@@ -4277,9 +4383,10 @@ FunctionOfExponentialTestAux[base_,expon_,x_] :=
 (* If u is an algebraic function of trig functions of a linear function of x, 
     FunctionOfTrigOfLinearQ[u,x] returns True; else it returns False. *)
 FunctionOfTrigOfLinearQ[u_,x_Symbol] :=
-  (* Not[MatchQ[u, (c_.*f_[a_.+b_.*x])^p_. /; FreeQ[{a,b,c,p},x] && MemberQ[{Sin,Cos,Sec,Csc},f]]] && *)
-  Not[MemberQ[{Null, False}, FunctionOfTrig[u,Null,x]]] && AlgebraicTrigFunctionQ[u,x] (* && 
-    RecognizedFunctionOfTrigQ[DeactivateTrig[u,x],x] *)
+  If[MatchQ[u,(c_.+d_.*x)^m_.*(a_.+b_.*trig_[e_.+f_.*x])^n_. /; FreeQ[{a,b,c,d,e,f,m,n},x] && (TrigQ[trig] || HyperbolicQ[trig])],
+    True,
+  Not[MemberQ[{Null, False}, FunctionOfTrig[u,Null,x]]] && AlgebraicTrigFunctionQ[u,x]]
+
 
 (* If u is a function of trig functions of v where v is a linear function of x, 
 	FunctionOfTrig[u,x] returns v; else it returns False. *)
@@ -4296,14 +4403,14 @@ FunctionOfTrig[u_,v_,x_] :=
     If[v===Null,
       u[[1]],
     With[{a=Coefficient[v,x,0],b=Coefficient[v,x,1],c=Coefficient[u[[1]],x,0],d=Coefficient[u[[1]],x,1]},
-    If[ZeroQ[a*d-b*c] && RationalQ[b/d],
+    If[EqQ[a*d-b*c,0] && RationalQ[b/d],
       a/Numerator[b/d]+b*x/Numerator[b/d],
     False]]],
   If[HyperbolicQ[u] && LinearQ[u[[1]],x],
     If[v===Null,
       I*u[[1]],
     With[{a=Coefficient[v,x,0],b=Coefficient[v,x,1],c=I*Coefficient[u[[1]],x,0],d=I*Coefficient[u[[1]],x,1]},
-    If[ZeroQ[a*d-b*c] && RationalQ[b/d],
+    If[EqQ[a*d-b*c,0] && RationalQ[b/d],
       a/Numerator[b/d]+b*x/Numerator[b/d],
     False]]],
   If[CalculusQ[u],
@@ -4347,7 +4454,7 @@ FunctionOfHyperbolic[u_,v_,x_] :=
     If[v===Null,
       u[[1]],
     With[{a=Coefficient[v,x,0],b=Coefficient[v,x,1],c=Coefficient[u[[1]],x,0],d=Coefficient[u[[1]],x,1]},
-    If[ZeroQ[a*d-b*c] && RationalQ[b/d],
+    If[EqQ[a*d-b*c,0] && RationalQ[b/d],
       a/Numerator[b/d]+b*x/Numerator[b/d],
     False]]],
   If[CalculusQ[u],
@@ -4370,7 +4477,7 @@ FunctionOfQ[v_,u_,x_Symbol,PureFlag_:False] :=
     True,
   If[Not[InertTrigFreeQ[u]],
     FunctionOfQ[v,ActivateTrig[u],x,PureFlag],
-  If[ProductQ[v] && Not[EqQ[FreeFactors[v,x],1]],
+  If[ProductQ[v] && NeQ[FreeFactors[v,x],1],
     FunctionOfQ[NonfreeFactors[v,x],u,x,PureFlag],
 
   If[PureFlag,
@@ -4416,14 +4523,14 @@ FunctionOfExpnQ[u_,v_,x_] :=
   If[CalculusQ[u],
     False,
   If[PowerQ[u] && FreeQ[u[[2]],x],
-    If[ZeroQ[u[[1]]-v],
+    If[EqQ[u[[1]],v],
       If[IntegerQ[u[[2]]], u[[2]], 1],
-    If[PowerQ[v] && FreeQ[v[[2]],x] && ZeroQ[u[[1]]-v[[1]]],
+    If[PowerQ[v] && FreeQ[v[[2]],x] && EqQ[u[[1]],v[[1]]],
       If[RationalQ[v[[2]]],
         If[RationalQ[u[[2]]] && IntegerQ[u[[2]]/v[[2]]] && (v[[2]]>0 || u[[2]]<0), u[[2]]/v[[2]], False],
       If[IntegerQ[Simplify[u[[2]]/v[[2]]]], Simplify[u[[2]]/v[[2]]], False]],
     FunctionOfExpnQ[u[[1]],v,x]]],
-  If[ProductQ[u] && Not[EqQ[FreeFactors[u,x],1]],
+  If[ProductQ[u] && NeQ[FreeFactors[u,x],1],
     FunctionOfExpnQ[NonfreeFactors[u,x],v,x],
   If[ProductQ[u] && ProductQ[v],
     Module[{deg1=FunctionOfExpnQ[First[u],First[v],x],deg2},
@@ -4450,7 +4557,7 @@ PureFunctionOfSinQ[u_,v_,x_] :=
     u=!=x,
   If[CalculusQ[u],
     False,
-  If[TrigQ[u] && ZeroQ[u[[1]]-v],
+  If[TrigQ[u] && EqQ[u[[1]],v],
     SinQ[u] || CscQ[u],
   Catch[Scan[Function[If[Not[PureFunctionOfSinQ[#,v,x]],Throw[False]]],u];True]]]]
 
@@ -4462,7 +4569,7 @@ PureFunctionOfCosQ[u_,v_,x_] :=
     u=!=x,
   If[CalculusQ[u],
     False,
-  If[TrigQ[u] && ZeroQ[u[[1]]-v],
+  If[TrigQ[u] && EqQ[u[[1]],v],
     CosQ[u] || SecQ[u],
   Catch[Scan[Function[If[Not[PureFunctionOfCosQ[#,v,x]],Throw[False]]],u];True]]]]
 
@@ -4474,7 +4581,7 @@ PureFunctionOfTanQ[u_,v_,x_] :=
     u=!=x,
   If[CalculusQ[u],
     False,
-  If[TrigQ[u] && ZeroQ[u[[1]]-v],
+  If[TrigQ[u] && EqQ[u[[1]],v],
     TanQ[u] || CotQ[u],
   Catch[Scan[Function[If[Not[PureFunctionOfTanQ[#,v,x]],Throw[False]]],u];True]]]]
 
@@ -4486,7 +4593,7 @@ PureFunctionOfCotQ[u_,v_,x_] :=
     u=!=x,
   If[CalculusQ[u],
     False,
-  If[TrigQ[u] && ZeroQ[u[[1]]-v],
+  If[TrigQ[u] && EqQ[u[[1]],v],
     CotQ[u],
   Catch[Scan[Function[If[Not[PureFunctionOfCotQ[#,v,x]],Throw[False]]],u];True]]]]
 
@@ -4513,7 +4620,7 @@ FunctionOfSinQ[u_,v_,x_] :=
       True,
     FunctionOfSinQ[u[[1]],v,x]],
   If[ProductQ[u],
-    If[CosQ[u[[1]]] && SinQ[u[[2]]] && ZeroQ[u[[1,1]]-v/2] && ZeroQ[u[[2,1]]-v/2],
+    If[CosQ[u[[1]]] && SinQ[u[[2]]] && EqQ[u[[1,1]],v/2] && EqQ[u[[2,1]],v/2],
       FunctionOfSinQ[Drop[u,2],v,x],
     Module[{lst},
     lst=FindTrigFactor[Sin,Csc,u,v,False];
@@ -4586,7 +4693,7 @@ OddTrigPowerQ[u_,v_,x_] :=
   If[PowerQ[u],
     OddQ[u[[2]]] && OddTrigPowerQ[u[[1]],v,x],
   If[ProductQ[u],
-    If[Not[EqQ[FreeFactors[u,x],1]],
+    If[NeQ[FreeFactors[u,x],1],
       OddTrigPowerQ[NonfreeFactors[u,x],v,x],
     Module[{lst=ReapList[Scan[Function[If[Not[FunctionOfTanQ[#,v,x]],Sow[#]]],u]]},
     If[lst==={},
@@ -4606,9 +4713,9 @@ FunctionOfTanWeight[u_,v_,x_] :=
   If[CalculusQ[u],
     0,
   If[TrigQ[u] && IntegerQuotientQ[u[[1]],v],
-    If[TanQ[u] && ZeroQ[u[[1]]-v],
+    If[TanQ[u] && EqQ[u[[1]],v],
       1,
-    If[CotQ[u] && ZeroQ[u[[1]]-v],
+    If[CotQ[u] && EqQ[u[[1]],v],
       -1,
     0]],
   If[PowerQ[u] && EvenQ[u[[2]]] && TrigQ[u[[1]]] && IntegerQuotientQ[u[[1,1]],v],
@@ -4647,7 +4754,7 @@ PureFunctionOfSinhQ[u_,v_,x_] :=
     u=!=x,
   If[CalculusQ[u],
     False,
-  If[HyperbolicQ[u] && ZeroQ[u[[1]]-v],
+  If[HyperbolicQ[u] && EqQ[u[[1]],v],
     SinhQ[u] || CschQ[u],
   Catch[Scan[Function[If[Not[PureFunctionOfSinhQ[#,v,x]],Throw[False]]],u];True]]]]
 
@@ -4659,7 +4766,7 @@ PureFunctionOfCoshQ[u_,v_,x_] :=
     u=!=x,
   If[CalculusQ[u],
     False,
-  If[HyperbolicQ[u] && ZeroQ[u[[1]]-v],
+  If[HyperbolicQ[u] && EqQ[u[[1]],v],
     CoshQ[u] || SechQ[u],
   Catch[Scan[Function[If[Not[PureFunctionOfCoshQ[#,v,x]],Throw[False]]],u];True]]]]
 
@@ -4671,7 +4778,7 @@ PureFunctionOfTanhQ[u_,v_,x_] :=
     u=!=x,
   If[CalculusQ[u],
     False,
-  If[HyperbolicQ[u] && ZeroQ[u[[1]]-v],
+  If[HyperbolicQ[u] && EqQ[u[[1]],v],
     TanhQ[u] || CothQ[u],
   Catch[Scan[Function[If[Not[PureFunctionOfTanhQ[#,v,x]],Throw[False]]],u];True]]]]
 
@@ -4683,7 +4790,7 @@ PureFunctionOfCothQ[u_,v_,x_] :=
     u=!=x,
   If[CalculusQ[u],
     False,
-  If[HyperbolicQ[u] && ZeroQ[u[[1]]-v],
+  If[HyperbolicQ[u] && EqQ[u[[1]],v],
     CothQ[u],
   Catch[Scan[Function[If[Not[PureFunctionOfCothQ[#,v,x]],Throw[False]]],u];True]]]]
 
@@ -4710,7 +4817,7 @@ FunctionOfSinhQ[u_,v_,x_] :=
       True,
     FunctionOfSinhQ[u[[1]],v,x]],
   If[ProductQ[u],
-    If[CoshQ[u[[1]]] && SinhQ[u[[2]]] && ZeroQ[u[[1,1]]-v/2] && ZeroQ[u[[2,1]]-v/2],
+    If[CoshQ[u[[1]]] && SinhQ[u[[2]]] && EqQ[u[[1,1]],v/2] && EqQ[u[[2,1]],v/2],
       FunctionOfSinhQ[Drop[u,2],v,x],
     Module[{lst},
     lst=FindTrigFactor[Sinh,Csch,u,v,False];
@@ -4783,7 +4890,7 @@ OddHyperbolicPowerQ[u_,v_,x_] :=
   If[PowerQ[u],
     OddQ[u[[2]]] && OddHyperbolicPowerQ[u[[1]],v,x],
   If[ProductQ[u],
-    If[Not[EqQ[FreeFactors[u,x],1]],
+    If[NeQ[FreeFactors[u,x],1],
       OddHyperbolicPowerQ[NonfreeFactors[u,x],v,x],
     With[{lst=ReapList[Scan[Function[If[Not[FunctionOfTanhQ[#,v,x]],Sow[#]]],u]]},
     If[lst==={},
@@ -4803,9 +4910,9 @@ FunctionOfTanhWeight[u_,v_,x_] :=
   If[CalculusQ[u],
     0,
   If[HyperbolicQ[u] && IntegerQuotientQ[u[[1]],v],
-    If[TanhQ[u] && ZeroQ[u[[1]]-v],
+    If[TanhQ[u] && EqQ[u[[1]],v],
       1,
-    If[CothQ[u] && ZeroQ[u[[1]]-v],
+    If[CothQ[u] && EqQ[u[[1]],v],
       -1,
     0]],
   If[PowerQ[u] && EvenQ[u[[2]]] && HyperbolicQ[u[[1]]] && IntegerQuotientQ[u[[1,1]],v],
@@ -4841,7 +4948,7 @@ FindTrigFactor[func1_,func2_,u_,v_,flag_] :=
   If[(Head[LeadBase[u]]===func1 || Head[LeadBase[u]]===func2) && 
 		OddQ[LeadDegree[u]] && 
 		IntegerQuotientQ[LeadBase[u][[1]],v] && 
-		(flag || NonzeroQ[LeadBase[u][[1]]-v]),
+		(flag || NeQ[LeadBase[u][[1]],v]),
     {LeadBase[u][[1]], RemainingFactors[u]},
   With[{lst=FindTrigFactor[func1,func2,RemainingFactors[u],v,flag]},
   If[AtomQ[lst],
@@ -4851,12 +4958,12 @@ FindTrigFactor[func1_,func2_,u_,v_,flag_] :=
 
 (* If u/v is an integer, IntegerQuotientQ[u,v] returns True; else it returns False. *)
 IntegerQuotientQ[u_,v_] :=
-(* u===v || ZeroQ[u-v] || IntegerQ[u/v] *)
+(* u===v || EqQ[u,v] || IntegerQ[u/v] *)
   IntegerQ[Simplify[u/v]]
 
 (* If u/v is odd, OddQuotientQ[u,v] returns True; else it returns False. *)
 OddQuotientQ[u_,v_] :=
-(* u===v || ZeroQ[u-v] || OddQ[u/v] *)
+(* u===v || EqQ[u,v] || OddQ[u/v] *)
   OddQ[Simplify[u/v]]
 
 (* If u/v is even, EvenQuotientQ[u,v] returns True; else it returns False. *)
@@ -4901,7 +5008,7 @@ FunctionOfLog[u_,v_,n_,x_] :=
   If[CalculusQ[u],
     False,
   Module[{lst},
-  If[LogQ[u] && ListQ[lst=BinomialParts[u[[1]],x]] && ZeroQ[lst[[1]]],
+  If[LogQ[u] && ListQ[lst=BinomialParts[u[[1]],x]] && EqQ[lst[[1]],0],
     If[FalseQ[v] || u[[1]]===v,
       {x,u[[1]],lst[[3]]},
     False],
@@ -4933,7 +5040,7 @@ PowerVariableDegree[u_,m_,c_,x_Symbol] :=
   If[AtomQ[u] || CalculusQ[u],
     False,
   If[PowerQ[u] && FreeQ[u[[1]]/x,x],
-    If[ZeroQ[m] || m===u[[2]] && c===u[[1]]/x,
+    If[EqQ[m,0] || m===u[[2]] && c===u[[1]]/x,
       {u[[2]], u[[1]]/x},
     If[IntegerQ[u[[2]]] && IntegerQ[m] && GCD[m,u[[2]]]>1 && c===u[[1]]/x,
       {GCD[m,u[[2]]], c},
@@ -4966,13 +5073,13 @@ FreeQ[{a,b},x] && IntegerQ[n+1/2] && QuadraticQ[u,x] && (Not[RationalQ[p]] || Ne
 
 EulerIntegrandQ[v_^m_.*(a_.*x_+b_.*u_^n_)^p_,x_Symbol] :=
   True /;
-FreeQ[{a,b},x] && ZeroQ[u-v] && IntegersQ[2*m,n+1/2] && QuadraticQ[u,x] && 
+FreeQ[{a,b},x] && EqQ[u,v] && IntegersQ[2*m,n+1/2] && QuadraticQ[u,x] && 
   (Not[RationalQ[p]] || NegativeIntegerQ[p] && Not[BinomialQ[u,x]])
 
 
 EulerIntegrandQ[v_^m_.*(a_.*x_+b_.*u_^n_)^p_,x_Symbol] :=
   True /;
-FreeQ[{a,b},x] && ZeroQ[u-v] && IntegersQ[2*m,n+1/2] && QuadraticQ[u,x] && 
+FreeQ[{a,b},x] && EqQ[u,v] && IntegersQ[2*m,n+1/2] && QuadraticQ[u,x] && 
   (Not[RationalQ[p]] || NegativeIntegerQ[p] && Not[BinomialQ[u,x]])
 
 
@@ -5021,7 +5128,7 @@ FunctionOfSquareRootOfQuadratic[u_,x_Symbol] :=
     False,
   tmp=tmp[[1]];
   Module[{a=Coefficient[tmp,x,0],b=Coefficient[tmp,x,1],c=Coefficient[tmp,x,2],sqrt,q,r},
-  If[ZeroQ[a] && ZeroQ[b] || ZeroQ[b^2-4*a*c],
+  If[EqQ[a,0] && EqQ[b,0] || EqQ[b^2-4*a*c,0],
     False,
   If[PosQ[c],
     sqrt=Rt[c,2];
@@ -5095,20 +5202,20 @@ Subst[u_,x_,w_] :=
 
 SubstAux[a_+b_.*x_,x_Symbol,c_.*F_[z_]^2] :=
   a*Simplify[1-F[z]^2] /;
-FreeQ[{a,b,c},x] && MemberQ[{Sin,Cos,Sec,Csc,Cosh,Tanh,Coth,Sech},F] && ZeroQ[a+b*c]
+FreeQ[{a,b,c},x] && MemberQ[{Sin,Cos,Sec,Csc,Cosh,Tanh,Coth,Sech},F] && EqQ[a+b*c,0]
 
 SubstAux[a_+b_.*x_,x_Symbol,c_.*F_[z_]^2] :=
   a*Simplify[1+F[z]^2] /;
-FreeQ[{a,b,c},x] && MemberQ[{Tan,Cot,Sinh,Csch},F] && ZeroQ[a-b*c]
+FreeQ[{a,b,c},x] && MemberQ[{Tan,Cot,Sinh,Csch},F] && EqQ[a-b*c,0]
 
 
 SubstAux[a_+b_.*x_^2,x_Symbol,c_.*F_[z_]] :=
   a*Simplify[1-F[z]^2] /;
-FreeQ[{a,b,c},x] && MemberQ[{Sin,Cos,Sec,Csc,Cosh,Tanh,Coth,Sech},F] && ZeroQ[a+b*c^2]
+FreeQ[{a,b,c},x] && MemberQ[{Sin,Cos,Sec,Csc,Cosh,Tanh,Coth,Sech},F] && EqQ[a+b*c^2,0]
 
 SubstAux[a_+b_.*x_^2,x_Symbol,c_.*F_[z_]] :=
   a*Simplify[1+F[z]^2] /;
-FreeQ[{a,b,c},x] && MemberQ[{Tan,Cot,Sinh,Csch},F] && ZeroQ[a-b*c^2]
+FreeQ[{a,b,c},x] && MemberQ[{Tan,Cot,Sinh,Csch},F] && EqQ[a-b*c^2,0]
 
 
 SubstAux[F_[a_.*x_^m_.],x_Symbol,b_.*x_^n_] :=
@@ -5216,7 +5323,7 @@ FreeQ[f,x]
 
 SimplifyAntiderivative[Log[a_+b_.*Tan[u_]],x_Symbol] :=
   b/a*SimplifyAntiderivative[u,x] - SimplifyAntiderivative[Log[Cos[u]],x] /;
-FreeQ[{a,b},x] && ZeroQ[a^2+b^2]
+FreeQ[{a,b},x] && EqQ[a^2+b^2,0]
 
 
 (* ::Item:: *)
@@ -5225,7 +5332,7 @@ FreeQ[{a,b},x] && ZeroQ[a^2+b^2]
 
 SimplifyAntiderivative[Log[a_+b_.*Cot[u_]],x_Symbol] :=
   -b/a*SimplifyAntiderivative[u,x] - SimplifyAntiderivative[Log[Sin[u]],x] /;
-FreeQ[{a,b},x] && ZeroQ[a^2+b^2]
+FreeQ[{a,b},x] && EqQ[a^2+b^2,0]
 
 
 (* ::Input:: *)
@@ -5512,34 +5619,34 @@ Clear[SimplifyAntiderivativeSum];
 
 SimplifyAntiderivativeSum[v_.+A_.*Log[a_+b_.*Tan[u_]^n_.]+B_.*Log[Cos[u_]],x_Symbol] :=
   SimplifyAntiderivativeSum[v,x] + A*Log[RemoveContent[a*Cos[u]^n+b*Sin[u]^n,x]] /;
-FreeQ[{a,b,A,B},x] && IntegerQ[n] && ZeroQ[n*A-B]
+FreeQ[{a,b,A,B},x] && IntegerQ[n] && EqQ[n*A-B,0]
 
 
 SimplifyAntiderivativeSum[v_.+A_.*Log[a_+b_.*Cot[u_]^n_.]+B_.*Log[Sin[u_]],x_Symbol] :=
   SimplifyAntiderivativeSum[v,x] + A*Log[RemoveContent[a*Sin[u]^n+b*Cos[u]^n,x]] /;
-FreeQ[{a,b,A,B},x] && IntegerQ[n] && ZeroQ[n*A-B]
+FreeQ[{a,b,A,B},x] && IntegerQ[n] && EqQ[n*A-B,0]
 
 
 SimplifyAntiderivativeSum[v_.+A_.*Log[a_+b_.*Tan[u_]^n_.]+B_.*Log[c_+d_.*Tan[u_]^n_.],x_Symbol] :=
   SimplifyAntiderivativeSum[v,x] + A*Log[RemoveContent[a*Cos[u]^n+b*Sin[u]^n,x]] + B*Log[RemoveContent[c*Cos[u]^n+d*Sin[u]^n,x]] /;
-FreeQ[{a,b,c,d,A,B},x] && IntegerQ[n] && ZeroQ[A+B]
+FreeQ[{a,b,c,d,A,B},x] && IntegerQ[n] && EqQ[A+B,0]
 
 
 SimplifyAntiderivativeSum[v_.+A_.*Log[a_+b_.*Cot[u_]^n_.]+B_.*Log[c_+d_.*Cot[u_]^n_.],x_Symbol] :=
   SimplifyAntiderivativeSum[v,x] + A*Log[RemoveContent[b*Cos[u]^n+a*Sin[u]^n,x]] + B*Log[RemoveContent[d*Cos[u]^n+c*Sin[u]^n,x]] /;
-FreeQ[{a,b,c,d,A,B},x] && IntegerQ[n] && ZeroQ[A+B]
+FreeQ[{a,b,c,d,A,B},x] && IntegerQ[n] && EqQ[A+B,0]
 
 
 SimplifyAntiderivativeSum[v_.+A_.*Log[a_+b_.*Tan[u_]^n_.]+B_.*Log[c_+d_.*Tan[u_]^n_.]+C_.*Log[e_+f_.*Tan[u_]^n_.],x_Symbol] :=
   SimplifyAntiderivativeSum[v,x] + A*Log[RemoveContent[a*Cos[u]^n+b*Sin[u]^n,x]] + 
 	B*Log[RemoveContent[c*Cos[u]^n+d*Sin[u]^n,x]] + C*Log[RemoveContent[e*Cos[u]^n+f*Sin[u]^n,x]] /;
-FreeQ[{a,b,c,d,e,f,A,B,C},x] && IntegerQ[n] && ZeroQ[A+B+C]
+FreeQ[{a,b,c,d,e,f,A,B,C},x] && IntegerQ[n] && EqQ[A+B+C,0]
 
 
 SimplifyAntiderivativeSum[v_.+A_.*Log[a_+b_.*Cot[u_]^n_.]+B_.*Log[c_+d_.*Cot[u_]^n_.]+C_.*Log[e_+f_.*Cot[u_]^n_.],x_Symbol] :=
   SimplifyAntiderivativeSum[v,x] + A*Log[RemoveContent[b*Cos[u]^n+a*Sin[u]^n,x]] + 
 	B*Log[RemoveContent[d*Cos[u]^n+c*Sin[u]^n,x]] + C*Log[RemoveContent[f*Cos[u]^n+e*Sin[u]^n,x]] /;
-FreeQ[{a,b,c,d,e,f,A,B,C},x] && IntegerQ[n] && ZeroQ[A+B+C]
+FreeQ[{a,b,c,d,e,f,A,B,C},x] && IntegerQ[n] && EqQ[A+B+C,0]
 
 
 SimplifyAntiderivativeSum[u_,x_Symbol] := u
@@ -5587,7 +5694,7 @@ RectifyTangent[u_,a_,b_,x_Symbol] :=
     Module[{c=a/I,e},
     If[NegativeQ[c],
       RectifyTangent[u,-a,-b,x],
-    If[ZeroQ[c-1],
+    If[EqQ[c,1],
       If[EvenQ[Denominator[NumericFactor[Together[u]]]],
         I*b*ArcTanh[Sin[2*u]]/2,
       I*b*ArcTanh[2*Cos[u]*Sin[u]]/2],
@@ -5602,7 +5709,7 @@ RectifyTangent[u_,a_,b_,x_Symbol] :=
     I*b*Log[RemoveContent[e*Cos[u]-c*Sin[u],x]]/2]]],
   If[NegativeQ[a],
     RectifyTangent[u,-a,-b,x],
-  If[ZeroQ[a-1],
+  If[EqQ[a,1],
     b*SimplifyAntiderivative[u,x],
   Module[{c,numr,denr},
   If[EvenQ[Denominator[NumericFactor[Together[u]]]],
@@ -5727,7 +5834,7 @@ RectifyCotangent[u_,a_,b_,x_Symbol] :=
     Module[{c=a/I,e},
     If[NegativeQ[c],
       RectifyCotangent[u,-a,-b,x],
-    If[ZeroQ[c-1],
+    If[EqQ[c,1],
       If[EvenQ[Denominator[NumericFactor[Together[u]]]],
         -I*b*ArcTanh[Sin[2*u]]/2,
       -I*b*ArcTanh[2*Cos[u]*Sin[u]]/2],
@@ -5742,7 +5849,7 @@ RectifyCotangent[u_,a_,b_,x_Symbol] :=
     I*b*Log[RemoveContent[c*Cos[u]-e*Sin[u],x]]/2]]],
   If[NegativeQ[a],
     RectifyCotangent[u,-a,-b,x],
-  If[ZeroQ[a-1],
+  If[EqQ[a,1],
     b*SimplifyAntiderivative[u,x],
   Module[{c,numr,denr},
   If[EvenQ[Denominator[NumericFactor[Together[u]]]],
@@ -5858,7 +5965,7 @@ SubstFor[v_,u_,x_] :=
     Subst[u,v,x],
   If[Not[InertTrigFreeQ[u]],
     SubstFor[v,ActivateTrig[u],x],
-  If[Not[EqQ[FreeFactors[v,x],1]],
+  If[NeQ[FreeFactors[v,x],1],
     SubstFor[NonfreeFactors[v,x],u,x/FreeFactors[v,x]],
 
   If[SinQ[v],
@@ -5895,16 +6002,16 @@ SubstForAux[u_,v_,x_] :=
   If[u===v,
     x,
   If[AtomQ[u],
-    If[PowerQ[v] && FreeQ[v[[2]],x] && ZeroQ[u-v[[1]]],
+    If[PowerQ[v] && FreeQ[v[[2]],x] && EqQ[u,v[[1]]],
       x^Simplify[1/v[[2]]],
     u],
   If[PowerQ[u] && FreeQ[u[[2]],x],
-    If[ZeroQ[u[[1]]-v],
+    If[EqQ[u[[1]],v],
       x^u[[2]],
-    If[PowerQ[v] && FreeQ[v[[2]],x] && ZeroQ[u[[1]]-v[[1]]],
+    If[PowerQ[v] && FreeQ[v[[2]],x] && EqQ[u[[1]],v[[1]]],
       x^Simplify[u[[2]]/v[[2]]],
     SubstForAux[u[[1]],v,x]^u[[2]]]],
-  If[ProductQ[u] && Not[EqQ[FreeFactors[u,x],1]],
+  If[ProductQ[u] && NeQ[FreeFactors[u,x],1],
     FreeFactors[u,x]*SubstForAux[NonfreeFactors[u,x],v,x],
   If[ProductQ[u] && ProductQ[v],
     SubstForAux[First[u],First[v],x],
@@ -5917,7 +6024,7 @@ SubstForTrig[u_,sin_,cos_,v_,x_] :=
   If[AtomQ[u],
     u,
   If[TrigQ[u] && IntegerQuotientQ[u[[1]],v],
-    If[u[[1]]===v || ZeroQ[u[[1]]-v],
+    If[u[[1]]===v || EqQ[u[[1]],v],
       If[SinQ[u],
         sin,
       If[CosQ[u],
@@ -5931,7 +6038,7 @@ SubstForTrig[u_,sin_,cos_,v_,x_] :=
       1/sin]]]]],
     Map[Function[SubstForTrig[#,sin,cos,v,x]],
 			ReplaceAll[TrigExpand[Head[u][Simplify[u[[1]]/v]*x]],x->v]]],
-  If[ProductQ[u] && CosQ[u[[1]]] && SinQ[u[[2]]] && ZeroQ[u[[1,1]]-v/2] && ZeroQ[u[[2,1]]-v/2],
+  If[ProductQ[u] && CosQ[u[[1]]] && SinQ[u[[2]]] && EqQ[u[[1,1]],v/2] && EqQ[u[[2,1]],v/2],
     sin/2*SubstForTrig[Drop[u,2],sin,cos,v,x],
   Map[Function[SubstForTrig[#,sin,cos,v,x]],u]]]]
 
@@ -5943,7 +6050,7 @@ SubstForHyperbolic[u_,sinh_,cosh_,v_,x_] :=
   If[AtomQ[u],
     u,
   If[HyperbolicQ[u] && IntegerQuotientQ[u[[1]],v],
-    If[u[[1]]===v || ZeroQ[u[[1]]-v],
+    If[u[[1]]===v || EqQ[u[[1]],v],
       If[SinhQ[u],
         sinh,
       If[CoshQ[u],
@@ -5957,7 +6064,7 @@ SubstForHyperbolic[u_,sinh_,cosh_,v_,x_] :=
       1/sinh]]]]],
     Map[Function[SubstForHyperbolic[#,sinh,cosh,v,x]],
 			ReplaceAll[TrigExpand[Head[u][Simplify[u[[1]]/v]*x]],x->v]]],
-  If[ProductQ[u] && CoshQ[u[[1]]] && SinhQ[u[[2]]] && ZeroQ[u[[1,1]]-v/2] && ZeroQ[u[[2,1]]-v/2],
+  If[ProductQ[u] && CoshQ[u[[1]]] && SinhQ[u[[2]]] && EqQ[u[[1,1]],v/2] && EqQ[u[[2,1]],v/2],
     sinh/2*SubstForHyperbolic[Drop[u,2],sinh,cosh,v,x],
   Map[Function[SubstForHyperbolic[#,sinh,cosh,v,x]],u]]]]
 
@@ -5986,7 +6093,7 @@ FractionalPowerOfLinear[u_,n_,v_,x_] :=
     {n,v},
   If[CalculusQ[u],
     False,
-  If[FractionalPowerQ[u] && LinearQ[u[[1]],x] && (FalseQ[v] || ZeroQ[u[[1]]-v]),
+  If[FractionalPowerQ[u] && LinearQ[u[[1]],x] && (FalseQ[v] || EqQ[u[[1]],v]),
     {LCM[Denominator[u[[2]]],n],u[[1]]},
   Catch[Module[{lst={n,v}},
     Scan[Function[If[AtomQ[lst=FractionalPowerOfLinear[#,lst[[1]],lst[[2]],x]],Throw[False]]],u];
@@ -6074,7 +6181,7 @@ InertTrigFreeQ[u_] := FreeQ[u,sin] && FreeQ[u,cos] && FreeQ[u,tan] && FreeQ[u,co
 
 
 (* ::Subsection::Closed:: *)
-(*ActivateTrig*)
+(*ActivateTrig[u]*)
 
 
 ActivateTrig[u_] :=
@@ -6082,13 +6189,20 @@ ActivateTrig[u_] :=
 
 
 (* ::Subsection::Closed:: *)
-(*DeactivateTrig*)
+(*DeactivateTrig[u,x]*)
 
 
 (* u is a function of trig functions of a linear function of x. *)
 (* DeactivateTrig[u,x] returns u with the trig functions replaced with inert trig functions. *)
+
+
+DeactivateTrig[(c_.+d_.*x_)^m_.*(a_.+b_.*trig_[e_.+f_.*x_])^n_.,x_] :=
+  (c+d*x)^m*(a+b*DeactivateTrig[trig[e+f*x],x])^n /;
+FreeQ[{a,b,c,d,e,f,m,n},x] && (TrigQ[trig] || HyperbolicQ[trig])
+
+
 DeactivateTrig[u_,x_] :=
-  FixInertTrigFunction[DeactivateTrigAux[u,x],x]
+  UnifyInertTrigFunction[FixInertTrigFunction[DeactivateTrigAux[u,x],x],x]
 
 
 DeactivateTrigAux[u_,x_] :=
@@ -6096,35 +6210,27 @@ DeactivateTrigAux[u_,x_] :=
     u,
   If[TrigQ[u] && LinearQ[u[[1]],x],
     With[{v=ExpandToSum[u[[1]],x]},
-    If[SinQ[u],
-      sin[v],
-    If[CosQ[u],
-      cos[v],
-    If[TanQ[u],
-      tan[v],
-    If[CotQ[u],
-      cot[v],
-    If[SecQ[u],
-      sec[v],
-    csc[v]]]]]]],
+    Switch[Head[u],
+	  Sin, ReduceInertTrig[sin,v],
+	  Cos, ReduceInertTrig[cos,v],
+	  Tan, ReduceInertTrig[tan,v],
+	  Cot, ReduceInertTrig[cot,v],
+	  Sec, ReduceInertTrig[sec,v],
+	  Csc, ReduceInertTrig[csc,v]]],
   If[HyperbolicQ[u] && LinearQ[u[[1]],x],
     With[{v=ExpandToSum[I*u[[1]],x]},
-    If[SinhQ[u],
-      -I*sin[v],
-    If[CoshQ[u],
-      cos[v],
-    If[TanhQ[u],
-      -I*tan[v],
-    If[CothQ[u],
-      I*cot[v],
-    If[SechQ[u],
-      sec[v],
-    I*csc[v]]]]]]],
+    Switch[Head[u],
+	  Sinh, -I*ReduceInertTrig[sin,v],
+	  Cosh, ReduceInertTrig[cos,v],
+	  Tanh, -I*ReduceInertTrig[tan,v],
+	  Coth, I*ReduceInertTrig[cot,v],
+	  Sech, ReduceInertTrig[sec,v],
+	  Csch, I*ReduceInertTrig[csc,v]]],
   Map[Function[DeactivateTrigAux[#,x]],u]]]]
 
 
 (* ::Subsection::Closed:: *)
-(*FixInertTrigFunction*)
+(*FixInertTrigFunction[u,x]*)
 
 
 Clear[FixInertTrigFunction]
@@ -6222,6 +6328,32 @@ FixInertTrigFunction[csc[v_]^m_.*csc[w_]^n_.,x_] :=
 IntegersQ[m,n]
 
 
+FixInertTrigFunction[u_*tan[v_]^m_.*(a_+b_.*sin[w_])^n_.,x_] :=
+  sin[v]^m/cos[v]^m*FixInertTrigFunction[u*(a+b*sin[w])^n,x] /;
+FreeQ[{a,b,n},x] && IntegerQ[m]
+
+FixInertTrigFunction[u_*cot[v_]^m_.*(a_+b_.*sin[w_])^n_.,x_] :=
+  cos[v]^m/sin[v]^m*FixInertTrigFunction[u*(a+b*sin[w])^n,x] /;
+FreeQ[{a,b,n},x] && IntegerQ[m]
+
+FixInertTrigFunction[u_*tan[v_]^m_.*(a_+b_.*cos[w_])^n_.,x_] :=
+  sin[v]^m/cos[v]^m*FixInertTrigFunction[u*(a+b*cos[w])^n,x] /;
+FreeQ[{a,b,n},x] && IntegerQ[m]
+
+FixInertTrigFunction[u_*cot[v_]^m_.*(a_+b_.*cos[w_])^n_.,x_] :=
+  cos[v]^m/sin[v]^m*FixInertTrigFunction[u*(a+b*cos[w])^n,x] /;
+FreeQ[{a,b,n},x] && IntegerQ[m]
+
+
+FixInertTrigFunction[cot[v_]^m_.*(a_.+b_.*(c_.*sin[w_])^p_.)^n_.,x_] :=
+  tan[v]^(-m)*(a+b*(c*sin[w])^p)^n /;
+FreeQ[{a,b,c,n,p},x] && IntegerQ[m]
+
+FixInertTrigFunction[tan[v_]^m_.*(a_.+b_.*(c_.*cos[w_])^p_.)^n_.,x_] :=
+  cot[v]^(-m)*(a+b*(c*cos[w])^p)^n /;
+FreeQ[{a,b,c,n,p},x] && IntegerQ[m]
+
+
 FixInertTrigFunction[u_.*(c_.*sin[v_]^n_.)^p_.*w_,x_] :=
   (c*sin[v]^n)^p*FixInertTrigFunction[u*w,x] /;
 FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sin,x]
@@ -6247,106 +6379,81 @@ FixInertTrigFunction[u_.*(c_.*csc[v_]^n_.)^p_.*w_,x_] :=
 FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,csc,x]
 
 
-FixInertTrigFunction[cot[v_]^m_.*(a_+b_.*(c_.*sin[w_])^p_)^n_.,x_] :=
-  tan[v]^(-m)*(a+b*(c*sin[w])^p)^n /;
-FreeQ[{a,b,c,n,p},x] && IntegerQ[m]
+FixInertTrigFunction[u_.*sec[v_]^n_.*w_,x_] :=
+  cos[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,cos,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*tan[v_]^m_.*(a_+b_.*sin[w_])^n_.,x_] :=
-  sin[v]^m/cos[v]^m*FixInertTrigFunction[u*(a+b*sin[w])^n,x] /;
-FreeQ[{a,b,n},x] && IntegerQ[m]
+FixInertTrigFunction[u_.*csc[v_]^n_.*w_,x_] :=
+  sin[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,sin,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*cot[v_]^m_.*(a_+b_.*sin[w_])^n_.,x_] :=
-  cos[v]^m/sin[v]^m*FixInertTrigFunction[u*(a+b*sin[w])^n,x] /;
-FreeQ[{a,b,n},x] && IntegerQ[m]
+FixInertTrigFunction[u_.*sec[v_]^n_.*w_,x_] :=
+  cos[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,sin,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*(c_.*sec[v_]^n_.)^p_.*w_,x_] :=
-  (c*cos[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sin,x] && IntegerQ[n] && IntegerQ[p]
-
-FixInertTrigFunction[u_.*(c_.*csc[v_]^n_.)^p_.*w_,x_] :=
-  (c*sin[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sin,x] && IntegerQ[n] && IntegerQ[p]
+FixInertTrigFunction[u_.*csc[v_]^n_.*w_,x_] :=
+  sin[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,cos,x] && IntegerQ[n]
 
 
-FixInertTrigFunction[tan[v_]^m_.*(a_+b_.*(c_.*cos[w_])^p_)^n_.,x_] :=
-  cot[v]^(-m)*(a+b*(c*cos[w])^p)^n /;
-FreeQ[{a,b,c,n,p},x] && IntegerQ[m]
-
-FixInertTrigFunction[u_.*tan[v_]^m_.*(a_+b_.*cos[w_])^n_.,x_] :=
-  sin[v]^m/cos[v]^m*FixInertTrigFunction[u*(a+b*cos[w])^n,x] /;
-FreeQ[{a,b,n},x] && IntegerQ[m]
-
-FixInertTrigFunction[u_.*cot[v_]^m_.*(a_+b_.*cos[w_])^n_.,x_] :=
-  cos[v]^m/sin[v]^m*FixInertTrigFunction[u*(a+b*cos[w])^n,x] /;
-FreeQ[{a,b,n},x] && IntegerQ[m]
-
-FixInertTrigFunction[u_.*(c_.*csc[v_]^n_.)^p_.*w_,x_] :=
-  (c*sin[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,cos,x] && IntegerQ[n]
-
-FixInertTrigFunction[u_.*(c_.*sec[v_]^n_.)^p_.*w_,x_] :=
-  (c*cos[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,cos,x] && IntegerQ[n]
-
-
-FixInertTrigFunction[u_.*(c_.*cot[v_]^n_.)^p_.*w_,x_] :=
-  (c*tan[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,tan,x] && IntegerQ[n]
+FixInertTrigFunction[u_.*cot[v_]^n_.*w_,x_] :=
+  tan[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,tan,x] && IntegerQ[n]
 
 FixInertTrigFunction[u_.*cos[v_]^n_.*w_,x_] :=
   sec[v]^(-n)*FixInertTrigFunction[u*w,x] /;
 PowerOfInertTrigSumQ[w,tan,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*(c_.*cos[v_]^n_)^p_.*w_,x_] :=
-  (c*sec[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,tan,x] && IntegerQ[n]
+FixInertTrigFunction[u_.*cos[v_]^n_*w_,x_] :=
+  sec[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,tan,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*(c_.*csc[v_]^n_.)^p_.*w_,x_] :=
-  (c*sin[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,tan,x] && IntegerQ[n]
+FixInertTrigFunction[u_.*csc[v_]^n_.*w_,x_] :=
+  sin[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,tan,x] && IntegerQ[n]
 
 
-FixInertTrigFunction[u_.*(c_.*tan[v_]^n_.)^p_.*w_,x_] :=
-  (c*cot[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[n]
+FixInertTrigFunction[u_.*tan[v_]^n_.*w_,x_] :=
+  cot[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[n]
 
 FixInertTrigFunction[u_.*sin[v_]^n_.*w_,x_] :=
   csc[v]^(-n)*FixInertTrigFunction[u*w,x] /;
 PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*(c_.*sin[v_]^n_)^p_.*w_,x_] :=
-  (c*csc[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[n]
+FixInertTrigFunction[u_.*sin[v_]^n_.*w_,x_] :=
+  csc[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*(c_.*sec[v_]^n_.)^p_.*w_,x_] :=
-  (c*cos[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[n]
-
-
-FixInertTrigFunction[u_.*(c_.*cos[v_]^n_.)^p_.*w_,x_] :=
-  (c*sec[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sec,x] && IntegerQ[n]
-
-FixInertTrigFunction[u_.*(c_.*cot[v_]^n_.)^p_.*w_,x_] :=
-  (c*tan[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sec,x] && IntegerQ[n]
-
-FixInertTrigFunction[u_.*(c_.*csc[v_]^n_.)^p_.*w_,x_] :=
-  (c*sin[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,sec,x] && IntegerQ[n]
+FixInertTrigFunction[u_.*sec[v_]^n_.*w_,x_] :=
+  cos[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,cot,x] && IntegerQ[n]
 
 
-FixInertTrigFunction[u_.*(c_.*sin[v_]^n_.)^p_.*w_,x_] :=
-  (c*csc[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,csc,x] && IntegerQ[n]
+FixInertTrigFunction[u_.*cos[v_]^n_.*w_,x_] :=
+  sec[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,sec,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*(c_.*tan[v_]^n_.)^p_.*w_,x_] :=
-  (c*cot[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,csc,x] && IntegerQ[n]
+FixInertTrigFunction[u_.*cot[v_]^n_.*w_,x_] :=
+  tan[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,sec,x] && IntegerQ[n]
 
-FixInertTrigFunction[u_.*(c_.*sec[v_]^n_.)^p_.*w_,x_] :=
-  (c*cos[v]^(-n))^p*FixInertTrigFunction[u*w,x] /;
-FreeQ[{c,p},x] && PowerOfInertTrigSumQ[w,csc,x] && IntegerQ[n]
+FixInertTrigFunction[u_.*csc[v_]^n_.*w_,x_] :=
+  sin[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,sec,x] && IntegerQ[n]
+
+
+FixInertTrigFunction[u_.*sin[v_]^n_.*w_,x_] :=
+  csc[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,csc,x] && IntegerQ[n]
+
+FixInertTrigFunction[u_.*tan[v_]^n_.*w_,x_] :=
+  cot[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,csc,x] && IntegerQ[n]
+
+FixInertTrigFunction[u_.*sec[v_]^n_.*w_,x_] :=
+  cos[v]^(-n)*FixInertTrigFunction[u*w,x] /;
+PowerOfInertTrigSumQ[w,csc,x] && IntegerQ[n]
 
 
 FixInertTrigFunction[u_.*tan[v_]^m_.*(a_.*sin[v_]+b_.*cos[v_])^n_.,x_] :=
@@ -6388,12 +6495,885 @@ FixInertTrigFunction[u_,x_] := u
 
 
 PowerOfInertTrigSumQ[u_,func_,x_] :=
-  MatchQ[u, (a_+b_.*(c_.*func[w_])^p_.)^n_. /; FreeQ[{a,b,c,n,p},x]] || 
+  MatchQ[u, (a_.+b_.*(c_.*func[w_])^n_.)^p_. /; FreeQ[{a,b,c,n,p},x] && Not[EqQ[a,0] && (IntegerQ[p] || EqQ[n,1])]] || 
   MatchQ[u, (a_.+b_.*(d_.*func[w_])^p_.+c_.*(d_.*func[w_])^q_.)^n_. /; FreeQ[{a,b,c,d,n,p,q},x]]
 
 
 (* ::Subsection::Closed:: *)
-(*KnownTrigIntegrandQ*)
+(*ReduceInertTrig[func,a,b,x]*)
+
+
+ReduceInertTrig[func_,m_.*(n_.*Pi+u_.)+v_.] :=
+  ReduceInertTrig[func,m*n,m*u+v] /;
+RationalQ[m,n]
+
+ReduceInertTrig[func_,m_.*Complex[0,mz_]*(n_.*Complex[0,nz_]*Pi+u_.)+v_.] :=
+  ReduceInertTrig[func,-m*mz*n*nz,m*mz*I*u+v] /;
+RationalQ[m,mz,n,nz]
+
+ReduceInertTrig[func_,u_] :=
+  func[u]
+
+
+(* func is an inert function and m is rational *)
+(* ReduceInertTrig[func,m_,u_] returns func[m*Pi+u] with m reduced 0<=m<1/2. *)
+ReduceInertTrig[func_,m_,u_] :=
+  If[m<0,
+    If[m>=-1/4,
+      func[m*Pi+u],
+    Switch[func,
+	  sin, -ReduceInertTrig[sin,-m,-u],
+	  cos, ReduceInertTrig[cos,-m,-u],
+	  tan, -ReduceInertTrig[tan,-m,-u],
+	  cot, -ReduceInertTrig[cot,-m,-u],
+	  sec, ReduceInertTrig[sec,-m,-u],
+	  csc, -ReduceInertTrig[csc,-m,-u]]],
+  If[m>=2,
+    ReduceInertTrigFunction[func,Mod[m,2],u],
+  If[m>=1,
+    Switch[func,
+	  sin, -ReduceInertTrig[sin,m-1,u],
+	  cos, -ReduceInertTrig[cos,m-1,u],
+	  tan, ReduceInertTrig[tan,m-1,u],
+	  cot, ReduceInertTrig[cot,m-1,u],
+	  sec, -ReduceInertTrig[sec,m-1,u],
+	  csc, -ReduceInertTrig[csc,m-1,u]],
+  If[m>=1/2,
+    Switch[func,
+	  sin, ReduceInertTrig[cos,m-1/2,u],
+	  cos, -ReduceInertTrig[sin,m-1/2,u],
+	  tan, -ReduceInertTrig[cot,m-1/2,u],
+	  cot, -ReduceInertTrig[tan,m-1/2,u],
+	  sec, -ReduceInertTrig[csc,m-1/2,u],
+	  csc, ReduceInertTrig[sec,m-1/2,u]],
+  func[m*Pi+u]]]]] /;
+RationalQ[m]
+
+
+(* ::Subsection::Closed:: *)
+(*UnifyInertTrigFunction[u,x]*)
+
+
+Clear[UnifyInertTrigFunction]
+
+
+UnifyInertTrigFunction[a_*u_,x_] :=
+  a*UnifyInertTrigFunction[u,x] /;
+FreeQ[a,x]
+
+
+(* ::Subsubsection:: *)
+(*Cosine to sine*)
+
+
+(* ::Subsubsection::Closed:: *)
+(*1.0 (a sin)^m (b trg)^n*)
+
+
+(* ::Text:: *)
+(*(a Cos[e+f x])^m (b Csc[e+f x])^n == (a Sin[e+Pi/2+f x])^m (-b Sec[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(a_.*cos[e_.+f_.*x_])^m_.*(b_.*csc[e_.+f_.*x_])^n_.,x_] :=
+  (a*sin[e+Pi/2+f*x])^m*(-b*sec[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,e,f,m,n},x]
+
+
+(* ::Text:: *)
+(*(a Cos[e+f x])^m (b Sec[e+f x])^n == (a Sin[e+Pi/2+f x])^m (b Csc[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(a_.*cos[e_.+f_.*x_])^m_.*(b_.*sec[e_.+f_.*x_])^n_.,x_] :=
+  (a*sin[e+Pi/2+f*x])^m*(b*csc[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,e,f,m,n},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*1.1.1 (a+b sin)^n*)
+
+
+(* ::Text:: *)
+(*(a+b Cos[e+f x])^n == (a+b Sin[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cos[e_.+f_.*x_])^n_.,x_] :=
+  (a+b*sin[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,e,f,n},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*1.1.2 (g cos)^p (a+b sin)^m*)
+
+
+(* ::Text:: *)
+(*(g Sin[e+f x])^p (a+b Cos[e+f x])^m == (g Cos[e-Pi/2+f x])^p (a-b Sin[e-Pi/2+f x])^m*)
+
+
+UnifyInertTrigFunction[(g_.*sin[e_.+f_.*x_])^p_.*(a_+b_.*cos[e_.+f_.*x_])^m_.,x_] :=
+  (g*cos[e-Pi/2+f*x])^p*(a-b*sin[e-Pi/2+f*x])^m /;
+FreeQ[{a,b,e,f,g,m,p},x]
+
+
+(* ::Text:: *)
+(*(g Csc[e+f x])^p (a+b Cos[e+f x])^m == (g Sec[e-Pi/2+f x])^p (a-b Sin[e-Pi/2+f x])^m*)
+
+
+UnifyInertTrigFunction[(g_.*csc[e_.+f_.*x_])^p_.*(a_+b_.*cos[e_.+f_.*x_])^m_.,x_] :=
+  (g*sec[e-Pi/2+f*x])^p*(a-b*sin[e-Pi/2+f*x])^m /;
+FreeQ[{a,b,e,f,g,m,p},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*1.1.3 (g tan)^p (a+b sin)^m*)
+
+
+(* ::Text:: *)
+(*(g Cot[e+f x])^p (a+b Cos[e+f x])^m == (-g Tan[e-Pi/2+f x])^p (a-b Sin[e-Pi/2+f x])^m*)
+
+
+(* ::Text:: *)
+(*(g Cot[e+f x])^p (a+b Cos[e+f x])^m == (-g Tan[e+Pi/2+f x])^p (a+b Sin[e+Pi/2+f x])^m*)
+
+
+UnifyInertTrigFunction[(g_.*cot[e_.+f_.*x_])^p_.*(a_+b_.*cos[e_.+f_.*x_])^m_.,x_] :=
+  If[True,
+    (-g*tan[e-Pi/2+f*x])^p*(a-b*sin[e-Pi/2+f*x])^m,
+  (-g*tan[e+Pi/2+f*x])^p*(a+b*sin[e+Pi/2+f*x])^m] /;
+FreeQ[{a,b,e,f,g,m,p},x]
+
+
+(* ::Text:: *)
+(*(g Tan[e+f x])^p (a+b Cos[e+f x])^m == (-g Cot[e+Pi/2+f x])^p (a+b Sin[e+Pi/2+f x])^m*)
+
+
+UnifyInertTrigFunction[(g_.*tan[e_.+f_.*x_])^p_.*(a_+b_.*cos[e_.+f_.*x_])^m_.,x_] :=
+  (-g*cot[e+Pi/2+f*x])^p*(a+b*sin[e+Pi/2+f*x])^m /;
+FreeQ[{a,b,e,f,g,m,p},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*1.2.1 (a+b sin)^m (c+d sin)^n*)
+
+
+(* ::Text:: *)
+(*(a+b Cos[e+f x])^m (c+d Cos[e+f x])^n == (a+b Sin[e+Pi/2+f x])^m (c+d Sin[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cos[e_.+f_.*x_])^m_.*(c_.+d_.*cos[e_.+f_.*x_])^n_.,x_] :=
+  (a+b*sin[e+Pi/2+f*x])^m*(c+d*sin[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,c,d,e,f,m,n},x]
+
+
+(* ::Text:: *)
+(*(a+b Cos[e+f x])^m (c+d Sec[e+f x])^n == (a+b Sin[e+Pi/2+f x])^m (c+d Csc[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cos[e_.+f_.*x_])^m_.*(c_.+d_.*sec[e_.+f_.*x_])^n_.,x_] :=
+  (a+b*sin[e+Pi/2+f*x])^m*(c+d*csc[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,c,d,e,f,m,n},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*1.2.2 (g cos)^p (a+b sin)^m (c+d sin)^n*)
+
+
+(* ::Text:: *)
+(*(g Sin[e+f x])^p (a+b Cos[e+f x])^m (c+d Cos[e+f x])^n == (g Cos[e-Pi/2+f x])^p (a-b Sin[e-Pi/2+f x])^m (c-d Sin[e-Pi/2+f x])^n*)
+
+
+(* ::Text:: *)
+(*(g Sin[e+f x])^p (a+b Cos[e+f x])^m (c+d Cos[e+f x])^n == (-g Cos[e+Pi/2+f x])^p (a+b Sin[e+Pi/2+f x])^m (c+d Sin[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(g_.*sin[e_.+f_. x_])^p_.*(a_.+b_.*cos[e_.+f_.*x_])^m_.*(c_.+d_.*cos[e_.+f_.*x_])^n_.,x_] :=
+  If[IntegerQ[2*p] && p<0 && IntegerQ[2*n],
+    (g*cos[e-Pi/2+f*x])^p*(a-b*sin[e-Pi/2+f*x])^m*(c-d*sin[e-Pi/2+f*x])^n,
+  (-g*cos[e+Pi/2+f*x])^p*(a+b*sin[e+Pi/2+f*x])^m*(c+d*sin[e+Pi/2+f*x])^n] /;
+FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
+
+
+(* ::Text:: *)
+(*(g Csc[e+f x])^p (a+b Cos[e+f x])^m (c+d Cos[e+f x])^n == (g Sec[e-Pi/2+f x])^p (a-b Sin[e-Pi/2+f x])^m (c-d Sin[e-Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(g_.*csc[e_.+f_.*x_])^p_.*(a_.+b_.*cos[e_.+f_.*x_])^m_.*(c_.+d_.*cos[e_.+f_.*x_])^n_.,x_] :=
+  (g*sec[e-Pi/2+f*x])^p*(a-b*sin[e-Pi/2+f*x])^m*(c-d*sin[e-Pi/2+f*x])^n /;
+FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*1.2.3 (g sin)^p (a+b sin)^m (c+d sin)^n*)
+
+
+(* ::Text:: *)
+(*(g Cos[e+f x])^p (a+b Cos[e+f x])^m (c+d Cos[e+f x])^n == (g Sin[e+Pi/2+f x])^p (a+b Sin[e+Pi/2+f x])^m (c+d Sin[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(g_.*cos[e_.+f_.*x_])^p_.*(a_.+b_.*cos[e_.+f_.*x_])^m_.*(c_.+d_.*cos[e_.+f_.*x_])^n_.,x_] :=
+  (g*sin[e+Pi/2+f*x])^p*(a+b*sin[e+Pi/2+f*x])^m*(c+d*sin[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
+
+
+(* ::Text:: *)
+(*(g Cos[e+f x])^p (a+b Cos[e+f x])^m (c+d Sec[e+f x])^n == (g Sin[e+Pi/2+f x])^p (a+b Sin[e+Pi/2+f x])^m (c+d Csc[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(g_.*cos[e_.+f_.*x_])^p_.*(a_.+b_.*cos[e_.+f_.*x_])^m_.*(c_.+d_.*sec[e_.+f_.*x_])^n_.,x_] :=
+  (g*sin[e+Pi/2+f*x])^p*(a+b*sin[e+Pi/2+f*x])^m*(c+d*csc[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
+
+
+(* ::Text:: *)
+(*(g Sec[e+f x])^p (a+b Cos[e+f x])^m (c+d Cos[e+f x])^n == (g Csc[e+Pi/2+f x])^p (a+b Sin[e+Pi/2+f x])^m (c+d Sin[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(g_.*sec[e_.+f_.*x_])^p_.*(a_.+b_.*cos[e_.+f_.*x_])^m_.*(c_.+d_.*cos[e_.+f_.*x_])^n_.,x_] :=
+  (g*csc[e+Pi/2+f*x])^p*(a+b*sin[e+Pi/2+f*x])^m*(c+d*sin[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
+
+
+(* ::Text:: *)
+(*(g Sec[e+f x])^p (a+b Cos[e+f x])^m (c+d Sec[e+f x])^n == (g Csc[e+Pi/2+f x])^p (a+b Sin[e+Pi/2+f x])^m (c+d Csc[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(g_.*sec[e_.+f_.*x_])^p_.*(a_.+b_.*cos[e_.+f_.*x_])^m_.*(c_.+d_.*sec[e_.+f_.*x_])^n_.,x_] :=
+  (g*csc[e+Pi/2+f*x])^p*(a+b*sin[e+Pi/2+f*x])^m*(c+d*csc[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*1.3.1 (a+b sin)^m (c+d sin)^n (A+B sin)*)
+
+
+(* ::Text:: *)
+(*(a+b Cos[e+f x])^m (c+d Cos[e+f x])^n (A+B Cos[e+f x]) == (a+b Sin[e+Pi/2+f x])^m (c+d Sin[e+Pi/2+f x])^n (A+B Sin[e+Pi/2+f x])*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cos[e_.+f_.*x_])^m_.*(c_.+d_.*cos[e_.+f_.*x_])^n_.*(A_.+B_.*cos[e_.+f_.*x_]),x_] :=
+  (a+b*sin[e+Pi/2+f*x])^m*(c+d*sin[e+Pi/2+f*x])^n*(A+B*sin[e+Pi/2+f*x]) /;
+FreeQ[{a,b,c,d,e,f,A,B,m,n},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*1.4.1 (a+b sin)^m (A+B sin+C sin^2)*)
+
+
+(* ::Text:: *)
+(*(a+b Cos[e+f x])^m (A+B Cos[e+f x]+C Cos[e+f x]^2) == (a+b Sin[e+Pi/2+f x])^m (A+B Sin[e+Pi/2+f x]+C Sin[e+Pi/2+f x]^2)*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cos[e_.+f_.*x_])^m_.*(A_.+B_.*cos[e_.+f_.*x_]+C_.*cos[e_.+f_.*x_]^2),x_] :=
+  (a+b*sin[e+Pi/2+f*x])^m*(A+B*sin[e+Pi/2+f*x]+C*sin[e+Pi/2+f*x]^2) /;
+FreeQ[{a,b,c,e,f,A,B,C,m},x]
+
+
+(* ::Text:: *)
+(*(a+b Cos[e+f x])^m (A+C Cos[e+f x]^2) == (a+b Sin[e+Pi/2+f x])^m (A+C Sin[e+Pi/2+f x]^2)*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cos[e_.+f_.*x_])^m_.*(A_.+C_.*cos[e_.+f_.*x_]^2),x_] :=
+  (a+b*sin[e+Pi/2+f*x])^m*(A+C*sin[e+Pi/2+f*x]^2) /;
+FreeQ[{a,b,c,e,f,A,C,m},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*1.4.2 (a+b sin)^m (c+d sin)^n (A+B sin+C sin^2)*)
+
+
+(* ::Text:: *)
+(*(a+b Cos[e+f x])^m (c+d Cos[e+f x])^n (A+B Cos[e+f x]+C Cos[e+f x]^2) == (a+b Sin[e+Pi/2+f x])^m (c+d Sin[e+Pi/2+f x])^n (A+B Sin[e+Pi/2+f x]+C Sin[e+Pi/2+f x]^2)*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cos[e_.+f_.*x_])^m_.*(c_.+d_.*cos[e_.+f_.*x_])^n_.*(A_.+B_.*cos[e_.+f_.*x_]+C_.*cos[e_.+f_.*x_]^2),x_] :=
+  (a+b*sin[e+Pi/2+f*x])^m*(c+d*sin[e+Pi/2+f*x])^n*(A+B*sin[e+Pi/2+f*x]+C*sin[e+Pi/2+f*x]^2) /;
+FreeQ[{a,b,c,d,e,f,A,B,C,m,n},x]
+
+
+(* ::Text:: *)
+(*(a+b Cos[e+f x])^m (c+d Cos[e+f x])^n (A+C Cos[e+f x]^2) == (a+b Sin[e+Pi/2+f x])^m (c+d Sin[e+Pi/2+f x])^n (A+C Sin[e+Pi/2+f x]^2)*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cos[e_.+f_.*x_])^m_.*(c_.+d_.*cos[e_.+f_.*x_])^n_.*(A_.+C_.*cos[e_.+f_.*x_]^2),x_] :=
+  (a+b*sin[e+Pi/2+f*x])^m*(c+d*sin[e+Pi/2+f*x])^n*(A+C*sin[e+Pi/2+f*x]^2) /;
+FreeQ[{a,b,c,d,e,f,A,C,m,n},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*1.7 (d trig)^m (a+b (c sin)^n)^p*)
+
+
+(* ::Text:: *)
+(*(a+b (c Cos[e+f x])^n)^p == (a+b (c Sin[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*(c_.*cos[e_.+f_.*x_])^n_)^p_,x_] :=
+  (a+b*(c*sin[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,e,f,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Cos[e+f x])^m (a+b (c Cos[e+f x])^n)^p == (d Sin[e+Pi/2+f x])^m (a+b (c Sin[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*cos[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*cos[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (d*sin[e+Pi/2+f*x])^m*(a+b*(c*sin[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Sin[e+f x])^m (a+b (c Cos[e+f x])^n)^p == (-d Cos[e+Pi/2+f x])^m (a+b (c Sin[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*sin[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*cos[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (-d*cos[e+Pi/2+f*x])^m*(a+b*(c*sin[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Cot[e+f x])^m (a+b (c Cos[e+f x])^n)^p == (-d Tan[e+Pi/2+f x])^m (a+b (c Sin[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*cot[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*cos[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (-d*tan[e+Pi/2+f*x])^m*(a+b*(c*sin[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Tan[e+f x])^m (a+b (c Cos[e+f x])^n)^p == (-d Cot[e+Pi/2+f x])^m (a+b (c Sin[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*tan[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*cos[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (-d*cot[e+Pi/2+f*x])^m*(a+b*(c*sin[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Csc[e+f x])^m (a+b (c Cos[e+f x])^n)^p == (-d Sec[e+Pi/2+f x])^m (a+b (c Sin[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*csc[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*cos[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (-d*sec[e+Pi/2+f*x])^m*(a+b*(c*sin[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Sec[e+f x])^m (a+b (c Cos[e+f x])^n)^p == (d Csc[e+Pi/2+f x])^m (a+b (c Sin[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*sec[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*cos[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (d*csc[e+Pi/2+f*x])^m*(a+b*(c*sin[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(a+b Cos[e+f x]^n)^m (A+B Cos[e+f x]^n) == (a+b Sin[e+Pi/2+f x]^n)^m (A+B Sin[e+Pi/2+f x]^n)*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cos[e_.+f_.*x_]^n_)^m_.*(A_.+B_.*cos[e_.+f_.*x_]^n_),x_] :=
+  (a+b*sin[e+Pi/2+f*x]^n)^m*(A+B*sin[e+Pi/2+f*x]^n) /;
+FreeQ[{a,b,e,f,A,B,m,n},x] && Not[EqQ[a,0] && IntegerQ[m]]
+
+
+(* ::Subsubsection:: *)
+(*Cotangent to tangent*)
+
+
+(* ::Subsubsection::Closed:: *)
+(*2.0 (a trg)^m (b tan)^n*)
+
+
+(* ::Text:: *)
+(*(a Cos[e+f x])^m (b Cot[e+f x])^n == (a Sin[e+Pi/2+f x])^m (-b Tan[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(a_.*cos[e_.+f_.*x_])^m_.*(b_.*cot[e_.+f_.*x_])^n_.,x_] :=
+  (a*sin[e+Pi/2+f*x])^m*(-b*tan[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,e,f,m,n},x]
+
+
+(* ::Text:: *)
+(*(a Sin[e+f x])^m (b Cot[e+f x])^n == (a Cos[e-Pi/2+f x])^m (-b Tan[e-Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(a_.*sin[e_.+f_.*x_])^m_.*(b_.*cot[e_.+f_.*x_])^n_.,x_] :=
+  (a*cos[e-Pi/2+f*x])^m*(-b*tan[e-Pi/2+f*x])^n /;
+FreeQ[{a,b,e,f,m,n},x]
+
+
+(* ::Text:: *)
+(*(a Csc[e+f x])^m (b Cot[e+f x])^n == (a Sec[e-Pi/2+f x])^m (-b Tan[e-Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(a_.*csc[e_.+f_.*x_])^m_.*(b_.*cot[e_.+f_.*x_])^n_.,x_] :=
+  (a*sec[e-Pi/2+f*x])^m*(-b*tan[e-Pi/2+f*x])^n /;
+FreeQ[{a,b,e,f,m,n},x]
+
+
+(* ::Text:: *)
+(*(a Sec[e+f x])^m (b Cot[e+f x])^n == (a Csc[e+Pi/2+f x])^m (-b Tan[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(a_.*sec[e_.+f_.*x_])^m_.*(b_.*cot[e_.+f_.*x_])^n_.,x_] :=
+  (a*csc[e+Pi/2+f*x])^m*(-b*tan[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,e,f,m,n},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*2.1.1 (a+b tan)^n*)
+
+
+(* ::Text:: *)
+(*(a+b Cot[e+f x])^n == (a-b Tan[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cot[e_.+f_.*x_])^n_.,x_] :=
+  (a-b*tan[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,e,f,n},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*2.1.2 (d sec)^m (a+b tan)^n*)
+
+
+(* ::Text:: *)
+(*(d Csc[e+f x])^m (a+b Cot[e+f x])^n == (d Sec[e-Pi/2+f x])^m (a-b Tan[e-Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(d_.*csc[e_.+f_.*x_])^m_.*(a_+b_.*cot[e_.+f_.*x_])^n_.,x_] :=
+  (d*sec[e-Pi/2+f*x])^m*(a-b*tan[e-Pi/2+f*x])^n /;
+FreeQ[{a,b,d,e,f,m,n},x]
+
+
+(* ::Text:: *)
+(*(d Sin[e+f x])^m (a+b Cot[e+f x])^n == (d Cos[e-Pi/2+f x])^m (a-b Tan[e-Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(d_.*sin[e_.+f_.*x_])^m_.*(a_+b_.*cot[e_.+f_.*x_])^n_.,x_] :=
+  (d*cos[e-Pi/2+f*x])^m*(a-b*tan[e-Pi/2+f*x])^n /;
+FreeQ[{a,b,d,e,f,m,n},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*2.1.3 (d sin)^m (a+b tan)^n*)
+
+
+(* ::Text:: *)
+(*(d Cos[e+f x])^m (a+b Cot[e+f x])^n == (d Sin[e+Pi/2+f x])^m (a-b Tan[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(d_.*cos[e_.+f_.*x_])^m_.*(a_+b_.*cot[e_.+f_.*x_])^n_.,x_] :=
+  (d*sin[e+Pi/2+f*x])^m*(a-b*tan[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,d,e,f,m,n},x]
+
+
+(* ::Text:: *)
+(*(d Sec[e+f x])^m (a+b Cot[e+f x])^n == (d Csc[e+Pi/2+f x])^m (a-b Tan[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(d_.*sec[e_.+f_.*x_])^m_.*(a_+b_.*cot[e_.+f_.*x_])^n_.,x_] :=
+  (d*csc[e+Pi/2+f*x])^m*(a-b*tan[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,d,e,f,m,n},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*2.2.1 (a+b tan)^m (c+d tan)^n*)
+
+
+(* ::Text:: *)
+(*(a+b Cot[e+f x])^m (c+d Cot[e+f x])^n == (a-b Tan[e+Pi/2+f x])^m (c-d Tan[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cot[e_.+f_.*x_])^m_.*(c_.+d_.*cot[e_.+f_.*x_])^n_.,x_] :=
+  (a-b*tan[e+Pi/2+f*x])^m*(c-d*tan[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,c,d,e,f,m,n},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*2.2.3 (g tan)^p (a+b tan)^m (c+d tan)^n*)
+
+
+(* ::Text:: *)
+(*(g Cot[e+f x])^p (a+b Cot[e+f x])^m (c+d Cot[e+f x])^n == (-g Tan[e+Pi/2+f x])^p (a-b Tan[e+Pi/2+f x])^m (c-d Tan[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(g_.*cot[e_.+f_.*x_])^p_.*(a_.+b_.*cot[e_.+f_.*x_])^m_.*(c_.+d_.*cot[e_.+f_.*x_])^n_.,x_] :=
+  (-g*tan[e+Pi/2+f*x])^p*(a-b*tan[e+Pi/2+f*x])^m*(c-d*tan[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
+
+
+(* ::Text:: *)
+(*(g Cot[e+f x])^p (a+b Cot[e+f x])^m (c+d Tan[e+f x])^n == (-g Tan[e+Pi/2+f x])^p (a-b Tan[e+Pi/2+f x])^m (c-d Cot[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(g_.*cot[e_.+f_.*x_])^p_.*(a_.+b_.*cot[e_.+f_.*x_])^m_.*(c_.+d_.*tan[e_.+f_.*x_])^n_.,x_] :=
+  (-g*tan[e+Pi/2+f*x])^p*(a-b*tan[e+Pi/2+f*x])^m*(c-d*cot[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*2.3.1 (a+b tan)^m (c+d tan)^n (A+B tan)*)
+
+
+(* ::Text:: *)
+(*(a+b Cot[e+f x])^m (c+d Cot[e+f x])^n (A+B Cot[e+f x]) == (a-b Tan[e+Pi/2+f x])^m (c-d Tan[e+Pi/2+f x])^n (A-B Tan[e+Pi/2+f x])*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cot[e_.+f_.*x_])^m_.*(c_.+d_.*cot[e_.+f_.*x_])^n_.*(A_.+B_.*cot[e_.+f_.*x_]),x_] :=
+  (a-b*tan[e+Pi/2+f*x])^m*(c-d*tan[e+Pi/2+f*x])^n*(A-B*tan[e+Pi/2+f*x]) /;
+FreeQ[{a,b,c,d,e,f,A,B,m,n},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*2.4.1 (a+b tan)^m (A+B tan+C tan^2)*)
+
+
+(* ::Text:: *)
+(*(a+b Cot[e+f x])^m (A+B Cot[e+f x]+C Cot[e+f x]^2) == (a-b Tan[e+Pi/2+f x])^m (A-B Tan[e+Pi/2+f x]+C Tan[e+Pi/2+f x]^2)*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cot[e_.+f_.*x_])^m_.*(A_.+B_.*cot[e_.+f_.*x_]+C_.*cot[e_.+f_.*x_]^2),x_] :=
+  (a-b*tan[e+Pi/2+f*x])^m*(A-B*tan[e+Pi/2+f*x]+C*tan[e+Pi/2+f*x]^2) /;
+FreeQ[{a,b,e,f,A,B,C,m},x]
+
+
+(* ::Text:: *)
+(*(a+b Cot[e+f x])^m (A+C Cot[e+f x]^2) == (a-b Tan[e+Pi/2+f x])^m (A+C Tan[e+Pi/2+f x]^2)*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cot[e_.+f_.*x_])^m_.*(A_.+C_.*cot[e_.+f_.*x_]^2),x_] :=
+  (a-b*tan[e+Pi/2+f*x])^m*(A+C*tan[e+Pi/2+f*x]^2) /;
+FreeQ[{a,b,e,f,A,C,m},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*2.4.2 (a+b tan)^m (c+d tan)^n (A+B tan+C tan^2)*)
+
+
+(* ::Text:: *)
+(*(a+b Cot[e+f x])^m (c+d Cot[e+f x])^n (A+B Cot[e+f x]+C Cot[e+f x]^2) == *)
+(*		(a-b Tan[e+Pi/2+f x])^m (c-d Tan[e+Pi/2+f x])^n (A-B Tan[e+Pi/2+f x]+C Tan[e+Pi/2+f x]^2)*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cot[e_.+f_.*x_])^m_.*(c_.+d_.*cot[e_.+f_.*x_])^n_.*(A_.+B_.*cot[e_.+f_.*x_]+C_.*cot[e_.+f_.*x_]^2),x_] :=
+  (a-b*tan[e+Pi/2+f*x])^m*(c-d*tan[e+Pi/2+f*x])^n*(A-B*tan[e+Pi/2+f*x]+C*tan[e+Pi/2+f*x]^2) /;
+FreeQ[{a,b,c,d,e,f,A,B,C,m,n},x]
+
+
+(* ::Text:: *)
+(*(a+b Cot[e+f x])^m (c+d Cot[e+f x])^n (A+C Cot[e+f x]^2) == (a-b Tan[e+Pi/2+f x])^m (c-d Tan[e+Pi/2+f x])^n (A+C Tan[e+Pi/2+f x]^2)*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*cot[e_.+f_.*x_])^m_.*(c_.+d_.*cot[e_.+f_.*x_])^n_.*(A_.+C_.*cot[e_.+f_.*x_]^2),x_] :=
+  (a-b*tan[e+Pi/2+f*x])^m*(c-d*tan[e+Pi/2+f*x])^n*(A+C*tan[e+Pi/2+f*x]^2) /;
+FreeQ[{a,b,c,d,e,f,A,C,m,n},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*2.7 trig^m (a+b (c tan)^n)^p*)
+
+
+(* ::Text:: *)
+(*(a+b (c Cot[e+f x])^n)^p == (a+b (-c Tan[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*(c_.*cot[e_.+f_.*x_])^n_)^p_,x_] :=
+  (a+b*(-c*tan[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,e,f,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Cos[e+f x])^m (a+b (c Cot[e+f x])^n)^p == (d Sin[e+Pi/2+f x])^m (a+b (-c Tan[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*cos[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*cot[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (d*sin[e+Pi/2+f*x])^m*(a+b*(-c*tan[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Sin[e+f x])^m (a+b (c Cot[e+f x])^n)^p == (-d Cos[e+Pi/2+f x])^m (a+b (-c Tan[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*sin[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*cot[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (-d*cos[e+Pi/2+f*x])^m*(a+b*(-c*tan[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Cot[e+f x])^m (a+b (c Cot[e+f x])^n)^p == (-d Tan[e+Pi/2+f x])^m (a+b (-c Tan[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*cot[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*cot[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (-d*tan[e+Pi/2+f*x])^m*(a+b*(-c*tan[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Tan[e+f x])^m (a+b (c Cot[e+f x])^n)^p == (-d Cot[e+Pi/2+f x])^m (a+b (-c Tan[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*tan[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*cot[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (-d*cot[e+Pi/2+f*x])^m*(a+b*(-c*tan[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Csc[e+f x])^m (a+b (c Cot[e+f x])^n)^p == (-d Sec[e+Pi/2+f x])^m (a+b (-c Tan[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*csc[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*cot[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (-d*sec[e+Pi/2+f*x])^m*(a+b*(-c*tan[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Sec[e+f x])^m (a+b (c Cot[e+f x])^n)^p == (d Csc[e+Pi/2+f x])^m (a+b (-c Tan[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*sec[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*cot[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (d*csc[e+Pi/2+f*x])^m*(a+b*(-c*tan[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Subsubsection:: *)
+(*Cosecant to secant*)
+
+
+(* ::Subsubsection::Closed:: *)
+(*3.1.1 (a+b sec)^n*)
+
+
+(* ::Text:: *)
+(*(a+b Sec[e+f x])^n == (a+b Csc[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*sec[e_.+f_.*x_])^n_.,x_] :=
+  (a+b*csc[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,e,f,n},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*3.1.2 (d sec)^n (a+b sec)^m*)
+
+
+(* ::Text:: *)
+(*(g Sec[e+f x])^p (a+b Sec[e+f x])^m == (g Csc[e+Pi/2+f x])^p (a+b Csc[e+Pi/2+f x])^m*)
+
+
+UnifyInertTrigFunction[(g_.*sec[e_.+f_.*x_])^p_.*(a_+b_.*sec[e_.+f_.*x_])^m_.,x_] :=
+  (g*csc[e+Pi/2+f*x])^p*(a+b*csc[e+Pi/2+f*x])^m /;
+FreeQ[{a,b,e,f,g,m,p},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*3.1.3 (d sin)^n (a+b sec)^m*)
+
+
+(* ::Text:: *)
+(*(g Sin[e+f x])^p (a+b Sec[e+f x])^m == (g Cos[e-Pi/2+f x])^p (a-b Csc[e-Pi/2+f x])^m*)
+
+
+UnifyInertTrigFunction[(g_.*sin[e_.+f_.*x_])^p_.*(a_+b_.*sec[e_.+f_.*x_])^m_.,x_] :=
+  (g*cos[e-Pi/2+f*x])^p*(a-b*csc[e-Pi/2+f*x])^m /;
+FreeQ[{a,b,e,f,g,m,p},x]
+
+
+(* ::Text:: *)
+(*(g Csc[e+f x])^p (a+b Sec[e+f x])^m == (g Sec[e-Pi/2+f x])^p (a-b Csc[e-Pi/2+f x])^m*)
+
+
+UnifyInertTrigFunction[(g_.*csc[e_.+f_.*x_])^p_.*(a_+b_.*sec[e_.+f_.*x_])^m_.,x_] :=
+  (g*sec[e-Pi/2+f*x])^p*(a-b*csc[e-Pi/2+f*x])^m /;
+FreeQ[{a,b,e,f,g,m,p},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*3.1.4 (d tan)^n (a+b sec)^m*)
+
+
+(* ::Text:: *)
+(*(g Tan[e+f x])^p (a+b Sec[e+f x])^m == (-g Cot[e+Pi/2+f x])^p (a+b Csc[e+Pi/2+f x])^m*)
+
+
+UnifyInertTrigFunction[(g_.*tan[e_.+f_.*x_])^p_.*(a_+b_.*sec[e_.+f_.*x_])^m_.,x_] :=
+  (-g*cot[e+Pi/2+f*x])^p*(a+b*csc[e+Pi/2+f*x])^m /;
+FreeQ[{a,b,e,f,g,m,p},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*3.2.1 (a+b sec)^m (c+d sec)^n*)
+
+
+(* ::Text:: *)
+(*(a+b Sec[e+f x])^m (c+d Sec[e+f x])^n == (a+b Csc[e+Pi/2+f x])^m (c+d Csc[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*sec[e_.+f_.*x_])^m_.*(c_.+d_.*sec[e_.+f_.*x_])^n_.,x_] :=
+  (a+b*csc[e+Pi/2+f*x])^m*(c+d*csc[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,c,d,e,f,m,n},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*3.2.2 (g sec)^p (a+b sec)^m (c+d sec)^n*)
+
+
+(* ::Text:: *)
+(*(g Sec[e+f x])^p (a+b Sec[e+f x])^m (c+d Sec[e+f x])^n == (g Csc[e+Pi/2+f x])^p (a+b Csc[e+Pi/2+f x])^m (c+d Csc[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(g_.*sec[e_.+f_.*x_])^p_.*(a_.+b_.*sec[e_.+f_.*x_])^m_.*(c_.+d_.*sec[e_.+f_.*x_])^n_.,x_] :=
+  (g*csc[e+Pi/2+f*x])^p*(a+b*csc[e+Pi/2+f*x])^m*(c+d*csc[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
+
+
+(* ::Text:: *)
+(*(g Cos[e+f x])^p (a+b Sec[e+f x])^m (c+d Sec[e+f x])^n == (g Sin[e+Pi/2+f x])^p (a+b Csc[e+Pi/2+f x])^m (c+d Csc[e+Pi/2+f x])^n*)
+
+
+UnifyInertTrigFunction[(g_.*cos[e_.+f_.*x_])^p_.*(a_.+b_.*sec[e_.+f_.*x_])^m_.*(c_.+d_.*sec[e_.+f_.*x_])^n_.,x_] :=
+  (g*sin[e+Pi/2+f*x])^p*(a+b*csc[e+Pi/2+f*x])^m*(c+d*csc[e+Pi/2+f*x])^n /;
+FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*3.3.1 (a+b sec)^m (d sec)^n (A+B sec)*)
+
+
+(* ::Text:: *)
+(*(a+b Sec[e+f x])^m (d Sec[e+f x])^n (A+B Sec[e+f x]) == (a+b Csc[e+Pi/2+f x])^m (d Csc[e+Pi/2+f x])^n (A+B Csc[e+Pi/2+f x])*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*sec[e_.+f_.*x_])^m_.*(d_.*sec[e_.+f_.*x_])^n_.*(A_.+B_.*sec[e_.+f_.*x_]),x_] :=
+  (a+b*csc[e+Pi/2+f*x])^m*(d*csc[e+Pi/2+f*x])^n*(A+B*csc[e+Pi/2+f*x]) /;
+FreeQ[{a,b,d,e,f,A,B,m,n},x]
+
+
+(* ::Text:: *)
+(*(a+b Sec[e+f x])^m (c+d Sec[e+f x])^n (A+B Sec[e+f x])^p == (a+b Csc[e+Pi/2+f x])^m (c+d Csc[e+Pi/2+f x])^n (A+B Csc[e+Pi/2+f x])^p*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*sec[e_.+f_.*x_])^m_.*(c_.+d_.*sec[e_.+f_.*x_])^n_.*(A_.+B_.*sec[e_.+f_.*x_])^p_.,x_] :=
+  (a+b*csc[e+Pi/2+f*x])^m*(c+d*csc[e+Pi/2+f*x])^n*(A+B*csc[e+Pi/2+f*x])^p /;
+FreeQ[{a,b,c,d,e,f,A,B,m,n,p},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*3.4.1 (a+b sec)^m (A+B sec+C sec^2)*)
+
+
+(* ::Text:: *)
+(*(a+b Sec[e+f x])^m (A+B Sec[e+f x]+C Sec[e+f x]^2) == (a+b Csc[e+Pi/2+f x])^m (A+B Csc[e+Pi/2+f x]+C Csc[e+Pi/2+f x]^2)*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*sec[e_.+f_.*x_])^m_.*(A_.+B_.*sec[e_.+f_.*x_]+C_.*sec[e_.+f_.*x_]^2),x_] :=
+  (a+b*csc[e+Pi/2+f*x])^m*(A+B*csc[e+Pi/2+f*x]+C*csc[e+Pi/2+f*x]^2) /;
+FreeQ[{a,b,e,f,A,B,C,m},x]
+
+
+(* ::Text:: *)
+(*(a+b Sec[e+f x])^m (A+B Sec[e+f x]+C Sec[e+f x]^2) == (a+b Csc[e+Pi/2+f x])^m (A+C Csc[e+Pi/2+f x]^2)*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*sec[e_.+f_.*x_])^m_.*(A_.+C_.*sec[e_.+f_.*x_]^2),x_] :=
+  (a+b*csc[e+Pi/2+f*x])^m*(A+C*csc[e+Pi/2+f*x]^2) /;
+FreeQ[{a,b,e,f,A,C,m},x]
+
+
+(* ::Subsubsection::Closed:: *)
+(*3.4.2 (a+b sec)^m (d sec)^n (A+B sec+C sec^2)*)
+
+
+(* ::Text:: *)
+(*(a+b Sec[e+f x])^m (d Sec[e+f x])^n (A+B Sec[e+f x]+C Sec[e+f x]^2) == *)
+(*		(a+b Csc[e+Pi/2+f x])^m (d Csc[e+Pi/2+f x])^n (A+B Csc[e+Pi/2+f x]+C Csc[e+Pi/2+f x]^2)*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*sec[e_.+f_.*x_])^m_.*(d_.*sec[e_.+f_.*x_])^n_.*(A_.+B_.*sec[e_.+f_.*x_]+C_.*sec[e_.+f_.*x_]^2),x_] :=
+  (a+b*csc[e+Pi/2+f*x])^m*(d*csc[e+Pi/2+f*x])^n*(A+B*csc[e+Pi/2+f*x]+C*csc[e+Pi/2+f*x]^2) /;
+FreeQ[{a,b,d,e,f,A,B,C,m,n},x]
+
+
+(* ::Text:: *)
+(*(a+b Sec[e+f x])^m (d Sec[e+f x])^n (A+C Sec[e+f x]^2) == (a+b Csc[e+Pi/2+f x])^m (d Csc[e+Pi/2+f x])^n (A+C Csc[e+Pi/2+f x]^2)*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*sec[e_.+f_.*x_])^m_.*(d_.*sec[e_.+f_.*x_])^n_.*(A_.+C_.*sec[e_.+f_.*x_]^2),x_] :=
+  (a+b*csc[e+Pi/2+f*x])^m*(d*csc[e+Pi/2+f*x])^n*(A+C*csc[e+Pi/2+f*x]^2) /;
+FreeQ[{a,b,d,e,f,A,C,m,n},x]
+
+
+UnifyInertTrigFunction[u_,x_] := u
+
+
+(* ::Subsubsection::Closed:: *)
+(*3.7 (d trig)^m (a+b (c sec)^n)^p*)
+
+
+(* ::Text:: *)
+(*(a+b (c Csc[e+f x])^n)^p == (a+b (-c Sec[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(a_.+b_.*(c_.*csc[e_.+f_.*x_])^n_)^p_,x_] :=
+  (a+b*(-c*sec[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,e,f,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Cos[e+f x])^m (a+b (c Csc[e+f x])^n)^p == (d Sin[e+Pi/2+f x])^m (a+b (-c Sec[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*cos[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*csc[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (d*sin[e+Pi/2+f*x])^m*(a+b*(-c*sec[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Sin[e+f x])^m (a+b (c Csc[e+f x])^n)^p == (-d Cos[e+Pi/2+f x])^m (a+b (-c Sec[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*sin[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*csc[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (-d*cos[e+Pi/2+f*x])^m*(a+b*(-c*sec[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Cot[e+f x])^m (a+b (c Csc[e+f x])^n)^p == (-d Tan[e+Pi/2+f x])^m (a+b (-c Sec[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*cot[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*csc[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (-d*tan[e+Pi/2+f*x])^m*(a+b*(-c*sec[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Tan[e+f x])^m (a+b (c Csc[e+f x])^n)^p == (-d Cot[e+Pi/2+f x])^m (a+b (-c Sec[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*tan[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*csc[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (-d*cot[e+Pi/2+f*x])^m*(a+b*(-c*sec[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Csc[e+f x])^m (a+b (c Csc[e+f x])^n)^p == (-d Sec[e+Pi/2+f x])^m (a+b (-c Sec[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*csc[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*csc[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (-d*sec[e+Pi/2+f*x])^m*(a+b*(-c*sec[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[n,2] && EqQ[p,1]] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Text:: *)
+(*(d Sec[e+f x])^m (a+b (c Csc[e+f x])^n)^p == (d Csc[e+Pi/2+f x])^m (a+b (-c Sec[e+Pi/2+f x])^n)^p*)
+
+
+UnifyInertTrigFunction[(d_.*sec[e_.+f_.*x_])^m_.*(a_.+b_.*(c_.*csc[e_.+f_.*x_])^n_)^p_.,x_] :=
+  (d*csc[e+Pi/2+f*x])^m*(a+b*(-c*sec[e+Pi/2+f*x])^n)^p /;
+FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[EqQ[a,0] && IntegerQ[p]]
+
+
+(* ::Subsection::Closed:: *)
+(*KnownTrigIntegrandQ[u,x]*)
 
 
 KnownSineIntegrandQ[u_,x_Symbol] :=
@@ -6455,7 +7435,7 @@ DerivativeDivides[y_,u_,x_Symbol] :=
     False,
   If[If[PolynomialQ[y,x], PolynomialQ[u,x] && Exponent[u,x]==Exponent[y,x]-1, EasyDQ[y,x]],
     Module[{v=Block[{ShowSteps=False}, D[y,x]]},
-    If[ZeroQ[v],
+    If[EqQ[v,0],
       False,
     v=Simplify[u/v];
     If[FreeQ[v,x],
@@ -6508,7 +7488,7 @@ ProductOfLinearPowersQ[u_,x_Symbol] :=
 (*Simplest nth root function*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Rt[u,n]*)
 
 
@@ -6517,14 +7497,14 @@ Rt[u_,n_Integer] :=
   RtAux[TogetherSimplify[u],n]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*NthRoot[u,n]*)
 
 
 NthRoot[u_,n_] := u^(1/n)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TrigSquare[u]*)
 
 
@@ -6532,7 +7512,7 @@ NthRoot[u_,n_] := u^(1/n)
 TrigSquare[u_] :=
   If[SumQ[u],
     With[{lst=SplitSum[Function[SplitProduct[TrigSquareQ,#]],u]},
-    If[Not[AtomQ[lst]] && ZeroQ[lst[[1,2]]+lst[[2]]],
+    If[Not[AtomQ[lst]] && EqQ[lst[[1,2]]+lst[[2]],0],
       If[Head[lst[[1,1]][[1]]]===Sin,
         lst[[2]]*Cos[lst[[1,1]][[1,1]]]^2,
       lst[[2]]*Sin[lst[[1,1]][[1,1]]]^2],
@@ -6544,7 +7524,7 @@ TrigSquare[u_] :=
 (*Simplest nth root helper functions*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*RtAux[u,n]*)
 
 
@@ -6706,7 +7686,7 @@ FreeQ[c,x] && LinearQ[v,x]
 
 IntTerm[c_.*v_^m_.,x_Symbol] :=
   Simp[c*v^(m+1)/(Coefficient[v,x,1]*(m+1)),x] /;
-FreeQ[{c,m},x] && NonzeroQ[m+1] && LinearQ[v,x]
+FreeQ[{c,m},x] && NeQ[m,-1] && LinearQ[v,x]
 
 IntTerm[u_,x_Symbol] :=
   Map[Function[IntTerm[#,x]],u] /;

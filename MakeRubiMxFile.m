@@ -23,7 +23,7 @@ Get[NotebookDirectory[]<>"ShowStep Routines.m"];
 Get[NotebookDirectory[]<>"Integration Utility Functions.m"];
 
 Clear[Int];
-Int::usage="Int [expn, var]";
+Int::usage="Int[expn,var] returns the indefinite integral of <expn> with respect to <var>.";
 
 LoadPackage["8.1 Integrand Simplification Rules"];
 
