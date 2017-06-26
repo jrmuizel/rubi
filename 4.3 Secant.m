@@ -5,7 +5,7 @@
 
 
 (* ::Subsection::Closed:: *)
-(*3.1.1 (a+b sec)^n*)
+(*4.3.1.1 (a+b sec)^n*)
 
 
 Int[csc[c_.+d_.*x_]^n_,x_Symbol] :=
@@ -130,7 +130,7 @@ FreeQ[{a,b,c,d,n},x] && NeQ[a^2-b^2] && Not[IntegerQ[2*n]]
 
 
 (* ::Subsection::Closed:: *)
-(*3.1.2 (d sec)^n (a+b sec)^m*)
+(*4.3.1.2 (d sec)^n (a+b sec)^m*)
 
 
 Int[(a_+b_.*csc[e_.+f_.*x_])*(d_.*csc[e_.+f_.*x_])^n_.,x_Symbol] :=
@@ -639,7 +639,7 @@ FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[IntegerQ[m]] && Not[IntegerQ[p]]
 
 
 (* ::Subsection::Closed:: *)
-(*3.1.3 (d sin)^n (a+b sec)^m*)
+(*4.3.1.3 (d sin)^n (a+b sec)^m*)
 
 
 Int[(g_.*cos[e_.+f_.*x_])^p_.*(a_+b_.*csc[e_.+f_.*x_])^m_.,x_Symbol] :=
@@ -687,7 +687,7 @@ FreeQ[{a,b,e,f,g,m,p},x] && Not[IntegerQ[p]]
 
 
 (* ::Subsection::Closed:: *)
-(*3.1.4 (d tan)^n (a+b sec)^m*)
+(*4.3.1.4 (d tan)^n (a+b sec)^m*)
 
 
 Int[cot[c_.+d_.*x_]^m_.*(a_+b_.*csc[c_.+d_.*x_])^n_.,x_Symbol] :=
@@ -814,7 +814,7 @@ FreeQ[{a,b,c,d,e,m,n,p},x] && Not[IntegerQ[m]]
 
 
 (* ::Subsection::Closed:: *)
-(*3.2.1 (a+b sec)^m (c+d sec)^n*)
+(*4.3.2.1 (a+b sec)^m (c+d sec)^n*)
 
 
 Int[(a_+b_.*csc[e_.+f_.*x_])^m_.*(c_+d_.*csc[e_.+f_.*x_])^n_,x_Symbol] :=
@@ -1089,7 +1089,7 @@ FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[IntegerQ[n]]
 
 
 (* ::Subsection::Closed:: *)
-(*3.2.2 (g sec)^p (a+b sec)^m (c+d sec)^n*)
+(*4.3.2.2 (g sec)^p (a+b sec)^m (c+d sec)^n*)
 
 
 Int[csc[e_.+f_.*x_]*(a_+b_.*csc[e_.+f_.*x_])^m_*(c_+d_.*csc[e_.+f_.*x_])^n_.,x_Symbol] :=
@@ -1361,7 +1361,7 @@ FreeQ[{a,b,c,d,e,f,A,B},x] && NeQ[b*c-a*d] && NeQ[a^2-b^2] && NeQ[c^2-d^2] && Eq
 
 
 (* ::Subsection::Closed:: *)
-(*3.3.1 (a+b sec)^m (d sec)^n (A+B sec)*)
+(*4.3.3.1 (a+b sec)^m (d sec)^n (A+B sec)*)
 
 
 Int[(a_+b_.*csc[e_.+f_.*x_])*(d_.*csc[e_.+f_.*x_])^n_*(A_+B_.*csc[e_.+f_.*x_]),x_Symbol] :=
@@ -1638,7 +1638,7 @@ FreeQ[{a,b,c,d,e,f,A,B,n,p},x] && EqQ[b*c+a*d] && EqQ[a^2-b^2] && IntegersQ[m,n,
 
 
 (* ::Subsection::Closed:: *)
-(*3.4.1 (a+b sec)^m (A+B sec+C sec^2)*)
+(*4.3.4.1 (a+b sec)^m (A+B sec+C sec^2)*)
 
 
 Int[(a_+b_.*csc[e_.+f_.*x_])^m_.*(A_.+B_.*csc[e_.+f_.*x_]+C_.*csc[e_.+f_.*x_]^2),x_Symbol] :=
@@ -1819,7 +1819,7 @@ FreeQ[{a,b,e,f,A,C,m,p},x] && Not[IntegerQ[m]]
 
 
 (* ::Subsection::Closed:: *)
-(*3.4.2 (a+b sec)^m (d sec)^n (A+B sec+C sec^2)*)
+(*4.3.4.2 (a+b sec)^m (d sec)^n (A+B sec+C sec^2)*)
 
 
 Int[(a_+b_.*csc[e_.+f_.*x_])*(d_.*csc[e_.+f_.*x_])^n_*(A_.+B_.*csc[e_.+f_.*x_]+C_.*csc[e_.+f_.*x_]^2),x_Symbol] :=
@@ -2123,7 +2123,7 @@ FreeQ[{a,b,c,d,e,f,A,C,m,n,p},x] && Not[IntegerQ[n]]
 
 
 (* ::Subsection::Closed:: *)
-(*3.7 (d trig)^m (a+b (c sec)^n)^p*)
+(*4.3.7 (d trig)^m (a+b (c sec)^n)^p*)
 
 
 Int[u_.*(a_+b_.*sec[e_.+f_.*x_]^2)^p_,x_Symbol] :=
@@ -2311,7 +2311,7 @@ FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[IntegerQ[m]]
 
 
 (* ::Subsection::Closed:: *)
-(*3.9 trig^m (a+b sec^n+c sec^(2 n))^p*)
+(*4.3.9 trig^m (a+b sec^n+c sec^(2 n))^p*)
 
 
 Int[(a_.+b_.*sec[d_.+e_.*x_]^n_.+c_.*sec[d_.+e_.*x_]^n2_.)^p_.,x_Symbol] :=
@@ -2474,7 +2474,7 @@ FreeQ[{a,b,c,d,e,A,B},x] && NeQ[b^2-4*a*c] && IntegerQ[n]
 
 
 (* ::Subsection::Closed:: *)
-(*3.10 (c+d x)^m (a+b sec)^n*)
+(*4.3.10 (c+d x)^m (a+b sec)^n*)
 
 
 Int[(c_.+d_.*x_)^m_.*csc[e_.+k_.*Pi+f_.*Complex[0,fz_]*x_],x_Symbol] :=
@@ -2586,7 +2586,7 @@ FreeQ[{a,b,m,n},x] && LinearQ[{u,v},x] && Not[LinearMatchQ[{u,v},x]]
 
 
 (* ::Subsection::Closed:: *)
-(*3.11 (e x)^m (a+b sec(c+d x^n))^p*)
+(*4.3.11 (e x)^m (a+b sec(c+d x^n))^p*)
 
 
 Int[(a_.+b_.*Sec[c_.+d_.*x_^n_])^p_.,x_Symbol] :=

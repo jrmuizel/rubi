@@ -5,20 +5,21 @@ If[ShowSteps=!=False, ShowSteps=True];
 SimplifyFlag=True;
 
 
-(* If MultiStep is True, all the rules required to integrate an expression are displayed. *)  
-If[MultiStep=!=True, MultiStep=False];
+$StepCounter = 0;
+$RuleColor = Red;
+$ConditionColor = Blue;
 
 
-$ConditionColor=Blue;
-$RuleColor=Red;
+Unprotect[IntShowSteps];  Clear[IntShowSteps];
 
-
-StepInt[u_,x_Symbol] :=
+IntShowSteps[u_,x_Symbol] :=
  Block[{ShowSteps=True},
   FixedPoint[
-    Function[Print[#]; 
+    Function[CellPrint[ExpressionCell[#,"Input"]]; 
     ReplaceAll[#,{Defer[Int]->Int,Defer[Dist]->Dist,Defer[Subst]->Subst}]],Int[u,x]];
   Null]
+
+Protect[IntShowSteps];
 
 
 (* If func is a function defined using properly defined transformation rules,
@@ -234,25 +235,21 @@ SpliceConditionString[cond1_,lets_,cond2_] :=
 	sets SimplifyFlag to False to turn off further simplification, and release the hold on the rhs 
 	of the rule. *)
 ShowStep[condStrg_,lhsStrg_,rhsStrg_,rhs_] := (
-  If[IntegerQ[StepCounter], StepCounter++];
+  If[IntegerQ[$StepCounter], $StepCounter++];
   If[ShowSteps,
     Print["Rule: ",Style[condStrg,$ConditionColor]];
     Print["  ",Style[ToExpression["Defer["<>lhsStrg<>"]"],$RuleColor],Style[" \[LongRightArrow] ",Bold],Style[ToExpression["Defer["<>rhsStrg<>"]"],$RuleColor]];
-    If[MultiStep,
-      ReleaseHold[rhs],
     Block[{SimplifyFlag=False},
-    ReleaseHold[rhs]]],
+    ReleaseHold[rhs]],
   ReleaseHold[rhs]] )
 
 ShowStep[num_,condStrg_,lhsStrg_,rhsStrg_,rhs_] := (
-  If[IntegerQ[StepCounter], StepCounter++];
+  If[IntegerQ[$StepCounter], $StepCounter++];
   If[ShowSteps,
     Print["Rule ",num+1,": ",Style[condStrg,$ConditionColor]];
     Print["  ",Style[ToExpression["Defer["<>lhsStrg<>"]"],$RuleColor],Style[" \[LongRightArrow] ",Bold],Style[ToExpression["Defer["<>rhsStrg<>"]"],$RuleColor]];
-    If[MultiStep,
-      ReleaseHold[rhs],
     Block[{SimplifyFlag=False},
-    ReleaseHold[rhs]]],
+    ReleaseHold[rhs]],
   ReleaseHold[rhs]] )
 
 

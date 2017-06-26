@@ -5,7 +5,7 @@
 
 
 (* ::Subsection::Closed:: *)
-(*2.1.1 (a+b tan)^n*)
+(*4.2.1.1 (a+b tan)^n*)
 
 
 Int[(b_.*tan[c_.+d_.*x_])^n_,x_Symbol] :=
@@ -93,7 +93,7 @@ FreeQ[{a,b,c,d,n},x] && NeQ[a^2+b^2]
 
 
 (* ::Subsection::Closed:: *)
-(*2.1.2 (d sec)^m (a+b tan)^n*)
+(*4.2.1.2 (d sec)^m (a+b tan)^n*)
 
 
 Int[(d_.*sec[e_.+f_.*x_])^m_.*(a_+b_.*tan[e_.+f_.*x_]),x_Symbol] :=
@@ -278,7 +278,7 @@ FreeQ[{a,b,d,e,f,m,n},x] && Not[IntegerQ[m]]
 
 
 (* ::Subsection::Closed:: *)
-(*2.1.3 (d sin)^m (a+b tan)^n*)
+(*4.2.1.3 (d sin)^m (a+b tan)^n*)
 
 
 Int[sin[e_.+f_.*x_]^m_*(a_+b_.*tan[e_.+f_.*x_])^n_,x_Symbol] :=
@@ -315,7 +315,7 @@ FreeQ[{a,b,e,f,m,p},x] && IntegerQ[n]
 
 
 (* ::Subsection::Closed:: *)
-(*2.2.1 (a+b tan)^m (c+d tan)^n*)
+(*4.2.2.1 (a+b tan)^m (c+d tan)^n*)
 
 
 Int[(a_+b_.*tan[e_.+f_.*x_])^m_.*(c_+d_.*tan[e_.+f_.*x_])^n_.,x_Symbol] :=
@@ -691,7 +691,7 @@ FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[IntegerQ[n]] && Not[IntegerQ[m]]
 
 
 (* ::Subsection::Closed:: *)
-(*2.2.3 (g tan)^p (a+b tan)^m (c+d tan)^n*)
+(*4.2.2.3 (g tan)^p (a+b tan)^m (c+d tan)^n*)
 
 
 Int[(g_.*tan[e_.+f_.*x_])^p_.*(a_+b_.*tan[e_.+f_.*x_])^m_*(c_+d_.*tan[e_.+f_.*x_])^n_,x_Symbol] :=
@@ -738,7 +738,7 @@ FreeQ[{a,b,c,d,e,f,g,m,n,p},x] && Not[IntegerQ[n]] && Not[IntegerQ[m]]
 
 
 (* ::Subsection::Closed:: *)
-(*2.3.1 (a+b tan)^m (c+d tan)^n (A+B tan)*)
+(*4.2.3.1 (a+b tan)^m (c+d tan)^n (A+B tan)*)
 
 
 Int[(a_+b_.*tan[e_.+f_.*x_])^m_.*(c_+d_.*tan[e_.+f_.*x_])^n_.*(A_.+B_.*tan[e_.+f_.*x_]),x_Symbol] :=
@@ -943,7 +943,7 @@ FreeQ[{a,b,c,d,e,f,A,B,m,n},x] && NeQ[b*c-a*d] && NeQ[a^2+b^2] && NeQ[A^2+B^2]
 
 
 (* ::Subsection::Closed:: *)
-(*2.4.1 (a+b tan)^m (A+B tan+C tan^2)*)
+(*4.2.4.1 (a+b tan)^m (A+B tan+C tan^2)*)
 
 
 Int[(a_.+b_.*tan[e_.+f_.*x_])^m_.*(A_+C_.*tan[e_.+f_.*x_]^2),x_Symbol] :=
@@ -1034,7 +1034,7 @@ FreeQ[{a,b,e,f,A,C,m},x] && NeQ[A*b^2+a^2*C] && Not[RationalQ[m] && m<=-1]
 
 
 (* ::Subsection::Closed:: *)
-(*2.4.2 (a+b tan)^m (c+d tan)^n (A+B tan+C tan^2)*)
+(*4.2.4.2 (a+b tan)^m (c+d tan)^n (A+B tan+C tan^2)*)
 
 
 Int[(a_.+b_.*tan[e_.+f_.*x_])^m_.*(c_.+d_.*tan[e_.+f_.*x_])^n_.*(A_+C_.*tan[e_.+f_.*x_]^2),x_Symbol] :=
@@ -1213,7 +1213,7 @@ FreeQ[{a,b,c,d,e,f,A,C,m,n},x] && NeQ[b*c-a*d] && NeQ[a^2+b^2] && NeQ[c^2+d^2]
 
 
 (* ::Subsection::Closed:: *)
-(*2.7 (d trig)^m (a+b (c tan)^n)^p*)
+(*4.2.7 (d trig)^m (a+b (c tan)^n)^p*)
 
 
 Int[u_.*(a_+b_.*tan[e_.+f_.*x_]^2)^p_,x_Symbol] :=
@@ -1372,7 +1372,7 @@ FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[IntegerQ[m]]
 
 
 (* ::Subsection::Closed:: *)
-(*2.9 trig^m (a+b tan^n+c tan^(2 n))^p*)
+(*4.2.9 trig^m (a+b tan^n+c tan^(2 n))^p*)
 
 
 Int[(a_+b_.*tan[d_.+e_.*x_]^n_.+c_.*tan[d_.+e_.*x_]^n2_.)^p_.,x_Symbol] :=
@@ -1563,7 +1563,7 @@ FreeQ[{a,b,c,d,e,A,B},x] && NeQ[b^2-4*a*c] && IntegerQ[n]
 
 
 (* ::Subsection::Closed:: *)
-(*2.10 (c+d x)^m (a+b tan)^n*)
+(*4.2.10 (c+d x)^m (a+b tan)^n*)
 
 
 Int[(c_.+d_.*x_)^m_.*tan[e_.+k_.*Pi+f_.*Complex[0,fz_]*x_],x_Symbol] :=
@@ -1714,7 +1714,7 @@ FreeQ[{a,b,m,n},x] && LinearQ[{u,v},x] && Not[LinearMatchQ[{u,v},x]]
 
 
 (* ::Subsection::Closed:: *)
-(*2.11 (e x)^m (a+b tan(c+d x^n))^p*)
+(*4.2.11 (e x)^m (a+b tan(c+d x^n))^p*)
 
 
 Int[(a_.+b_.*Tan[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
@@ -1851,7 +1851,7 @@ FreeQ[{a,b,p},x] && RationalQ[m] && IntegerQ[n] && m-n>=0 && q===1
 
 
 (* ::Subsection::Closed:: *)
-(*2.12 (d+e x)^m tan(a+b x+c x^2)^n*)
+(*4.2.12 (d+e x)^m tan(a+b x+c x^2)^n*)
 
 
 Int[Tan[a_.+b_.*x_+c_.*x_^2]^n_.,x_Symbol] :=

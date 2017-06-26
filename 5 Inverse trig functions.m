@@ -5,7 +5,7 @@
 
 
 (* ::Subsection::Closed:: *)
-(*1.1 (a+b arcsin(c x))^n*)
+(*5.1.1 (a+b arcsin(c x))^n*)
 
 
 Int[(a_.+b_.*ArcSin[c_.*x_])^n_.,x_Symbol] :=
@@ -46,7 +46,7 @@ FreeQ[{a,b,c,n},x]
 
 
 (* ::Subsection::Closed:: *)
-(*1.2 (d x)^m (a+b arcsin(c x))^n*)
+(*5.1.2 (d x)^m (a+b arcsin(c x))^n*)
 
 
 Int[(a_.+b_.*ArcSin[c_.*x_])^n_./x_,x_Symbol] :=
@@ -133,7 +133,7 @@ FreeQ[{a,b,c,d,m,n},x]
 
 
 (* ::Subsection::Closed:: *)
-(*1.3 (d+e x^2)^p (a+b arcsin(c x))^n*)
+(*5.1.3 (d+e x^2)^p (a+b arcsin(c x))^n*)
 
 
 (* Int[(a_.+b_.*ArcSin[c_.*x_])^n_./Sqrt[d_+e_.*x_^2],x_Symbol] :=
@@ -390,7 +390,7 @@ FreeQ[{a,b,c,d,e,f,g,n,p},x] && EqQ[e*f+d*g] && EqQ[c^2*f^2-g^2] && Not[IntegerQ
 
 
 (* ::Subsection::Closed:: *)
-(*1.4 (f x)^m (d+e x^2)^p (a+b arcsin(c x))^n*)
+(*5.1.4 (f x)^m (d+e x^2)^p (a+b arcsin(c x))^n*)
 
 
 Int[x_*(a_.+b_.*ArcSin[c_.*x_])^n_./(d_+e_.*x_^2),x_Symbol] :=
@@ -975,7 +975,7 @@ FreeQ[{a,b,c,d,e,f,g,h,m,n,p},x] && EqQ[e*f+d*g] && EqQ[c^2*f^2-g^2] && Not[Inte
 
 
 (* ::Subsection::Closed:: *)
-(*1.5 u (a+b arcsin(c x))^n*)
+(*5.1.5 u (a+b arcsin(c x))^n*)
 
 
 Int[(a_.+b_.*ArcSin[c_.*x_])^n_./(d_+e_.*x_),x_Symbol] :=
@@ -1021,13 +1021,13 @@ FreeQ[{a,b,c,d,e,n},x] && PositiveIntegerQ[m]
 
 
 Int[Px_*(a_.+b_.*ArcSin[c_.*x_]),x_Symbol] :=
-  With[{u=IntHide[Px,x]},  
+  With[{u=IntHide[ExpandExpression[Px,x],x]},  
   Dist[a+b*ArcSin[c*x],u,x] - b*c*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
 FreeQ[{a,b,c},x] && PolynomialQ[Px,x]
 
 
 Int[Px_*(a_.+b_.*ArcCos[c_.*x_]),x_Symbol] :=
-  With[{u=IntHide[Px,x]},  
+  With[{u=IntHide[ExpandExpression[Px,x],x]},  
   Dist[a+b*ArcCos[c*x],u,x] + b*c*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
 FreeQ[{a,b,c},x] && PolynomialQ[Px,x]
 
@@ -1352,7 +1352,7 @@ FreeQ[{a,b,c,n},x]
 
 
 (* ::Subsection::Closed:: *)
-(*1.6 Miscellaneous inverse sine*)
+(*5.1.6 Miscellaneous inverse sine*)
 (**)
 
 
@@ -1631,7 +1631,7 @@ FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, (c_.+d_.*x)^m_. /; 
 
 
 (* ::Subsection::Closed:: *)
-(*2.1 u (a+b arctan(c x))^n*)
+(*5.2.1 u (a+b arctan(c x))^n*)
 
 
 Int[(a_.+b_.*ArcTan[c_.*x_])^n_.,x_Symbol] :=
@@ -2663,7 +2663,7 @@ FreeQ[{a,b,c,d,e,f,g},x] && EqQ[g-c^2*f]
 
 
 (* ::Subsection::Closed:: *)
-(*2.2 Exponentials of inverse tangent*)
+(*5.2.2 Exponentials of inverse tangent*)
 
 
 Int[E^(n_*ArcTan[a_.*x_]),x_Symbol] :=
@@ -3078,7 +3078,7 @@ FreeQ[{a,b,c,n},x]
 
 
 (* ::Subsection::Closed:: *)
-(*2.3 Miscellaneous inverse tangent*)
+(*5.2.3 Miscellaneous inverse tangent*)
 (**)
 
 
@@ -3639,7 +3639,7 @@ InverseFunctionFreeQ[v,x] && InverseFunctionFreeQ[w,x]
 
 
 (* ::Subsection::Closed:: *)
-(*3/1 Miscellaneous inverse secant*)
+(*5.3/1 Miscellaneous inverse secant*)
 
 
 Int[ArcSec[c_.*x_],x_Symbol] :=

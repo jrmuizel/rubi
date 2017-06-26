@@ -5,7 +5,7 @@
 
 
 (* ::Subsection::Closed:: *)
-(*1.1 (a+b arcsinh(c x))^n*)
+(*7.1.1 (a+b arcsinh(c x))^n*)
 
 
 Int[(a_.+b_.*ArcSinh[c_.*x_])^n_.,x_Symbol] :=
@@ -46,7 +46,7 @@ FreeQ[{a,b,c,n},x]
 
 
 (* ::Subsection::Closed:: *)
-(*1.2 (d x)^m (a+b arcsinh(c x))^n*)
+(*7.1.2 (d x)^m (a+b arcsinh(c x))^n*)
 
 
 Int[(a_.+b_.*ArcSinh[c_.*x_])^n_./x_,x_Symbol] :=
@@ -133,7 +133,7 @@ FreeQ[{a,b,c,d,m,n},x]
 
 
 (* ::Subsection::Closed:: *)
-(*1.3 (d+e x^2)^p (a+b arcsinh(c x))^n*)
+(*7.1.3 (d+e x^2)^p (a+b arcsinh(c x))^n*)
 
 
 Int[1/(Sqrt[d_+e_.*x_^2]*(a_.+b_.*ArcSinh[c_.*x_])),x_Symbol] :=
@@ -443,7 +443,7 @@ FreeQ[{a,b,c,d,e,n,p},x] && EqQ[c^2*d+e] && Not[IntegerQ[p]]
 
 
 (* ::Subsection::Closed:: *)
-(*1.4 (f x)^m (d+e x^2)^p (a+b arcsinh(c x))^n*)
+(*7.1.4 (f x)^m (d+e x^2)^p (a+b arcsinh(c x))^n*)
 
 
 Int[x_*(a_.+b_.*ArcSinh[c_.*x_])^n_./(d_+e_.*x_^2),x_Symbol] :=
@@ -1143,7 +1143,7 @@ FreeQ[{a,b,c,d,e,f,m,n,p},x] && EqQ[c^2*d+e] && Not[IntegerQ[p]]
 
 
 (* ::Subsection::Closed:: *)
-(*1.5 u (a+b arcsinh(c x))^n*)
+(*7.1.5 u (a+b arcsinh(c x))^n*)
 
 
 Int[(a_.+b_.*ArcSinh[c_.*x_])^n_./(d_.+e_.*x_),x_Symbol] :=
@@ -1189,13 +1189,13 @@ FreeQ[{a,b,c,d,e,n},x] && PositiveIntegerQ[m]
 
 
 Int[Px_*(a_.+b_.*ArcSinh[c_.*x_]),x_Symbol] :=
-  With[{u=IntHide[Px,x]},  
+  With[{u=IntHide[ExpandExpression[Px,x],x]},  
   Dist[a+b*ArcSinh[c*x],u,x] - b*c*Int[SimplifyIntegrand[u/Sqrt[1+c^2*x^2],x],x]] /;
 FreeQ[{a,b,c},x] && PolynomialQ[Px,x]
 
 
 Int[Px_*(a_.+b_.*ArcCosh[c_.*x_]),x_Symbol] :=
-  With[{u=IntHide[Px,x]},  
+  With[{u=IntHide[ExpandExpression[Px,x],x]},  
   Dist[a+b*ArcCosh[c*x],u,x] - b*c*Sqrt[1-c^2*x^2]/(Sqrt[-1+c*x]*Sqrt[1+c*x])*Int[SimplifyIntegrand[u/Sqrt[1-c^2*x^2],x],x]] /;
 FreeQ[{a,b,c},x] && PolynomialQ[Px,x]
 
@@ -1545,7 +1545,7 @@ FreeQ[{a,b,c,n},x]
 
 
 (* ::Subsection::Closed:: *)
-(*1.6 Miscellaneous inverse hyperbolic sine*)
+(*7.1.6 Miscellaneous inverse hyperbolic sine*)
 (**)
 
 
@@ -1842,7 +1842,7 @@ RationalQ[m] && IntegerQ[n] && PolynomialQ[u,x]
 
 
 (* ::Subsection::Closed:: *)
-(*2.1 u (a+b arctanh(c x))^n*)
+(*7.2.1 u (a+b arctanh(c x))^n*)
 
 
 Int[(a_.+b_.*ArcTanh[c_.*x_])^n_.,x_Symbol] :=
@@ -2874,7 +2874,7 @@ FreeQ[{a,b,c,d,e,f,g},x] && EqQ[c^2*f+g]
 
 
 (* ::Subsection::Closed:: *)
-(*2.2 Exponentials of inverse hyperbolic tangent*)
+(*7.2.2 Exponentials of inverse hyperbolic tangent*)
 
 
 Int[E^(n_.*ArcTanh[a_.*x_]),x_Symbol] :=
@@ -3334,7 +3334,7 @@ FreeQ[{a,b,c,n},x]
 
 
 (* ::Subsection::Closed:: *)
-(*2.3 Miscellaneous inverse hyperbolic tangent*)
+(*7.2.3 Miscellaneous inverse hyperbolic tangent*)
 (**)
 
 
@@ -3862,7 +3862,7 @@ FreeQ[{a,b},x] && InverseFunctionFreeQ[u,x] && Not[MatchQ[v, (c_.+d_.*x)^m_. /; 
 
 
 (* ::Subsection::Closed:: *)
-(*3.1 Miscellaneous inverse hyperbolic secant*)
+(*7.3.1 Miscellaneous inverse hyperbolic secant*)
 
 
 Int[ArcSech[c_.*x_],x_Symbol] :=

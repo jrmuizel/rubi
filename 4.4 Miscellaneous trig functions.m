@@ -5,7 +5,7 @@
 
 
 (* ::Subsection::Closed:: *)
-(*Sine normalization rules*)
+(*4.1 Sine normalization rules*)
 
 
 Int[u_*(c_.*tan[a_.+b_.*x_])^m_.*(d_.*sin[a_.+b_.*x_])^n_.,x_Symbol] :=
@@ -142,7 +142,7 @@ FreeQ[{a,b,A,B,C,n},x] && EqQ[n1-n-1] && EqQ[n2-n-2]
 
 
 (* ::Subsection::Closed:: *)
-(*Tangent normalization rules*)
+(*4.2 Tangent normalization rules*)
 
 
 Int[u_*(c_.*cot[a_.+b_.*x_])^m_.*(d_.*tan[a_.+b_.*x_])^n_.,x_Symbol] :=
@@ -244,7 +244,7 @@ FreeQ[{a,b,A,B,C,n},x] && EqQ[n1-n-1] && EqQ[n2-n-2]
 
 
 (* ::Subsection::Closed:: *)
-(*Secant normalization rules*)
+(*4.3 Secant normalization rules*)
 (**)
 
 
@@ -372,7 +372,7 @@ FreeQ[{a,b,A,B,C,n},x] && EqQ[n1-n-1] && EqQ[n2-n-2]
 
 
 (* ::Subsection::Closed:: *)
-(*4.1 (c trig)^m (d trig)^n*)
+(*4.4.1 (c trig)^m (d trig)^n*)
 
 
 Int[sin[a_.+b_.*x_]*sin[c_.+d_.*x_],x_Symbol] :=
@@ -696,7 +696,7 @@ FreeQ[{a,b,c,d,e,m},x] && EqQ[b*c-a*d] && EqQ[d/b-Abs[m+2]]
 
 
 (* ::Subsection::Closed:: *)
-(*4.3 Inert trig functions*)
+(*4.4.3 Inert trig functions*)
 
 
 Int[(a_.*F_[c_.+d_.*x_]^p_)^n_,x_Symbol] :=
@@ -1081,7 +1081,7 @@ Not[InertTrigFreeQ[u]]
 If[ShowSteps,
 
 Int[u_,x_Symbol] :=
-  With[{w=Block[{ShowSteps=False,StepCounter=Null}, 
+  With[{w=Block[{ShowSteps=False,$StepCounter=Null}, 
 			Int[SubstFor[1/(1+FreeFactors[Tan[FunctionOfTrig[u,x]/2],x]^2*x^2),Tan[FunctionOfTrig[u,x]/2]/FreeFactors[Tan[FunctionOfTrig[u,x]/2],x],u,x],x]]},  
   ShowStep["","Int[F[Sin[a+b*x],Cos[a+b*x]],x]","2/b*Subst[Int[1/(1+x^2)*F[2*x/(1+x^2),(1-x^2)/(1+x^2)],x],x,Tan[(a+b*x)/2]]",Hold[
   Module[{v=FunctionOfTrig[u,x],d},
@@ -1091,7 +1091,7 @@ Int[u_,x_Symbol] :=
 SimplifyFlag && InverseFunctionFreeQ[u,x] && Not[FalseQ[FunctionOfTrig[u,x]]],
 
 Int[u_,x_Symbol] :=
-  With[{w=Block[{ShowSteps=False,StepCounter=Null}, 
+  With[{w=Block[{ShowSteps=False,$StepCounter=Null}, 
 			Int[SubstFor[1/(1+FreeFactors[Tan[FunctionOfTrig[u,x]/2],x]^2*x^2),Tan[FunctionOfTrig[u,x]/2]/FreeFactors[Tan[FunctionOfTrig[u,x]/2],x],u,x],x]]},  
   Module[{v=FunctionOfTrig[u,x],d},
   d=FreeFactors[Tan[v/2],x];
@@ -1128,7 +1128,7 @@ Not[InertTrigFreeQ[u]]
 
 
 (* ::Subsection::Closed:: *)
-(*4.5 (c+d x)^m trig(a+b x)^n trig(a+b x)^p*)
+(*4.4.5 (c+d x)^m trig(a+b x)^n trig(a+b x)^p*)
 
 
 Int[(c_.+d_.*x_)^m_.*Sin[a_.+b_.*x_]^n_.*Cos[a_.+b_.*x_],x_Symbol] :=
@@ -1291,7 +1291,7 @@ FreeQ[{a,b,c,d,e,f,m},x] && MemberQ[{Sin,Cos},F] && MemberQ[{Sec,Csc},G] &&
 
 
 (* ::Subsection::Closed:: *)
-(*4.6 F^(c (a+b x)) trig(d+e x)^n*)
+(*4.4.6 F^(c (a+b x)) trig(d+e x)^n*)
 
 
 Int[F_^(c_.*(a_.+b_.*x_))*Sin[d_.+e_.*x_],x_Symbol] :=
@@ -1497,16 +1497,40 @@ Int[F_^(c_.*u_)*G_[v_]^n_.,x_Symbol] :=
 FreeQ[{F,c,n},x] && TrigQ[G] && LinearQ[{u,v},x] && Not[LinearMatchQ[{u,v},x]]
 
 
-Int[x_^m_.*F_^(c_.*(a_.+b_.*x_))*Sin[d_.+e_.*x_]^n_.,x_Symbol] :=
+Int[(f_.*x_)^m_.*F_^(c_.*(a_.+b_.*x_))*Sin[d_.+e_.*x_]^n_.,x_Symbol] :=
   Module[{u=IntHide[F^(c*(a+b*x))*Sin[d+e*x]^n,x]},
-  Dist[x^m,u,x] - m*Int[x^(m-1)*u,x]] /;
-FreeQ[{F,a,b,c,d,e},x] && RationalQ[m] && m>0 && PositiveIntegerQ[n]
+  Dist[(f*x)^m,u,x] - f*m*Int[(f*x)^(m-1)*u,x]] /;
+FreeQ[{F,a,b,c,d,e,f},x] && IGtQ[n,0] && GtQ[m,0]
 
 
-Int[x_^m_.*F_^(c_.*(a_.+b_.*x_))*Cos[d_.+e_.*x_]^n_.,x_Symbol] :=
+Int[(f_.*x_)^m_.*F_^(c_.*(a_.+b_.*x_))*Cos[d_.+e_.*x_]^n_.,x_Symbol] :=
   Module[{u=IntHide[F^(c*(a+b*x))*Cos[d+e*x]^n,x]},
-  Dist[x^m,u,x] - m*Int[x^(m-1)*u,x]] /;
-FreeQ[{F,a,b,c,d,e},x] && RationalQ[m] && m>0 && PositiveIntegerQ[n]
+  Dist[(f*x)^m,u,x] - f*m*Int[(f*x)^(m-1)*u,x]] /;
+FreeQ[{F,a,b,c,d,e,f},x] && IGtQ[n,0] && GtQ[m,0]
+
+
+Int[(f_.*x_)^m_*F_^(c_.*(a_.+b_.*x_))*Sin[d_.+e_.*x_],x_Symbol] :=
+  (f*x)^(m+1)/(f*(m+1))*F^(c*(a+b*x))*Sin[d+e*x] - 
+  e/(f*(m+1))*Int[(f*x)^(m+1)*F^(c*(a+b*x))*Cos[d+e*x],x] - 
+  b*c*Log[F]/(f*(m+1))*Int[(f*x)^(m+1)*F^(c*(a+b*x))*Sin[d+e*x],x] /;
+FreeQ[{F,a,b,c,d,e,f,m},x] && (LtQ[m,-1] || SumSimplerQ[m,1])
+
+
+Int[(f_.*x_)^m_*F_^(c_.*(a_.+b_.*x_))*Cos[d_.+e_.*x_],x_Symbol] :=
+  (f*x)^(m+1)/(f*(m+1))*F^(c*(a+b*x))*Cos[d+e*x] + 
+  e/(f*(m+1))*Int[(f*x)^(m+1)*F^(c*(a+b*x))*Sin[d+e*x],x] - 
+  b*c*Log[F]/(f*(m+1))*Int[(f*x)^(m+1)*F^(c*(a+b*x))*Cos[d+e*x],x] /;
+FreeQ[{F,a,b,c,d,e,f,m},x] && (LtQ[m,-1] || SumSimplerQ[m,1])
+
+
+(* Int[(f_.*x_)^m_.*F_^(c_.*(a_.+b_.*x_))*Sin[d_.+e_.*x_]^n_.,x_Symbol] :=
+  I^n/2^n*Int[ExpandIntegrand[(f*x)^m*F^(c*(a+b*x)),(E^(-I*(d+e*x))-E^(I*(d+e*x)))^n,x],x] /;
+FreeQ[{F,a,b,c,d,e,f},x] && IGtQ[n,0] *)
+
+
+(* Int[(f_.*x_)^m_.*F_^(c_.*(a_.+b_.*x_))*Cos[d_.+e_.*x_]^n_.,x_Symbol] :=
+  1/2^n*Int[ExpandIntegrand[(f*x)^m*F^(c*(a+b*x)),(E^(-I*(d+e*x))+E^(I*(d+e*x)))^n,x],x] /;
+FreeQ[{F,a,b,c,d,e,f},x] && IGtQ[n,0] *)
 
 
 Int[F_^(c_.*(a_.+b_.*x_))*Sin[d_.+e_.*x_]^m_.*Cos[f_.+g_.*x_]^n_.,x_Symbol] :=
@@ -1543,7 +1567,7 @@ FreeQ[F,x] && (LinearQ[u,x] || PolyQ[u,x,2]) && (LinearQ[v,x] || PolyQ[v,x,2]) &
 
 
 (* ::Subsection::Closed:: *)
-(*4.7 x^m trig(a+b log(c x^n))^p*)
+(*4.4.7 x^m trig(a+b log(c x^n))^p*)
 
 
 Int[Sin[a_.+b_.*Log[c_.*x_^n_.]]^p_,x_Symbol] :=
@@ -1880,7 +1904,7 @@ FreeQ[{a,b,m,n},x] && RationalQ[p] && p>0 && NeQ[m-n+1]
 
 
 (* ::Subsection::Closed:: *)
-(*4.8 Active trig functions*)
+(*4.4.8 Active trig functions*)
 
 
 Int[Sin[a_./(c_.+d_.*x_)]^n_.,x_Symbol] :=

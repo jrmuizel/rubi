@@ -5,7 +5,7 @@
 
 
 (* ::Subsection::Closed:: *)
-(*1.10 (c+d x)^m (a+b sinh)^n*)
+(*6.1.10 (c+d x)^m (a+b sinh)^n*)
 
 
 Int[u_^m_.*(a_.+b_.*Sinh[v_])^n_.,x_Symbol] :=
@@ -22,7 +22,7 @@ FreeQ[{a,b,m,n},x] && LinearQ[{u,v},x] && Not[LinearMatchQ[{u,v},x]]
 
 
 (* ::Subsection::Closed:: *)
-(*1.11 (e x)^m (a+b x^n)^p sinh*)
+(*6.1.11 (e x)^m (a+b x^n)^p sinh*)
 
 
 Int[(a_+b_.*x_^n_)^p_.*Sinh[c_.+d_.*x_],x_Symbol] :=
@@ -149,7 +149,7 @@ FreeQ[{a,b,c,d,e,m,n,p},x]
 
 
 (* ::Subsection::Closed:: *)
-(*1.12 (e x)^m (a+b sinh(c+d x^n))^p*)
+(*6.1.12 (e x)^m (a+b sinh(c+d x^n))^p*)
 
 
 Int[Sinh[c_.+d_.*x_^n_],x_Symbol] :=
@@ -265,31 +265,23 @@ FreeQ[{c,d,n},x]
 
 
 Int[x_^m_.*(a_.+b_.*Sinh[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
-  With[{mn=Simplify[(m+1)/n]},
-  1/n*Subst[Int[x^(mn-1)*(a+b*Sinh[c+d*x])^p,x],x,x^n] /;
- IntegerQ[mn] && (p==1 || mn>0)] /;
-FreeQ[{a,b,c,d,m,n},x] && IntegerQ[p]
+  1/n*Subst[Int[x^(Simplify[(m+1)/n]-1)*(a+b*Sinh[c+d*x])^p,x],x,x^n] /;
+FreeQ[{a,b,c,d,m,n,p},x] && IntegerQ[Simplify[(m+1)/n]] && (EqQ[p,1] || EqQ[m,n-1] || IntegerQ[p] && Simplify[(m+1)/n]>0)
 
 
 Int[x_^m_.*(a_.+b_.*Cosh[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
-  With[{mn=Simplify[(m+1)/n]},
-  1/n*Subst[Int[x^(mn-1)*(a+b*Cosh[c+d*x])^p,x],x,x^n] /;
- IntegerQ[mn] && (p==1 || mn>0)] /;
-FreeQ[{a,b,c,d,m,n},x] && IntegerQ[p]
+  1/n*Subst[Int[x^(Simplify[(m+1)/n]-1)*(a+b*Cosh[c+d*x])^p,x],x,x^n] /;
+FreeQ[{a,b,c,d,m,n,p},x] && IntegerQ[Simplify[(m+1)/n]] && (EqQ[p,1] || EqQ[m,n-1] || IntegerQ[p] && Simplify[(m+1)/n]>0)
 
 
 Int[(e_*x_)^m_*(a_.+b_.*Sinh[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
-  With[{mn=Simplify[(m+1)/n]},
   e^IntPart[m]*(e*x)^FracPart[m]/x^FracPart[m]*Int[x^m*(a+b*Sinh[c+d*x^n])^p,x] /;
- IntegerQ[mn] && (p==1 || mn>0)] /;
-FreeQ[{a,b,c,d,e,m,n},x] && IntegerQ[p]
+FreeQ[{a,b,c,d,e,m,n,p},x] && IntegerQ[Simplify[(m+1)/n]]
 
 
 Int[(e_*x_)^m_*(a_.+b_.*Cosh[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
-  With[{mn=Simplify[(m+1)/n]},
   e^IntPart[m]*(e*x)^FracPart[m]/x^FracPart[m]*Int[x^m*(a+b*Cosh[c+d*x^n])^p,x] /;
- IntegerQ[mn] && (p==1 || mn>0)] /;
-FreeQ[{a,b,c,d,e,m,n},x] && IntegerQ[p]
+FreeQ[{a,b,c,d,e,m,n,p},x] && IntegerQ[Simplify[(m+1)/n]]
 
 
 Int[(e_.*x_)^m_.*Sinh[c_.+d_.*x_^n_],x_Symbol] :=
@@ -586,7 +578,7 @@ FreeQ[{a,b,p},x] && RationalQ[m,n] && 0<n<m+1 && NeQ[p+1]
 
 
 (* ::Subsection::Closed:: *)
-(*1.13 (d+e x)^m sinh(a+b x+c x^2)^n*)
+(*6.1.13 (d+e x)^m sinh(a+b x+c x^2)^n*)
 (**)
 
 
@@ -728,7 +720,7 @@ FreeQ[m,x] && PositiveIntegerQ[n] && LinearQ[u,x] && QuadraticQ[v,x] && Not[Line
 
 
 (* ::Subsection::Closed:: *)
-(*2.10 (c+d x)^m (a+b tanh)^n*)
+(*6.2.10 (c+d x)^m (a+b tanh)^n*)
 
 
 Int[u_^m_.*(a_.+b_.*Tanh[v_])^n_.,x_Symbol] :=
@@ -745,7 +737,7 @@ FreeQ[{a,b,m,n},x] && LinearQ[{u,v},x] && Not[LinearMatchQ[{u,v},x]]
 
 
 (* ::Subsection::Closed:: *)
-(*2.11 (e x)^m (a+b tanh(c+d x^n))^p*)
+(*6.2.11 (e x)^m (a+b tanh(c+d x^n))^p*)
 
 
 Int[(a_.+b_.*Tanh[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
@@ -854,7 +846,7 @@ FreeQ[{a,b,p},x] && RationalQ[m] && IntegerQ[n] && m-n>=0 && q===1
 
 
 (* ::Subsection::Closed:: *)
-(*2.12 (d+e x)^m tanh(a+b x+c x^2)^n*)
+(*6.2.12 (d+e x)^m tanh(a+b x+c x^2)^n*)
 (**)
 
 
@@ -908,7 +900,7 @@ FreeQ[{a,b,c,d,e,m,n},x]
 
 
 (* ::Subsection::Closed:: *)
-(*3.10 (c+d x)^m (a+b sech)^n*)
+(*6.3.10 (c+d x)^m (a+b sech)^n*)
 
 
 Int[u_^m_.*Sech[v_]^n_.,x_Symbol] :=
@@ -925,7 +917,7 @@ FreeQ[{m,n},x] && LinearQ[{u,v},x] && Not[LinearMatchQ[{u,v},x]]
 
 
 (* ::Subsection::Closed:: *)
-(*3.11 (e x)^m (a+b sech(c+d x^n))^p*)
+(*6.3.11 (e x)^m (a+b sech(c+d x^n))^p*)
 (**)
 
 
@@ -1025,7 +1017,7 @@ FreeQ[{a,b,p},x] && RationalQ[m] && IntegerQ[n] && m-n>=0 && NeQ[p-1]
 
 
 (* ::Subsection::Closed:: *)
-(*4.5 (c+d x)^m hyper(a+b x)^n hyper(a+b x)^p*)
+(*6.4.5 (c+d x)^m hyper(a+b x)^n hyper(a+b x)^p*)
 
 
 Int[(c_.+d_.*x_)^m_.*Sinh[a_.+b_.*x_]^n_.*Cosh[a_.+b_.*x_],x_Symbol] :=
@@ -1188,7 +1180,7 @@ FreeQ[{a,b,c,d,e,f,m},x] && MemberQ[{Sinh,Cosh},F] && MemberQ[{Sech,Csch},G] &&
 
 
 (* ::Subsection::Closed:: *)
-(*4.6 F^(c (a+b x)) hyper(d+e x)^n*)
+(*6.4.6 F^(c (a+b x)) hyper(d+e x)^n*)
 
 
 Int[F_^(c_.*(a_.+b_.*x_))*Sinh[d_.+e_.*x_],x_Symbol] :=
@@ -1380,16 +1372,40 @@ Int[F_^(c_.*u_)*G_[v_]^n_.,x_Symbol] :=
 FreeQ[{F,c,n},x] && HyperbolicQ[G] && LinearQ[{u,v},x] && Not[LinearMatchQ[{u,v},x]]
 
 
-Int[x_^m_.*F_^(c_.*(a_.+b_.*x_))*Sinh[d_.+e_.*x_]^n_.,x_Symbol] :=
-  With[{u=IntHide[F^(c*(a+b*x))*Sinh[d+e*x]^n,x]},
-  x^m*u - Dist[m,Int[x^(m-1)*u,x]]] /;
-FreeQ[{F,a,b,c,d,e},x] && RationalQ[m] && m>0 && PositiveIntegerQ[n]
+Int[(f_.*x_)^m_.*F_^(c_.*(a_.+b_.*x_))*Sinh[d_.+e_.*x_]^n_.,x_Symbol] :=
+  Module[{u=IntHide[F^(c*(a+b*x))*Sinh[d+e*x]^n,x]},
+  Dist[(f*x)^m,u,x] - f*m*Int[(f*x)^(m-1)*u,x]] /;
+FreeQ[{F,a,b,c,d,e,f},x] && IGtQ[n,0] && GtQ[m,0]
 
 
-Int[x_^m_.*F_^(c_.*(a_.+b_.*x_))*Cosh[d_.+e_.*x_]^n_.,x_Symbol] :=
-  With[{u=IntHide[F^(c*(a+b*x))*Cosh[d+e*x]^n,x]},
-  x^m*u - Dist[m,Int[x^(m-1)*u,x]]] /;
-FreeQ[{F,a,b,c,d,e},x] && RationalQ[m] && m>0 && PositiveIntegerQ[n]
+Int[(f_.*x_)^m_.*F_^(c_.*(a_.+b_.*x_))*Cosh[d_.+e_.*x_]^n_.,x_Symbol] :=
+  Module[{u=IntHide[F^(c*(a+b*x))*Cosh[d+e*x]^n,x]},
+  Dist[(f*x)^m,u,x] - f*m*Int[(f*x)^(m-1)*u,x]] /;
+FreeQ[{F,a,b,c,d,e,f},x] && IGtQ[n,0] && GtQ[m,0]
+
+
+Int[(f_.*x_)^m_*F_^(c_.*(a_.+b_.*x_))*Sinh[d_.+e_.*x_],x_Symbol] :=
+  (f*x)^(m+1)/(f*(m+1))*F^(c*(a+b*x))*Sinh[d+e*x] - 
+  e/(f*(m+1))*Int[(f*x)^(m+1)*F^(c*(a+b*x))*Cosh[d+e*x],x] - 
+  b*c*Log[F]/(f*(m+1))*Int[(f*x)^(m+1)*F^(c*(a+b*x))*Sinh[d+e*x],x] /;
+FreeQ[{F,a,b,c,d,e,f,m},x] && (LtQ[m,-1] || SumSimplerQ[m,1])
+
+
+Int[(f_.*x_)^m_*F_^(c_.*(a_.+b_.*x_))*Cosh[d_.+e_.*x_],x_Symbol] :=
+  (f*x)^(m+1)/(f*(m+1))*F^(c*(a+b*x))*Cosh[d+e*x] - 
+  e/(f*(m+1))*Int[(f*x)^(m+1)*F^(c*(a+b*x))*Sinh[d+e*x],x] - 
+  b*c*Log[F]/(f*(m+1))*Int[(f*x)^(m+1)*F^(c*(a+b*x))*Cosh[d+e*x],x] /;
+FreeQ[{F,a,b,c,d,e,f,m},x] && (LtQ[m,-1] || SumSimplerQ[m,1])
+
+
+(* Int[(f_.*x_)^m_.*F_^(c_.*(a_.+b_.*x_))*Sinh[d_.+e_.*x_]^n_.,x_Symbol] :=
+  (-1)^n/2^n*Int[ExpandIntegrand[(f*x)^m*F^(c*(a+b*x)),(E^(-(d+e*x))-E^(d+e*x))^n,x],x] /;
+FreeQ[{F,a,b,c,d,e,f},x] && IGtQ[n,0] *)
+
+
+(* Int[(f_.*x_)^m_.*F_^(c_.*(a_.+b_.*x_))*Cosh[d_.+e_.*x_]^n_.,x_Symbol] :=
+  1/2^n*Int[ExpandIntegrand[(f*x)^m*F^(c*(a+b*x)),(E^(-(d+e*x))+E^(d+e*x))^n,x],x] /;
+FreeQ[{F,a,b,c,d,e,f},x] && IGtQ[n,0] *)
 
 
 Int[F_^(c_.*(a_.+b_.*x_))*Sinh[d_.+e_.*x_]^m_.*Cosh[f_.+g_.*x_]^n_.,x_Symbol] :=
@@ -1426,7 +1442,7 @@ FreeQ[F,x] && (LinearQ[u,x] || PolyQ[u,x,2]) && (LinearQ[v,x] || PolyQ[v,x,2]) &
 
 
 (* ::Subsection::Closed:: *)
-(*4.7 x^m hyper(a+b log(c x^n))^p*)
+(*6.4.7 x^m hyper(a+b log(c x^n))^p*)
 
 
 Int[Sinh[b_.*Log[c_.*x_^n_.]]^p_.,x_Symbol] :=
@@ -1801,7 +1817,7 @@ FreeQ[{a,b},x] && RationalQ[m,n,p] && p>0 && NeQ[m-n+1]
 
 
 (* ::Subsection::Closed:: *)
-(*4.8 Active hyperbolic functions*)
+(*6.4.8 Active hyperbolic functions*)
 
 
 Int[Sinh[a_./(c_.+d_.*x_)]^n_.,x_Symbol] :=

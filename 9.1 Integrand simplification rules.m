@@ -112,7 +112,7 @@ SumQ[u]]
 (* ::Code:: *)
 Int[(c_.*x_)^m_.*u_,x_Symbol] :=
   Int[ExpandIntegrand[(c*x)^m*u,x],x] /;
-FreeQ[{c,m},x] && SumQ[u] && Not[MatchQ[u,a_+b_.*v_ /; FreeQ[{a,b},x] && InverseFunctionQ[v]]]
+FreeQ[{c,m},x] && SumQ[u] && Not[LinearQ[u,x]] && Not[MatchQ[u,a_+b_.*v_ /; FreeQ[{a,b},x] && InverseFunctionQ[v]]]
 
 
 (* ::Code:: *)

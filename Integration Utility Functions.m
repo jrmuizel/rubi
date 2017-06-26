@@ -4,8 +4,8 @@
 (*Integration Utility Functions*)
 
 
-(* TimeLimit is the time constraint in seconds on some potentially expensive routines. *) 
-If[Not[NumberQ[TimeLimit]], TimeLimit=1.0];
+(* $TimeLimit is the time constraint in seconds on some potentially expensive routines. *) 
+If[Not[NumberQ[$TimeLimit]], $TimeLimit=5.0];
 
 
 (* ::Section::Closed:: *)
@@ -13,7 +13,7 @@ If[Not[NumberQ[TimeLimit]], TimeLimit=1.0];
 
 
 IntHide[u_,x_Symbol] :=
-  Block[{ShowSteps=False,StepCounter=Null}, Int[u,x]]
+  Block[{ShowSteps=False,$StepCounter=Null}, Int[u,x]]
 
 
 (* ::Section::Closed:: *)
@@ -2383,8 +2383,8 @@ SimplifyTerm[u_,x_Symbol] :=
 TogetherSimplify[u_] :=
   TimeConstrained[
     With[{v=Together[Simplify[Together[u]]]},
-    TimeConstrained[FixSimplify[v],TimeLimit/3,v]],
-  TimeLimit,u]
+    TimeConstrained[FixSimplify[v],$TimeLimit/3,v]],
+  $TimeLimit,u]
 
 
 (* TogetherSimplify could replace SmartSimplify, but results in more complicated *)
@@ -2397,8 +2397,8 @@ SmartSimplify[u_] :=
     v=If[LeafCount[w]<LeafCount[v] (* -1 *),w,v];
     v=If[Not[FalseQ[w=FractionalPowerOfSquareQ[v]]] && FractionalPowerSubexpressionQ[u,w,Expand[w]],SubstForExpn[v,w,Expand[w]],v];
     v=FactorNumericGcd[v];
-    TimeConstrained[FixSimplify[v],TimeLimit/3,v]],
-  TimeLimit,u]
+    TimeConstrained[FixSimplify[v],$TimeLimit/3,v]],
+  $TimeLimit,u]
 
 
 SubstForExpn[u_,v_,w_] :=
@@ -2414,7 +2414,7 @@ SubstForExpn[u_,v_,w_] :=
 
 
 Simp[u_,x_] :=
-  TimeConstrained[NormalizeSumFactors[SimpHelp[u,x]],TimeLimit,u]
+  TimeConstrained[NormalizeSumFactors[SimpHelp[u,x]],$TimeLimit,u]
 
 
 SimpHelp[E^(u_.*(v_.*Log[a_]+w_)),x_] :=
@@ -2718,17 +2718,31 @@ FixSimplify[u_.*(-v_^p_.)^m_*w_^n_.] :=
 RationalQ[m] && Not[RationalQ[w]] && IntegersQ[n,n/p] && EqQ[v+w,0]
 
 
+(* ::Item:: *)
+(*Basis: (a-b) (a+b) == a^2-b^2*)
+
+
 FixSimplify[u_.*(a_-b_)^m_.*(a_+b_)^m_.] :=
   u*(a^2-b^2)^m /;
 IntegerQ[m] && AtomQ[a] && AtomQ[b]
 
-FixSimplify[u_.*(c*d^2-e*(b*d-a*e))^m_.] :=
-  u*(c*d^2-b*d*e+a*e^2)^m /;
-RationalQ[m]
 
-FixSimplify[u_.*(c*d^2+e*(-b*d+a*e))^m_.] :=
+FixSimplify[u_.*(c_Symbol*d_Symbol^2-e_Symbol*(b_Symbol*d_Symbol-a_Symbol*e_Symbol))^m_.] :=
   u*(c*d^2-b*d*e+a*e^2)^m /;
-RationalQ[m]
+RationalQ[m] && OrderedQ[{a,b,c,d,e}]
+
+FixSimplify[u_.*(c_Symbol*d_Symbol^2+e_Symbol*(-b_Symbol*d_Symbol+a_Symbol*e_Symbol))^m_.] :=
+  u*(c*d^2-b*d*e+a*e^2)^m /;
+RationalQ[m] && OrderedQ[{a,b,c,d,e}]
+
+FixSimplify[u_.*(-c_Symbol*d_Symbol^2+e_Symbol*(b_Symbol*d_Symbol-a_Symbol*e_Symbol))^m_.] :=
+  (-1)^m*u*(c*d^2-b*d*e+a*e^2)^m /;
+IntegerQ[m] && OrderedQ[{a,b,c,d,e}]
+
+FixSimplify[u_.*(-c_Symbol*d_Symbol^2-e_Symbol*(-b_Symbol*d_Symbol+a_Symbol*e_Symbol))^m_.] :=
+  (-1)^m*u*(c*d^2-b*d*e+a*e^2)^m /;
+RationalQ[m] && OrderedQ[{a,b,c,d,e}]
+
 
 FixSimplify[u_] := u
 
@@ -3086,7 +3100,7 @@ TrigSimplifyAux[u_] := u
 (* ContentFactor[expn] returns expn with the content of sum factors factored out. *)
 (* Basis: a*b+a*c == a*(b+c) *)
 ContentFactor[expn_] :=
-  TimeConstrained[ContentFactorAux[expn],TimeLimit,expn];
+  TimeConstrained[ContentFactorAux[expn],$TimeLimit,expn];
 
 ContentFactorAux[expn_] :=
   If[AtomQ[expn],
@@ -3600,15 +3614,21 @@ ExpandIntegrand[(a_+b_.*x_)^m_.*(A_+B_.*x_)/(c_+d_.*x_),x_Symbol] :=
 FreeQ[{a,b,c,d,A,B},x] && PositiveIntegerQ[m]
 
 
-(* If u is a polynomial in x, ExpandIntegrand[u*(a+b*x)^m,x] expand u*(a+b*x)^m into a sum of terms of the form A*(a+b*x)^n. *)
+(* u is a polynomial in x.  ExpandIntegrand[u*(a+b*x)^m,x] expand u*(a+b*x)^m into a sum of terms of the form A*(a+b*x)^n. *)
 ExpandIntegrand[u_*(a_+b_.*x_)^m_,x_Symbol] :=
   Module[{tmp1,tmp2},
   tmp1=ExpandLinearProduct[(a+b*x)^m,u,a,b,x];
-  If[Not[IntegerQ[m]],
+  If[Not[IntegerQ[m]] || m>2 && LinearQ[u,x],
     tmp1,
   tmp2=ExpandExpression[u*(a+b*x)^m,x];
-  If[SumQ[tmp2] && LeafCount[tmp2]<=LeafCount[tmp1]+2,
-    tmp2,
+  If[SumQ[tmp2],
+    If[m>0,
+      If[Length[tmp2]<=Exponent[u,x]+2,
+        tmp2,
+      tmp1],
+    If[LeafCount[tmp2]<=LeafCount[tmp1]+2,
+      tmp2,
+    tmp1]],
   tmp1]]] /;
 FreeQ[{a,b,m},x] && PolynomialQ[u,x] && 
   Not[PositiveIntegerQ[m] && MatchQ[u,w_.*(c_+d_.*x)^p_ /; FreeQ[{c,d},x] && IntegerQ[p] && p>m]]

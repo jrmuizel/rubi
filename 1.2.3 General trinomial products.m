@@ -10,91 +10,41 @@
 
 Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_.,x_Symbol] :=
   Int[x^(2*n*p)*(c+b*x^(-n)+a*x^(-2*n))^p,x] /;
-FreeQ[{a,b,c},x] && EqQ[n2-2*n] && RationalQ[n] && n<0 && IntegerQ[p]
+FreeQ[{a,b,c},x] && EqQ[n2,2*n] && LtQ[n,0] && IntegerQ[p]
 
 
 Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
   With[{k=Denominator[n]},
   k*Subst[Int[x^(k-1)*(a+b*x^(k*n)+c*x^(2*k*n))^p,x],x,x^(1/k)]] /;
-FreeQ[{a,b,c,p},x] && EqQ[n2-2*n] && FractionQ[n]
-
-
-Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  x*(2*a+b*x^n)*(a+b*x^n+c*x^(2*n))^p/(2*a) /;
-FreeQ[{a,b,c,n,p},x] && EqQ[n2-2*n] && EqQ[b^2-4*a*c] && Not[IntegerQ[p]] && EqQ[n*(2*p+1)+1]
-
-
-Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  -x*(a+b*x^n+c*x^(2*n))^(p+1)/(a*(2*p+1)) + 
-  x*(2*a+b*x^n)*(a+b*x^n+c*x^(2*n))^p/(2*a*(n+1)) /;
-FreeQ[{a,b,c,n,p},x] && EqQ[n2-2*n] && EqQ[b^2-4*a*c] && Not[IntegerQ[p]] && EqQ[2*n*(p+1)+1] && NeQ[n+1]
-
-
-Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  Sqrt[a+b*x^n+c*x^(2*n)]/(b+2*c*x^n)*Int[(b+2*c*x^n)*(a+b*x^n+c*x^(2*n))^(p-1/2),x] /;
-FreeQ[{a,b,c,n},x] && EqQ[n2-2*n] && EqQ[b^2-4*a*c] && (EqQ[2*n*p+1] || EqQ[n*(2*p-1)+1]) && 
-  RationalQ[p] && p>0 && IntegerQ[p+1/2]
-
-
-Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  (a+b*x^n+c*x^(2*n))^FracPart[p]/((4*c)^IntPart[p]*(b+2*c*x^n)^(2*FracPart[p]))*Int[(b+2*c*x^n)^(2*p),x] /;
-FreeQ[{a,b,c,n},x] && EqQ[n2-2*n] && EqQ[b^2-4*a*c] && (EqQ[2*n*p+1] || EqQ[n*(2*p-1)+1]) && 
-  RationalQ[p] && p>0 && Not[IntegerQ[2*p]]
-
-
-Int[Sqrt[a_+b_.*x_^n_+c_.*x_^n2_],x_Symbol] :=
-  x*Sqrt[a+b*x^n+c*x^(2*n)]/(n+1) + 
-  b*n*x*Sqrt[a+b*x^n+c*x^(2*n)]/((n+1)*(b+2*c*x^n)) /;
-FreeQ[{a,b,c,n},x] && EqQ[n2-2*n] && EqQ[b^2-4*a*c] && NeQ[n+1] && NeQ[2*n+1] && NeQ[3*n+1]
+FreeQ[{a,b,c,p},x] && EqQ[n2,2*n] && FractionQ[n]
 
 
 Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
   -Subst[Int[(a+b*x^(-n)+c*x^(-2*n))^p/x^2,x],x,1/x] /;
-FreeQ[{a,b,c,p},x] && EqQ[n2-2*n] && EqQ[b^2-4*a*c] && Not[IntegerQ[p]] && NegativeIntegerQ[n]
+FreeQ[{a,b,c,p},x] && EqQ[n2,2*n] && ILtQ[n,0]
 
 
-Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  x*(a+b*x^n+c*x^(2*n))^p/(2*n*p+1) + 
-  n*p*x*(2*a+b*x^n)*(a+b*x^n+c*x^(2*n))^(p-1)/((2*n*p+1)*(n*(2*p-1)+1)) + 
-  2*a*n^2*p*(2*p-1)/((2*n*p+1)*(n*(2*p-1)+1))*Int[(a+b*x^n+c*x^(2*n))^(p-1),x] /;
-FreeQ[{a,b,c,n},x] && EqQ[n2-2*n] && EqQ[b^2-4*a*c] && Not[IntegerQ[p]] && 
-  NeQ[2*n*p+1] && NeQ[n*(2*p-1)+1] && RationalQ[p] && p>1
-
-
-Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  -(n*(2*p+1)+1)*x*(a+b*x^n+c*x^(2*n))^(p+1)/(2*a*n^2*(p+1)*(2*p+1)) - 
-  x*(2*a+b*x^n)*(a+b*x^n+c*x^(2*n))^p/(2*a*n*(2*p+1)) + 
-  (n*(2*p+1)+1)*(2*n*(p+1)+1)/(2*a*n^2*(p+1)*(2*p+1))*Int[(a+b*x^n+c*x^(2*n))^(p+1),x] /;
-FreeQ[{a,b,c,n},x] && EqQ[n2-2*n] && EqQ[b^2-4*a*c] && Not[IntegerQ[p]] && 
-  NeQ[n*(2*p+1)+1] && NeQ[2*n*(p+1)+1] && RationalQ[n,p] && p<-1
-
-
-Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  (a+b*x^n+c*x^(2*n))^FracPart[p]/(c^IntPart[p]*(b/2+c*x^n)^(2*FracPart[p]))*Int[(b/2+c*x^n)^(2*p),x] /;
-FreeQ[{a,b,c,n,p},x] && EqQ[n2-2*n] && EqQ[b^2-4*a*c] && Not[IntegerQ[p]]
-
-
-Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  -Subst[Int[(a+b*x^(-n)+c*x^(-2*n))^p/x^2,x],x,1/x] /;
-FreeQ[{a,b,c,p},x] && EqQ[n2-2*n] && NegativeIntegerQ[n]
+Int[(a_+b_.*x_^n_.+c_.*x_^n2_.)^p_,x_Symbol] :=
+  (a+b*x^n+c*x^(2*n))^p/(b+2*c*x^n)^(2*p)*Int[(b+2*c*x^n)^(2*p),x] /;
+FreeQ[{a,b,c,n,p},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c,0]
 
 
 Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
   Int[ExpandIntegrand[(a+b*x^n+c*x^(2*n))^p,x],x] /;
-FreeQ[{a,b,c,n},x] && EqQ[n2-2*n] && NeQ[b^2-4*a*c] && PositiveIntegerQ[p]
+FreeQ[{a,b,c,n},x] && EqQ[n2,2*n] && NeQ[b^2-4*a*c,0] && IGtQ[p,0]
 
 
 Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
   x*(a+b*x^n+c*x^(2*n))^p/(2*n*p+1) + 
   n*p/(2*n*p+1)*Int[(2*a+b*x^n)*(a+b*x^n+c*x^(2*n))^(p-1),x] /;
-FreeQ[{a,b,c,n},x] && EqQ[n2-2*n] && NeQ[b^2-4*a*c] && RationalQ[p] && p>0 && NeQ[2*n*p+1] && IntegerQ[p]
+FreeQ[{a,b,c,n},x] && EqQ[n2,2*n] && NeQ[b^2-4*a*c,0] && GtQ[p,0] && NeQ[2*n*p+1,0] && IntegerQ[p]
 
 
 Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
   -x*(b^2-2*a*c+b*c*x^n)*(a+b*x^n+c*x^(2*n))^(p+1)/(a*n*(p+1)*(b^2-4*a*c)) +
   1/(a*n*(p+1)*(b^2-4*a*c))*
     Int[(b^2-2*a*c+n*(p+1)*(b^2-4*a*c)+b*c*(n*(2*p+3)+1)*x^n)*(a+b*x^n+c*x^(2*n))^(p+1),x] /;
-FreeQ[{a,b,c,n},x] && EqQ[n2-2*n] && NeQ[b^2-4*a*c] && RationalQ[p] && p<-1 && IntegerQ[p]
+FreeQ[{a,b,c,n},x] && EqQ[n2,2*n] && NeQ[b^2-4*a*c,0] && LtQ[p,-1] && IntegerQ[p]
 
 
 Int[1/(a_+b_.*x_^n_+c_.*x_^n2_),x_Symbol] :=
@@ -102,13 +52,13 @@ Int[1/(a_+b_.*x_^n_+c_.*x_^n2_),x_Symbol] :=
   With[{r=Rt[2*q-b/c,2]},
   1/(2*c*q*r)*Int[(r-x^(n/2))/(q-r*x^(n/2)+x^n),x] + 
   1/(2*c*q*r)*Int[(r+x^(n/2))/(q+r*x^(n/2)+x^n),x]]] /;
-FreeQ[{a,b,c},x] && EqQ[n2-2*n] && NeQ[b^2-4*a*c] && PositiveIntegerQ[n/2] && NegQ[b^2-4*a*c]
+FreeQ[{a,b,c},x] && EqQ[n2,2*n] && NeQ[b^2-4*a*c,0] && IGtQ[n/2,0] && NegQ[b^2-4*a*c]
 
 
 Int[1/(a_+b_.*x_^n_+c_.*x_^n2_),x_Symbol] :=
   With[{q=Rt[b^2-4*a*c,2]},
   c/q*Int[1/(b/2-q/2+c*x^n),x] - c/q*Int[1/(b/2+q/2+c*x^n),x]] /;
-FreeQ[{a,b,c},x] && EqQ[n2-2*n] && NeQ[b^2-4*a*c]
+FreeQ[{a,b,c},x] && EqQ[n2,2*n] && NeQ[b^2-4*a*c,0]
 
 
 Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
@@ -130,7 +80,7 @@ FreeQ[{a,b,c,n,p},x] && EqQ[mn,-n] && Not[IntegerQ[p]] && PosQ[n]
 
 Int[(a_+b_.*u_^n_+c_.*u_^n2_.)^p_,x_Symbol] :=
   1/Coefficient[u,x,1]*Subst[Int[(a+b*x^n+c*x^(2*n))^p,x],x,u] /;
-FreeQ[{a,b,c,n,p},x] && EqQ[n2-2*n] && LinearQ[u,x] && NeQ[u-x]
+FreeQ[{a,b,c,n,p},x] && EqQ[n2,2*n] && LinearQ[u,x] && NeQ[u,x]
 
 
 
@@ -153,147 +103,6 @@ FreeQ[{a,b,c,d,m,n},x] && EqQ[n2,2*n] && PositiveIntegerQ[p] && Not[IntegerQ[Sim
 Int[x_^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
   Int[x^(m+2*n*p)*(c+b*x^(-n)+a*x^(-2*n))^p,x] /;
 FreeQ[{a,b,c,m,n},x] && EqQ[n2,2*n] && NegativeIntegerQ[p] && NegQ[n]
-
-
-Int[Sqrt[a_+b_.*x_^n_+c_.*x_^n2_.]/x_,x_Symbol] :=
-  Sqrt[a+b*x^n+c*x^(2*n)]/n + 
-  b*Sqrt[a+b*x^n+c*x^(2*n)]*Log[x]/(b+2*c*x^n) /;
-FreeQ[{a,b,c,n},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c]
-
-
-Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_/x_,x_Symbol] :=
-  (a+b*x^n+c*x^(2*n))^p/(2*n*p) + (2*a+b*x^n)*(a+b*x^n+c*x^(2*n))^(p-1)/(2*n*(2*p-1)) + 
-  a*Int[(a+b*x^n+c*x^(2*n))^(p-1)/x,x] /;
-FreeQ[{a,b,c,n},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && RationalQ[p] && p>1
-
-
-Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_/x_,x_Symbol] :=
-  -(a+b*x^n+c*x^(2*n))^(p+1)/(2*a*n*(p+1)) - (2*a+b*x^n)*(a+b*x^n+c*x^(2*n))^p/(2*a*n*(2*p+1)) + 
-  1/a*Int[(a+b*x^n+c*x^(2*n))^(p+1)/x,x] /;
-FreeQ[{a,b,c,n},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && RationalQ[p] && p<-1
-
-
-Int[(a_+b_.*x_^n_+c_.*x_^n2_.)^p_/x_,x_Symbol] :=
-  (a+b*x^n+c*x^(2*n))^FracPart[p]/(c^IntPart[p]*(b/2+c*x^n)^(2*FracPart[p]))*Int[(b/2+c*x^n)^(2*p)/x,x] /;
-FreeQ[{a,b,c,n,p},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && Not[IntegerQ[p]]
-
-
-Int[(d_.*x_)^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  (d*x)^(m+1)*(b+2*c*x^n)*(a+b*x^n+c*x^(2*n))^p/(b*d*(m+1)) /;
-FreeQ[{a,b,c,d,m,n,p},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && EqQ[m+n*(2*p+1)+1]
-
-
-Int[(d_.*x_)^m_.*Sqrt[a_+b_.*x_^n_+c_.*x_^n2_.],x_Symbol] :=
-  Sqrt[a+b*x^n+c*x^(2*n)]/(b+2*c*x^n)*Int[(d*x)^m*(b+2*c*x^n),x] /;
-FreeQ[{a,b,c,d,m,n},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && EqQ[m+n+1]
-
-
-Int[(d_.*x_)^m_.*Sqrt[a_+b_.*x_^n_+c_.*x_^n2_.],x_Symbol] :=
-  (d*x)^(m+1)*Sqrt[a+b*x^n+c*x^(2*n)]/(d*(m+n+1)) + 
-  b*n*(d*x)^(m+1)*Sqrt[a+b*x^n+c*x^(2*n)]/(d*(m+1)*(m+n+1)*(b+2*c*x^n)) /;
-FreeQ[{a,b,c,d,m,n},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && NeQ[m+n+1]
-
-
-Int[x_^m_./Sqrt[a_+b_.*x_^n_+c_.*x_^n2_.],x_Symbol] :=
-  -x^(m+1)*Sqrt[a+b*x^n+c*x^(2*n)]/(a*n) - 
-  b/(2*a)*Int[1/(x*Sqrt[a+b*x^n+c*x^(2*n)]),x] /;
-FreeQ[{a,b,c,m,n},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && EqQ[m+n+1]
-
-
-Int[(d_.*x_)^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  (d*x)^(m+1)*(a+b*x^n+c*x^(2*n))^(p+1)/(2*a*d*n*(p+1)*(2*p+1)) - 
-  (d*x)^(m+1)*(2*a+b*x^n)*(a+b*x^n+c*x^(2*n))^p/(2*a*d*n*(2*p+1)) /;
-FreeQ[{a,b,c,d,m,n,p},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && EqQ[m+2*n(p+1)+1] && NeQ[2*p+1]
-
-
-Int[x_^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  (a+b*x^n+c*x^(2*n))^(p+1)/(2*c*n*(p+1)) - 
-  b/(2*c)*Int[x^(n-1)*(a+b*x^n+c*x^(2*n))^p,x] /;
-FreeQ[{a,b,c,m,n,p},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && EqQ[m-2*n+1] && NeQ[p+3/2]
-
-
-Int[(d_.*x_)^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  (d*x)^(m+1)*(a+b*x^n+c*x^(2*n))^p/(d*(m+2*n*p+1)) + 
-  n*p*(d*x)^(m+1)*(2*a+b*x^n)*(a+b*x^n+c*x^(2*n))^(p-1)/(d*(m+1)*(m+2*n*p+1)) - 
-  b*p*n^2*(2*p-1)/(d^n*(m+1)*(m+2*n*p+1))*Int[(d*x)^(m+n)*(a+b*x^n+c*x^(2*n))^(p-1),x] /;
-FreeQ[{a,b,c,d},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && PositiveIntegerQ[n] && RationalQ[m,p] && p>1 && -1<=m+n<0 && 
-  IntegerQ[2*p] && IntegerQ[m]
-
-
-Int[(d_.*x_)^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  (m-n*(2*p-1)+1)*(d*x)^(m+1)*(a+b*x^n+c*x^(2*n))^p/(d*(m+1)*(m+n+1)) + 
-  n*p*(d*x)^(m+1)*(2*a+b*x^n)*(a+b*x^n+c*x^(2*n))^(p-1)/(d*(m+1)*(m+n+1)) + 
-  2*c*p*n^2*(2*p-1)/(d^(2*n)*(m+1)*(m+n+1))*Int[(d*x)^(m+2*n)*(a+b*x^n+c*x^(2*n))^(p-1),x] /;
-FreeQ[{a,b,c,d},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && PositiveIntegerQ[n] && RationalQ[m,p] && p>1 && m+n<-1 && 
-  Not[NegativeIntegerQ[(m+2*n(p+1)+1)/n] && (m+2*n(p+1)+1)/n+p>0] && IntegerQ[2*p] && IntegerQ[m]
-
-
-Int[(d_.*x_)^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  (d*x)^(m+1)*(a+b*x^n+c*x^(2*n))^p/(d*(m+2*n*p+1)) + 
-  n*p*(d*x)^(m+1)*(2*a+b*x^n)*(a+b*x^n+c*x^(2*n))^(p-1)/(d*(m+2*n*p+1)*(m+n*(2*p-1)+1)) + 
-  2*a*n^2*p*(2*p-1)/((m+2*n*p+1)*(m+n*(2*p-1)+1))*Int[(d*x)^m*(a+b*x^n+c*x^(2*n))^(p-1),x] /;
-FreeQ[{a,b,c,d,m},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && PositiveIntegerQ[n] && RationalQ[p] && p>1 && 
-  NeQ[m+2*n*p+1] && NeQ[m+n*(2*p-1)+1] && 
-  Not[NegativeIntegerQ[(m+2*n*(p+1)+1)/n] && (m+2*n(p+1)+1)/n+p>0] && 
-  Not[PositiveIntegerQ[m] && IntegerQ[(m+1)/n] && (m+1)/n-1<2*p] && IntegerQ[2*p]
-
-
-Int[(d_.*x_)^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  d^(n-1)*(m+n*(2*p+1)+1)*(d*x)^(m-n+1)*(a+b*x^n+c*x^(2*n))^(p+1)/(b*n^2*(p+1)*(2*p+1)) - 
-  (d*x)^(m+1)*(b+2*c*x^n)*(a+b*x^n+c*x^(2*n))^p/(b*d*n*(2*p+1)) - 
-  d^n*(m-n+1)*(m+n*(2*p+1)+1)/(b*n^2*(p+1)*(2*p+1))*Int[(d*x)^(m-n)*(a+b*x^n+c*x^(2*n))^(p+1),x] /;
-FreeQ[{a,b,c,d},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && PositiveIntegerQ[n] && RationalQ[m,p] && p<-1 && n-1<m<=2*n-1 && 
-  IntegerQ[2*p]
-
-
-Int[(d_.*x_)^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  -d^(2*n-1)*(m-3*n-2*n*p+1)*(d*x)^(m-2*n+1)*(a+b*x^n+c*x^(2*n))^(p+1)/(2*c*n^2*(p+1)*(2*p+1)) - 
-  d^(2*n-1)*(d*x)^(m-2*n+1)*(2*a+b*x^n)*(a+b*x^n+c*x^(2*n))^p/(2*c*n*(2*p+1)) + 
-  d^(2*n)*(m-n+1)*(m-2*n+1)/(2*c*n^2*(p+1)*(2*p+1))*Int[(d*x)^(m-2*n)*(a+b*x^n+c*x^(2*n))^(p+1),x] /;
-FreeQ[{a,b,c,d},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && PositiveIntegerQ[n] && RationalQ[m,p] && p<-1 && m>2*n-1 && 
-  IntegerQ[2*p]
-
-
-Int[(d_.*x_)^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  -(m+n*(2*p+1)+1)*(d*x)^(m+1)*(a+b*x^n+c*x^(2*n))^(p+1)/(2*a*d*n^2*(p+1)*(2*p+1)) - 
-  (d*x)^(m+1)*(2*a+b*x^n)*(a+b*x^n+c*x^(2*n))^p/(2*a*d*n*(2*p+1)) + 
-  (m+n*(2*p+1)+1)*(m+2*n*(p+1)+1)/(2*a*n^2*(p+1)*(2*p+1))*Int[(d*x)^m*(a+b*x^n+c*x^(2*n))^(p+1),x] /;
-FreeQ[{a,b,c,d,m},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && PositiveIntegerQ[n] && RationalQ[m,p] && p<-1 && IntegerQ[2*p]
-
-
-Int[(d_.*x_)^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  d^(n-1)*(d*x)^(m-n+1)*(b+2*c*x^n)*(a+b*x^n+c*x^(2*n))^p/(2*c*(m+2*n*p+1)) - 
-  b*d^n*(m-n+1)/(2*c*(m+2*n*p+1))*Int[(d*x)^(m-n)*(a+b*x^n+c*x^(2*n))^p,x] /;
-FreeQ[{a,b,c,d,p},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && PositiveIntegerQ[n] && RationalQ[m] && m>n-1 && 
-  NeQ[m+2*n*p+1] && (IntegerQ[2*p] || PositiveIntegerQ[(m+1)/n])
-
-
-Int[(d_.*x_)^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  (d*x)^(m+1)*(b+2*c*x^n)*(a+b*x^n+c*x^(2*n))^p/(b*d*(m+1)) - 
-  2*c*(m+n*(2*p+1)+1)/(b*d^n*(m+1))*Int[(d*x)^(m+n)*(a+b*x^n+c*x^(2*n))^p,x] /;
-FreeQ[{a,b,c,d,p},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && PositiveIntegerQ[n] && RationalQ[m] && m<-1 && 
-  (IntegerQ[2*p] || PositiveIntegerQ[(m+1)/n])
-
-
-Int[x_^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  -Subst[Int[(a+b*x^(-n)+c*x^(-2*n))^p/x^(m+2),x],x,1/x] /;
-FreeQ[{a,b,c,p},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && NegativeIntegerQ[n] && IntegerQ[m]
-
-
-Int[(d_.*x_)^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  With[{k=Denominator[m]},
-  -k/d*Subst[Int[(a+b*d^(-n)*x^(-k*n)+c*d^(-2*n)*x^(-2*k*n))^p/x^(k*(m+1)+1),x],x,1/(d*x)^(1/k)]] /;
-FreeQ[{a,b,c,d,p},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && NegativeIntegerQ[n] && FractionQ[m]
-
-
-Int[(d_.*x_)^m_*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  -d^IntPart[m]*(d*x)^FracPart[m]*(x^(-1))^FracPart[m]*Subst[Int[(a+b*x^(-n)+c*x^(-2*n))^p/x^(m+2),x],x,1/x] /;
-FreeQ[{a,b,c,d,m,p},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && NegativeIntegerQ[n] && Not[RationalQ[m]]
-
-
-Int[(d_.*x_)^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_,x_Symbol] :=
-  (a+b*x^n+c*x^(2*n))^FracPart[p]/(c^IntPart[p]*(b/2+c*x^n)^(2*FracPart[p]))*Int[(d*x)^m*(b/2+c*x^n)^(2*p),x] /;
-FreeQ[{a,b,c,d,m,n,p},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c] && Not[IntegerQ[p]]
 
 
 Int[x_^m_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_.,x_Symbol] :=
@@ -565,11 +374,6 @@ FreeQ[{b,c,d,e,n,p},x] && EqQ[n2-2*n] && Not[IntegerQ[p]] && NeQ[n*(2*p+1)+1] &&
 Int[(d_+e_.*x_^n_)^q_.*(b_.*x_^n_+c_.*x_^n2_)^p_,x_Symbol] :=
   (b*x^n+c*x^(2*n))^FracPart[p]/(x^(n*FracPart[p])*(b+c*x^n)^FracPart[p])*Int[x^(n*p)*(d+e*x^n)^q*(b+c*x^n)^p,x] /;
 FreeQ[{b,c,d,e,n,p,q},x] && EqQ[n2-2*n] && Not[IntegerQ[p]]
-
-
-Int[(d_+e_.*x_^n_)^q_.*(a_+b_.*x_^n_+c_.*x_^n2_)^p_,x_Symbol] :=
-  (a+b*x^n+c*x^(2*n))^FracPart[p]/((4*c)^IntPart[p]*(b+2*c*x^n)^(2*FracPart[p]))*Int[(d+e*x^n)^q*(b+2*c*x^n)^(2*p),x] /;
-FreeQ[{a,b,c,d,e,n,p,q},x] && EqQ[n2-2*n] && EqQ[b^2-4*a*c] && Not[IntegerQ[p]]
 
 
 Int[(d_+e_.*x_^n_)^q_.*(a_+b_.*x_^n_+c_.*x_^n2_)^p_.,x_Symbol] :=

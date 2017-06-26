@@ -49,7 +49,7 @@ Int[1/((a_.+b_.*x_)*(c_.+d_.*x_)),x_Symbol] :=
 FreeQ[{a,b,c,d},x] && NeQ[b*c-a*d,0]
 
 
-Int[(a_.+b_.*x_)^m_.*(c_+d_.*x_)^n_,x_Symbol] :=
+Int[(a_.+b_.*x_)^m_.*(c_.+d_.*x_)^n_,x_Symbol] :=
   (a+b*x)^(m+1)*(c+d*x)^(n+1)/((b*c-a*d)*(m+1)) /;
 FreeQ[{a,b,c,d,m,n},x] && NeQ[b*c-a*d,0] && EqQ[m+n+2,0] && NeQ[m,-1]
 
@@ -114,13 +114,13 @@ FreeQ[{a,b,c,d},x] && EqQ[b*c+a*d,0] && IntegerQ[m+1/2] && IntegerQ[n+1/2] && m<
 
 Int[(a_.+b_.*x_)^m_.*(c_.+d_.*x_)^n_.,x_Symbol] :=
   Int[ExpandIntegrand[(a+b*x)^m*(c+d*x)^n,x],x] /;
-FreeQ[{a,b,c,d,n},x] && NeQ[b*c-a*d,0] && PositiveIntegerQ[m] && 
-  (Not[IntegerQ[n]] || EqQ[c,0] && 7*m+4*n<=0 || 9*m+5*(n+1)<0 || m+n+2>0)
+FreeQ[{a,b,c,d,n},x] && NeQ[b*c-a*d,0] && IGtQ[m,0] && 
+  (Not[IntegerQ[n]] || EqQ[c,0] && 7*m+4*n+4<=0 || 9*m+5*(n+1)<0 || m+n+2>0)
 
 
 Int[(a_+b_.*x_)^m_.*(c_.+d_.*x_)^n_.,x_Symbol] :=
   Int[ExpandIntegrand[(a+b*x)^m*(c+d*x)^n,x],x] /;
-FreeQ[{a,b,c,d,n},x] && NeQ[b*c-a*d,0] && NegativeIntegerQ[m] && IntegerQ[n] && Not[PositiveIntegerQ[n] && m+n+2<0]
+FreeQ[{a,b,c,d},x] && NeQ[b*c-a*d,0] && ILtQ[m,0] && IntegerQ[n] && Not[IGtQ[n,0] && m+n+2<0]
 
 
 Int[(c_.+d_.*x_)^n_/(a_.+b_.*x_),x_Symbol] :=
@@ -330,39 +330,33 @@ FreeQ[{a,b,c,d,e,f,n,p},x] && NeQ[n+p+2,0] && EqQ[a*d*f*(n+p+2)-b*(d*e*(n+1)+c*f
 
 Int[(a_+b_.*x_)*(d_.*x_)^n_.*(e_+f_.*x_)^p_.,x_Symbol] :=
   Int[ExpandIntegrand[(a+b*x)*(d*x)^n*(e+f*x)^p,x],x] /;
-FreeQ[{a,b,d,e,f,n},x] && PositiveIntegerQ[p] && EqQ[b*e+a*f,0] && Not[NegativeIntegerQ[n+p+2] && n+2*p>0]
+FreeQ[{a,b,d,e,f,n},x] && IGtQ[p,0] && EqQ[b*e+a*f,0] && Not[NegativeIntegerQ[n+p+2] && n+2*p>0]
 
 
 Int[(a_+b_.*x_)*(d_.*x_)^n_.*(e_+f_.*x_)^p_.,x_Symbol] :=
   Int[ExpandIntegrand[(a+b*x)*(d*x)^n*(e+f*x)^p,x],x] /;
-FreeQ[{a,b,d,e,f,n},x] && PositiveIntegerQ[p] && (NeQ[n,-1] || p==1) && NeQ[b*e+a*f,0] &&
-  (Not[IntegerQ[n]] || 9*p+5*n<0 || n+p+1>=0 || n+p+2>=0 && RationalQ[a,b,d,e,f])
+FreeQ[{a,b,d,e,f,n},x] && IGtQ[p,0] && (NeQ[n,-1] || EqQ[p,1]) && NeQ[b*e+a*f,0] &&
+  (Not[IntegerQ[n]] || 9*p+5*n<0 || n+p+1>=0 || n+p+2>=0 && RationalQ[a,b,d,e,f]) && (NeQ[n+p+3,0] || EqQ[p,1])
 
 
 Int[(a_.+b_.*x_)*(c_+d_.*x_)^n_.*(e_.+f_.*x_)^p_.,x_Symbol] :=
   Int[ExpandIntegrand[(a+b*x)*(c+d*x)^n*(e+f*x)^p,x],x] /;
 FreeQ[{a,b,c,d,e,f,n},x] && NeQ[b*c-a*d,0] && 
   (NegativeIntegerQ[n,p] || EqQ[p,1] || 
-    PositiveIntegerQ[p] && (Not[IntegerQ[n]] || 9*p+5*(n+2)<=0 || n+p+1>=0 || n+p+2>=0 && RationalQ[a,b,c,d,e,f]))
-
-
-Int[(a_.+b_.*x_)*(c_.+d_.*x_)^n_.*(e_.+f_.*x_)^p_.,x_Symbol] :=
-  -(b*e-a*f)*(c+d*x)^(n+1)*(e+f*x)^(p+1)/(f*(p+1)*(c*f-d*e)) + 
-  b/f*Int[(c+d*x)^n*(e+f*x)^(p+1),x] /;
-FreeQ[{a,b,c,d,e,f,n,p},x] && EqQ[n+p+2,0] && NeQ[p,-1] && Not[SumSimplerQ[n,1] && Not[SumSimplerQ[p,1]]]
+    IGtQ[p,0] && (Not[IntegerQ[n]] || 9*p+5*(n+2)<=0 || n+p+1>=0 || n+p+2>=0 && RationalQ[a,b,c,d,e,f]))
 
 
 Int[(a_.+b_.*x_)*(c_.+d_.*x_)^n_.*(e_.+f_.*x_)^p_.,x_Symbol] :=
   -(b*e-a*f)*(c+d*x)^(n+1)*(e+f*x)^(p+1)/(f*(p+1)*(c*f-d*e)) - 
   (a*d*f*(n+p+2)-b*(d*e*(n+1)+c*f*(p+1)))/(f*(p+1)*(c*f-d*e))*Int[(c+d*x)^n*(e+f*x)^(p+1),x] /;
-FreeQ[{a,b,c,d,e,f,n},x] && NeQ[n+p+2,0] && RationalQ[p] && p<-1 && 
-  (Not[RationalQ[n] && n<-1] || IntegerQ[p] || Not[IntegerQ[n] || Not[EqQ[e,0] || Not[EqQ[c,0] || p<n]]])
+FreeQ[{a,b,c,d,e,f,n},x] && LtQ[p,-1] && 
+  (Not[LtQ[n,-1]] || IntegerQ[p] || Not[IntegerQ[n] || Not[EqQ[e,0] || Not[EqQ[c,0] || p<n]]])
 
 
 Int[(a_.+b_.*x_)*(c_.+d_.*x_)^n_.*(e_.+f_.*x_)^p_.,x_Symbol] :=
   -(b*e-a*f)*(c+d*x)^(n+1)*(e+f*x)^(p+1)/(f*(p+1)*(c*f-d*e)) - 
   (a*d*f*(n+p+2)-b*(d*e*(n+1)+c*f*(p+1)))/(f*(p+1)*(c*f-d*e))*Int[(c+d*x)^n*(e+f*x)^Simplify[p+1],x] /;
-FreeQ[{a,b,c,d,e,f,n,p},x] && NeQ[n+p+2,0] && Not[RationalQ[p]] && SumSimplerQ[p,1]
+FreeQ[{a,b,c,d,e,f,n,p},x] && Not[RationalQ[p]] && SumSimplerQ[p,1]
 
 
 Int[(a_.+b_.*x_)*(c_.+d_.*x_)^n_.*(e_.+f_.*x_)^p_.,x_Symbol] :=
