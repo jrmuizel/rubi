@@ -6549,7 +6549,7 @@ ReduceInertTrig[func_,m_,u_] :=
 	  sec, ReduceInertTrig[sec,-m,-u],
 	  csc, -ReduceInertTrig[csc,-m,-u]]],
   If[m>=2,
-    ReduceInertTrigFunction[func,Mod[m,2],u],
+    ReduceInertTrig[func,Mod[m,2],u],
   If[m>=1,
     Switch[func,
 	  sin, -ReduceInertTrig[sin,m-1,u],

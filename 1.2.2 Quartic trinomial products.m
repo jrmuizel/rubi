@@ -344,7 +344,7 @@ FreeQ[{a,b,c,m,p},x] && LinearPairQ[u,v,x]
 
 
 (* ::Subsection::Closed:: *)
-(*1.2.2.3 (d+e x^2)^m (a+b x^2+c x^4)^p*)
+(*1.2.2.3 (d+e x^2)^q (a+b x^2+c x^4)^p*)
 
 
 Int[(d_+e_.*x_^2)/(b_.*x_^2+c_.*x_^4)^(3/4),x_Symbol] :=

@@ -319,7 +319,7 @@ FreeQ[{a,b,c,m,n,p},x] && EqQ[n2,2*n] && LinearPairQ[u,v,x]
 
 
 (* ::Subsection::Closed:: *)
-(*1.2.3.3 (d+e x^n)^m (a+b x^n+c x^(2 n))^p*)
+(*1.2.3.3 (d+e x^n)^q (a+b x^n+c x^(2 n))^p*)
 
 
 Int[(d_+e_.*x_^n_)^q_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_.,x_Symbol] :=
