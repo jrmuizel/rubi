@@ -1,22 +1,11 @@
 (* ::Package:: *)
 
 (* ::Section:: *)
-(*Logarithm Function Rules*)
+(*3 Logarithms integration rules*)
 
 
 (* ::Subsection::Closed:: *)
 (*3.1 u (a+b log(c (d (e+f x)^p)^q))^n*)
-
-
-(* Int[(e_.+f_.*x_)^m_*Log[a_+b_.*x_]*(c_+d_.*x_)^n_.,x_Symbol] :=
-  Int[ExpandIntegrand[Log[a+b*x],(e+f*x)^m*(c+d*x)^n,x],x] /;
-FreeQ[{a,b,c,d,e,f,n},x] && FractionQ[m] && IGtQ[n,0] *)
-
-
-Int[(e_.+f_.*x_)^m_*Log[a_+b_.*x_]*(c_+d_.*x_)^n_,x_Symbol] :=
-  With[{k=Denominator[m]},
-  k/f*Subst[Int[x^(k*(m+1)-1)*Log[-(b*e-a*f)/f+b*x^k/f]*(-(d*e-c*f)/f+d*x^k/f)^n,x],x,(e+f*x)^(1/k)]] /;
-FreeQ[{a,b,c,d,e,f,n},x] && FractionQ[m] && ILtQ[n,0]
 
 
 Int[Log[g_.*(h_.*(b_.*x_)^p_.)^q_.]*Log[c_+d_.*x_]/x_,x_Symbol] :=
@@ -95,7 +84,7 @@ FreeQ[{a,b,c,d,e,f,g,h,i,j,m,p,q,r,s},x] && m!=-1 && RationalQ[m]
 
 
 Int[(e_.+f_.*x_)^m_.*Log[g_.*(h_.*(a_.+b_.*x_)^p_.)^q_.]*Log[i_.*(j_.*(c_.+d_.*x_)^r_.)^s_.],x_Symbol] :=
-  Defer[Int][(e+f*x)^m*Log[g*(h*(a+b*x)^p)^q]*Log[i*(j*(c+d*x)^r)^s],x]/;
+  Integral[(e+f*x)^m*Log[g*(h*(a+b*x)^p)^q]*Log[i*(j*(c+d*x)^r)^s],x]/;
 FreeQ[{a,b,c,d,e,f,g,h,i,j,m,p,q,r,s},x]
 
 
@@ -259,7 +248,7 @@ FreeQ[{a,b,c,d,m,n,p,q},x] && LinearQ[{u,v},x] && Not[LinearMatchQ[{u,v},x]]
 
 
 Int[(g_.+h_.*x_)^m_.*(a_.+b_.*Log[c_.*(d_.*(e_.+f_.*x_)^p_.)^q_.])^n_.,x_Symbol] :=
-  Defer[Int][(g+h*x)^m*(a+b*Log[c*(d*(e+f*x)^p)^q])^n,x] /;
+  Integral[(g+h*x)^m*(a+b*Log[c*(d*(e+f*x)^p)^q])^n,x] /;
 FreeQ[{a,b,c,d,e,f,g,h,m,n,p,q},x]
 
 
@@ -292,7 +281,7 @@ FreeQ[{a,b,c,d,e,f,g,h,i,j,p,q},x] && IntegerQ[m] && PositiveIntegerQ[n]
 
 
 Int[(i_.+j_.*x_)^m_.*(a_.+b_.*Log[c_.*(d_.*(e_.+f_.*x_)^p_.)^q_.])^n_./(g_.+h_.*x_),x_Symbol] :=
-  Defer[Int][(i+j*x)^m*(a+b*Log[c*(d*(e+f*x)^p)^q])^n/(g+h*x),x] /;
+  Integral[(i+j*x)^m*(a+b*Log[c*(d*(e+f*x)^p)^q])^n/(g+h*x),x] /;
 FreeQ[{a,b,c,d,e,f,g,h,i,j,m,n,p,q},x]
 
 
@@ -445,9 +434,6 @@ Int[x_^m_.*Log[a_.*(b_.*(c_.*x_^n_.)^p_)^q_]^r_.,x_Symbol] :=
 FreeQ[{a,b,c,m,n,p,q,r},x] && NeQ[m,-1] && Not[x^(n*p*q)===a*(b*(c*x^n)^p)^q]
 
 
-
-
-
 (* ::Subsection::Closed:: *)
 (*3.2 u log(e (f (a+b x)^p (c+d x)^q)^r)^s*)
 
@@ -526,7 +512,7 @@ FreeQ[{a,b,c,d,e,f,h,i,j,m,p,q,r,t,u},x] && NeQ[b*c-a*d,0] && IGtQ[m,0]
 
 
 Int[Log[i_.*(j_.*(h_.*x_)^t_.)^u_.]^m_.*Log[e_.*(f_.*(a_.+b_.*x_)^p_.*(c_.+d_.*x_)^q_.)^r_.]^s_./x_,x_Symbol] :=
-  Defer[Int][Log[i*(j*(h*x)^t)^u]^m*Log[e*(f*(a+b*x)^p*(c+d*x)^q)^r]^s/x,x] /;
+  Integral[Log[i*(j*(h*x)^t)^u]^m*Log[e*(f*(a+b*x)^p*(c+d*x)^q)^r]^s/x,x] /;
 FreeQ[{a,b,c,d,e,f,h,i,j,m,p,q,r,s,t,u},x] && NeQ[b*c-a*d,0]
 
 
@@ -619,7 +605,7 @@ FreeQ[{a,b,c,d,e,f,p,q,r,s},x] && RationalFunctionQ[RFx,x] && IGtQ[s,0]
 
 
 Int[RFx_*Log[e_.*(f_.*(a_.+b_.*x_)^p_.*(c_.+d_.*x_)^q_.)^r_.]^s_.,x_Symbol] :=
-  Defer[Int][RFx*Log[e*(f*(a+b*x)^p*(c+d*x)^q)^r]^s,x] /;
+  Integral[RFx*Log[e*(f*(a+b*x)^p*(c+d*x)^q)^r]^s,x] /;
 FreeQ[{a,b,c,d,e,f,p,q,r,s},x] && RationalFunctionQ[RFx,x]
 
 
@@ -636,9 +622,6 @@ FreeQ[{e,f,g,r,s},x] && LinearQ[{v,w},x]
 (* Int[Log[g_.*(h_.*(a_.+b_.*x_)^p_.)^q_.]*Log[i_.*(j_.*(c_.+d_.*x_)^r_.)^s_.]/(e_+f_.*x_),x_Symbol] :=
   1/f*Subst[Int[Log[g*(h*Simp[-(b*e-a*f)/f+b*x/f,x]^p)^q]*Log[i*(j*Simp[-(d*e-c*f)/f+d*x/f,x]^r)^s]/x,x],x,e+f*x] /;
 FreeQ[{a,b,c,d,e,f,g,h,i,j,p,q,r,s},x] *)
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -915,14 +898,12 @@ FreeQ[{a,f},x]
 
 
 (* If[ShowSteps,
-
 Int[u_/x_,x_Symbol] :=
   With[{lst=FunctionOfLog[u,x]},
   ShowStep["","Int[F[Log[a*x^n]]/x,x]","Subst[Int[F[x],x],x,Log[a*x^n]]/n",Hold[
   1/lst[[3]]*Subst[Int[lst[[1]],x],x,Log[lst[[2]]]]]] /;
  Not[FalseQ[lst]]] /;
 SimplifyFlag && NonsumQ[u],
-
 Int[u_/x_,x_Symbol] :=
   With[{lst=FunctionOfLog[u,x]},
   1/lst[[3]]*Subst[Int[lst[[1]],x],x,Log[lst[[2]]]] /;
@@ -931,14 +912,12 @@ NonsumQ[u]] *)
 
 
 If[ShowSteps,
-
 Int[u_,x_Symbol] :=
   With[{lst=FunctionOfLog[Cancel[x*u],x]},
   ShowStep["","Int[F[Log[a*x^n]]/x,x]","Subst[Int[F[x],x],x,Log[a*x^n]]/n",Hold[
   1/lst[[3]]*Subst[Int[lst[[1]],x],x,Log[lst[[2]]]]]] /;
  Not[FalseQ[lst]]] /;
 SimplifyFlag && NonsumQ[u],
-
 Int[u_,x_Symbol] :=
   With[{lst=FunctionOfLog[Cancel[x*u],x]},
   1/lst[[3]]*Subst[Int[lst[[1]],x],x,Log[lst[[2]]]] /;
@@ -956,8 +935,5 @@ FreeQ[{a,b,n},x] && IntegerQ[p]
 
 
 Int[u_.*(a_.+b_.*Log[c_.*(d_.*(e_.+f_.*x_)^p_.)^q_.])^n_,x_Symbol] :=
-  Defer[Int][u*(a+b*Log[c*(d*(e+f*x)^p)^q])^n,x] /;
+  Integral[u*(a+b*Log[c*(d*(e+f*x)^p)^q])^n,x] /;
 FreeQ[{a,b,c,d,e,f,n,p,q},x] && AlgebraicFunctionQ[u,x]
-
-
-

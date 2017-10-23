@@ -1,7 +1,7 @@
 (* ::Package:: *)
 
 (* ::Section:: *)
-(*Exponential Function Rules*)
+(*2 Exponentials integration rules*)
 
 
 (* ::Subsection::Closed:: *)
@@ -86,11 +86,8 @@ FreeQ[{F,a,b,g,m,n,p},x] && LinearQ[v,x] && PowerOfLinearQ[u,x] && Not[LinearMat
 
 
 Int[(c_.+d_.*x_)^m_.*(a_+b_.*(F_^(g_.*(e_.+f_.*x_)))^n_.)^p_.,x_Symbol] :=
-  Defer[Int][(c+d*x)^m*(a+b*(F^(g*(e+f*x)))^n)^p,x] /;
+  Integral[(c+d*x)^m*(a+b*(F^(g*(e+f*x)))^n)^p,x] /;
 FreeQ[{a,b,c,d,e,f,g,m,n,p},x]
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -110,16 +107,13 @@ FreeQ[{F,a,b,c,d,e,f,g,m,n,p},x] && NeQ[p+1]
 
 
 Int[(c_.+d_.*x_)^m_.*(F_^(g_.*(e_.+f_.*x_)))^n_.*(a_.+b_.*(F_^(g_.*(e_.+f_.*x_)))^n_.)^p_.,x_Symbol] :=
-  Defer[Int][(c+d*x)^m*(F^(g*(e+f*x)))^n*(a+b*(F^(g*(e+f*x)))^n)^p,x] /;
+  Integral[(c+d*x)^m*(F^(g*(e+f*x)))^n*(a+b*(F^(g*(e+f*x)))^n)^p,x] /;
 FreeQ[{F,a,b,c,d,e,f,g,m,n,p},x]
 
 
 Int[(c_.+d_.*x_)^m_.*(k_.*G_^(j_.*(h_.+i_.*x_)))^q_.*(a_.+b_.*(F_^(g_.*(e_.+f_.*x_)))^n_.)^p_.,x_Symbol] :=
   (k*G^(j*(h+i*x)))^q/(F^(g*(e+f*x)))^n*Int[(c+d*x)^m*(F^(g*(e+f*x)))^n*(a+b*(F^(g*(e+f*x)))^n)^p,x] /;
 FreeQ[{F,a,b,c,d,e,f,g,h,i,j,k,m,n,p,q},x] && EqQ[f*g*n*Log[F]-i*j*q*Log[G]] && NeQ[(k*G^(j*(h+i*x)))^q-(F^(g*(e+f*x)))^n]
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -296,7 +290,7 @@ FreeQ[{F,a,b,c,d,e,f},x] && NeQ[d*e-c*f] && IntegerQ[m] && m<-1
 
 
 Int[F_^(a_.+b_.*(c_.+d_.*x_)^n_)/(e_.+f_.*x_),x_Symbol] :=
-  Defer[Int][F^(a+b*(c+d*x)^n)/(e+f*x),x] /;
+  Integral[F^(a+b*(c+d*x)^n)/(e+f*x),x] /;
 FreeQ[{F,a,b,c,d,e,f,n},x] && NeQ[d*e-c*f]
 
 
@@ -410,7 +404,7 @@ FreeQ[{F,a,b,c,d,e},x] && NeQ[b*e-2*c*d] && RationalQ[m] && m<-1
 
 
 Int[(d_.+e_.*x_)^m_.*F_^(a_.+b_.*x_+c_.*x_^2),x_Symbol] :=
-  Defer[Int][(d+e*x)^m*F^(a+b*x+c*x^2),x] /;
+  Integral[(d+e*x)^m*F^(a+b*x+c*x^2),x] /;
 FreeQ[{F,a,b,c,d,e,m},x]
 
 
@@ -646,6 +640,3 @@ Int[F_^u_*v_^n_.*w_,x_Symbol] :=
   Coefficient[w,x,Exponent[w,x]]/Coefficient[z,x,Exponent[z,x]]*F^u*v^(n+1) /;
  Exponent[w,x]==Exponent[z,x] && EqQ[w*Coefficient[z,x,Exponent[z,x]]-z*Coefficient[w,x,Exponent[w,x]]]] /;
 FreeQ[{F,n},x] && PolynomialQ[u,x] && PolynomialQ[v,x] && PolynomialQ[w,x]
-
-
-
