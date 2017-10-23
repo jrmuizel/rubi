@@ -617,7 +617,7 @@ Int[u_,x_Symbol] :=
 
 
 (* ::Code:: *)
-Int[u_,x_] := Defer[Int][u,x]
+Int[u_,x_] := Integral[u,x]
 
 
 

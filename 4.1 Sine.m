@@ -1,19 +1,17 @@
 (* ::Package:: *)
 
 (* ::Section:: *)
-(*Trig Function Product Integration Rules*)
+(*4.1 Sine integration rules*)
 
 
 (* ::Subsection::Closed:: *)
-(*4.1.0 (a sin)^m (b trg)^n*)
+(*4.1.0.1 (a sin)^m (b trg)^n*)
 
 
 If[ShowSteps,
-
 Int[u_,x_Symbol] :=
   Int[DeactivateTrig[u,x],x] /;
 SimplifyFlag && FunctionOfTrigOfLinearQ[u,x],
-
 Int[u_,x_Symbol] :=
   Int[DeactivateTrig[u,x],x] /;
 FunctionOfTrigOfLinearQ[u,x]]
@@ -182,11 +180,8 @@ Int[(a_.*sin[e_.+f_.*x_])^m_.*(b_.*csc[e_.+f_.*x_])^n_,x_Symbol] :=
 FreeQ[{a,b,e,f,m,n},x] && Not[IntegerQ[m]] && Not[IntegerQ[n]]
 
 
-
-
-
 (* ::Subsection::Closed:: *)
-(*4.2.0 (a trg)^m (b tan)^n*)
+(*4.1.0.2 (a trg)^m (b tan)^n*)
 
 
 Int[(a_.*sin[e_.+f_.*x_])^m_*(b_.*tan[e_.+f_.*x_])^n_,x_Symbol]:=
@@ -360,11 +355,8 @@ Int[(a_.*csc[e_.+f_.*x_])^m_*(b_.*tan[e_.+f_.*x_])^n_,x_Symbol] :=
 FreeQ[{a,b,e,f,m,n},x] && Not[IntegerQ[m]] && Not[IntegerQ[n]]
 
 
-
-
-
 (* ::Subsection::Closed:: *)
-(*4.3.0 (a csc)^m (b sec)^n*)
+(*4.1.0.3 (a csc)^m (b sec)^n*)
 
 
 Int[(a_.*csc[e_.+f_.*x_])^m_*(b_.*sec[e_.+f_.*x_])^n_,x_Symbol] :=
@@ -445,13 +437,6 @@ Int[(a_.*sec[e_.+f_.*x_])^m_*(b_.*csc[e_.+f_.*x_])^n_,x_Symbol] :=
 FreeQ[{a,b,e,f,m,n},x]
 
 
-
-
-
-(* ::Section:: *)
-(*Sine Function Integration Rules*)
-
-
 (* ::Subsection::Closed:: *)
 (*4.1.1.1 (a+b sin)^n*)
 
@@ -459,6 +444,11 @@ FreeQ[{a,b,e,f,m,n},x]
 Int[sin[c_.+d_.*x_]^n_,x_Symbol] :=
   -1/d*Subst[Int[Expand[(1-x^2)^((n-1)/2),x],x],x,Cos[c+d*x]] /;
 FreeQ[{c,d},x] && PositiveIntegerQ[(n-1)/2]
+
+
+Int[sin[c_.+d_.*x_/2]^2,x_Symbol] :=
+  x/2 - Sin[2*c+d*x]/(2*d) /;
+FreeQ[{c,d},x]
 
 
 Int[(b_.*sin[c_.+d_.*x_])^n_,x_Symbol] :=
@@ -644,9 +634,6 @@ FreeQ[{a,b,c,d,n},x] && NeQ[a^2-b^2] && Not[IntegerQ[2*n]]
 Int[(a_+b_.*sin[c_.+d_.*x_]*cos[c_.+d_.*x_])^n_,x_Symbol] :=
   Int[(a+b*Sin[2*c+2*d*x]/2)^n,x] /;
 FreeQ[{a,b,c,d,n},x]
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -889,9 +876,6 @@ Int[(g_.*sec[e_.+f_.*x_])^p_*(a_+b_.*sin[e_.+f_.*x_])^m_.,x_Symbol] :=
 FreeQ[{a,b,e,f,g,m,p},x] && Not[IntegerQ[p]]
 
 
-
-
-
 (* ::Subsection::Closed:: *)
 (*4.1.1.3 (g tan)^p (a+b sin)^m*)
 
@@ -1058,16 +1042,13 @@ FreeQ[{a,b,e,f},x] && NeQ[a^2-b^2] && IntegersQ[m,p/2]
 
 
 Int[(g_.*tan[e_.+f_.*x_])^p_.*(a_+b_.*sin[e_.+f_.*x_])^m_.,x_Symbol] :=
-  Defer[Int][(g*Tan[e+f*x])^p*(a+b*Sin[e+f*x])^m,x] /;
+  Integral[(g*Tan[e+f*x])^p*(a+b*Sin[e+f*x])^m,x] /;
 FreeQ[{a,b,e,f,g,m,p},x]
 
 
 Int[(g_.*cot[e_.+f_.*x_])^p_*(a_+b_.*sin[e_.+f_.*x_])^m_.,x_Symbol] :=
   g^(2*IntPart[p])*(g*Cot[e+f*x])^FracPart[p]*(g*Tan[e+f*x])^FracPart[p]*Int[(a+b*Sin[e+f*x])^m/(g*Tan[e+f*x])^p,x] /;
 FreeQ[{a,b,e,f,g,m,p},x] && Not[IntegerQ[p]]
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -1629,7 +1610,7 @@ FreeQ[{a,b,c,d,e,f,n},x] && NeQ[b*c-a*d] && PositiveIntegerQ[m]
 
 
 Int[(a_.+b_.*sin[e_.+f_.*x_])^m_*(c_.+d_.*sin[e_.+f_.*x_])^n_,x_Symbol] :=
-  Defer[Int][(a+b*Sin[e+f*x])^m*(c+d*Sin[e+f*x])^n,x] /;
+  Integral[(a+b*Sin[e+f*x])^m*(c+d*Sin[e+f*x])^n,x] /;
 FreeQ[{a,b,c,d,e,f,m,n},x] && NeQ[b*c-a*d] && NeQ[a^2-b^2] && NeQ[c^2-d^2]
 
 
@@ -1678,9 +1659,6 @@ FreeQ[{a,b,c,d,e,f,m,n},x] && Not[IntegerQ[n]] && Not[IntegerQ[m]]
 Int[(a_+b_.*cos[e_.+f_.*x_])^m_*(c_+d_.*sec[e_.+f_.*x_])^n_,x_Symbol] :=
   Cos[e+f*x]^n*(c+d*Sec[e+f*x])^n/(d+c*Cos[e+f*x])^n*Int[(a+b*Cos[e+f*x])^m*(d+c*Cos[e+f*x])^n/Cos[e+f*x]^n,x] /;
 FreeQ[{a,b,c,d,e,f,m,n},x] && Not[IntegerQ[n]] && Not[IntegerQ[m]]
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -2253,7 +2231,7 @@ FreeQ[{a,b,c,d,e,f,g,p},x] && NeQ[a^2-b^2] && IntegersQ[2*m,2*n]
 
 
 Int[(g_.*cos[e_.+f_.*x_])^p_*(a_+b_.*sin[e_.+f_.*x_])^m_.*(c_.+d_.*sin[e_.+f_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][(g*Cos[e+f*x])^p*(a+b*Sin[e+f*x])^m*(c+d*Sin[e+f*x])^n,x] /;
+  Integral[(g*Cos[e+f*x])^p*(a+b*Sin[e+f*x])^m*(c+d*Sin[e+f*x])^n,x] /;
 FreeQ[{a,b,c,d,e,f,g,m,n,p},x] && NeQ[a^2-b^2]
 
 
@@ -2267,9 +2245,6 @@ Int[(g_.*csc[e_.+f_.*x_])^p_*(a_.+b_.*cos[e_.+f_.*x_])^m_.*(c_.+d_.*cos[e_.+f_.*
   g^(2*IntPart[p])*(g*Sin[e+f*x])^FracPart[p]*(g*Csc[e+f*x])^FracPart[p]*
     Int[(a+b*Cos[e+f*x])^m*(c+d*Cos[e+f*x])^n/(g*Sin[e+f*x])^p,x] /;
 FreeQ[{a,b,c,d,e,f,g,m,n,p},x] && Not[IntegerQ[p]]
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -2421,7 +2396,7 @@ FreeQ[{a,b,c,d,e,f,g,n,p},x] && NeQ[b*c-a*d] && (IntegersQ[m,n] || IntegersQ[m,p
 
 
 Int[(g_.*sin[e_.+f_.*x_])^p_*(a_+b_.*sin[e_.+f_.*x_])^m_*(c_+d_.*sin[e_.+f_.*x_])^n_,x_Symbol] :=
-  Defer[Int][(g*Sin[e+f*x])^p*(a+b*Sin[e+f*x])^m*(c+d*Sin[e+f*x])^n,x] /;
+  Integral[(g*Sin[e+f*x])^p*(a+b*Sin[e+f*x])^m*(c+d*Sin[e+f*x])^n,x] /;
 FreeQ[{a,b,c,d,e,f,g,m,n,p},x] && NeQ[p-2]
 
 
@@ -2484,9 +2459,6 @@ Int[(g_.*csc[e_.+f_.*x_])^p_.*(a_+b_.*sin[e_.+f_.*x_])^m_*(c_+d_.*csc[e_.+f_.*x_
   (a+b*Sin[e+f*x])^m*(g*Csc[e+f*x])^m/(b+a*Csc[e+f*x])^m*
     Int[(g*Csc[e+f*x])^(p-m)*(b+a*Csc[e+f*x])^m*(c+d*Csc[e+f*x])^n,x] /;
 FreeQ[{a,b,c,d,e,f,g,m,n,p},x] && Not[IntegerQ[m]] && Not[IntegerQ[n]]
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -2754,7 +2726,7 @@ FreeQ[{a,b,c,d,e,f,A,B},x] && NeQ[b*c-a*d] && NeQ[a^2-b^2] && NeQ[c^2-d^2]
 
 
 Int[(a_.+b_.*sin[e_.+f_.*x_])^m_*(c_.+d_.*sin[e_.+f_.*x_])^n_.*(A_.+B_.*sin[e_.+f_.*x_]),x_Symbol] :=
-  Defer[Int][(a+b*Sin[e+f*x])^m*(c+d*Sin[e+f*x])^n*(A+B*Sin[e+f*x]),x] /;
+  Integral[(a+b*Sin[e+f*x])^m*(c+d*Sin[e+f*x])^n*(A+B*Sin[e+f*x]),x] /;
 FreeQ[{a,b,c,d,e,f,A,B,m,n},x] && NeQ[b*c-a*d] && NeQ[a^2-b^2] && NeQ[c^2-d^2]
 
 
@@ -2780,9 +2752,6 @@ Int[(a_+b_.*cos[e_.+f_.*x_])^m_.*(c_+d_.*cos[e_.+f_.*x_])^n_.*(A_.+B_.*cos[e_.+f
   -Sqrt[a+b*Cos[e+f*x]]*Sqrt[c+d*Cos[e+f*x]]/(f*Sin[e+f*x])*
     Subst[Int[(a+b*x)^(m-1/2)*(c+d*x)^(n-1/2)*(A+B*x)^p,x],x,Cos[e+f*x]] /;
 FreeQ[{a,b,c,d,e,f,A,B,m,n,p},x] && EqQ[b*c+a*d] && EqQ[a^2-b^2]
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -2890,9 +2859,6 @@ FreeQ[{b,e,f,A,C,m,p},x] && Not[IntegerQ[m]]
 Int[(b_.*cos[e_.+f_.*x_]^p_)^m_*(A_.+C_.*cos[e_.+f_.*x_]^2),x_Symbol] :=
   (b*Cos[e+f*x]^p)^m/(b*Cos[e+f*x])^(m*p)*Int[(b*Cos[e+f*x])^(m*p)*(A+C*Cos[e+f*x]^2),x] /;
 FreeQ[{b,e,f,A,C,m,p},x] && Not[IntegerQ[m]]
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -3140,12 +3106,12 @@ FreeQ[{a,b,c,d,e,f,A,C},x] && NeQ[b*c-a*d] && NeQ[a^2-b^2] && NeQ[c^2-d^2]
 
 
 Int[(a_.+b_.*sin[e_.+f_.*x_])^m_*(c_.+d_.*sin[e_.+f_.*x_])^n_*(A_.+B_.*sin[e_.+f_.*x_]+C_.*sin[e_.+f_.*x_]^2),x_Symbol] :=
-  Defer[Int][(a+b*Sin[e+f*x])^m*(c+d*Sin[e+f*x])^n*(A+B*Sin[e+f*x]+C*Sin[e+f*x]^2),x] /;
+  Integral[(a+b*Sin[e+f*x])^m*(c+d*Sin[e+f*x])^n*(A+B*Sin[e+f*x]+C*Sin[e+f*x]^2),x] /;
 FreeQ[{a,b,c,d,e,f,A,B,C,m,n},x] && NeQ[b*c-a*d] && NeQ[a^2-b^2] && NeQ[c^2-d^2]
 
 
 Int[(a_.+b_.*sin[e_.+f_.*x_])^m_*(c_.+d_.*sin[e_.+f_.*x_])^n_*(A_.+C_.*sin[e_.+f_.*x_]^2),x_Symbol] :=
-  Defer[Int][(a+b*Sin[e+f*x])^m*(c+d*Sin[e+f*x])^n*(A+C*Sin[e+f*x]^2),x] /;
+  Integral[(a+b*Sin[e+f*x])^m*(c+d*Sin[e+f*x])^n*(A+C*Sin[e+f*x]^2),x] /;
 FreeQ[{a,b,c,d,e,f,A,C,m,n},x] && NeQ[b*c-a*d] && NeQ[a^2-b^2] && NeQ[c^2-d^2]
 
 
@@ -3167,9 +3133,6 @@ FreeQ[{b,c,d,e,f,A,C,m,n,p},x] && Not[IntegerQ[m]]
 Int[(b_.*cos[e_.+f_.*x_]^p_)^m_*(c_.+d_.*cos[e_.+f_.*x_])^n_.*(A_.+C_.*cos[e_.+f_.*x_]^2),x_Symbol] :=
   (b*Cos[e+f*x]^p)^m/(b*Cos[e+f*x])^(m*p)*Int[(b*Cos[e+f*x])^(m*p)*(c+d*Cos[e+f*x])^n*(A+C*Cos[e+f*x]^2),x] /;
 FreeQ[{b,c,d,e,f,A,C,m,n,p},x] && Not[IntegerQ[m]]
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -3427,9 +3390,6 @@ Int[cos[c_.+d_.*x_]^m_.*sin[c_.+d_.*x_]^n_.*(a_.*cos[c_.+d_.*x_]+b_.*sin[c_.+d_.
   a/(a^2+b^2)*Int[Cos[c+d*x]^(m-1)*Sin[c+d*x]^n*(a*Cos[c+d*x]+b*Sin[c+d*x])^(p+1),x] -
   a*b/(a^2+b^2)*Int[Cos[c+d*x]^(m-1)*Sin[c+d*x]^(n-1)*(a*Cos[c+d*x]+b*Sin[c+d*x])^p,x] /;
 FreeQ[{a,b,c,d},x] && NeQ[a^2+b^2,0] && IntegersQ[m,n,p] && m>0 && n>0 && p<0
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -3781,9 +3741,6 @@ Int[csc[d_.+e_.*x_]^n_.*(a_.+b_.*csc[d_.+e_.*x_]+c_.*cot[d_.+e_.*x_])^m_,x_Symbo
 FreeQ[{a,b,c,d,e},x] && EqQ[m+n] && Not[IntegerQ[n]]
 
 
-
-
-
 (* ::Subsection::Closed:: *)
 (*4.1.7 (d trig)^m (a+b (c sin)^n)^p*)
 
@@ -3970,7 +3927,7 @@ FreeQ[{a,b,c,e,f,n},x] && (IGtQ[p,0] || EqQ[p,-1] && IntegerQ[n])
 
 
 Int[(a_+b_.*(c_.*sin[e_.+f_.*x_])^n_)^p_,x_Symbol] :=
-  Defer[Int][(a+b*(c*Sin[e+f*x])^n)^p,x] /;
+  Integral[(a+b*(c*Sin[e+f*x])^n)^p,x] /;
 FreeQ[{a,b,c,e,f,n,p},x]
 
 
@@ -4016,7 +3973,7 @@ FreeQ[{a,b,c,d,e,f,m,n},x] && IGtQ[p,0]
 
 
 Int[(d_.*sin[e_.+f_.*x_])^m_.*(a_+b_.*(c_.*sin[e_.+f_.*x_])^n_)^p_.,x_Symbol] :=
-  Defer[Int][(d*Sin[e+f*x])^m*(a+b*(c*Sin[e+f*x])^n)^p,x] /;
+  Integral[(d*Sin[e+f*x])^m*(a+b*(c*Sin[e+f*x])^n)^p,x] /;
 FreeQ[{a,b,c,d,e,f,m,n,p},x]
 
 
@@ -4061,7 +4018,7 @@ FreeQ[{a,b,c,d,e,f,m,n},x] && IGtQ[p,0]
 
 
 Int[(d_.*cos[e_.+f_.*x_])^m_.*(a_+b_.*(c_.*sin[e_.+f_.*x_])^n_)^p_.,x_Symbol] :=
-  Defer[Int][(d*Cos[e+f*x])^m*(a+b*(c*Sin[e+f*x])^n)^p,x] /;
+  Integral[(d*Cos[e+f*x])^m*(a+b*(c*Sin[e+f*x])^n)^p,x] /;
 FreeQ[{a,b,c,d,e,f,m,n,p},x]
 
 
@@ -4102,7 +4059,7 @@ FreeQ[{a,b,c,d,e,f,m,n},x] && IGtQ[p,0]
 
 
 Int[(d_.*tan[e_.+f_.*x_])^m_.*(a_+b_.*(c_.*sin[e_.+f_.*x_])^n_)^p_.,x_Symbol] :=
-  Defer[Int][(d*Tan[e+f*x])^m*(a+b*(c*Sin[e+f*x])^n)^p,x] /;
+  Integral[(d*Tan[e+f*x])^m*(a+b*(c*Sin[e+f*x])^n)^p,x] /;
 FreeQ[{a,b,c,d,e,f,m,n,p},x]
 
 
@@ -4124,9 +4081,6 @@ FreeQ[{a,b,d,e,f,m,n,p},x] && Not[IntegerQ[m]] && IntegersQ[n,p]
 Int[(d_.*csc[e_.+f_.*x_])^m_*(a_+b_.*(c_.*sin[e_.+f_.*x_])^n_)^p_,x_Symbol] :=
   (d*Csc[e+f*x])^FracPart[m]*(Sin[e+f*x]/d)^FracPart[m]*Int[(Sin[e+f*x]/d)^(-m)*(a+b*(c*Sin[e+f*x])^n)^p,x] /;
 FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[IntegerQ[m]]
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -4183,9 +4137,6 @@ Int[cos[d_.+e_.*x_]^m_*(a_+b_.*sin[d_.+e_.*x_]^p_+c_.*cos[d_.+e_.*x_]^q_)^n_,x_S
   f/e*Subst[Int[ExpandToSum[a*(1+f^2*x^2)^(p/2)+b*f^p*x^p+c*(1+f^2*x^2)^(p/2-q/2),x]^n/(1+f^2*x^2)^(m/2+n*p/2+1),x],x,
     Tan[d+e*x]/f]] /;
 FreeQ[{a,b,c,d,e},x] && EvenQ[m] && EvenQ[p] && EvenQ[q] && IntegerQ[n] && 0<q<p
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -4474,9 +4425,6 @@ Int[(A_+B_.*cos[d_.+e_.*x_])*(a_.+b_.*cos[d_.+e_.*x_]+c_.*cos[d_.+e_.*x_]^2)^n_,
 FreeQ[{a,b,c,d,e,A,B},x] && NeQ[b^2-4*a*c] && IntegerQ[n]
 
 
-
-
-
 (* ::Subsection::Closed:: *)
 (*4.1.10 (c+d x)^m (a+b sin)^n*)
 
@@ -4547,6 +4495,11 @@ FreeQ[{c,d,e,f,m},x] && IntegerQ[2*k]
 
 Int[(c_.+d_.*x_)^m_.*sin[e_.+f_.*x_],x_Symbol] :=
   I/2*Int[(c+d*x)^m*E^(-I*(e+f*x)),x] - I/2*Int[(c+d*x)^m*E^(I*(e+f*x)),x] /;
+FreeQ[{c,d,e,f,m},x]
+
+
+Int[(c_.+d_.*x_)^m_.*sin[e_.+f_.*x_/2]^2,x_Symbol] :=
+  1/2*Int[(c+d*x)^m,x] - 1/2*Int[(c+d*x)^m*Cos[2*e+f*x],x] /;
 FreeQ[{c,d,e,f,m},x]
 
 
@@ -4672,7 +4625,7 @@ FreeQ[{a,b,c,d,e,f},x] && NeQ[a^2-b^2] && NegativeIntegerQ[n+2] && PositiveInteg
 
 
 Int[(c_.+d_.*x_)^m_.*(a_.+b_.*sin[e_.+f_.*x_])^n_.,x_Symbol] :=
-  Defer[Int][(c+d*x)^m*(a+b*Sin[e+f*x])^n,x] /;
+  Integral[(c+d*x)^m*(a+b*Sin[e+f*x])^n,x] /;
 FreeQ[{a,b,c,d,e,f,m,n},x]
 
 
@@ -4684,9 +4637,6 @@ FreeQ[{a,b,m,n},x] && LinearQ[{u,v},x] && Not[LinearMatchQ[{u,v},x]]
 Int[u_^m_.*(a_.+b_.*Cos[v_])^n_.,x_Symbol] :=
   Int[ExpandToSum[u,x]^m*(a+b*Cos[ExpandToSum[v,x]])^n,x] /;
 FreeQ[{a,b,m,n},x] && LinearQ[{u,v},x] && Not[LinearMatchQ[{u,v},x]]
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -4738,12 +4688,12 @@ FreeQ[{a,b,c,d},x] && NegativeIntegerQ[p] && NegativeIntegerQ[n]
 
 
 Int[(a_+b_.*x_^n_)^p_*Sin[c_.+d_.*x_],x_Symbol] :=
-  Defer[Int][(a+b*x^n)^p*Sin[c+d*x],x] /;
+  Integral[(a+b*x^n)^p*Sin[c+d*x],x] /;
 FreeQ[{a,b,c,d,n,p},x]
 
 
 Int[(a_+b_.*x_^n_)^p_*Cos[c_.+d_.*x_],x_Symbol] :=
-  Defer[Int][(a+b*x^n)^p*Cos[c+d*x],x] /;
+  Integral[(a+b*x^n)^p*Cos[c+d*x],x] /;
 FreeQ[{a,b,c,d,n,p},x]
 
 
@@ -4804,122 +4754,129 @@ FreeQ[{a,b,c,d,m},x] && NegativeIntegerQ[p] && NegativeIntegerQ[n]
 
 
 Int[(e_.*x_)^m_.*(a_+b_.*x_^n_)^p_.*Sin[c_.+d_.*x_],x_Symbol] :=
-  Defer[Int][(e*x)^m*(a+b*x^n)^p*Sin[c+d*x],x] /;
+  Integral[(e*x)^m*(a+b*x^n)^p*Sin[c+d*x],x] /;
 FreeQ[{a,b,c,d,e,m,n,p},x]
 
 
 Int[(e_.*x_)^m_.*(a_+b_.*x_^n_)^p_.*Cos[c_.+d_.*x_],x_Symbol] :=
-  Defer[Int][(e*x)^m*(a+b*x^n)^p*Cos[c+d*x],x] /;
+  Integral[(e*x)^m*(a+b*x^n)^p*Cos[c+d*x],x] /;
 FreeQ[{a,b,c,d,e,m,n,p},x]
-
-
-
 
 
 (* ::Subsection::Closed:: *)
 (*4.1.12 (e x)^m (a+b sin(c+d x^n))^p*)
 
 
-Int[Sin[d_.*x_^2],x_Symbol] :=
-  Sqrt[Pi/2]/Rt[d,2]*FresnelS[Sqrt[2/Pi]*Rt[d,2]*x] /;
-FreeQ[d,x]
+Int[Sin[d_.*(e_.+f_.*x_)^2],x_Symbol] :=
+  Sqrt[Pi/2]/(f*Rt[d,2])*FresnelS[Sqrt[2/Pi]*Rt[d,2]*(e+f*x)] /;
+FreeQ[{d,e,f},x]
 
 
-Int[Cos[d_.*x_^2],x_Symbol] :=
-  Sqrt[Pi/2]/Rt[d,2]*FresnelC[Sqrt[2/Pi]*Rt[d,2]*x] /;
-FreeQ[d,x]
+Int[Cos[d_.*(e_.+f_.*x_)^2],x_Symbol] :=
+  Sqrt[Pi/2]/(f*Rt[d,2])*FresnelC[Sqrt[2/Pi]*Rt[d,2]*(e+f*x)] /;
+FreeQ[{d,e,f},x]
 
 
-Int[Sin[c_+d_.*x_^2],x_Symbol] :=
-  Sin[c]*Int[Cos[d*x^2],x] + Cos[c]*Int[Sin[d*x^2],x] /;
-FreeQ[{c,d},x]
+Int[Sin[c_+d_.*(e_.+f_.*x_)^2],x_Symbol] :=
+  Sin[c]*Int[Cos[d*(e+f*x)^2],x] + Cos[c]*Int[Sin[d*(e+f*x)^2],x] /;
+FreeQ[{c,d,e,f},x]
 
 
-Int[Cos[c_+d_.*x_^2],x_Symbol] :=
-  Cos[c]*Int[Cos[d*x^2],x] - Sin[c]*Int[Sin[d*x^2],x] /;
-FreeQ[{c,d},x]
+Int[Cos[c_+d_.*(e_.+f_.*x_)^2],x_Symbol] :=
+  Cos[c]*Int[Cos[d*(e+f*x)^2],x] - Sin[c]*Int[Sin[d*(e+f*x)^2],x] /;
+FreeQ[{c,d,e,f},x]
 
 
-Int[Sin[c_.+d_.*x_^n_],x_Symbol] :=
-  I/2*Int[E^(-c*I-d*I*x^n),x] - I/2*Int[E^(c*I+d*I*x^n),x] /;
-FreeQ[{c,d},x] && IntegerQ[n] && n>2
+Int[Sin[c_.+d_.*(e_.+f_.*x_)^n_],x_Symbol] :=
+  I/2*Int[E^(-c*I-d*I*(e+f*x)^n),x] - I/2*Int[E^(c*I+d*I*(e+f*x)^n),x] /;
+FreeQ[{c,d,e,f},x] && IGtQ[n,2]
 
 
-Int[Cos[c_.+d_.*x_^n_],x_Symbol] :=
-  1/2*Int[E^(-c*I-d*I*x^n),x] + 1/2*Int[E^(c*I+d*I*x^n),x] /;
-FreeQ[{c,d},x] && IntegerQ[n] && n>2
+Int[Cos[c_.+d_.*(e_.+f_.*x_)^n_],x_Symbol] :=
+  1/2*Int[E^(-c*I-d*I*(e+f*x)^n),x] + 1/2*Int[E^(c*I+d*I*(e+f*x)^n),x] /;
+FreeQ[{c,d,e,f},x] && IGtQ[n,2]
 
 
-Int[(a_.+b_.*Sin[c_.+d_.*x_^n_])^p_,x_Symbol] :=
-  Int[ExpandTrigReduce[(a+b*Sin[c+d*x^n])^p,x],x] /;
-FreeQ[{a,b,c,d},x] && IntegersQ[n,p] && n>1 && p>1
+Int[(a_.+b_.*Sin[c_.+d_.*(e_.+f_.*x_)^n_])^p_,x_Symbol] :=
+  Int[ExpandTrigReduce[(a+b*Sin[c+d*(e+f*x)^n])^p,x],x] /;
+FreeQ[{a,b,c,d,e,f},x] && IGtQ[p,1] && IGtQ[n,1]
 
 
-Int[(a_.+b_.*Cos[c_.+d_.*x_^n_])^p_,x_Symbol] :=
-  Int[ExpandTrigReduce[(a+b*Cos[c+d*x^n])^p,x],x] /;
-FreeQ[{a,b,c,d},x] && IntegersQ[n,p] && n>1 && p>1
+Int[(a_.+b_.*Cos[c_.+d_.*(e_.+f_.*x_)^n_])^p_,x_Symbol] :=
+  Int[ExpandTrigReduce[(a+b*Cos[c+d*(e+f*x)^n])^p,x],x] /;
+FreeQ[{a,b,c,d,e,f},x] && IGtQ[p,1] && IGtQ[n,1]
 
 
-Int[(a_.+b_.*Sin[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
-  -Subst[Int[(a+b*Sin[c+d*x^(-n)])^p/x^2,x],x,1/x] /;
-FreeQ[{a,b,c,d},x] && IntegerQ[p] && NegativeIntegerQ[n]
+Int[(a_.+b_.*Sin[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
+  -1/f*Subst[Int[(a+b*Sin[c+d*x^(-n)])^p/x^2,x],x,1/(e+f*x)] /;
+FreeQ[{a,b,c,d,e,f},x] && IGtQ[p,0] && ILtQ[n,0] && EqQ[n,-2]
 
 
-Int[(a_.+b_.*Cos[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
-  -Subst[Int[(a+b*Cos[c+d*x^(-n)])^p/x^2,x],x,1/x] /;
-FreeQ[{a,b,c,d},x] && IntegerQ[p] && NegativeIntegerQ[n]
+Int[(a_.+b_.*Cos[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
+  -1/f*Subst[Int[(a+b*Cos[c+d*x^(-n)])^p/x^2,x],x,1/(e+f*x)] /;
+FreeQ[{a,b,c,d,e,f},x] && IGtQ[p,0] && ILtQ[n,0] && EqQ[n,-2]
 
 
-Int[(a_.+b_.*Sin[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
+Int[(a_.+b_.*Sin[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
+  1/(n*f)*Subst[Int[x^(1/n-1)*(a+b*Sin[c+d*x])^p,x],x,(e+f*x)^n] /;
+FreeQ[{a,b,c,d,e,f},x] && IGtQ[p,0] && IntegerQ[1/n]
+
+
+Int[(a_.+b_.*Cos[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
+  1/(n*f)*Subst[Int[x^(1/n-1)*(a+b*Cos[c+d*x])^p,x],x,(e+f*x)^n] /;
+FreeQ[{a,b,c,d,e,f},x] && IGtQ[p,0] && IntegerQ[1/n]
+
+
+Int[(a_.+b_.*Sin[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
   Module[{k=Denominator[n]},
-  k*Subst[Int[x^(k-1)*(a+b*Sin[c+d*x^(k*n)])^p,x],x,x^(1/k)]] /;
-FreeQ[{a,b,c,d},x] && IntegerQ[p] && FractionQ[n]
+  k/f*Subst[Int[x^(k-1)*(a+b*Sin[c+d*x^(k*n)])^p,x],x,(e+f*x)^(1/k)]] /;
+FreeQ[{a,b,c,d,e,f},x] && IGtQ[p,0] && FractionQ[n]
 
 
-Int[(a_.+b_.*Cos[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
+Int[(a_.+b_.*Cos[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
   Module[{k=Denominator[n]},
-  k*Subst[Int[x^(k-1)*(a+b*Cos[c+d*x^(k*n)])^p,x],x,x^(1/k)]] /;
-FreeQ[{a,b,c,d},x] && IntegerQ[p] && FractionQ[n]
+  k/f*Subst[Int[x^(k-1)*(a+b*Cos[c+d*x^(k*n)])^p,x],x,(e+f*x)^(1/k)]] /;
+FreeQ[{a,b,c,d,e,f},x] && IGtQ[p,0] && FractionQ[n]
 
 
-Int[Sin[c_.+d_.*x_^n_],x_Symbol] :=
-  I/2*Int[E^(-c*I-d*I*x^n),x] - I/2*Int[E^(c*I+d*I*x^n),x] /;
-FreeQ[{c,d,n},x]
+Int[Sin[c_.+d_.*(e_.+f_.*x_)^n_],x_Symbol] :=
+  I/2*Int[E^(-c*I-d*I*(e+f*x)^n),x] - I/2*Int[E^(c*I+d*I*(e+f*x)^n),x] /;
+FreeQ[{c,d,e,f,n},x]
 
 
-Int[Cos[c_.+d_.*x_^n_],x_Symbol] :=
-  1/2*Int[E^(-c*I-d*I*x^n),x] + 1/2*Int[E^(c*I+d*I*x^n),x] /;
-FreeQ[{c,d,n},x]
+Int[Cos[c_.+d_.*(e_.+f_.*x_)^n_],x_Symbol] :=
+  1/2*Int[E^(-c*I-d*I*(e+f*x)^n),x] + 1/2*Int[E^(c*I+d*I*(e+f*x)^n),x] /;
+FreeQ[{c,d,e,f,n},x]
 
 
-Int[(a_.+b_.*Sin[c_.+d_.*x_^n_])^p_,x_Symbol] :=
-  Int[ExpandTrigReduce[(a+b*Sin[c+d*x^n])^p,x],x] /;
-FreeQ[{a,b,c,d,n},x] && PositiveIntegerQ[p]
+Int[(a_.+b_.*Sin[c_.+d_.*(e_.+f_.*x_)^n_])^p_,x_Symbol] :=
+  Int[ExpandTrigReduce[(a+b*Sin[c+d*(e+f*x)^n])^p,x],x] /;
+FreeQ[{a,b,c,d,e,f,n},x] && IGtQ[p,1]
 
 
-Int[(a_.+b_.*Cos[c_.+d_.*x_^n_])^p_,x_Symbol] :=
-  Int[ExpandTrigReduce[(a+b*Cos[c+d*x^n])^p,x],x] /;
-FreeQ[{a,b,c,d,n},x] && PositiveIntegerQ[p]
+Int[(a_.+b_.*Cos[c_.+d_.*(e_.+f_.*x_)^n_])^p_,x_Symbol] :=
+  Int[ExpandTrigReduce[(a+b*Cos[c+d*(e+f*x)^n])^p,x],x] /;
+FreeQ[{a,b,c,d,e,f,n},x] && IGtQ[p,1]
+
+
+Int[(a_.+b_.*Sin[c_.+d_.*(e_.+f_.*x_)^n_])^p_,x_Symbol] :=
+  Integral[(a+b*Sin[c+d*(e+f*x)^n])^p,x] /;
+FreeQ[{a,b,c,d,e,f,n,p},x]
+
+
+Int[(a_.+b_.*Cos[c_.+d_.*(e_.+f_.*x_)^n_])^p_,x_Symbol] :=
+  Integral[(a+b*Cos[c+d*(e+f*x)^n])^p,x] /;
+FreeQ[{a,b,c,d,e,f,n,p},x]
 
 
 Int[(a_.+b_.*Sin[c_.+d_.*u_^n_])^p_.,x_Symbol] :=
-  1/Coefficient[u,x,1]*Subst[Int[(a+b*Sin[c+d*x^n])^p,x],x,u] /;
-FreeQ[{a,b,c,d,n},x] && IntegerQ[p] && LinearQ[u,x] && NeQ[u-x]
+  Int[(a+b*Sin[c+d*ExpandToSum[u,x]^n])^p,x] /;
+FreeQ[{a,b,c,d,n,p},x] && LinearQ[u,x] && Not[LinearMatchQ[u,x]]
 
 
 Int[(a_.+b_.*Cos[c_.+d_.*u_^n_])^p_.,x_Symbol] :=
-  1/Coefficient[u,x,1]*Subst[Int[(a+b*Cos[c+d*x^n])^p,x],x,u] /;
-FreeQ[{a,b,c,d,n},x] && IntegerQ[p] && LinearQ[u,x] && NeQ[u-x]
-
-
-Int[(a_.+b_.*Sin[c_.+d_.*u_^n_])^p_,x_Symbol] :=
-  Defer[Int][(a+b*Sin[c+d*u^n])^p,x] /;
-FreeQ[{a,b,c,d,n,p},x] && LinearQ[u,x]
-
-
-Int[(a_.+b_.*Cos[c_.+d_.*u_^n_])^p_,x_Symbol] :=
-  Defer[Int][(a+b*Cos[c+d*u^n])^p,x] /;
-FreeQ[{a,b,c,d,n,p},x] && LinearQ[u,x]
+  Int[(a+b*Cos[c+d*ExpandToSum[u,x]^n])^p,x] /;
+FreeQ[{a,b,c,d,n,p},x] && LinearQ[u,x] && Not[LinearMatchQ[u,x]]
 
 
 Int[(a_.+b_.*Sin[u_])^p_.,x_Symbol] :=
@@ -5014,6 +4971,16 @@ FreeQ[{c,d,e,m},x] && PositiveIntegerQ[n]
 Int[(e_.*x_)^m_.*Cos[c_.+d_.*x_^n_],x_Symbol] :=
   1/2*Int[(e*x)^m*E^(-c*I-d*I*x^n),x] + 1/2*Int[(e*x)^m*E^(c*I+d*I*x^n),x] /;
 FreeQ[{c,d,e,m},x] && PositiveIntegerQ[n]
+
+
+Int[x_^m_.*Sin[a_.+b_.*x_^n_/2]^2,x_Symbol] :=
+  1/2*Int[x^m,x] - 1/2*Int[x^m*Cos[2*a+b*x^n],x] /;
+FreeQ[{a,b,m,n},x]
+
+
+Int[x_^m_.*Cos[a_.+b_.*x_^n_/2]^2,x_Symbol] :=
+  1/2*Int[x^m,x] + 1/2*Int[x^m*Cos[2*a+b*x^n],x] /;
+FreeQ[{a,b,m,n},x]
 
 
 Int[x_^m_.*Sin[a_.+b_.*x_^n_]^p_,x_Symbol] :=
@@ -5128,34 +5095,34 @@ FreeQ[{a,b},x] && IntegersQ[m,n] && RationalQ[p] && p<-1 && p!=-2 && 0<2*n<m+1
 
 Int[x_^m_.*(a_.+b_.*Sin[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
   -Subst[Int[(a+b*Sin[c+d*x^(-n)])^p/x^(m+2),x],x,1/x] /;
-FreeQ[{a,b,c,d},x] && IntegerQ[p] && NegativeIntegerQ[n] && IntegerQ[m]
+FreeQ[{a,b,c,d},x] && IGtQ[p,0] && ILtQ[n,0] && IntegerQ[m] && EqQ[n,-2]
 
 
 Int[x_^m_.*(a_.+b_.*Cos[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
   -Subst[Int[(a+b*Cos[c+d*x^(-n)])^p/x^(m+2),x],x,1/x] /;
-FreeQ[{a,b,c,d},x] && IntegerQ[p] && NegativeIntegerQ[n] && IntegerQ[m]
+FreeQ[{a,b,c,d},x] && IGtQ[p,0] && ILtQ[n,0] && IntegerQ[m] && EqQ[n,-2]
 
 
 Int[(e_.*x_)^m_*(a_.+b_.*Sin[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
   With[{k=Denominator[m]},
   -k/e*Subst[Int[(a+b*Sin[c+d/(e^n*x^(k*n))])^p/x^(k*(m+1)+1),x],x,1/(e*x)^(1/k)]] /;
-FreeQ[{a,b,c,d,e},x] && IntegerQ[p] && NegativeIntegerQ[n] && FractionQ[m]
+FreeQ[{a,b,c,d,e},x] && IGtQ[p,0] && ILtQ[n,0] && FractionQ[m]
 
 
 Int[(e_.*x_)^m_*(a_.+b_.*Cos[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
   With[{k=Denominator[m]},
   -k/e*Subst[Int[(a+b*Cos[c+d/(e^n*x^(k*n))])^p/x^(k*(m+1)+1),x],x,1/(e*x)^(1/k)]] /;
-FreeQ[{a,b,c,d,e},x] && IntegerQ[p] && NegativeIntegerQ[n] && FractionQ[m]
+FreeQ[{a,b,c,d,e},x] && IGtQ[p,0] && ILtQ[n,0] && FractionQ[m]
 
 
 Int[(e_.*x_)^m_*(a_.+b_.*Sin[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
   -(e*x)^m*(x^(-1))^m*Subst[Int[(a+b*Sin[c+d*x^(-n)])^p/x^(m+2),x],x,1/x] /;
-FreeQ[{a,b,c,d,e,m},x] && IntegerQ[p] && NegativeIntegerQ[n] && Not[RationalQ[m]]
+FreeQ[{a,b,c,d,e,m},x] && IGtQ[p,0] && ILtQ[n,0] && Not[RationalQ[m]]
 
 
 Int[(e_.*x_)^m_*(a_.+b_.*Cos[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
   -(e*x)^m*(x^(-1))^m*Subst[Int[(a+b*Cos[c+d*x^(-n)])^p/x^(m+2),x],x,1/x] /;
-FreeQ[{a,b,c,d,e,m},x] && IntegerQ[p] && NegativeIntegerQ[n] && Not[RationalQ[m]]
+FreeQ[{a,b,c,d,e,m},x] && IGtQ[p,0] && ILtQ[n,0] && Not[RationalQ[m]]
 
 
 Int[x_^m_.*(a_.+b_.*Sin[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
@@ -5220,24 +5187,14 @@ Int[(e_.*x_)^m_.*(a_.+b_.*Cos[c_.+d_.*x_^n_])^p_,x_Symbol] :=
 FreeQ[{a,b,c,d,e,m,n},x] && PositiveIntegerQ[p]
 
 
-Int[x_^m_.*(a_.+b_.*Sin[c_.+d_.*u_^n_])^p_.,x_Symbol] :=
-  1/Coefficient[u,x,1]^(m+1)*Subst[Int[(x-Coefficient[u,x,0])^m*(a+b*Sin[c+d*x^n])^p,x],x,u] /;
-FreeQ[{a,b,c,d,n,p},x] && LinearQ[u,x] && NeQ[u-x] && IntegerQ[m]
+Int[(e_.*x_)^m_.*(a_.+b_.*Sin[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
+  Integral[(e*x)^m*(a+b*Sin[c+d*x^n])^p,x] /;
+FreeQ[{a,b,c,d,e,m,n,p},x]
 
 
-Int[x_^m_.*(a_.+b_.*Cos[c_.+d_.*u_^n_])^p_.,x_Symbol] :=
-  1/Coefficient[u,x,1]^(m+1)*Subst[Int[(x-Coefficient[u,x,0])^m*(a+b*Cos[c+d*x^n])^p,x],x,u] /;
-FreeQ[{a,b,c,d,n,p},x] && LinearQ[u,x] && NeQ[u-x] && IntegerQ[m]
-
-
-Int[(e_.*x_)^m_.*(a_.+b_.*Sin[c_.+d_.*u_^n_])^p_.,x_Symbol] :=
-  Defer[Int][(e*x)^m*(a+b*Sin[c+d*u^n])^p,x] /;
-FreeQ[{a,b,c,d,e,m,n,p},x] && LinearQ[u,x]
-
-
-Int[(e_.*x_)^m_.*(a_.+b_.*Cos[c_.+d_.*u_^n_])^p_.,x_Symbol] :=
-  Defer[Int][(e*x)^m*(a+b*Cos[c+d*u^n])^p,x] /;
-FreeQ[{a,b,c,d,e,m,n,p},x] && LinearQ[u,x]
+Int[(e_.*x_)^m_.*(a_.+b_.*Cos[c_.+d_.*x_^n_])^p_.,x_Symbol] :=
+  Integral[(e*x)^m*(a+b*Cos[c+d*x^n])^p,x] /;
+FreeQ[{a,b,c,d,e,m,n,p},x]
 
 
 Int[(e_*x_)^m_.*(a_.+b_.*Sin[u_])^p_.,x_Symbol] :=
@@ -5248,6 +5205,68 @@ FreeQ[{a,b,e,m,p},x] && BinomialQ[u,x] && Not[BinomialMatchQ[u,x]]
 Int[(e_*x_)^m_.*(a_.+b_.*Cos[u_])^p_.,x_Symbol] :=
   Int[(e*x)^m*(a+b*Cos[ExpandToSum[u,x]])^p,x] /;
 FreeQ[{a,b,e,m,p},x] && BinomialQ[u,x] && Not[BinomialMatchQ[u,x]]
+
+
+Int[(g_.+h_.*x_)^m_.*(a_.+b_.*Sin[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
+  1/(n*f)*Subst[Int[ExpandIntegrand[(a+b*Sin[c+d*x])^p,x^(1/n-1)*(g-e*h/f+h*x^(1/n)/f)^m,x],x],x,(e+f*x)^n] /;
+FreeQ[{a,b,c,d,e,f,g,h,m},x] && IGtQ[p,0] && IntegerQ[1/n]
+
+
+Int[(g_.+h_.*x_)^m_.*(a_.+b_.*Cos[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
+  1/(n*f)*Subst[Int[ExpandIntegrand[(a+b*Cos[c+d*x])^p,x^(1/n-1)*(g-e*h/f+h*x^(1/n)/f)^m,x],x],x,(e+f*x)^n] /;
+FreeQ[{a,b,c,d,e,f,g,h,m},x] && IGtQ[p,0] && IntegerQ[1/n]
+
+
+(* Int[(g_.+h_.*x_)^m_.*(a_.+b_.*Sin[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
+  1/(n*f^(m+1))*Subst[Int[ExpandIntegrand[(a+b*Sin[c+d*x])^p,x^(1/n-1)*(f*g-e*h+h*x^(1/n))^m,x],x],x,(e+f*x)^n] /;
+FreeQ[{a,b,c,d,e,f,g,h},x] && IGtQ[p,0] && IntegerQ[m] && IntegerQ[1/n] *)
+
+
+(* Int[(g_.+h_.*x_)^m_.*(a_.+b_.*Cos[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
+  1/(n*f^(m+1))*Subst[Int[ExpandIntegrand[(a+b*Cos[c+d*x])^p,x^(1/n-1)*(f*g-e*h+h*x^(1/n))^m,x],x],x,(e+f*x)^n] /;
+FreeQ[{a,b,c,d,e,f,g,h},x] && IGtQ[p,0] && IntegerQ[m] && IntegerQ[1/n] *)
+
+
+Int[(g_.+h_.*x_)^m_.*(a_.+b_.*Sin[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
+  Module[{k=If[FractionQ[n],Denominator[n],1]},
+  k/f^(m+1)*Subst[Int[ExpandIntegrand[(a+b*Sin[c+d*x^(k*n)])^p,x^(k-1)*(f*g-e*h+h*x^k)^m,x],x],x,(e+f*x)^(1/k)]] /;
+FreeQ[{a,b,c,d,e,f,g,h},x] && IGtQ[p,0] && IGtQ[m,0]
+
+
+Int[(g_.+h_.*x_)^m_.*(a_.+b_.*Cos[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
+  Module[{k=If[FractionQ[n],Denominator[n],1]},
+  k/f^(m+1)*Subst[Int[ExpandIntegrand[(a+b*Cos[c+d*x^(k*n)])^p,x^(k-1)*(f*g-e*h+h*x^k)^m,x],x],x,(e+f*x)^(1/k)]] /;
+FreeQ[{a,b,c,d,e,f,g,h},x] && IGtQ[p,0] && IGtQ[m,0]
+
+
+Int[(g_.+h_.*x_)^m_.*(a_.+b_.*Sin[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
+  1/f*Subst[Int[(h*x/f)^m*(a+b*Sin[c+d*x^n])^p,x],x,e+f*x] /;
+FreeQ[{a,b,c,d,e,f,g,h,m},x] && IGtQ[p,0] && EqQ[f*g-e*h,0]
+
+
+Int[(g_.+h_.*x_)^m_.*(a_.+b_.*Cos[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
+  1/f*Subst[Int[(h*x/f)^m*(a+b*Cos[c+d*x^n])^p,x],x,e+f*x] /;
+FreeQ[{a,b,c,d,e,f,g,h,m},x] && IGtQ[p,0] && EqQ[f*g-e*h,0]
+
+
+Int[(g_.+h_.*x_)^m_.*(a_.+b_.*Sin[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
+  Integral[(g+h*x)^m*(a+b*Sin[c+d*(e+f*x)^n])^p,x] /;
+FreeQ[{a,b,c,d,e,f,g,h,m,n,p},x]
+
+
+Int[(g_.+h_.*x_)^m_.*(a_.+b_.*Cos[c_.+d_.*(e_.+f_.*x_)^n_])^p_.,x_Symbol] :=
+  Integral[(g+h*x)^m*(a+b*Cos[c+d*(e+f*x)^n])^p,x] /;
+FreeQ[{a,b,c,d,e,f,g,h,m,n,p},x]
+
+
+Int[v_^m_.*(a_.+b_.*Sin[c_.+d_.*u_^n_])^p_.,x_Symbol] :=
+  Int[ExpandToSum[v,x]^m*(a+b*Sin[c+d*ExpandToSum[u,x]^n])^p,x] /;
+FreeQ[{a,b,c,d,m,n,p},x] && LinearQ[u,x] && LinearQ[v,x] && Not[LinearMatchQ[u,x] && LinearMatchQ[v,x]]
+
+
+Int[v_^m_.*(a_.+b_.*Cos[c_.+d_.*u_^n_])^p_.,x_Symbol] :=
+  Int[ExpandToSum[v,x]^m*(a+b*Cos[c+d*ExpandToSum[u,x]^n])^p,x] /;
+FreeQ[{a,b,c,d,m,n,p},x] && LinearQ[u,x] && LinearQ[v,x] && Not[LinearMatchQ[u,x] && LinearMatchQ[v,x]]
 
 
 Int[x_^m_.*Sin[a_.+b_.*x_^n_.]^p_.*Cos[a_.+b_.*x_^n_.],x_Symbol] :=
@@ -5270,9 +5289,6 @@ Int[x_^m_.*Cos[a_.+b_.*x_^n_.]^p_.*Sin[a_.+b_.*x_^n_.],x_Symbol] :=
   -x^(m-n+1)*Cos[a+b*x^n]^(p+1)/(b*n*(p+1)) +
   (m-n+1)/(b*n*(p+1))*Int[x^(m-n)*Cos[a+b*x^n]^(p+1),x] /;
 FreeQ[{a,b,p},x] && RationalQ[m,n] && 0<n<m+1 && NeQ[p+1]
-
-
-
 
 
 (* ::Subsection::Closed:: *)
@@ -5312,12 +5328,12 @@ FreeQ[{a,b,c},x] && IntegerQ[n] && n>1
 
 
 Int[Sin[a_.+b_.*x_+c_.*x_^2]^n_.,x_Symbol] :=
-  Defer[Int][Sin[a+b*x+c*x^2]^n,x] /;
+  Integral[Sin[a+b*x+c*x^2]^n,x] /;
 FreeQ[{a,b,c,n},x]
 
 
 Int[Cos[a_.+b_.*x_+c_.*x_^2]^n_.,x_Symbol] :=
-  Defer[Int][Cos[a+b*x+c*x^2]^n,x] /;
+  Integral[Cos[a+b*x+c*x^2]^n,x] /;
 FreeQ[{a,b,c,n},x]
 
 
@@ -5416,12 +5432,12 @@ FreeQ[{a,b,c,d,e,m},x] && IGtQ[n,1]
 
 
 Int[(d_.+e_.*x_)^m_.*Sin[a_.+b_.*x_+c_.*x_^2]^n_.,x_Symbol] :=
-  Defer[Int][(d+e*x)^m*Sin[a+b*x+c*x^2]^n,x] /;
+  Integral[(d+e*x)^m*Sin[a+b*x+c*x^2]^n,x] /;
 FreeQ[{a,b,c,d,e,m,n},x]
 
 
 Int[(d_.+e_.*x_)^m_.*Cos[a_.+b_.*x_+c_.*x_^2]^n_.,x_Symbol] :=
-  Defer[Int][(d+e*x)^m*Cos[a+b*x+c*x^2]^n,x] /;
+  Integral[(d+e*x)^m*Cos[a+b*x+c*x^2]^n,x] /;
 FreeQ[{a,b,c,d,e,m,n},x]
 
 
@@ -5433,6 +5449,3 @@ FreeQ[m,x] && PositiveIntegerQ[n] && LinearQ[u,x] && QuadraticQ[v,x] && Not[Line
 Int[u_^m_.*Cos[v_]^n_.,x_Symbol] :=
   Int[ExpandToSum[u,x]^m*Cos[ExpandToSum[v,x]]^n,x] /;
 FreeQ[m,x] && PositiveIntegerQ[n] && LinearQ[u,x] && QuadraticQ[v,x] && Not[LinearMatchQ[u,x] && QuadraticMatchQ[v,x]]
-
-
-

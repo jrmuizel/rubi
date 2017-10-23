@@ -72,22 +72,6 @@ IntegersQ[u__] := Catch[Scan[Function[If[IntegerQ[#],Null,Throw[False]]],{u}]; T
 
 
 (* ::Subsection::Closed:: *)
-(*PositiveIntegerQ[u]*)
-
-
-(* PositiveIntegerQ[m,n,...] returns True if m, n, ... are all explicit positive integers; else it returns False. *)
-PositiveIntegerQ[u__] := Catch[Scan[Function[If[IntegerQ[#] && #>0,Null,Throw[False]]],{u}]; True];
-
-
-(* ::Subsection::Closed:: *)
-(*NegativeIntegerQ[u]*)
-
-
-(* NegativeIntegerQ[m,n,...] returns True if m, n, ... are all explicit negative integers; else it returns False. *)
-NegativeIntegerQ[u__] := Catch[Scan[Function[If[IntegerQ[#] && #<0,Null,Throw[False]]],{u}]; True];
-
-
-(* ::Subsection::Closed:: *)
 (*FractionQ[u]*)
 
 
@@ -109,34 +93,6 @@ RationalQ[u__] := Catch[Scan[Function[If[IntegerQ[#] || Head[#]===Rational,Null,
 
 (* ComplexNumberQ[u] returns True if u is an explicit complex number; else it returns False. *)
 ComplexNumberQ[u_] := Head[u]===Complex
-
-
-(* ::Subsection::Closed:: *)
-(*RealNumericQ[u]*)
-
-
-(* RealNumericQ[u] returns True if u is a real numeric quantity, else returns False. *)
-RealNumericQ[u_] := NumericQ[u] && (EqQ[Im[u],0] || EqQ[Im[N[u]],0])
-
-
-(* ::Subsection::Closed:: *)
-(*PositiveQ[u]*)
-
-
-(* PositiveQ[u] returns True if u is a positive numeric quantity, else returns False. *)
-PositiveQ[u_] :=
-  With[{v=Simplify[u]},
-  RealNumericQ[v] && Re[N[v]]>0]
-
-
-(* ::Subsection::Closed:: *)
-(*NegativeQ[u]*)
-
-
-(* NegativeQ[u] returns True if u is a negative numeric quantity, else returns False. *)
-NegativeQ[u_] :=
-  With[{v=Simplify[u]},
-  RealNumericQ[v] && Re[N[v]]<0]
 
 
 (* ::Subsection::Closed:: *)
@@ -371,7 +327,7 @@ SinhCoshQ[f_] :=
 (*CalculusQ[u]*)
 
 
-CalculusFunctions={D,Integrate,Sum,Product,Int,Dif,Subst};
+CalculusFunctions={D,Integrate,Sum,Product, Int,Integral,Dif,Subst};
 
 (* CalculusQ[u] returns True if the head of u is a calculus function; else returns False *)
 CalculusQ[u_] :=
@@ -436,15 +392,15 @@ InverseFunctionFreeQ[u_,x_Symbol] :=
 
 
 (* If u-v equals 0, EqQ[u,v] returns True; else it returns False. *)
-EqQ[u_] := Quiet[PossibleZeroQ[u]]
-
-EqQ[u_,v_] := Quiet[PossibleZeroQ[u-v]]
+EqQ[u_,v_] := Quiet[PossibleZeroQ[u-v]] || Refine[u==v]===True
 
 
 (* If u-v equals 0, EqQ[u,v] returns False; else it returns True. *)
-NeQ[u_] := Not[Quiet[PossibleZeroQ[u]]]
+NeQ[u_,v_] := Not[Quiet[PossibleZeroQ[u-v]] || Refine[u==v]===True]
 
-NeQ[u_,v_] := Not[Quiet[PossibleZeroQ[u-v]]]
+
+EqQ[u_] := EqQ[u,0]
+NeQ[u_] := NeQ[u,0]
 
 
 (* ::Subsection::Closed:: *)
@@ -471,20 +427,101 @@ ILeQ[u_,n_] := IntegerQ[u] && u<=n
 (*Numeric inequality predicates*)
 
 
-(* num is a rational.  If u is a rational and u>n, GtQ[u,n] returns True; else it returns False. *)
-GtQ[u_,n_] := RationalQ[u] && u>n
+(* If u>v, GtQ[u,v] returns True; else it returns False. *)
+GtQ[u_,v_] := 
+  If[RealNumberQ[u],
+    If[RealNumberQ[v],
+      u>v,
+    With[{vn=N[Together[v]]},
+    Head[vn]===Real && u>vn]],
+  With[{un=N[Together[u]]},
+  If[Head[un]===Real,
+    If[RealNumberQ[v],
+      un>v,
+    With[{vn=N[Together[v]]},
+    Head[vn]===Real && un>vn]],
+  False]]]
+
+(* If u>v and v>w, GtQ[u,v,w] returns True; else it returns False. *)
+GtQ[u_,v_,w_] := GtQ[u,v] && GtQ[v,w]  
 
 
-(* num is a rational.  If u is a rational and u<n, LtQ[u,n] returns True; else it returns False. *)
-LtQ[u_,n_] := RationalQ[u] && u<n
+(* If u<v, LtQ[u,v] returns True; else it returns False. *)
+LtQ[u_,v_] := 
+  If[RealNumberQ[u],
+    If[RealNumberQ[v],
+      u<v,
+    With[{vn=N[Together[v]]},
+    Head[vn]===Real && u<vn]],
+  With[{un=N[Together[u]]},
+  If[Head[un]===Real,
+    If[RealNumberQ[v],
+      un<v,
+    With[{vn=N[Together[v]]},
+    Head[vn]===Real && un<vn]],
+  False]]]
+
+(* If u<v and v<w, LtQ[u,v,w] returns True; else it returns False. *)
+LtQ[u_,v_,w_] := LtQ[u,v] && LtQ[v,w]  
 
 
-(* num is a rational.  If u is a rational and u>=n, GeQ[u,n] returns True; else it returns False. *)
-GeQ[u_,n_] := RationalQ[u] && u>=n
+(* If u>=v, GeQ[u,v] returns True; else it returns False. *)
+GeQ[u_,v_] := 
+  If[RealNumberQ[u],
+    If[RealNumberQ[v],
+      u>=v,
+    With[{vn=N[Together[v]]},
+    Head[vn]===Real && u>=vn]],
+  With[{un=N[Together[u]]},
+  If[Head[un]===Real,
+    If[RealNumberQ[v],
+      un>=v,
+    With[{vn=N[Together[v]]},
+    Head[vn]===Real && un>=vn]],
+  False]]]
+
+(* If u>=v and v>=w, GeQ[u,v,w] returns True; else it returns False. *)
+GeQ[u_,v_,w_] := GeQ[u,v] && GeQ[v,w]  
 
 
-(* num is a rational.  If u is a rational and u<=n, LeQ[u,n] returns True; else it returns False. *)
-LeQ[u_,n_] := RationalQ[u] && u<=n
+(* If u<v, LeQ[u,v] returns True; else it returns False. *)
+LeQ[u_,v_] := 
+  If[RealNumberQ[u],
+    If[RealNumberQ[v],
+      u<=v,
+    With[{vn=N[Together[v]]},
+    Head[vn]===Real && u<=vn]],
+  With[{un=N[Together[u]]},
+  If[Head[un]===Real,
+    If[RealNumberQ[v],
+      un<=v,
+    With[{vn=N[Together[v]]},
+    Head[vn]===Real && un<=vn]],
+  False]]]
+
+(* If u<=v and v<=w, LeQ[u,v,w] returns True; else it returns False. *)
+LeQ[u_,v_,w_] := LeQ[u,v] && LeQ[v,w]  
+
+
+RealNumberQ[u_] := NumberQ[u] && Head[u]=!=Complex
+
+
+(* ::Section::Closed:: *)
+(*Delete these predicates!!!*)
+
+
+PositiveQ[u_] := GtQ[u,0]
+
+
+NegativeQ[u_] := LtQ[u,0]
+
+
+(* PositiveIntegerQ[m,n,...] returns True if m, n, ... are all explicit positive integers; else it returns False. *)
+PositiveIntegerQ[u__] := Catch[Scan[Function[If[IntegerQ[#] && #>0,Null,Throw[False]]],{u}]; True];
+
+
+(* NegativeIntegerQ[m,n,...] returns True if m, n, ... are all explicit negative integers; else it returns False. *)
+NegativeIntegerQ[u__] := Catch[Scan[Function[If[IntegerQ[#] && #<0,Null,Throw[False]]],{u}]; True];
 
 
 (* ::Section::Closed:: *)
@@ -492,37 +529,48 @@ LeQ[u_,n_] := RationalQ[u] && u<=n
 
 
 (* ::Subsection::Closed:: *)
-(*PolyQ[u,x]*)
-
-
-(* PolyQ[u,x,n] returns True iff u is a polynomial of degree n. *)
-PolyQ[u_,x_Symbol,n_Integer] :=
-  If[ListQ[u],
-    Catch[Scan[Function[If[Not[PolyQ[#,x,n]],Throw[False]]],u]; True],
-  PolynomialQ[u,x] && Exponent[u,x]==n && Coefficient[u,x,n]=!=0]
+(*PolyQ[u,x,n]*)
 
 
 (* Mathematica's built-in PolynomialQ, Exponent and Coefficient functions can return erroneous results because they do not *)
 (* cancel the gcd in pseudo-rational functions that are actually polynomial. *)
+(* PolynomialQ[F[x],x] returns false, but PolynomialQ[F[x],x^2] returns True! *)
 (* For some unfully expanded polynomials, the built-in Mathematica function Exponent sometimes returns erronously large degrees. *)
 (* For example, Exponent[3*(1+a)*x^4 + 3*x^5 + x^6 - (a+x+x^2)^3, x] incorrectly returns 4 instead of 3. *)
-(* Despite what the online help says, PolynomialQ[u,x] returns an error message if x is not a symbol or *)
-(* a symbol raised to a symbol power. *)
+(* Despite what the online help says, PolynomialQ[u,x^v] returns an error message if v is a sum. *)
 
 
-(* If u is a polynomial in x,PolyQ[u,x] returns True; else it returns False. *)
+(* PolyQ[u,x^v,n] returns True iff u is a polynomial of degree n. *)
+PolyQ[u_,x_Symbol,n_] :=
+  If[PolynomialQ[u,x],
+    EqQ[Exponent[u,x],n] && NeQ[Coefficient[u,x,n],0],
+  With[{v=Together[u]}, PolynomialQ[v,x] && EqQ[Exponent[v,x],n] && NeQ[Coefficient[v,x,n],0]]]
+
+PolyQ[u_,x_Symbol^v_,n_] :=
+  PolyQ[u,x^v] && EqQ[Expon[u,x^v],n] && NeQ[Coeff[u,x^v,n],0]
+
+
+(* If v is free of x and u is a polynomial in x^v, PolyQ[u,x^v] returns True; else it returns False. *)
 PolyQ[u_,x_Symbol] :=
   PolynomialQ[u,x] || PolynomialQ[Together[u],x]
 
-PolyQ[u_,x_Symbol^n_] :=
-  If[PositiveIntegerQ[n],
-    PolyQ[u,x] && (PolynomialQ[u,x^n] || PolynomialQ[Together[u],x^n]),
-  If[AtomQ[n],
-    PolynomialQ[u,x^n] && FreeQ[CoefficientList[u,x^n],x],
-  False]] /;
-FreeQ[n,x]
+PolyQ[u_,x_Symbol^n_Integer] :=
+  If[PolynomialQ[u,x],
+    PolynomialQ[u,x^n],
+  With[{v=Together[u]}, PolynomialQ[v,x] && PolynomialQ[v,x^n]]] /;
+n>0
 
-PolyQ[u_,u_] :=
+(* PolyQ[u_,x_Symbol^(n_*v_Symbol)] :=
+  PolyQ[ReplaceAll[u,v->v/n],x^v] /;
+RationalQ[n] && NeQ[v,x] *)
+
+PolyQ[u_,x_Symbol^v_] :=
+  If[Quiet[PolynomialQ[u,x^v]]===True,
+    FreeQ[CoefficientList[u,x^v],x],
+  With[{w=Together[u]}, Quiet[PolynomialQ[w,x^v]]===True && FreeQ[CoefficientList[w,x^v],x]]] /;
+NonsumQ[v] && FreeQ[v,x]
+
+PolyQ[u_,v_] :=
   False
 
 
@@ -603,12 +651,21 @@ PosQ[u_] :=
   PosAux[TogetherSimplify[u]]
 
 PosAux[u_] :=
-  If[RationalQ[u],
-    u>0,
   If[NumberQ[u],
-    If[EqQ[Re[u],0],
-      Im[u]>0,
-    Re[u]>0],
+    If[Head[u]===Complex,
+      If[EqQ[Re[u],0],
+        PosAux[Im[u]],
+      PosAux[Re[u]]],
+    u>0],
+  If[NumericQ[u],
+    With[{v=Simplify[Re[u]]},
+      If[NumberQ[v],
+        If[EqQ[v,0],
+          PosAux[Simplify[Im[u]]],
+        v>0],
+      With[{w=N[u]}, NumberQ[w] && PosAux[w]]]],
+  With[{v=Refine[u>0]}, If[v===True || v===False,
+    v,
   If[PowerQ[u],
     If[IntegerQ[u[[2]]],
       EvenQ[u[[2]]] || PosAux[u[[1]]],
@@ -617,14 +674,9 @@ PosAux[u_] :=
     If[PosAux[First[u]],
       PosAux[Rest[u]],
     Not[PosAux[Rest[u]]]],
-  If[NumericQ[u],
-    With[{v=N[u]},
-    If[EqQ[Re[v],0],
-      Im[v]>0,
-    Re[v]>0]],
   If[SumQ[u],
     PosAux[First[u]],
-  True]]]]]]
+  True]]]]]]]
 
 
 (* ::Subsection::Closed:: *)
@@ -640,7 +692,7 @@ NegQ[u_] :=
 
 
 NiceSqrtQ[u_] :=
-  Not[NegativeQ[u]] && NiceSqrtAuxQ[u]
+  Not[LtQ[u,0]] && NiceSqrtAuxQ[u]
 
 NiceSqrtAuxQ[u_] :=
   If[RationalQ[u],
@@ -737,9 +789,9 @@ SimplerQ[u_,v_] :=
 
 (* If Rt[u,2] is simpler than Rt[v,2], SimplerSqrtQ[u,v] returns True, else it returns False.  SimplerSqrtQ[u,u] returns False. *)
 SimplerSqrtQ[u_,v_] :=
-  If[NegativeQ[v] && Not[NegativeQ[u]],
+  If[LtQ[v,0] && Not[LtQ[u,0]],
     True,
-  If[NegativeQ[u] && Not[NegativeQ[v]],
+  If[LtQ[u,0] && Not[LtQ[v,0]],
     False,
   With[{sqrtu=Rt[u,2],sqrtv=Rt[v,2]},
   If[IntegerQ[sqrtu],
@@ -1416,7 +1468,9 @@ Denom[u_] := Denominator[u]
 
 
 LinearQ[u_,x_Symbol] :=
-  PolyQ[u,x,1]
+  If[ListQ[u],
+    Catch[Scan[Function[If[PolyQ[#,x,1],Null,Throw[False]]],u]; True],
+  PolyQ[u,x,1]]
 
 
 (* ::Input:: *)
@@ -2285,7 +2339,7 @@ AbsorbMinusSign[u_] :=
 (* NormalizeSumFactors[u] returns an expression equal u but with the numeric coefficient of 
 	the lead term of sum factors made positive where possible. *)
 NormalizeSumFactors[u_] :=
-  If[AtomQ[u] || Head[u]===If || Head[u]===Int || HeldFormQ[u],
+  If[AtomQ[u] || Head[u]===If || Head[u]===Int || Head[u]===Integral || HeldFormQ[u],
     u,
   If[ProductQ[u],
     Function[#[[1]]*#[[2]]][SignOfFactor[Map[NormalizeSumFactors,u]]],
@@ -2423,7 +2477,7 @@ SimpHelp[E^(u_.*(v_.*Log[a_]+w_)),x_] :=
 SimpHelp[u_,x_] :=
   If[AtomQ[u],
     u,
-  If[Head[u]===If || Head[u]===Int || HeldFormQ[u],
+  If[Head[u]===If || Head[u]===Int || Head[u]===Integral || HeldFormQ[u],
     u,
   If[FreeQ[u,x],
     With[{v=SmartSimplify[u]},
@@ -2550,7 +2604,7 @@ FractionalPowerOfSquareQ[u_] :=
 FractionalPowerSubexpressionQ[u_,v_,w_] :=
   If[AtomQ[u],
     False,
-  If[FractionalPowerQ[u] && PositiveQ[u[[1]]/w],
+  If[FractionalPowerQ[u] && GtQ[u[[1]]/w,0],
     Not[u[[1]]===v] && LeafCount[w]<3*LeafCount[v],
   Catch[Scan[Function[If[FractionalPowerSubexpressionQ[#,v,w],Throw[True]]],u]; False]]]
 
@@ -2579,14 +2633,14 @@ FixSimplify[w_.*u_^m_.*v_^n_] :=
   With[{z=Simplify[u^(m/GCD[m,n])*v^(n/GCD[m,n])]},
   FixSimplify[w*z^GCD[m,n]]/;
  AbsurdNumberQ[z] || SqrtNumberSumQ[z]] /;
-RationalQ[m] && FractionQ[n] && SqrtNumberSumQ[u] && SqrtNumberSumQ[v] && PositiveQ[u] && PositiveQ[v]
+RationalQ[m] && FractionQ[n] && SqrtNumberSumQ[u] && SqrtNumberSumQ[v] && GtQ[u,0] && GtQ[v,0]
 
 
 FixSimplify[w_.*u_^m_.*v_^n_] :=
   With[{z=Simplify[u^(m/GCD[m,-n])*v^(n/GCD[m,-n])]},
   FixSimplify[w*z^GCD[m,-n]]/;
  AbsurdNumberQ[z] || SqrtNumberSumQ[z]] /;
-RationalQ[m] && FractionQ[n] && SqrtNumberSumQ[u] && SqrtNumberSumQ[1/v] && PositiveQ[u] && PositiveQ[v]
+RationalQ[m] && FractionQ[n] && SqrtNumberSumQ[u] && SqrtNumberSumQ[1/v] && GtQ[u,0] && GtQ[v,0]
 
 
 (* ::Item:: *)
@@ -2597,14 +2651,14 @@ FixSimplify[w_.*u_^m_.*v_^n_] :=
   With[{z=Simplify[(-u)^(m/GCD[m,n])*v^(n/GCD[m,n])]},
   FixSimplify[-w*z^GCD[m,n]]/;
  AbsurdNumberQ[z] || SqrtNumberSumQ[z]] /;
-IntegerQ[m] && FractionQ[n] && SqrtNumberSumQ[u] && SqrtNumberSumQ[v] && NegativeQ[u] && PositiveQ[v]
+IntegerQ[m] && FractionQ[n] && SqrtNumberSumQ[u] && SqrtNumberSumQ[v] && LtQ[u,0] && GtQ[v,0]
 
 
 FixSimplify[w_.*u_^m_.*v_^n_] :=
   With[{z=Simplify[(-u)^(m/GCD[m,-n])*v^(n/GCD[m,-n])]},
   FixSimplify[-w*z^GCD[m,-n]]/;
  AbsurdNumberQ[z] || SqrtNumberSumQ[z]] /;
-IntegerQ[m] && FractionQ[n] && SqrtNumberSumQ[u] && SqrtNumberSumQ[1/v] && NegativeQ[u] && PositiveQ[v]
+IntegerQ[m] && FractionQ[n] && SqrtNumberSumQ[u] && SqrtNumberSumQ[1/v] && LtQ[u,0] && GtQ[v,0]
 
 
 (* ::Item:: *)
@@ -2615,7 +2669,7 @@ FixSimplify[w_.*a_^m_*(u_+b_^n_*v_.)^p_.] :=
   With[{c=Simplify[a^(m/p)*b^n]},
   FixSimplify[w*(a^(m/p)*u+c*v)^p] /;
  RationalQ[c]] /;
-RationalQ[a,b,m,n] && a>0 && b>0 && PositiveIntegerQ[p]
+RationalQ[a,b,m,n] && a>0 && b>0 && IGtQ[p,0]
 
 
 (* ::Item:: *)
@@ -2932,23 +2986,23 @@ TrigSimplifyAux[u_.*cos[v_]^2/(a_+b_.*sin[v_])] := u*(1/a - Sin[v]/b) /; EqQ[a^2
 
 
 (* Basis: If n is an integer, Tan[z]^n/(a+b*Tan[z]^n) == 1/(b+a*Cot[z]^n) *)
-TrigSimplifyAux[u_.*tan[v_]^n_./(a_+b_.*tan[v_]^n_.)] := u/(b+a*Cot[v]^n) /; PositiveIntegerQ[n] && NonsumQ[a]
+TrigSimplifyAux[u_.*tan[v_]^n_./(a_+b_.*tan[v_]^n_.)] := u/(b+a*Cot[v]^n) /; IGtQ[n,0] && NonsumQ[a]
 
 (* Basis: If n is an integer, Cot[z]^n/(a+b*Cot[z]^n) == 1/(b+a*Tan[z]^n) *)
-TrigSimplifyAux[u_.*cot[v_]^n_./(a_+b_.*cot[v_]^n_.)] := u/(b+a*Tan[v]^n) /; PositiveIntegerQ[n] && NonsumQ[a]
+TrigSimplifyAux[u_.*cot[v_]^n_./(a_+b_.*cot[v_]^n_.)] := u/(b+a*Tan[v]^n) /; IGtQ[n,0] && NonsumQ[a]
 
 (* Basis: If n is an integer, Sec[z]^n/(a+b*Sec[z]^n) == 1/(b+a*Cos[z]^n) *)
-TrigSimplifyAux[u_.*sec[v_]^n_./(a_+b_.*sec[v_]^n_.)] := u/(b+a*Cos[v]^n) /; PositiveIntegerQ[n] && NonsumQ[a]
+TrigSimplifyAux[u_.*sec[v_]^n_./(a_+b_.*sec[v_]^n_.)] := u/(b+a*Cos[v]^n) /; IGtQ[n,0] && NonsumQ[a]
 
 (* Basis: If n is an integer, Csc[z]^n/(a+b*Csc[z]^n) == 1/(b+a*Sin[z]^n) *)
-TrigSimplifyAux[u_.*csc[v_]^n_./(a_+b_.*csc[v_]^n_.)] := u/(b+a*Sin[v]^n) /; PositiveIntegerQ[n] && NonsumQ[a]
+TrigSimplifyAux[u_.*csc[v_]^n_./(a_+b_.*csc[v_]^n_.)] := u/(b+a*Sin[v]^n) /; IGtQ[n,0] && NonsumQ[a]
 
 
 (* Basis: If n is an integer, Tan[z]^n/(a+b*Sec[z]^n) == Sin[z]^n/(b+a*Cos[z]^n) *)
-TrigSimplifyAux[u_.*tan[v_]^n_./(a_+b_.*sec[v_]^n_.)] := u*Sin[v]^n/(b+a*Cos[v]^n) /; PositiveIntegerQ[n] && NonsumQ[a]
+TrigSimplifyAux[u_.*tan[v_]^n_./(a_+b_.*sec[v_]^n_.)] := u*Sin[v]^n/(b+a*Cos[v]^n) /; IGtQ[n,0] && NonsumQ[a]
 
 (* Basis: If n is an integer, Cot[z]^n/(a+b*Csc[z]^n) == Cos[z]^n/(b+a*Sin[z]^n) *)
-TrigSimplifyAux[u_.*cot[v_]^n_./(a_+b_.*csc[v_]^n_.)] := u*Cos[v]^n/(b+a*Sin[v]^n) /; PositiveIntegerQ[n] && NonsumQ[a]
+TrigSimplifyAux[u_.*cot[v_]^n_./(a_+b_.*csc[v_]^n_.)] := u*Cos[v]^n/(b+a*Sin[v]^n) /; IGtQ[n,0] && NonsumQ[a]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -3301,7 +3355,7 @@ PositiveFactors[u_] :=
     1,
   If[RationalQ[u],
     Abs[u],
-  If[PositiveQ[u],
+  If[GtQ[u,0],
     u,
   If[ProductQ[u],
     Map[PositiveFactors,u],
@@ -3314,7 +3368,7 @@ NonpositiveFactors[u_] :=
     u,
   If[RationalQ[u],
     Sign[u],
-  If[PositiveQ[u],
+  If[GtQ[u,0],
     1,
   If[ProductQ[u],
     Map[NonpositiveFactors,u],
@@ -3344,8 +3398,8 @@ PolynomialInAuxQ[u_,v_,x_] :=
     u=!=x,
   If[PowerQ[u],
     If[PowerQ[v] && u[[1]]===v[[1]],
-      PositiveIntegerQ[u[[2]]/v[[2]]],
-    PositiveIntegerQ[u[[2]]] && PolynomialInAuxQ[u[[1]],v,x]],
+      IGtQ[u[[2]]/v[[2]],0],
+    IGtQ[u[[2]],0] && PolynomialInAuxQ[u[[1]],v,x]],
   If[SumQ[u] || ProductQ[u],
     Catch[Scan[Function[If[Not[PolynomialInAuxQ[#,v,x]],Throw[False]]],u];True],
   False]]]]
@@ -3459,7 +3513,7 @@ ExpandToSum[u_,v_,x_Symbol] :=
 
 ExpandToSum[u_,x_Symbol] :=
   If[PolyQ[u,x],
-    Apply[Plus,Map[Function[Coeff[u,x,#]*x^#], Expon[u,x,List]]],
+    Simp[Apply[Plus,Map[Function[Coeff[u,x,#]*x^#], Expon[u,x,List]]],x],
   If[BinomialQ[u,x],
     Function[#[[1]] + #[[2]]*x^#[[3]]][BinomialParts[u,x]],
   If[TrinomialQ[u,x],
@@ -3515,22 +3569,22 @@ ExpandIntegrand[(a_.+b_.*x_)^m_.*f_^(e_.*(c_.+d_.*x_)^n_.)/(g_.+h_.*x_),x_Symbol
   Module[{k},
   SimplifyTerm[tmp^m/h^m,x]*f^(e*(c+d*x)^n)/(g+h*x) + 
 	Sum[SimplifyTerm[b*tmp^(k-1)/h^k,x]*f^(e*(c+d*x)^n)*(a+b*x)^(m-k),{k,1,m}]]] /;
-FreeQ[{a,b,c,d,e,f,g,h},x] && PositiveIntegerQ[m] && EqQ[b*c-a*d,0]
+FreeQ[{a,b,c,d,e,f,g,h},x] && IGtQ[m,0] && EqQ[b*c-a*d,0]
 
 
 ExpandIntegrand[x_^m_.*(e_+f_.*x_)^p_.*F_^(b_.*(c_.+d_.*x_)^n_.),x_Symbol] :=
-  If[PositiveIntegerQ[m,p] && m<=p && (EqQ[n,1] || EqQ[d*e-c*f,0]),
+  If[IGtQ[m,0] && IGtQ[p,0] && m<=p && (EqQ[n,1] || EqQ[d*e-c*f,0]),
     ExpandLinearProduct[(e+f*x)^p*F^(b*(c+d*x)^n),x^m,e,f,x],
-  If[PositiveIntegerQ[p],
+  If[IGtQ[p,0],
     Distribute[x^m*F^(b*(c+d*x)^n)*Expand[(e+f*x)^p,x],Plus,Times],
   ExpandIntegrand[F^(b*(c+d*x)^n),x^m*(e+f*x)^p,x]]] /;
 FreeQ[{F,b,c,d,e,f,m,n,p},x]
 
 
 ExpandIntegrand[x_^m_.*(e_+f_.*x_)^p_.*F_^(a_.+b_.*(c_.+d_.*x_)^n_.),x_Symbol] :=
-  If[PositiveIntegerQ[m,p] && m<=p && (EqQ[n,1] || EqQ[d*e-c*f,0]),
+  If[IGtQ[m,0] && IGtQ[p,0] && m<=p && (EqQ[n,1] || EqQ[d*e-c*f,0]),
     ExpandLinearProduct[(e+f*x)^p*F^(a+b*(c+d*x)^n),x^m,e,f,x],
-  If[PositiveIntegerQ[p],
+  If[IGtQ[p,0],
     Distribute[x^m*F^(a+b*(c+d*x)^n)*Expand[(e+f*x)^p,x],Plus,Times],
   ExpandIntegrand[F^(a+b*(c+d*x)^n),x^m*(e+f*x)^p,x]]] /;
 FreeQ[{F,a,b,c,d,e,f,m,n,p},x]
@@ -3583,7 +3637,7 @@ FreeQ[{a,b,c,d,n},x] && PolynomialQ[u,x] && MemberQ[{ArcSin,ArcCos,ArcSinh,ArcCo
 
 ExpandIntegrand[u_./(a_.*x_^n_+b_.*Sqrt[c_+d_.*x_^j_]),x_Symbol] :=
   ExpandIntegrand[u*(a*x^n-b*Sqrt[c+d*x^(2*n)])/(-b^2*c+(a^2-b^2*d)*x^(2*n)),x] /;
-FreeQ[{a,b,c,d,n},x] && EqQ[j,2*n,0]
+FreeQ[{a,b,c,d,n},x] && EqQ[j,2*n]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -3596,7 +3650,7 @@ ExpandIntegrand[(a_+b_.*x_)^m_/(c_+d_.*x_),x_Symbol] :=
   With[{tmp=a*d-b*c},
   Module[{k},
   SimplifyTerm[tmp^m/d^m,x]/(c+d*x) + Sum[SimplifyTerm[b*tmp^(k-1)/d^k,x]*(a+b*x)^(m-k),{k,1,m}]]]] /;
-FreeQ[{a,b,c,d},x] && PositiveIntegerQ[m]
+FreeQ[{a,b,c,d},x] && IGtQ[m,0]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -3611,10 +3665,15 @@ ExpandIntegrand[(a_+b_.*x_)^m_.*(A_+B_.*x_)/(c_+d_.*x_),x_Symbol] :=
   tmp2=ExpandIntegrand[(a+b*x)^m/(c+d*x),x];
   tmp2=If[SumQ[tmp2], Map[Function[SimplifyTerm[tmp1*#,x]],tmp2], SimplifyTerm[tmp1*tmp2,x]];
   SimplifyTerm[B/d,x]*(a+b*x)^m + tmp2]] /;
-FreeQ[{a,b,c,d,A,B},x] && PositiveIntegerQ[m]
+FreeQ[{a,b,c,d,A,B},x] && IGtQ[m,0]
 
 
-(* u is a polynomial in x.  ExpandIntegrand[u*(a+b*x)^m,x] expand u*(a+b*x)^m into a sum of terms of the form A*(a+b*x)^n. *)
+ExpandIntegrand[u_*(a_+b_.*x_)^m_.*(c_+d_.*x_)^n_.,x_Symbol] :=
+  ExpandIntegrand[(c+d*x)^n,u*(a+b*x)^m,x] /;
+FreeQ[{a,b,c,d,m,n},x] && PolynomialQ[u,x] && Not[IntegerQ[m]] && IGtQ[n-m,0]
+
+
+(* u is a polynomial in x.  ExpandIntegrand[u*(a+b*x)^m,x] expands u*(a+b*x)^m into a sum of terms of the form A*(a+b*x)^n. *)
 ExpandIntegrand[u_*(a_+b_.*x_)^m_,x_Symbol] :=
   Module[{tmp1,tmp2},
   tmp1=ExpandLinearProduct[(a+b*x)^m,u,a,b,x];
@@ -3631,21 +3690,19 @@ ExpandIntegrand[u_*(a_+b_.*x_)^m_,x_Symbol] :=
     tmp1]],
   tmp1]]] /;
 FreeQ[{a,b,m},x] && PolynomialQ[u,x] && 
-  Not[PositiveIntegerQ[m] && MatchQ[u,w_.*(c_+d_.*x)^p_ /; FreeQ[{c,d},x] && IntegerQ[p] && p>m]]
+  Not[IGtQ[m,0] && MatchQ[u,w_.*(c_+d_.*x)^p_ /; FreeQ[{c,d},x] && IntegerQ[p] && p>m]]
 
 
-(* If u is a polynomial in x, ExpandIntegrand[u*(a+b*x)^m,x] expand u*(a+b*x)^m into a sum of terms of the form A*(a+b*x)^n. *)
 ExpandIntegrand[u_*v_^n_*(a_+b_.*x_)^m_,x_Symbol] :=
   Function[ExpandIntegrand[#[[1]]*(a+b*x)^FractionalPart[m],x] + ExpandIntegrand[#[[2]]*v^n*(a+b*x)^m,x]][
     PolynomialQuotientRemainder[u,v^(-n)*(a+b*x)^(-IntegerPart[m]),x]]/;
-FreeQ[{a,b,m},x] && NegativeIntegerQ[n] && Not[IntegerQ[m]] && PolynomialQ[u,x] && PolynomialQ[v,x] && 
+FreeQ[{a,b,m},x] && ILtQ[n,0] && Not[IntegerQ[m]] && PolynomialQ[u,x] && PolynomialQ[v,x] && 
   RationalQ[m] && m<-1 && Exponent[u,x]>=-(n+IntegerPart[m])*Exponent[v,x]
 
 
-(* If u is a polynomial in x, ExpandIntegrand[u*(a+b*x)^m,x] expand u*(a+b*x)^m into a sum of terms of the form A*(a+b*x)^n. *)
 ExpandIntegrand[u_*v_^n_*(a_+b_.*x_)^m_,x_Symbol] :=
   Function[ExpandIntegrand[#[[1]]*(a+b*x)^m,x] + ExpandIntegrand[#[[2]]*v^n*(a+b*x)^m,x]][PolynomialQuotientRemainder[u,v^(-n),x]]/;
-FreeQ[{a,b,m},x] && NegativeIntegerQ[n] && Not[IntegerQ[m]] && PolynomialQ[u,x] && PolynomialQ[v,x] && 
+FreeQ[{a,b,m},x] && ILtQ[n,0] && Not[IntegerQ[m]] && PolynomialQ[u,x] && PolynomialQ[v,x] && 
   Exponent[u,x]>=-n*Exponent[v,x]
 
 
@@ -3666,7 +3723,7 @@ FreeQ[{a,b},x] *)
 ExpandIntegrand[1/(a_+b_.*u_^n_),x_Symbol] :=
   With[{r=Numerator[Rt[-a/b,2]],s=Denominator[Rt[-a/b,2]]},
   r/(2*a*(r-s*u^(n/2))) + r/(2*a*(r+s*u^(n/2)))] /;
-FreeQ[{a,b},x] && PositiveIntegerQ[n/4]
+FreeQ[{a,b},x] && IGtQ[n/4,0]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -3720,13 +3777,13 @@ FreeQ[{a,b,c,d,e,f},x] && IntegersQ[m,n,p,q] && 0<m<p<q<n
 ExpandIntegrand[(a_+c_.*u_^n_.)^p_,x_Symbol] :=
   Module[{q},
   ReplaceAll[ExpandIntegrand[1/c^p,(-q+c*x)^p*(q+c*x)^p,x],{q->Rt[-a*c,2],x->u^(n/2)}]] /;
-FreeQ[{a,c},x] && IntegerQ[n/2] && NegativeIntegerQ[p]
+FreeQ[{a,c},x] && EvenQ[n] && ILtQ[p,0]
 
 
 ExpandIntegrand[u_^m_.*(a_.+c_.*u_^n_.)^p_,x_Symbol] :=
   Module[{q},
   ReplaceAll[ExpandIntegrand[1/c^p,x^m*(-q+c*x^(n/2))^p*(q+c*x^(n/2))^p,x],{q->Rt[-a*c,2],x->u}]] /;
-FreeQ[{a,c},x] && IntegersQ[m,n/2] && NegativeIntegerQ[p] && 0<m<n && m!=n/2
+FreeQ[{a,c},x] && IntegersQ[m,n/2] && ILtQ[p,0] && 0<m<n && m!=n/2
 
 
 (* ::Subsubsection::Closed:: *)
@@ -3736,13 +3793,13 @@ FreeQ[{a,c},x] && IntegersQ[m,n/2] && NegativeIntegerQ[p] && 0<m<n && m!=n/2
 ExpandIntegrand[(a_.+b_.*u_^n_.+c_.*u_^j_.)^p_,x_Symbol] :=
   Module[{q},
   ReplaceAll[ExpandIntegrand[1/(4^p*c^p),(b-q+2*c*x)^p*(b+q+2*c*x)^p,x],{q->Rt[b^2-4*a*c,2],x->u^n}]] /;
-FreeQ[{a,b,c},x] && IntegerQ[n] && EqQ[j,2*n] && NegativeIntegerQ[p] && NeQ[b^2-4*a*c,0]
+FreeQ[{a,b,c},x] && IntegerQ[n] && EqQ[j,2*n] && ILtQ[p,0] && NeQ[b^2-4*a*c,0]
 
 
 ExpandIntegrand[u_^m_.*(a_.+b_.*u_^n_.+c_.*u_^j_.)^p_,x_Symbol] :=
   Module[{q},
   ReplaceAll[ExpandIntegrand[1/(4^p*c^p),x^m*(b-q+2*c*x^n)^p*(b+q+2*c*x^n)^p,x],{q->Rt[b^2-4*a*c,2],x->u}]] /;
-FreeQ[{a,b,c},x] && IntegersQ[m,n,j] && EqQ[j,2*n] && NegativeIntegerQ[p] && 0<m<2*n && Not[m==n && p==-1] && NeQ[b^2-4*a*c,0]
+FreeQ[{a,b,c},x] && IntegersQ[m,n,j] && EqQ[j,2*n] && ILtQ[p,0] && 0<m<2*n && Not[m==n && p==-1] && NeQ[b^2-4*a*c,0]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -3978,7 +4035,7 @@ ExpandAlgebraicFunction[u_Plus^n_*v_.,x_Symbol] :=
   With[{w=Expand[u^n,x]},
   Map[Function[#*v],w] /;
  SumQ[w]] /;
-PositiveIntegerQ[n] && Not[FreeQ[u,x]]
+IGtQ[n,0] && Not[FreeQ[u,x]]
 
 
 (* ::Subsection::Closed:: *)
@@ -4126,7 +4183,7 @@ Dist[u_,Defer[Dist][v_,w_,x_],x_] :=
 
 Dist[u_,v_*w_,x_] := 
   Dist[u*v,w,x] /;
-ShowSteps===True && FreeQ[v,Int] && Not[FreeQ[w,Int]]
+ShowSteps===True && FreeQ[v,Int] && FreeQ[v,Integral] && Not[FreeQ[w,Int] && FreeQ[w,Integral]]
 
 Dist[u_,v_,x_] := 
   If[u===1,
@@ -4138,7 +4195,7 @@ Dist[u_,v_,x_] :=
     -Dist[-u,v,x],
   If[SumQ[v],
     Map[Function[Dist[u,#,x]],v],
-  If[FreeQ[v,Int],
+  If[FreeQ[v,Int] && FreeQ[v,Integral],
 (*  Simp[Simp[u,x]*v,x], *)
     Simp[u*v,x],
 (*If[ShowSteps=!=True,
@@ -4375,7 +4432,7 @@ FunctionOfExponentialTestAux[base_,expon_,x_] :=
   If[Not[RationalQ[tmp]],
     False,
   If[EqQ[Coefficient[$expon$,x,0],0] || NeQ[tmp,FullSimplify[Log[base]*Coefficient[expon,x,0]/(Log[$base$]*Coefficient[$expon$,x,0])]],
-    ( If[PositiveIntegerQ[base,$base$] && base<$base$,
+    ( If[IGtQ[base,0] && IGtQ[$base$,0] && base<$base$,
         $base$=base;
         $expon$=expon;
         tmp=1/tmp] );
@@ -4384,7 +4441,7 @@ FunctionOfExponentialTestAux[base_,expon_,x_] :=
       $expon$=-$expon$;
       True,
     True],
-  ( If[PositiveIntegerQ[base,$base$] && base<$base$,
+  ( If[IGtQ[base,0] && IGtQ[$base$,0] && base<$base$,
       $base$=base;
       $expon$=expon;
       tmp=1/tmp] );
@@ -5088,24 +5145,24 @@ PowerVariableSubst[u_,m_,x_Symbol] :=
 
 EulerIntegrandQ[(a_.*x_+b_.*u_^n_)^p_,x_Symbol] :=
   True /;
-FreeQ[{a,b},x] && IntegerQ[n+1/2] && QuadraticQ[u,x] && (Not[RationalQ[p]] || NegativeIntegerQ[p] && Not[BinomialQ[u,x]])
+FreeQ[{a,b},x] && IntegerQ[n+1/2] && QuadraticQ[u,x] && (Not[RationalQ[p]] || ILtQ[p,0] && Not[BinomialQ[u,x]])
 
 
 EulerIntegrandQ[v_^m_.*(a_.*x_+b_.*u_^n_)^p_,x_Symbol] :=
   True /;
 FreeQ[{a,b},x] && EqQ[u,v] && IntegersQ[2*m,n+1/2] && QuadraticQ[u,x] && 
-  (Not[RationalQ[p]] || NegativeIntegerQ[p] && Not[BinomialQ[u,x]])
+  (Not[RationalQ[p]] || ILtQ[p,0] && Not[BinomialQ[u,x]])
 
 
 EulerIntegrandQ[v_^m_.*(a_.*x_+b_.*u_^n_)^p_,x_Symbol] :=
   True /;
 FreeQ[{a,b},x] && EqQ[u,v] && IntegersQ[2*m,n+1/2] && QuadraticQ[u,x] && 
-  (Not[RationalQ[p]] || NegativeIntegerQ[p] && Not[BinomialQ[u,x]])
+  (Not[RationalQ[p]] || ILtQ[p,0] && Not[BinomialQ[u,x]])
 
 
 EulerIntegrandQ[u_^n_*v_^p_,x_Symbol] :=
   True /;
-NegativeIntegerQ[p] && IntegerQ[n+1/2] && QuadraticQ[u,x] && QuadraticQ[v,x] && Not[BinomialQ[v,x]]
+ILtQ[p,0] && IntegerQ[n+1/2] && QuadraticQ[u,x] && QuadraticQ[v,x] && Not[BinomialQ[v,x]]
 
 EulerIntegrandQ[u_,x_Symbol] :=
   False
@@ -5241,7 +5298,7 @@ FreeQ[{a,b,c},x] && MemberQ[{Tan,Cot,Sinh,Csch},F] && EqQ[a-b*c^2,0]
 SubstAux[F_[a_.*x_^m_.],x_Symbol,b_.*x_^n_] :=
    Extract[{ArcCsc,ArcSec,ArcCot,ArcTan,ArcCos,ArcSin,ArcCsch,ArcSech,ArcCoth,ArcTanh,ArcCosh,ArcSinh},
   Position[{ArcSin,ArcCos,ArcTan,ArcCot,ArcSec,ArcCsc,ArcSinh,ArcCosh,ArcTanh,ArcCoth,ArcSech,ArcCsch},F]][[1]] [x^(-m*n)/(a*b^m)] /;
-FreeQ[{a,b},x] && PositiveIntegerQ[m] && NegativeIntegerQ[n] && MemberQ[{ArcSin,ArcCos,ArcTan,ArcCot,ArcSec,ArcCsc,ArcSinh,ArcCosh,ArcTanh,ArcCoth,ArcSech,ArcCsch},F]
+FreeQ[{a,b},x] && IGtQ[m,0] && ILtQ[n,0] && MemberQ[{ArcSin,ArcCos,ArcTan,ArcCot,ArcSec,ArcCsc,ArcSinh,ArcCosh,ArcTanh,ArcCoth,ArcSech,ArcCsch},F]
 
 
 (* Subst[u,v,w] returns u with all nondummy occurences of v replaced by w *)
@@ -5365,7 +5422,7 @@ FreeQ[{a,b},x] && EqQ[a^2+b^2,0]
 
 SimplifyAntiderivative[ArcTan[a_.*Tan[u_]],x_Symbol] :=
   RectifyTangent[u,a,1,x] /;
-FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
+FreeQ[a,x] && GtQ[a^2,0] && ComplexFreeQ[u]
 
 
 (* ::Item:: *)
@@ -5374,7 +5431,7 @@ FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
 
 SimplifyAntiderivative[ArcCot[a_.*Tan[u_]],x_Symbol] :=
   RectifyTangent[u,a,-1,x] /;
-FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
+FreeQ[a,x] && GtQ[a^2,0] && ComplexFreeQ[u]
 
 
 (* ::Item:: *)
@@ -5383,7 +5440,7 @@ FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
 
 (* SimplifyAntiderivative[ArcTan[a_.*Tanh[u_]],x_Symbol] :=
   RectifyTangent[I*u,I*a,-1,x] /;
-FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u] *)
+FreeQ[a,x] && GtQ[a^2,0] && ComplexFreeQ[u] *)
 
 
 (* ::Item:: *)
@@ -5401,7 +5458,7 @@ FreeQ[a,x] && ComplexFreeQ[u]
 
 SimplifyAntiderivative[ArcTanh[a_.*Tan[u_]],x_Symbol] :=
   RectifyTangent[u,I*a,-I,x] /;
-FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
+FreeQ[a,x] && GtQ[a^2,0] && ComplexFreeQ[u]
 
 
 (* ::Item:: *)
@@ -5410,7 +5467,7 @@ FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
 
 SimplifyAntiderivative[ArcCoth[a_.*Tan[u_]],x_Symbol] :=
   RectifyTangent[u,I*a,-I,x] /;
-FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
+FreeQ[a,x] && GtQ[a^2,0] && ComplexFreeQ[u]
 
 
 (* ::Item::Closed:: *)
@@ -5423,7 +5480,7 @@ FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
 
 (* SimplifyAntiderivative[ArcTanh[a_.*Tanh[u_]],x_Symbol] :=
   RectifyTangent[I*u,a,-I,x] /;
-FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u] *)
+FreeQ[a,x] && GtQ[a^2,0] && ComplexFreeQ[u] *)
 
 
 (* ::Item:: *)
@@ -5444,7 +5501,7 @@ SimplifyAntiderivative[ArcTanh[Tanh[u_]],x_Symbol] :=
 
 (* SimplifyAntiderivative[ArcCoth[a_.*Tanh[u_]],x_Symbol] :=
   RectifyTangent[I*u,a,-I,x] /;
-FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u] *)
+FreeQ[a,x] && GtQ[a^2,0] && ComplexFreeQ[u] *)
 
 
 (* ::Item:: *)
@@ -5461,7 +5518,7 @@ SimplifyAntiderivative[ArcCoth[Tanh[u_]],x_Symbol] :=
 
 SimplifyAntiderivative[ArcCot[a_.*Cot[u_]],x_Symbol] :=
   RectifyCotangent[u,a,1,x] /;
-FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
+FreeQ[a,x] && GtQ[a^2,0] && ComplexFreeQ[u]
 
 
 (* ::Item:: *)
@@ -5470,7 +5527,7 @@ FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
 
 SimplifyAntiderivative[ArcTan[a_.*Cot[u_]],x_Symbol] :=
   RectifyCotangent[u,a,-1,x] /;
-FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
+FreeQ[a,x] && GtQ[a^2,0] && ComplexFreeQ[u]
 
 
 (* ::Item:: *)
@@ -5479,7 +5536,7 @@ FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
 
 (* SimplifyAntiderivative[ArcCot[a_.*Coth[u_]],x_Symbol] :=
   RectifyCotangent[I*u,I*a,1,x] /;
-FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u] *)
+FreeQ[a,x] && GtQ[a^2,0] && ComplexFreeQ[u] *)
 
 
 (* ::Item:: *)
@@ -5497,7 +5554,7 @@ FreeQ[a,x] && ComplexFreeQ[u]
 
 SimplifyAntiderivative[ArcCoth[a_.*Cot[u_]],x_Symbol] :=
   RectifyCotangent[u,I*a,I,x] /;
-FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
+FreeQ[a,x] && GtQ[a^2,0] && ComplexFreeQ[u]
 
 
 (* ::Item:: *)
@@ -5506,7 +5563,7 @@ FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
 
 SimplifyAntiderivative[ArcTanh[a_.*Cot[u_]],x_Symbol] :=
   RectifyCotangent[u,I*a,I,x] /;
-FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
+FreeQ[a,x] && GtQ[a^2,0] && ComplexFreeQ[u]
 
 
 (* ::Item::Closed:: *)
@@ -5519,7 +5576,7 @@ FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u]
 
 (* SimplifyAntiderivative[ArcCoth[a_.*Coth[u_]],x_Symbol] :=
   RectifyCotangent[I*u,a,-I,x] /;
-FreeQ[a,x] && PositiveQ[a^2] && ComplexFreeQ[u] *)
+FreeQ[a,x] && GtQ[a^2,0] && ComplexFreeQ[u] *)
 
 
 (* ::Item:: *)
@@ -5553,7 +5610,7 @@ SimplifyAntiderivative[ArcTanh[Coth[u_]],x_Symbol] :=
 
 SimplifyAntiderivative[ArcTan[c_.*(a_+b_.*Tan[u_])],x_Symbol] :=
   RectifyTangent[u,a*c,b*c,1,x] /;
-FreeQ[{a,b,c},x] && PositiveQ[a^2*c^2] && PositiveQ[b^2*c^2] && ComplexFreeQ[u]
+FreeQ[{a,b,c},x] && GtQ[a^2*c^2,0] && GtQ[b^2*c^2,0] && ComplexFreeQ[u]
 
 
 (* ::Item:: *)
@@ -5562,7 +5619,7 @@ FreeQ[{a,b,c},x] && PositiveQ[a^2*c^2] && PositiveQ[b^2*c^2] && ComplexFreeQ[u]
 
 SimplifyAntiderivative[ArcTanh[c_.*(a_+b_.*Tan[u_])],x_Symbol] :=
   RectifyTangent[u,I*a*c,I*b*c,-I,x] /;
-FreeQ[{a,b,c},x] && PositiveQ[a^2*c^2] && PositiveQ[b^2*c^2] && ComplexFreeQ[u]
+FreeQ[{a,b,c},x] && GtQ[a^2*c^2,0] && GtQ[b^2*c^2,0] && ComplexFreeQ[u]
 
 
 (* ::Input:: *)
@@ -5571,7 +5628,7 @@ FreeQ[{a,b,c},x] && PositiveQ[a^2*c^2] && PositiveQ[b^2*c^2] && ComplexFreeQ[u]
 
 SimplifyAntiderivative[ArcTan[c_.*(a_+b_.*Cot[u_])],x_Symbol] :=
   RectifyCotangent[u,a*c,b*c,1,x] /;
-FreeQ[{a,b,c},x] && PositiveQ[a^2*c^2] && PositiveQ[b^2*c^2] && ComplexFreeQ[u]
+FreeQ[{a,b,c},x] && GtQ[a^2*c^2,0] && GtQ[b^2*c^2,0] && ComplexFreeQ[u]
 
 
 (* ::Item:: *)
@@ -5580,7 +5637,7 @@ FreeQ[{a,b,c},x] && PositiveQ[a^2*c^2] && PositiveQ[b^2*c^2] && ComplexFreeQ[u]
 
 SimplifyAntiderivative[ArcTanh[c_.*(a_+b_.*Cot[u_])],x_Symbol] :=
   RectifyCotangent[u,I*a*c,I*b*c,-I,x] /;
-FreeQ[{a,b,c},x] && PositiveQ[a^2*c^2] && PositiveQ[b^2*c^2] && ComplexFreeQ[u]
+FreeQ[{a,b,c},x] && GtQ[a^2*c^2,0] && GtQ[b^2*c^2,0] && ComplexFreeQ[u]
 
 
 (* ::Input:: *)
@@ -5712,7 +5769,7 @@ SimplifyAntiderivativeSum[u_,x_Symbol] := u
 RectifyTangent[u_,a_,b_,x_Symbol] :=
   If[MatchQ[Together[a],d_.*Complex[0,c_]],
     Module[{c=a/I,e},
-    If[NegativeQ[c],
+    If[LtQ[c,0],
       RectifyTangent[u,-a,-b,x],
     If[EqQ[c,1],
       If[EvenQ[Denominator[NumericFactor[Together[u]]]],
@@ -5727,7 +5784,7 @@ RectifyTangent[u_,a_,b_,x_Symbol] :=
     I*b*Log[RemoveContent[e^2-2*c*e*Cos[u]*Sin[u]+(c^2-e^2)*Sin[u]^2,x]]/4]]]], *)
     I*b*Log[RemoveContent[e*Cos[u]+c*Sin[u],x]]/2 - 
     I*b*Log[RemoveContent[e*Cos[u]-c*Sin[u],x]]/2]]],
-  If[NegativeQ[a],
+  If[LtQ[a,0],
     RectifyTangent[u,-a,-b,x],
   If[EqQ[a,1],
     b*SimplifyAntiderivative[u,x],
@@ -5737,7 +5794,7 @@ RectifyTangent[u_,a_,b_,x_Symbol] :=
     numr=SmartNumerator[c];
     denr=SmartDenominator[c];
     b*SimplifyAntiderivative[u,x] - b*ArcTan[NormalizeLeadTermSigns[denr*Sin[2*u]/(numr+denr*Cos[2*u])]],
-  If[PositiveQ[a-1],
+  If[GtQ[a,1],
     c=Simplify[1/(a-1)];
     numr=SmartNumerator[c];
     denr=SmartDenominator[c];
@@ -5776,7 +5833,7 @@ RectifyTangent[u_,a_,b_,x_Symbol] :=
 RectifyTangent[u_,a_,b_,r_,x_Symbol] :=
   If[MatchQ[Together[a],d_.*Complex[0,c_]] && MatchQ[Together[b],d_.*Complex[0,c_]],
     Module[{c=a/I,d=b/I,e},
-    If[NegativeQ[d],
+    If[LtQ[d,0],
       RectifyTangent[u,-a,-b,-r,x],
     e=SmartDenominator[Together[c+d*x]];
     c=c*e;
@@ -5786,7 +5843,7 @@ RectifyTangent[u_,a_,b_,r_,x_Symbol] :=
       I*r*Log[RemoveContent[Simplify[(c-e)^2+d^2]+Simplify[(c-e)^2-d^2]*Cos[2*u]+Simplify[2*(c-e)*d]*Sin[2*u],x]]/4,
     I*r*Log[RemoveContent[Simplify[(c+e)^2]+Simplify[2*(c+e)*d]*Cos[u]*Sin[u]-Simplify[(c+e)^2-d^2]*Sin[u]^2,x]]/4 - 
     I*r*Log[RemoveContent[Simplify[(c-e)^2]+Simplify[2*(c-e)*d]*Cos[u]*Sin[u]-Simplify[(c-e)^2-d^2]*Sin[u]^2,x]]/4]]],
-  If[NegativeQ[b],
+  If[LtQ[b,0],
     RectifyTangent[u,-a,-b,-r,x],
   If[EvenQ[Denominator[NumericFactor[Together[u]]]],
     r*SimplifyAntiderivative[u,x] + 
@@ -5852,7 +5909,7 @@ FreeQ[{a,b,c},x] *)
 RectifyCotangent[u_,a_,b_,x_Symbol] :=
   If[MatchQ[Together[a],d_.*Complex[0,c_]],
     Module[{c=a/I,e},
-    If[NegativeQ[c],
+    If[LtQ[c,0],
       RectifyCotangent[u,-a,-b,x],
     If[EqQ[c,1],
       If[EvenQ[Denominator[NumericFactor[Together[u]]]],
@@ -5867,7 +5924,7 @@ RectifyCotangent[u_,a_,b_,x_Symbol] :=
      I*b*Log[RemoveContent[e^2+(c^2-e^2)*Cos[u]^2-2*c*e*Cos[u]*Sin[u],x]]/4]]]], *)
     -I*b*Log[RemoveContent[c*Cos[u]+e*Sin[u],x]]/2 + 
     I*b*Log[RemoveContent[c*Cos[u]-e*Sin[u],x]]/2]]],
-  If[NegativeQ[a],
+  If[LtQ[a,0],
     RectifyCotangent[u,-a,-b,x],
   If[EqQ[a,1],
     b*SimplifyAntiderivative[u,x],
@@ -5877,7 +5934,7 @@ RectifyCotangent[u_,a_,b_,x_Symbol] :=
     numr=SmartNumerator[c];
     denr=SmartDenominator[c];
     b*SimplifyAntiderivative[u,x] + b*ArcTan[NormalizeLeadTermSigns[denr*Sin[2*u]/(numr-denr*Cos[2*u])]],
-  If[PositiveQ[a-1],
+  If[GtQ[a,1],
     c=Simplify[1/(a-1)];
     numr=SmartNumerator[c];
     denr=SmartDenominator[c];
@@ -5916,7 +5973,7 @@ RectifyCotangent[u_,a_,b_,x_Symbol] :=
 RectifyCotangent[u_,a_,b_,r_,x_Symbol] :=
   If[MatchQ[Together[a],d_.*Complex[0,c_]] && MatchQ[Together[b],d_.*Complex[0,c_]],
     Module[{c=a/I,d=b/I,e},
-    If[NegativeQ[d],
+    If[LtQ[d,0],
       RectifyTangent[u,-a,-b,-r,x],
     e=SmartDenominator[Together[c+d*x]];
     c=c*e;
@@ -5926,7 +5983,7 @@ RectifyCotangent[u_,a_,b_,r_,x_Symbol] :=
       I*r*Log[RemoveContent[Simplify[(c-e)^2+d^2]-Simplify[(c-e)^2-d^2]*Cos[2*u]+Simplify[2*(c-e)*d]*Sin[2*u],x]]/4,
     I*r*Log[RemoveContent[Simplify[(c+e)^2]-Simplify[(c+e)^2-d^2]*Cos[u]^2+Simplify[2*(c+e)*d]*Cos[u]*Sin[u],x]]/4 - 
     I*r*Log[RemoveContent[Simplify[(c-e)^2]-Simplify[(c-e)^2-d^2]*Cos[u]^2+Simplify[2*(c-e)*d]*Cos[u]*Sin[u],x]]/4]]],
-  If[NegativeQ[b],
+  If[LtQ[b,0],
     RectifyCotangent[u,-a,-b,-r,x],
   If[EvenQ[Denominator[NumericFactor[Together[u]]]],
     -r*SimplifyAntiderivative[u,x] - 
@@ -7553,14 +7610,14 @@ RtAux[u_,n_] :=
     u[[1]]^(u[[2]]/n),
   If[ProductQ[u],
     Module[{lst},
-    lst=SplitProduct[PositiveQ,u];
+    lst=SplitProduct[Function[GtQ[#,0]],u];
     If[ListQ[lst],
       RtAux[lst[[1]],n]*RtAux[lst[[2]],n],
-    lst=SplitProduct[NegativeQ,u];
+    lst=SplitProduct[Function[LtQ[#,0]],u];
     If[ListQ[lst],
       If[EqQ[lst[[1]],-1],
         With[{v=lst[[2]]},
-        If[PowerQ[v] && NegativeQ[v[[2]]],
+        If[PowerQ[v] && LtQ[v[[2]],0],
           1/RtAux[-v[[1]]^(-v[[2]]),n],
         If[ProductQ[v],
           If[ListQ[SplitProduct[SumBaseQ,v]],
@@ -7593,7 +7650,7 @@ RtAux[u_,n_] :=
   With[{v=TrigSquare[u]},
   If[Not[AtomQ[v]],
     RtAux[v,n],
-  If[OddQ[n] && NegativeQ[u],
+  If[OddQ[n] && LtQ[u,0],
     -RtAux[-u,n],
   If[ComplexNumberQ[u],
     With[{a=Re[u],b=Im[u]},
@@ -7844,6 +7901,6 @@ MemberQ[{Int,Subst},Head[Unevaluated[u]]]
 FixRhsIntRule[u_,x_] :=
   If[Head[Unevaluated[u]]===Dist && Length[Unevaluated[u]]==2,
     Insert[Unevaluated[u],x,3],
-  If[MemberQ[{Int,Subst,Defer[Int],Simp,Dist},Head[Unevaluated[u]]],
+  If[MemberQ[{Int,Subst,Integral,Simp,Dist},Head[Unevaluated[u]]],
     u,
   Simp[u,x]]]

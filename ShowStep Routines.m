@@ -44,7 +44,7 @@ StepFunction[func1_,func2_] :=
   SetDownValues[func2,ReplaceAll[lst,{func1->func2}]]]
 
 
-(* rule is a rule as an expression of the form RuleDelayed[lhs,rhs].
+(* rule is as an expression of the form RuleDelayed[lhs,rhs].
 	flag has the value SimplifyFlag.  ModifyRule[rule,flag] 
 	formats the rule's left hand side as a string (lhsStrg) in InputForm,
 	formats the rule's conditions as a string (condStrg) in StandardForm,
@@ -59,6 +59,7 @@ ModifyRule[num_,rule_RuleDelayed, flag_] :=
      Not[FreeQ[Hold[rule],Identity]] || 
      Not[FreeQ[Hold[rule],DeactivateTrig]] || 
      Not[FreeQ[Hold[rule],Defer[Int]]] || 
+     Not[FreeQ[Hold[rule],Integral]] || 
      Not[FreeQ[Hold[rule],Preprocess]],
     rule,
   lhsStrg=FormatLhs[rule];
@@ -240,7 +241,7 @@ ShowStep[condStrg_,lhsStrg_,rhsStrg_,rhs_] := (
     Print["Rule: ",Style[condStrg,$ConditionColor]];
     Print["  ",Style[ToExpression["Defer["<>lhsStrg<>"]"],$RuleColor],Style[" \[LongRightArrow] ",Bold],Style[ToExpression["Defer["<>rhsStrg<>"]"],$RuleColor]];
     Block[{SimplifyFlag=False},
-    ReleaseHold[rhs]],
+    ReplaceAll[ReleaseHold[rhs],Integral->Defer[Int]]],
   ReleaseHold[rhs]] )
 
 ShowStep[num_,condStrg_,lhsStrg_,rhsStrg_,rhs_] := (
@@ -249,7 +250,7 @@ ShowStep[num_,condStrg_,lhsStrg_,rhsStrg_,rhs_] := (
     Print["Rule ",num+1,": ",Style[condStrg,$ConditionColor]];
     Print["  ",Style[ToExpression["Defer["<>lhsStrg<>"]"],$RuleColor],Style[" \[LongRightArrow] ",Bold],Style[ToExpression["Defer["<>rhsStrg<>"]"],$RuleColor]];
     Block[{SimplifyFlag=False},
-    ReleaseHold[rhs]],
+    ReplaceAll[ReleaseHold[rhs],Integral->Defer[Int]]],
   ReleaseHold[rhs]] )
 
 

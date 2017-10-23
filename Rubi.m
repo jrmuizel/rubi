@@ -41,7 +41,7 @@ Begin["`Private`"];
 LoadRules[filename_String] :=
   Module[{object},
   object=PrintTemporary["Loading "<>filename<>".m..."];
-  Get[NotebookDirectory[]<>filename<>".m"];
+  Get[FileNameJoin[{NotebookDirectory[],filename<>".m"}]];
   NotebookDelete[object];
   Null]
 
@@ -55,6 +55,9 @@ SetAttributes [Int, {Listable}];
 ShowSteps = Global`$LoadShowSteps===True;
 
 
+Integral[u_,x_] := Defer[Int][u,x]
+
+
 LoadRules["ShowStep routines"];
 LoadRules["Integration utility functions"];
 LoadRules["9.1 Integrand simplification rules"];
@@ -62,17 +65,16 @@ LoadRules["9.1 Integrand simplification rules"];
 
 LoadRules["1.1.1 Linear binomial products"];
 LoadRules["1.1.3 General binomial products"];
-
 LoadRules["1.2.1 Quadratic trinomial products"];
+LoadRules["1.1.2 Quadratic binomial products"];
 LoadRules["1.2.2 Quartic trinomial products"];
 LoadRules["1.2.3 General trinomial products"];
 LoadRules["1.2.4 Improper trinomial products"];
-
 LoadRules["1.1.4 Improper binomial products"];
 LoadRules["1.3 Miscellaneous algebraic functions"];
-
-
 LoadRules["9.3 Piecewise linear functions"];
+
+
 LoadRules["2 Exponentials"];
 LoadRules["3 Logarithms"];
 LoadRules["4.1 Sine"];
