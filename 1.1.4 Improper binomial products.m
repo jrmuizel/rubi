@@ -9,16 +9,6 @@
 (**)
 
 
-Int[(a_.+b_.*(c_.*x_^n_)^q_)^p_.,x_Symbol] :=
-  x/(c*x^n)^(1/n)*Subst[Int[(a+b*x^(n*q))^p,x],x,(c*x^n)^(1/n)] /;
-FreeQ[{a,b,c,q,n,p},x] && IntegerQ[n*q]
-
-
-Int[x_^m_.*(a_.+b_.*(c_.*x_^n_)^q_)^p_.,x_Symbol] :=
-  x^(m+1)/(c*x^n)^((m+1)/n)*Subst[Int[x^m*(a+b*x^(n*q))^p,x],x,(c*x^n)^(1/n)] /;
-FreeQ[{a,b,c,m,n,p,q},x] && IntegerQ[n*q] && IntegerQ[m]
-
-
 Int[x_^m_.*(e_.*(a_+b_.*x_^n_.)^r_.)^p_*(f_.*(c_+d_.*x_^n_.)^s_)^q_,x_Symbol] :=
   (e*(a+b*x^n)^r)^p*(f*(c+d*x^n)^s)^q/((a+b*x^n)^(p*r)*(c+d*x^n)^(q*s))*
     Int[x^m*(a+b*x^n)^(p*r)*(c+d*x^n)^(q*s),x] /;
@@ -272,6 +262,9 @@ FreeQ[{f,m,p},x] && BinomialQ[z,x] && GeneralizedTrinomialQ[u,x] &&
   EqQ[BinomialDegree[z,x]-GeneralizedTrinomialDegree[u,x],0] && Not[BinomialMatchQ[z,x] && GeneralizedTrinomialMatchQ[u,x]]
 
 
+
+
+
 (* ::Subsection::Closed:: *)
 (*1.1.4.1 (a x^j+b x^n)^p*)
 
@@ -439,12 +432,12 @@ FreeQ[{a,b,c,m,p},x] && Not[IntegerQ[p]] && LtQ[0,j,n] && (IntegersQ[j,n] || GtQ
 
 Int[x_^m_.*(a_.*x_^j_.+b_.*x_^n_)^p_,x_Symbol] :=
   1/(m+1)*Subst[Int[(a*x^Simplify[j/(m+1)]+b*x^Simplify[n/(m+1)])^p,x],x,x^(m+1)] /;
-FreeQ[{a,b,j,m,n,p},x] && Not[IntegerQ[p]] && NeQ[n,j] && IntegerQ[Simplify[j/n]] && NeQ[m+1] && IntegerQ[Simplify[n/(m+1)]] && Not[IntegerQ[n]]
+FreeQ[{a,b,j,m,n,p},x] && Not[IntegerQ[p]] && NeQ[n,j] && IntegerQ[Simplify[j/n]] && NeQ[m,-1] && IntegerQ[Simplify[n/(m+1)]] && Not[IntegerQ[n]]
 
 
 Int[(c_*x_)^m_.*(a_.*x_^j_.+b_.*x_^n_)^p_,x_Symbol] :=
   c^IntPart[m]*(c*x)^FracPart[m]/x^FracPart[m]*Int[x^m*(a*x^j+b*x^n)^p,x] /;
-FreeQ[{a,b,c,j,m,n,p},x] && Not[IntegerQ[p]] && NeQ[n,j] && IntegerQ[Simplify[j/n]] && NeQ[m+1] && IntegerQ[Simplify[n/(m+1)]] && Not[IntegerQ[n]]
+FreeQ[{a,b,c,j,m,n,p},x] && Not[IntegerQ[p]] && NeQ[n,j] && IntegerQ[Simplify[j/n]] && NeQ[m,-1] && IntegerQ[Simplify[n/(m+1)]] && Not[IntegerQ[n]]
 
 
 Int[(c_.*x_)^m_.*(a_.*x_^j_.+b_.*x_^n_.)^p_,x_Symbol] :=
@@ -493,6 +486,9 @@ FreeQ[{a,b,c,j,m,n,p},x] && Not[IntegerQ[p]] && NeQ[n,j] && PosQ[n-j]
 Int[u_^m_.*(a_.*v_^j_.+b_.*v_^n_.)^p_.,x_Symbol] :=
   u^m/(Coefficient[v,x,1]*v^m)*Subst[Int[x^m*(a*x^j+b*x^n)^p,x],x,v] /;
 FreeQ[{a,b,j,m,n,p},x] && LinearPairQ[u,v,x]
+
+
+
 
 
 (* ::Subsection::Closed:: *)
@@ -587,7 +583,7 @@ Int[x_^m_.*Pq_*(a_.*x_^j_.+b_.*x_^n_)^p_,x_Symbol] :=
   With[{g=GCD[m+1,n]},
   1/g*Subst[Int[x^((m+1)/g-1)*ReplaceAll[Pq,x->x^(1/g)]*(a*x^(j/g)+b*x^(n/g))^p,x],x,x^g] /;
  NeQ[g,1]] /;
-FreeQ[{a,b,p},x] && PolyQ[Pq,x^n] && Not[IntegerQ[p]] && PositiveIntegerQ[j,n,j/n] && IntegerQ[m]
+FreeQ[{a,b,p},x] && PolyQ[Pq,x^n] && Not[IntegerQ[p]] && IGtQ[j,0] && IGtQ[n,0] && IGtQ[j/n,0] && IntegerQ[m]
 
 
 Int[(c_.*x_)^m_.*Pq_*(a_.*x_^j_.+b_.*x_^n_)^p_,x_Symbol] :=
@@ -626,3 +622,6 @@ FreeQ[{a,b,c,j,m,n,p},x] && (PolyQ[Pq,x] || PolyQ[Pq,x^n]) && Not[IntegerQ[p]] &
 Int[Pq_*(a_.*x_^j_.+b_.*x_^n_)^p_,x_Symbol] :=
   Int[ExpandIntegrand[Pq*(a*x^j+b*x^n)^p,x],x] /;
 FreeQ[{a,b,j,n,p},x] && (PolyQ[Pq,x] || PolyQ[Pq,x^n]) && Not[IntegerQ[p]] && NeQ[n,j]
+
+
+

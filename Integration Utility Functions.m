@@ -37,8 +37,8 @@ MapAnd[f_,lst_,x_] :=
 
 
 Map2[func_,lst1_,lst2_] :=
-  Module[{i},
-    ReapList[Do[Sow[func[lst1[[i]],lst2[[i]]]],{i,Length[lst1]}]]]
+  Module[{ii},
+    ReapList[Do[Sow[func[lst1[[ii]],lst2[[ii]]]],{ii,Length[lst1]}]]]
 
 
 (* ::Subsection::Closed:: *)
@@ -137,17 +137,6 @@ IndependentQ[u_,x_] :=
   FreeQ[u,x]
 
 
-(* ::Subsection::Closed:: *)
-(*NotIntegrableQ[u,x]*)
-
-
-(* NotIntegrableQ[u,x] returns True if u is definitely not integrable wrt x; else it returns 
-	False if u is, or might be, integrable wrt x. *)
-NotIntegrableQ[u_,x_Symbol] :=
-  MatchQ[u,x^m_*Log[a_+b_.*x]^n_ /; FreeQ[{a,b},x] && IntegersQ[m,n] && m<0 && n<0] ||
-  MatchQ[u,f_[x^m_.*Log[a_.+b_.*x]] /; FreeQ[{a,b},x] && IntegerQ[m] && (TrigQ[f] || HyperbolicQ[f])]
-
-
 (* ::Section::Closed:: *)
 (*Expression type predicates*)
 
@@ -190,14 +179,6 @@ NonsumQ[u_] := Head[u]=!=Plus
 
 IntegerPowerQ[u_] :=
   PowerQ[u] && IntegerQ[u[[2]]]
-
-
-(* ::Subsection::Closed:: *)
-(*PositiveIntegerPowerQ[u]*)
-
-
-PositiveIntegerPowerQ[u_] :=
-  PowerQ[u] && IntegerQ[u[[2]]] && u[[2]]>0
 
 
 (* ::Subsection::Closed:: *)
@@ -249,101 +230,53 @@ LogQ[u_] := Head[u]===Log
 (*TrigQ[u]*)
 
 
-(* TrigQ[u] returns True if u or the head of u is a trig function; else returns False *)
-TrigQ[u_] :=
-  MemberQ[{Sin,Cos,Tan,Cot,Sec,Csc},If[AtomQ[u],u,Head[u]]]
-
-
-SinQ[u_] := Head[u]===Sin
-
-CosQ[u_] := Head[u]===Cos
-
-TanQ[u_] := Head[u]===Tan
-
-CotQ[u_] := Head[u]===Cot
-
-SecQ[u_] := Head[u]===Sec
-
-CscQ[u_] := Head[u]===Csc
+$TrigFunctions = {Sin, Cos, Tan, Cot, Sec, Csc};
+TrigQ[u_] := MemberQ[$TrigFunctions, If[AtomQ[u],u,Head[u]]]
 
 
 (* ::Subsection::Closed:: *)
 (*HyperbolicQ[u]*)
 
 
-(* HyperbolicQ[u] returns True if u or the head of u is a trig function; else returns False *)
-HyperbolicQ[u_] :=
-  MemberQ[{Sinh,Cosh,Tanh,Coth,Sech,Csch},If[AtomQ[u],u,Head[u]]]
-
-
-SinhQ[u_] := Head[u]===Sinh
-
-CoshQ[u_] := Head[u]===Cosh
-
-TanhQ[u_] := Head[u]===Tanh
-
-CothQ[u_] := Head[u]===Coth
-
-SechQ[u_] := Head[u]===Sech
-
-CschQ[u_] := Head[u]===Csch
+$HyperbolicFunctions = {Sinh, Cosh, Tanh, Coth, Sech, Csch};
+HyperbolicQ[u_] := MemberQ[$HyperbolicFunctions, If[AtomQ[u],u,Head[u]]]
 
 
 (* ::Subsection::Closed:: *)
 (*InverseTrigQ[u]*)
 
 
-(* InverseTrigQ[u] returns True if u or the head of u is an inverse trig function; else returns False *)
-InverseTrigQ[u_] :=
-  MemberQ[{ArcSin,ArcCos,ArcTan,ArcCot,ArcSec,ArcCsc},If[AtomQ[u],u,Head[u]]]
+$InverseTrigFunctions = {ArcSin, ArcCos, ArcTan, ArcCot, ArcSec, ArcCsc};
+InverseTrigQ[u_] := MemberQ[$InverseTrigFunctions, If[AtomQ[u],u,Head[u]]]
 
 
 (* ::Subsection::Closed:: *)
 (*InverseHyperbolicQ[u]*)
 
 
-(* InverseHyperbolicQ[u] returns True if u or the head of u is an inverse trig function; else returns False *)
-InverseHyperbolicQ[u_] :=
-  MemberQ[{ArcSinh,ArcCosh,ArcTanh,ArcCoth,ArcSech,ArcCsch},If[AtomQ[u],u,Head[u]]]
-
-
-(* ::Subsection::Closed:: *)
-(*SinCosQ[u]*)
-
-
-SinCosQ[f_] :=
-  MemberQ[{Sin,Cos,Sec,Csc},f]
-
-
-(* ::Subsection::Closed:: *)
-(*SinhCoshQ[u]*)
-
-
-SinhCoshQ[f_] :=
-  MemberQ[{Sinh,Cosh,Sech,Csch},f]
+$InverseHyperbolicFunctions = {ArcSinh, ArcCosh, ArcTanh, ArcCoth, ArcSech, ArcCsch};
+InverseHyperbolicQ[u_] := MemberQ[$InverseHyperbolicFunctions, If[AtomQ[u],u,Head[u]]]
 
 
 (* ::Subsection::Closed:: *)
 (*CalculusQ[u]*)
 
 
-CalculusFunctions={D,Integrate,Sum,Product, Int,Integral,Dif,Subst};
-
-(* CalculusQ[u] returns True if the head of u is a calculus function; else returns False *)
-CalculusQ[u_] :=
-  MemberQ[CalculusFunctions,Head[u]]
-
-CalculusFreeQ[u_,x_] :=
-  If[AtomQ[u],
-    True,
-  If[CalculusQ[u] && u[[2]]===x || HeldFormQ[u],
-    False,
-  Catch[Scan[Function[If[CalculusFreeQ[#,x],Null,Throw[False]]],u];True]]]
+$CalculusFunctions = {D, Integrate, Sum, Product, Int, Unintegrable, CannotIntegrate, Dif, Subst};
+CalculusQ[u_] := MemberQ[$CalculusFunctions, If[AtomQ[u],u,Head[u]]]
 
 
+$StopFunctions = {Hold, HoldForm, Defer, Pattern, If, Int, Unintegrable, CannotIntegrate};
+StopFunctionQ[u_] :=
+  If[AtomQ[Head[u]],
+    MemberQ[$StopFunctions,Head[u]],
+  StopFunctionQ[Head[u]]]
+
+
+$HeldFunctions = {Hold, HoldForm, Defer, Pattern};
 HeldFormQ[u_] :=
   If[AtomQ[Head[u]],
-    MemberQ[{Hold,HoldForm,Defer,Pattern},Head[u]],
+    MemberQ[$HeldFunctions,Head[u]],
   HeldFormQ[Head[u]]]
 
 
@@ -383,6 +316,27 @@ InverseFunctionFreeQ[u_,x_Symbol] :=
   False]] *)
 
 
+(* ::Subsection::Closed:: *)
+(*CalculusFreeQ[u]*)
+
+
+CalculusFreeQ[u_,x_] :=
+  If[AtomQ[u],
+    True,
+  If[CalculusQ[u] && u[[2]]===x || HeldFormQ[u],
+    False,
+  Catch[Scan[Function[If[CalculusFreeQ[#,x],Null,Throw[False]]],u]; True]]]
+
+
+(* ::Subsection::Closed:: *)
+(*IntegralFreeQ[u]*)
+
+
+(* If u is free of integrals, IntegralFreeQ[u] returns True; else it returns False. *)
+IntegralFreeQ[u_] :=
+  FreeQ[u,Int] && FreeQ[u,Integral] && FreeQ[u,Unintegrable] && FreeQ[u,CannotIntegrate]
+
+
 (* ::Section::Closed:: *)
 (*Equality and inequality predicates*)
 
@@ -397,10 +351,6 @@ EqQ[u_,v_] := Quiet[PossibleZeroQ[u-v]] || Refine[u==v]===True
 
 (* If u-v equals 0, EqQ[u,v] returns False; else it returns True. *)
 NeQ[u_,v_] := Not[Quiet[PossibleZeroQ[u-v]] || Refine[u==v]===True]
-
-
-EqQ[u_] := EqQ[u,0]
-NeQ[u_] := NeQ[u,0]
 
 
 (* ::Subsection::Closed:: *)
@@ -504,24 +454,6 @@ LeQ[u_,v_,w_] := LeQ[u,v] && LeQ[v,w]
 
 
 RealNumberQ[u_] := NumberQ[u] && Head[u]=!=Complex
-
-
-(* ::Section::Closed:: *)
-(*Delete these predicates!!!*)
-
-
-PositiveQ[u_] := GtQ[u,0]
-
-
-NegativeQ[u_] := LtQ[u,0]
-
-
-(* PositiveIntegerQ[m,n,...] returns True if m, n, ... are all explicit positive integers; else it returns False. *)
-PositiveIntegerQ[u__] := Catch[Scan[Function[If[IntegerQ[#] && #>0,Null,Throw[False]]],{u}]; True];
-
-
-(* NegativeIntegerQ[m,n,...] returns True if m, n, ... are all explicit negative integers; else it returns False. *)
-NegativeIntegerQ[u__] := Catch[Scan[Function[If[IntegerQ[#] && #<0,Null,Throw[False]]],{u}]; True];
 
 
 (* ::Section::Closed:: *)
@@ -2339,7 +2271,7 @@ AbsorbMinusSign[u_] :=
 (* NormalizeSumFactors[u] returns an expression equal u but with the numeric coefficient of 
 	the lead term of sum factors made positive where possible. *)
 NormalizeSumFactors[u_] :=
-  If[AtomQ[u] || Head[u]===If || Head[u]===Int || Head[u]===Integral || HeldFormQ[u],
+  If[AtomQ[u] || StopFunctionQ[u],
     u,
   If[ProductQ[u],
     Function[#[[1]]*#[[2]]][SignOfFactor[Map[NormalizeSumFactors,u]]],
@@ -2475,9 +2407,7 @@ SimpHelp[E^(u_.*(v_.*Log[a_]+w_)),x_] :=
   a^(u*v)*SimpHelp[E^(u*w),x]
 
 SimpHelp[u_,x_] :=
-  If[AtomQ[u],
-    u,
-  If[Head[u]===If || Head[u]===Int || Head[u]===Integral || HeldFormQ[u],
+  If[AtomQ[u] || StopFunctionQ[u],
     u,
   If[FreeQ[u,x],
     With[{v=SmartSimplify[u]},
@@ -2521,7 +2451,7 @@ SimpHelp[u_,x_] :=
     If[LinearQ[v,x] && MatchQ[Coefficient[v,x,0],m_.*(n_.*Complex[0,nz_]*Pi+r_.)+s_. /; RationalQ[m,n,nz]],
       NormalizeHyperbolic[Head[u],Coefficient[v,x,0],Coefficient[v,x,1],x],
     Head[u][v]]],
-  Map[Function[SimpHelp[#,x]],u]]]]]]]]
+  Map[Function[SimpHelp[#,x]],u]]]]]]]
 
 
 NormalizeTrig[func_,m_.*(n_.*Pi+r_.)+s_.,b_,x_] :=
@@ -3240,8 +3170,8 @@ CommonFactors [lst_] :=
 
 
 MostMainFactorPosition[lst_List] :=
-  Module[{factor=1,num=1,i},
-  Do[If[FactorOrder[lst[[i]],factor]>0,factor=lst[[i]];num=i],{i,Length[lst]}];
+  Module[{factor=1,num=1,ii},
+  Do[If[FactorOrder[lst[[ii]],factor]>0,factor=lst[[ii]];num=ii],{ii,Length[lst]}];
   num]
 
 
@@ -3560,6 +3490,15 @@ ExpandIntegrand[u_,v_,x_Symbol] :=
  nn!=1] *)
 
 
+ExpandIntegrand[(a_+b_.*x_^n_)^p_.,x_Symbol] :=
+  ExpandIntegrand[x^(n*p)*(b+a*x^(-n))^p,x] /;
+IntegerQ[p] && ILtQ[n,0]
+
+ExpandIntegrand[x_^m_.*(a_+b_.*x_^n_)^p_.,x_Symbol] :=
+  ExpandIntegrand[x^(m+n*p)*(b+a*x^(-n))^p,x] /;
+IntegerQ[p] && ILtQ[n,0]
+
+
 (* ::Subsubsection::Closed:: *)
 (*Basis: (a+b x)^m/(c+d x)==(b (a+b x)^(m-1))/d+((a d-b c) (a+b x)^(m-1))/(d (c+d x))*)
 
@@ -3674,21 +3613,20 @@ FreeQ[{a,b,c,d,m,n},x] && PolynomialQ[u,x] && Not[IntegerQ[m]] && IGtQ[n-m,0]
 
 
 (* u is a polynomial in x.  ExpandIntegrand[u*(a+b*x)^m,x] expands u*(a+b*x)^m into a sum of terms of the form A*(a+b*x)^n. *)
-ExpandIntegrand[u_*(a_+b_.*x_)^m_,x_Symbol] :=
-  Module[{tmp1,tmp2},
-  tmp1=ExpandLinearProduct[(a+b*x)^m,u,a,b,x];
+ExpandIntegrand[u_*(a_+b_.*x_)^m_.,x_Symbol] :=
+  With[{sum1=ExpandLinearProduct[(a+b*x)^m,u,a,b,x]},
   If[Not[IntegerQ[m]] || m>2 && LinearQ[u,x],
-    tmp1,
-  tmp2=ExpandExpression[u*(a+b*x)^m,x];
-  If[SumQ[tmp2],
+    sum1,
+  With[{sum2=ExpandExpression[u*(a+b*x)^m,x]},
+  If[SumQ[sum2],
     If[m>0,
-      If[Length[tmp2]<=Exponent[u,x]+2,
-        tmp2,
-      tmp1],
-    If[LeafCount[tmp2]<=LeafCount[tmp1]+2,
-      tmp2,
-    tmp1]],
-  tmp1]]] /;
+      If[Length[sum2]<=Exponent[u,x]+2,
+        sum2,
+      sum1],
+    If[LeafCount[sum2]<=LeafCount[sum1]+2,
+      sum2,
+    sum1]],
+  sum1]]]] /;
 FreeQ[{a,b,m},x] && PolynomialQ[u,x] && 
   Not[IGtQ[m,0] && MatchQ[u,w_.*(c_+d_.*x)^p_ /; FreeQ[{c,d},x] && IntegerQ[p] && p>m]]
 
@@ -3707,7 +3645,7 @@ FreeQ[{a,b,m},x] && ILtQ[n,0] && Not[IntegerQ[m]] && PolynomialQ[u,x] && Polynom
 
 
 (* ::Subsubsection::Closed:: *)
-(*Basis: Let r/s=(-(a/b))^(1/3), then  1/(a+b z^3)==r/(3a(r-s z))+(r(2 r+s z))/(3a(r^2+r s z+s^2 z^2))*)
+(*Basis: Let r/s=(-a/b)^(1/3), then  1/(a+b z^3)==r/(3a(r-s z))+(r(2 r+s z))/(3a(r^2+r s z+s^2 z^2))*)
 
 
 (* ExpandIntegrand[1/(a_+b_.*u_^3),x_Symbol] :=
@@ -3727,18 +3665,18 @@ FreeQ[{a,b},x] && IGtQ[n/4,0]
 
 
 (* ::Subsubsection::Closed:: *)
-(*Basis: If  n\[Element]SuperPlus[\[DoubleStruckCapitalZ]], let r/s=(-(a/b))^(1/n), then  1/(a + b*z^n) == (r*Sum[1/(r - (-1)^(2*(k/n))*s*z), {k, 1, n}])/(a*n)*)
+(*Basis: If  n\[Element]SuperPlus[\[DoubleStruckCapitalZ]], let r/s=(-a/b)^(1/n), then  1/(a+b*z^n) == (r*Sum[1/(r - (-1)^(2*(k/n))*s*z), {k, 1, n}])/(a*n)*)
 
 
 ExpandIntegrand[1/(a_+b_.*u_^n_),x_Symbol] :=
   With[{r=Numerator[Rt[-a/b,n]],s=Denominator[Rt[-a/b,n]]},
   Module[{k},
   Sum[r/(a*n*(r-(-1)^(2*k/n)*s*u)),{k,1,n}]]] /;
-FreeQ[{a,b},x] && IntegerQ[n] && n>1
+FreeQ[{a,b},x] && IGtQ[n,1]
 
 
 (* ::Subsubsection::Closed:: *)
-(*Basis: If (m|n)\[Element]\[DoubleStruckCapitalZ] \[And] 0<=m<n, let r/s=(-(a/b))^(1/n), then  (c + d*z^m)/(a + b*z^n) == (r*Sum[(c + (d*(r/s)^m)/(-1)^(2*k*(m/n)))/(r - (-1)^(2*(k/n))*s*z), {k, 1, n}])/(a*n)*)
+(*Basis: If (m|n)\[Element]\[DoubleStruckCapitalZ] \[And] 0<=m<n, let r/s=(-a/b)^(1/n), then  (c + d*z^m)/(a + b*z^n) == (r*Sum[(c + (d*(r/s)^m)/(-1)^(2*k*(m/n)))/(r - (-1)^(2*(k/n))*s*z), {k, 1, n}])/(a*n)*)
 
 
 ExpandIntegrand[(c_+d_.*u_^m_.)/(a_+b_.*u_^n_),x_Symbol] :=
@@ -3749,7 +3687,7 @@ FreeQ[{a,b,c,d},x] && IntegersQ[m,n] && 0<m<n
 
 
 (* ::Subsubsection::Closed:: *)
-(*Basis: If (m|n,p)\[Element]\[DoubleStruckCapitalZ] \[And] 0<=m<p<n, let r/s=(-(a/b))^(1/n), then  (c + d*z^m + e*z^p)/(a + b*z^n) == (r*Sum[(c + (d*(r/s)^m)/(-1)^(2*k*(m/n)) + (e*(r/s)^p)/(-1)^(2*k*(p/n)))/(r - (-1)^(2*(k/n))*s*z), {k, 1, n}])/(a*n)*)
+(*Basis: If (m|n,p)\[Element]\[DoubleStruckCapitalZ] \[And] 0<=m<p<n, let r/s=(-a/b)^(1/n), then  (c + d*z^m + e*z^p)/(a + b*z^n) == (r*Sum[(c + (d*(r/s)^m)/(-1)^(2*k*(m/n)) + (e*(r/s)^p)/(-1)^(2*k*(p/n)))/(r - (-1)^(2*(k/n))*s*z), {k, 1, n}])/(a*n)*)
 
 
 ExpandIntegrand[(c_.+d_.*u_^m_.+e_.*u_^p_)/(a_+b_.*u_^n_),x_Symbol] :=
@@ -3760,7 +3698,7 @@ FreeQ[{a,b,c,d,e},x] && IntegersQ[m,n,p] && 0<m<p<n
 
 
 (* ::Subsubsection::Closed:: *)
-(*Basis: If (m|n,p,q)\[Element]\[DoubleStruckCapitalZ] \[And] 0<=m<p<q<n, let r/s=(-(a/b))^(1/n), then  (c + d*z^m + e*z^p + f*z^q)/(a + b*z^n) == (r*Sum[(c + (d*(r/s)^m)/(-1)^(2*k*(m/n)) + (e*(r/s)^p)/(-1)^(2*k*(p/n)) + (f*(r/s)^q)/(-1)^(2*k*(q/n)))/(r - (-1)^(2*(k/n))*s*z), {k, 1, n}])/(a*n)*)
+(*Basis: If (m|n,p,q)\[Element]\[DoubleStruckCapitalZ] \[And] 0<=m<p<q<n, let r/s=(-a/b)^(1/n), then  (c + d*z^m + e*z^p + f*z^q)/(a + b*z^n) == (r*Sum[(c + (d*(r/s)^m)/(-1)^(2*k*(m/n)) + (e*(r/s)^p)/(-1)^(2*k*(p/n)) + (f*(r/s)^q)/(-1)^(2*k*(q/n)))/(r - (-1)^(2*(k/n))*s*z), {k, 1, n}])/(a*n)*)
 
 
 ExpandIntegrand[(c_.+d_.*u_^m_.+e_.*u_^p_+f_.*u_^q_)/(a_+b_.*u_^n_),x_Symbol] :=
@@ -3774,16 +3712,27 @@ FreeQ[{a,b,c,d,e,f},x] && IntegersQ[m,n,p,q] && 0<m<p<q<n
 (*Basis: If  q=Sqrt[-a c], then a+c z^2==((-q+c z)(q+c z))/c*)
 
 
-ExpandIntegrand[(a_+c_.*u_^n_.)^p_,x_Symbol] :=
+ExpandIntegrand[(a_+c_.*u_^n_)^p_,x_Symbol] :=
   Module[{q},
   ReplaceAll[ExpandIntegrand[1/c^p,(-q+c*x)^p*(q+c*x)^p,x],{q->Rt[-a*c,2],x->u^(n/2)}]] /;
 FreeQ[{a,c},x] && EvenQ[n] && ILtQ[p,0]
 
 
-ExpandIntegrand[u_^m_.*(a_.+c_.*u_^n_.)^p_,x_Symbol] :=
+ExpandIntegrand[u_^m_.*(a_.+c_.*u_^n_)^p_,x_Symbol] :=
   Module[{q},
   ReplaceAll[ExpandIntegrand[1/c^p,x^m*(-q+c*x^(n/2))^p*(q+c*x^(n/2))^p,x],{q->Rt[-a*c,2],x->u}]] /;
 FreeQ[{a,c},x] && IntegersQ[m,n/2] && ILtQ[p,0] && 0<m<n && m!=n/2
+
+
+(* ::Subsubsection::Closed:: *)
+(*Basis: If  n\[Element]SuperPlus[\[DoubleStruckCapitalZ]], then  a+b*z^n == -b*Product[(-a/b)^(1/n)-(-1)^((2*k)/n)*z, {k, 1, n}]*)
+
+
+ExpandIntegrand[(a_+b_.*x_^n_)^p_,x_Symbol] :=
+  With[{q=Rt[-a/b,n]},
+  Module[{ii},
+  ExpandIntegrand[(-b)^p,Product[(q-(-1)^((2*ii)/n)*x)^p,{ii,1,n}],x]]] /;
+FreeQ[{a,b},x] && IGtQ[n,1] && ILtQ[p,-1]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -3922,11 +3871,11 @@ CollectReciprocals[u_,x_Symbol] := u
 
 
 (* ::Subsubsection:: *)
-(*Basis: If  r/s=(-(a/b))^(1/2), then z/(a+b z^2)==s/(2b(r+s z))-s/(2b(r-s z))==r^2/(2 a s (r-s z))-r^2/(2 a s (r+s z))*)
+(*Basis: If  r/s=(-a/b)^(1/2), then z/(a+b z^2)==s/(2b(r+s z))-s/(2b(r-s z))==r^2/(2 a s (r-s z))-r^2/(2 a s (r+s z))*)
 
 
 (* ::Subsubsection:: *)
-(*Basis: If (m|n)\[Element]\[DoubleStruckCapitalZ] \[And] 0<=m<n, let r/s=(-(a/b))^(1/n), then  z^m/(a + b*z^n) == (r*(r/s)^m*Sum[1/((-1)^(2*k*(m/n))*(r - (-1)^(2*(k/n))*s*z)), {k, 1, n}])/(a*n) == (r*(r/s)^m*Sum[(-1)^(2*k*((m + 1)/n))/((-1)^(2*(k/n))*r - s*z), {k, 1, n}])/(a*n)*)
+(*Basis: If (m|n)\[Element]\[DoubleStruckCapitalZ] \[And] 0<=m<n, let r/s=(-a/b)^(1/n), then  z^m/(a + b*z^n) == (r*(r/s)^m*Sum[1/((-1)^(2*k*(m/n))*(r - (-1)^(2*(k/n))*s*z)), {k, 1, n}])/(a*n) == (r*(r/s)^m*Sum[(-1)^(2*k*((m + 1)/n))/((-1)^(2*(k/n))*r - s*z), {k, 1, n}])/(a*n)*)
 
 
 (* ::Subsubsection:: *)
@@ -4070,13 +4019,13 @@ UnifyTerm[term_,lst_,x_] :=
 (*ExpandLinearProduct[v,u,a,b,x]*)
 
 
-(* If u is a polynomial in x, ExpandLinearProduct[v,u,a,b,x] expands v*u into a sum of terms of the form c*v*(a+b*x)^n. *)
+(* If u is a polynomial in x, ExpandLinearProduct[v,u,a,b,x] expands v*u into a sum of terms of the form c*v*(a+b*x)^n where n is a positive integer. *)
 ExpandLinearProduct[v_,u_,a_,b_,x_Symbol] :=
   Module[{lst},
   lst=CoefficientList[ReplaceAll[u,x->(x-a)/b],x];
   lst=Map[Function[SimplifyTerm[#,x]],lst];
-  Module[{k},
-  Sum[v*lst[[k]]*(a+b*x)^(k-1),{k,1,Length[lst]}]]] /;
+  Module[{ii},
+  Sum[v*lst[[ii]]*(a+b*x)^(ii-1),{ii,1,Length[lst]}]]] /;
 FreeQ[{a,b},x] && PolynomialQ[u,x]
 
 
@@ -4183,7 +4132,7 @@ Dist[u_,Defer[Dist][v_,w_,x_],x_] :=
 
 Dist[u_,v_*w_,x_] := 
   Dist[u*v,w,x] /;
-ShowSteps===True && FreeQ[v,Int] && FreeQ[v,Integral] && Not[FreeQ[w,Int] && FreeQ[w,Integral]]
+ShowSteps===True && IntegralFreeQ[v] && Not[IntegralFreeQ[w]]
 
 Dist[u_,v_,x_] := 
   If[u===1,
@@ -4195,7 +4144,7 @@ Dist[u_,v_,x_] :=
     -Dist[-u,v,x],
   If[SumQ[v],
     Map[Function[Dist[u,#,x]],v],
-  If[FreeQ[v,Int] && FreeQ[v,Integral],
+  If[IntegralFreeQ[v],
 (*  Simp[Simp[u,x]*v,x], *)
     Simp[u*v,x],
 (*If[ShowSteps=!=True,
@@ -4387,17 +4336,13 @@ FunctionOfExponentialFunctionAux[u_,x_] :=
   If[HyperbolicQ[u] && LinearQ[u[[1]],x],
     Module[{tmp},
     tmp=x^FullSimplify[Coefficient[u[[1]],x,1]/(Log[$base$]*Coefficient[$expon$,x,1])];
-    If[SinhQ[u],
-      tmp/2-1/(2*tmp),
-    If[CoshQ[u],
-      tmp/2+1/(2*tmp),
-    If[TanhQ[u],    
-      (tmp-1/tmp)/(tmp+1/tmp),
-    If[CothQ[u],    
-      (tmp+1/tmp)/(tmp-1/tmp),
-    If[SechQ[u],
-      2/(tmp+1/tmp),
-    2/(tmp-1/tmp)]]]]]],
+    Switch[Head[u], 
+      Sinh, tmp/2-1/(2*tmp),
+      Cosh, tmp/2+1/(2*tmp),
+      Tanh, (tmp-1/tmp)/(tmp+1/tmp),
+      Coth, (tmp+1/tmp)/(tmp-1/tmp),
+      Sech, 2/(tmp+1/tmp),
+      Csch, 2/(tmp-1/tmp)]],
   If[PowerQ[u] && FreeQ[u[[1]],x] && SumQ[u[[2]]],
     FunctionOfExponentialFunctionAux[u[[1]]^First[u[[2]]],x]*FunctionOfExponentialFunctionAux[u[[1]]^Rest[u[[2]]],x],
   Map[Function[FunctionOfExponentialFunctionAux[#,x]],u]]]]]
@@ -4557,37 +4502,37 @@ FunctionOfQ[v_,u_,x_Symbol,PureFlag_:False] :=
   If[ProductQ[v] && NeQ[FreeFactors[v,x],1],
     FunctionOfQ[NonfreeFactors[v,x],u,x,PureFlag],
 
-  If[PureFlag,
-    If[SinQ[v] || CscQ[v],
-      PureFunctionOfSinQ[u,v[[1]],x],
-    If[CosQ[v] || SecQ[v],
-      PureFunctionOfCosQ[u,v[[1]],x],
-    If[TanQ[v],
-      PureFunctionOfTanQ[u,v[[1]],x],
-    If[CotQ[v],
-      PureFunctionOfCotQ[u,v[[1]],x],
-    If[SinhQ[v] || CschQ[v],
-      PureFunctionOfSinhQ[u,v[[1]],x],
-    If[CoshQ[v] || SechQ[v],
-      PureFunctionOfCoshQ[u,v[[1]],x],
-    If[TanhQ[v],
-      PureFunctionOfTanhQ[u,v[[1]],x],
-    If[CothQ[v],
-      PureFunctionOfCothQ[u,v[[1]],x],
-    FunctionOfExpnQ[u,v,x]=!=False]]]]]]]],
-  If[SinQ[v] || CscQ[v],
-    FunctionOfSinQ[u,v[[1]],x],
-  If[CosQ[v] || SecQ[v],
-    FunctionOfCosQ[u,v[[1]],x],
-  If[TanQ[v] || CotQ[v],
-    FunctionOfTanQ[u,v[[1]],x],
-  If[SinhQ[v] || CschQ[v],
-    FunctionOfSinhQ[u,v[[1]],x],
-  If[CoshQ[v] || SechQ[v],
-    FunctionOfCoshQ[u,v[[1]],x],
-  If[TanhQ[v] || CothQ[v],
-    FunctionOfTanhQ[u,v[[1]],x],
-  FunctionOfExpnQ[u,v,x]=!=False]]]]]]]]]]]
+  If[PureFlag, Switch[Head[v],
+    Sin, PureFunctionOfSinQ[u,v[[1]],x],
+    Cos, PureFunctionOfCosQ[u,v[[1]],x],
+    Tan, PureFunctionOfTanQ[u,v[[1]],x],
+    Cot, PureFunctionOfCotQ[u,v[[1]],x],
+    Sec, PureFunctionOfCosQ[u,v[[1]],x],
+    Csc, PureFunctionOfSinQ[u,v[[1]],x],
+
+    Sinh, PureFunctionOfSinhQ[u,v[[1]],x],
+    Cosh, PureFunctionOfCoshQ[u,v[[1]],x],
+    Tanh, PureFunctionOfTanhQ[u,v[[1]],x],
+    Coth, PureFunctionOfCothQ[u,v[[1]],x],
+    Sech, PureFunctionOfCoshQ[u,v[[1]],x],
+    Csch, PureFunctionOfSinhQ[u,v[[1]],x],
+    _, FunctionOfExpnQ[u,v,x]=!=False],
+
+  Switch[Head[v],
+    Sin, FunctionOfSinQ[u,v[[1]],x],
+    Cos, FunctionOfCosQ[u,v[[1]],x],
+    Tan, FunctionOfTanQ[u,v[[1]],x],
+    Cot, FunctionOfTanQ[u,v[[1]],x],
+    Sec, FunctionOfCosQ[u,v[[1]],x],
+    Csc, FunctionOfSinQ[u,v[[1]],x],
+
+    Sinh, FunctionOfSinhQ[u,v[[1]],x],
+    Cosh, FunctionOfCoshQ[u,v[[1]],x],
+    Tanh, FunctionOfTanhQ[u,v[[1]],x],
+    Coth, FunctionOfTanhQ[u,v[[1]],x],
+    Sech, FunctionOfCoshQ[u,v[[1]],x],
+    Csch, FunctionOfSinhQ[u,v[[1]],x],
+    _, FunctionOfExpnQ[u,v,x]=!=False]]]]]]
 
 
 FunctionOfExpnQ[u_,v_,x_] :=
@@ -4635,7 +4580,7 @@ PureFunctionOfSinQ[u_,v_,x_] :=
   If[CalculusQ[u],
     False,
   If[TrigQ[u] && EqQ[u[[1]],v],
-    SinQ[u] || CscQ[u],
+    Head[u]===Sin || Head[u]===Csc,
   Catch[Scan[Function[If[Not[PureFunctionOfSinQ[#,v,x]],Throw[False]]],u];True]]]]
 
 
@@ -4647,7 +4592,7 @@ PureFunctionOfCosQ[u_,v_,x_] :=
   If[CalculusQ[u],
     False,
   If[TrigQ[u] && EqQ[u[[1]],v],
-    CosQ[u] || SecQ[u],
+    Head[u]===Cos || Head[u]===Sec,
   Catch[Scan[Function[If[Not[PureFunctionOfCosQ[#,v,x]],Throw[False]]],u];True]]]]
 
 
@@ -4659,7 +4604,7 @@ PureFunctionOfTanQ[u_,v_,x_] :=
   If[CalculusQ[u],
     False,
   If[TrigQ[u] && EqQ[u[[1]],v],
-    TanQ[u] || CotQ[u],
+    Head[u]===Tan || Head[u]===Cot,
   Catch[Scan[Function[If[Not[PureFunctionOfTanQ[#,v,x]],Throw[False]]],u];True]]]]
 
 
@@ -4671,7 +4616,7 @@ PureFunctionOfCotQ[u_,v_,x_] :=
   If[CalculusQ[u],
     False,
   If[TrigQ[u] && EqQ[u[[1]],v],
-    CotQ[u],
+    Head[u]===Cot,
   Catch[Scan[Function[If[Not[PureFunctionOfCotQ[#,v,x]],Throw[False]]],u];True]]]]
 
 
@@ -4688,16 +4633,16 @@ FunctionOfSinQ[u_,v_,x_] :=
   If[TrigQ[u] && IntegerQuotientQ[u[[1]],v],
     If[OddQuotientQ[u[[1]],v],
 (* Basis: If m odd, Sin[m*v]^n is a function of Sin[v]. *)
-      SinQ[u] || CscQ[u],
+      Head[u]===Sin || Head[u]===Csc,
 (* Basis: If m even, Cos[m*v]^n is a function of Sin[v]. *)
-    CosQ[u] || SecQ[u]],
+    Head[u]===Cos || Head[u]===Sec],
   If[IntegerPowerQ[u] && TrigQ[u[[1]]] && IntegerQuotientQ[u[[1,1]],v],
     If[EvenQ[u[[2]]],
 (* Basis: If m integer and n even, Trig[m*v]^n is a function of Sin[v]. *)
       True,
     FunctionOfSinQ[u[[1]],v,x]],
   If[ProductQ[u],
-    If[CosQ[u[[1]]] && SinQ[u[[2]]] && EqQ[u[[1,1]],v/2] && EqQ[u[[2,1]],v/2],
+    If[Head[u[[1]]]===Cos && Head[u[[2]]]===Sin && EqQ[u[[1,1]],v/2] && EqQ[u[[2,1]],v/2],
       FunctionOfSinQ[Drop[u,2],v,x],
     Module[{lst},
     lst=FindTrigFactor[Sin,Csc,u,v,False];
@@ -4724,7 +4669,7 @@ FunctionOfCosQ[u_,v_,x_] :=
     False,
   If[TrigQ[u] && IntegerQuotientQ[u[[1]],v],
 (* Basis: If m integer, Cos[m*v]^n is a function of Cos[v]. *)
-    CosQ[u] || SecQ[u],
+    Head[u]===Cos || Head[u]===Sec,
   If[IntegerPowerQ[u] && TrigQ[u[[1]]] && IntegerQuotientQ[u[[1,1]],v],
     If[EvenQ[u[[2]]],
 (* Basis: If m integer and n even, Trig[m*v]^n is a function of Cos[v]. *)
@@ -4752,7 +4697,7 @@ FunctionOfTanQ[u_,v_,x_] :=
   If[CalculusQ[u],
     False,
   If[TrigQ[u] && IntegerQuotientQ[u[[1]],v],
-    TanQ[u] || CotQ[u] || EvenQuotientQ[u[[1]],v],
+    Head[u]===Tan || Head[u]===Cot || EvenQuotientQ[u[[1]],v],
   If[PowerQ[u] && EvenQ[u[[2]]] && TrigQ[u[[1]]] && IntegerQuotientQ[u[[1,1]],v],
     True,
   If[PowerQ[u] && EvenQ[u[[2]]] && SumQ[u[[1]]],
@@ -4765,7 +4710,7 @@ FunctionOfTanQ[u_,v_,x_] :=
   Catch[Scan[Function[If[Not[FunctionOfTanQ[#,v,x]],Throw[False]]],u];True]]]]]]]
 
 OddTrigPowerQ[u_,v_,x_] :=
-  If[SinQ[u] || CosQ[u] || SecQ[u] || CscQ[u],
+  If[MemberQ[{Sin,Cos,Sec,Csc},Head[u]],
     OddQuotientQ[u[[1]],v],
   If[PowerQ[u],
     OddQ[u[[2]]] && OddTrigPowerQ[u[[1]],v,x],
@@ -4790,13 +4735,13 @@ FunctionOfTanWeight[u_,v_,x_] :=
   If[CalculusQ[u],
     0,
   If[TrigQ[u] && IntegerQuotientQ[u[[1]],v],
-    If[TanQ[u] && EqQ[u[[1]],v],
+    If[Head[u]===Tan && EqQ[u[[1]],v],
       1,
-    If[CotQ[u] && EqQ[u[[1]],v],
+    If[Head[u]===Cot && EqQ[u[[1]],v],
       -1,
     0]],
   If[PowerQ[u] && EvenQ[u[[2]]] && TrigQ[u[[1]]] && IntegerQuotientQ[u[[1,1]],v],
-    If[TanQ[u[[1]]] || CosQ[u[[1]]] || SecQ[u[[1]]],
+    If[Head[u[[1]]]===Tan || Head[u[[1]]]===Cos || Head[u[[1]]]===Sec,
       1,
     -1],
   If[ProductQ[u],
@@ -4832,7 +4777,7 @@ PureFunctionOfSinhQ[u_,v_,x_] :=
   If[CalculusQ[u],
     False,
   If[HyperbolicQ[u] && EqQ[u[[1]],v],
-    SinhQ[u] || CschQ[u],
+    Head[u]===Sinh || Head[u]===Csch,
   Catch[Scan[Function[If[Not[PureFunctionOfSinhQ[#,v,x]],Throw[False]]],u];True]]]]
 
 
@@ -4844,7 +4789,7 @@ PureFunctionOfCoshQ[u_,v_,x_] :=
   If[CalculusQ[u],
     False,
   If[HyperbolicQ[u] && EqQ[u[[1]],v],
-    CoshQ[u] || SechQ[u],
+    Head[u]===Cosh || Head[u]===Sech,
   Catch[Scan[Function[If[Not[PureFunctionOfCoshQ[#,v,x]],Throw[False]]],u];True]]]]
 
 
@@ -4856,7 +4801,7 @@ PureFunctionOfTanhQ[u_,v_,x_] :=
   If[CalculusQ[u],
     False,
   If[HyperbolicQ[u] && EqQ[u[[1]],v],
-    TanhQ[u] || CothQ[u],
+    Head[u]===Tanh || Head[u]===Coth,
   Catch[Scan[Function[If[Not[PureFunctionOfTanhQ[#,v,x]],Throw[False]]],u];True]]]]
 
 
@@ -4868,7 +4813,7 @@ PureFunctionOfCothQ[u_,v_,x_] :=
   If[CalculusQ[u],
     False,
   If[HyperbolicQ[u] && EqQ[u[[1]],v],
-    CothQ[u],
+    Head[u]===Coth,
   Catch[Scan[Function[If[Not[PureFunctionOfCothQ[#,v,x]],Throw[False]]],u];True]]]]
 
 
@@ -4885,16 +4830,16 @@ FunctionOfSinhQ[u_,v_,x_] :=
   If[HyperbolicQ[u] && IntegerQuotientQ[u[[1]],v],
     If[OddQuotientQ[u[[1]],v],
 (* Basis: If m odd, Sinh[m*v]^n is a function of Sinh[v]. *)
-      SinhQ[u] || CschQ[u],
+      Head[u]===Sinh || Head[u]===Csch,
 (* Basis: If m even, Cos[m*v]^n is a function of Sinh[v]. *)
-    CoshQ[u] || SechQ[u]],
+    Head[u]===Cosh || Head[u]===Sech],
   If[IntegerPowerQ[u] && HyperbolicQ[u[[1]]] && IntegerQuotientQ[u[[1,1]],v],
     If[EvenQ[u[[2]]],
 (* Basis: If m integer and n even, Hyper[m*v]^n is a function of Sinh[v]. *)
       True,
     FunctionOfSinhQ[u[[1]],v,x]],
   If[ProductQ[u],
-    If[CoshQ[u[[1]]] && SinhQ[u[[2]]] && EqQ[u[[1,1]],v/2] && EqQ[u[[2,1]],v/2],
+    If[Head[u[[1]]]===Cosh && Head[u[[2]]]===Sinh && EqQ[u[[1,1]],v/2] && EqQ[u[[2,1]],v/2],
       FunctionOfSinhQ[Drop[u,2],v,x],
     Module[{lst},
     lst=FindTrigFactor[Sinh,Csch,u,v,False];
@@ -4921,7 +4866,7 @@ FunctionOfCoshQ[u_,v_,x_] :=
     False,
   If[HyperbolicQ[u] && IntegerQuotientQ[u[[1]],v],
 (* Basis: If m integer, Cosh[m*v]^n is a function of Cosh[v]. *)
-    CoshQ[u] || SechQ[u],
+    Head[u]===Cosh || Head[u]===Sech,
   If[IntegerPowerQ[u] && HyperbolicQ[u[[1]]] && IntegerQuotientQ[u[[1,1]],v],
     If[EvenQ[u[[2]]],
 (* Basis: If m integer and n even, Hyper[m*v]^n is a function of Cosh[v]. *)
@@ -4949,7 +4894,7 @@ FunctionOfTanhQ[u_,v_,x_] :=
   If[CalculusQ[u],
     False,
   If[HyperbolicQ[u] && IntegerQuotientQ[u[[1]],v],
-    TanhQ[u] || CothQ[u] || EvenQuotientQ[u[[1]],v],
+    Head[u]===Tanh || Head[u]===Coth || EvenQuotientQ[u[[1]],v],
   If[PowerQ[u] && EvenQ[u[[2]]] && HyperbolicQ[u[[1]]] && IntegerQuotientQ[u[[1,1]],v],
     True,
   If[PowerQ[u] && EvenQ[u[[2]]] && SumQ[u[[1]]],
@@ -4962,7 +4907,7 @@ FunctionOfTanhQ[u_,v_,x_] :=
   Catch[Scan[Function[If[Not[FunctionOfTanhQ[#,v,x]],Throw[False]]],u];True]]]]]]]
 
 OddHyperbolicPowerQ[u_,v_,x_] :=
-  If[SinhQ[u] || CoshQ[u] || SechQ[u] || CschQ[u],
+  If[MemberQ[{Sinh,Cosh,Sech,Csch},Head[u]],
     OddQuotientQ[u[[1]],v],
   If[PowerQ[u],
     OddQ[u[[2]]] && OddHyperbolicPowerQ[u[[1]],v,x],
@@ -4987,13 +4932,13 @@ FunctionOfTanhWeight[u_,v_,x_] :=
   If[CalculusQ[u],
     0,
   If[HyperbolicQ[u] && IntegerQuotientQ[u[[1]],v],
-    If[TanhQ[u] && EqQ[u[[1]],v],
+    If[Head[u]===Tanh && EqQ[u[[1]],v],
       1,
-    If[CothQ[u] && EqQ[u[[1]],v],
+    If[Head[u]===Coth && EqQ[u[[1]],v],
       -1,
     0]],
   If[PowerQ[u] && EvenQ[u[[2]]] && HyperbolicQ[u[[1]]] && IntegerQuotientQ[u[[1,1]],v],
-    If[TanhQ[u[[1]]] || CoshQ[u[[1]]] || SechQ[u[[1]]],
+    If[Head[u[[1]]]===Tanh || Head[u[[1]]]===Cosh || Head[u[[1]]]===Sech,
       1,
     -1],
   If[ProductQ[u],
@@ -5258,72 +5203,151 @@ SquareRootOfQuadraticSubst[u_,vv_,xx_,x_Symbol] :=
   Map[Function[SquareRootOfQuadraticSubst[#,vv,xx,x]],u]]]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Substitution functions*)
 
 
-(* ::Subsection::Closed:: *)
-(*Subst*)
+(* ::Subsection:: *)
+(*Subst[u,v,w]*)
 
 
-(* Subst[u,x,w] returns u with x replaced by w and resulting constant terms replaced by 0. *) 
-Subst[u_,x_Symbol,w_] :=
-  SimplifyAntiderivative[SubstAux[u,x,w],x]
+(* Subst[u,x,v] returns u with all nondummy occurences of x replaced by v and resulting constant terms replaced by 0. *) 
+Subst[u_,x_Symbol,v_] := 
+  If[BinomialQ[v,x],
+    SimplifyAntiderivative[SubstBinomial[u,x,v],x],
+  SimplifyAntiderivative[SubstNonbinomial[u,x,v],x]]
 
-Subst[u_,Rule[x_Symbol,w_]] :=
-  SimplifyAntiderivative[SubstAux[u,x,w],x]
-
-Subst[u_,x_,w_] :=
-  SubstAux[u,x,w]
+Subst[u_,Rule[x_Symbol,v_]] := Subst[u,x,v]
 
 
-SubstAux[a_+b_.*x_,x_Symbol,c_.*F_[z_]^2] :=
-  a*Simplify[1-F[z]^2] /;
-FreeQ[{a,b,c},x] && MemberQ[{Sin,Cos,Sec,Csc,Cosh,Tanh,Coth,Sech},F] && EqQ[a+b*c,0]
+Subst[u_,(a_.*x_)^n_,v_] := 
+  If[AtomQ[u],
+    u,
+  If[RationalQ[n] && Numerator[n]!=1,
+    Subst[u,(a*x)^(1/Denominator[n]),v/(a*x)^(n-1/Denominator[n])],
+  If[PowerQ[u] && FreeQ[u[[2]],x] && u[[1]]===a*x,
+    If[IntegerQ[u[[2]]/n],
+      Simplify[v^(u[[2]]/n)],
+    If[SumQ[u[[2]]],
+      Apply[Times,Map[Function[Subst[u[[1]]^#,(a*x)^n,v]],Apply[List,u[[2]]]]],
+    With[{w=Expand[u[[2]]]},
+    If[SumQ[w],
+      Apply[Times,Map[Function[Subst[u[[1]]^#,(a*x)^n,v]],Apply[List,w]]],
+    With[{m=NumericFactor[u[[2]]]},
+    If[Numerator[m]!=1,
+      Subst[u[[1]]^(m/Numerator[m]*NonnumericFactors[u[[2]]]),(a*x)^n,v]^Numerator[m],
+    Subst[u[[1]],(a*x)^n,v]^u[[2]]]]]]]],
+  If[CalculusQ[u] && Not[FreeQ[x,u[[2]]]] || HeldFormQ[u] && Head[u]=!=Defer[AppellF1],
+    Defer[Subst][u,(a*x)^n,v],
+  Map[Function[Subst[#,(a*x)^n,v]],u]]]]] /;
+FreeQ[{a,n},x]
 
-SubstAux[a_+b_.*x_,x_Symbol,c_.*F_[z_]^2] :=
-  a*Simplify[1+F[z]^2] /;
-FreeQ[{a,b,c},x] && MemberQ[{Tan,Cot,Sinh,Csch},F] && EqQ[a-b*c,0]
 
-
-SubstAux[a_+b_.*x_^2,x_Symbol,c_.*F_[z_]] :=
-  a*Simplify[1-F[z]^2] /;
-FreeQ[{a,b,c},x] && MemberQ[{Sin,Cos,Sec,Csc,Cosh,Tanh,Coth,Sech},F] && EqQ[a+b*c^2,0]
-
-SubstAux[a_+b_.*x_^2,x_Symbol,c_.*F_[z_]] :=
-  a*Simplify[1+F[z]^2] /;
-FreeQ[{a,b,c},x] && MemberQ[{Tan,Cot,Sinh,Csch},F] && EqQ[a-b*c^2,0]
-
-
-SubstAux[F_[a_.*x_^m_.],x_Symbol,b_.*x_^n_] :=
-   Extract[{ArcCsc,ArcSec,ArcCot,ArcTan,ArcCos,ArcSin,ArcCsch,ArcSech,ArcCoth,ArcTanh,ArcCosh,ArcSinh},
-  Position[{ArcSin,ArcCos,ArcTan,ArcCot,ArcSec,ArcCsc,ArcSinh,ArcCosh,ArcTanh,ArcCoth,ArcSech,ArcCsch},F]][[1]] [x^(-m*n)/(a*b^m)] /;
-FreeQ[{a,b},x] && IGtQ[m,0] && ILtQ[n,0] && MemberQ[{ArcSin,ArcCos,ArcTan,ArcCot,ArcSec,ArcCsc,ArcSinh,ArcCosh,ArcTanh,ArcCoth,ArcSech,ArcCsch},F]
-
-
-(* Subst[u,v,w] returns u with all nondummy occurences of v replaced by w *)
-SubstAux[u_,v_,w_] :=
+Subst[u_,v_,w_] := 
   If[u===v,
     w,
   If[AtomQ[u],
     u,
-  If[PowerQ[u],
-    If[PowerQ[v] && u[[1]]===v[[1]] && SumQ[u[[2]]],
-      SubstAux[u[[1]]^First[u[[2]]],v,w]*SubstAux[u[[1]]^Rest[u[[2]]],v,w],
-    SubstAux[u[[1]],v,w]^SubstAux[u[[2]],v,w]],
-  If[Head[u]===Defer[Subst],
-    If[u[[2]]===v || FreeQ[u[[1]],v],
-      SubstAux[u[[1]],u[[2]],SubstAux[u[[3]],v,w]],
-    Defer[Subst][u,v,w]],
-  If[Head[u]===Defer[Dist],
-    Defer[Dist][SubstAux[u[[1]],v,w],SubstAux[u[[2]],v,w],u[[3]]],
   If[CalculusQ[u] && Not[FreeQ[v,u[[2]]]] || HeldFormQ[u] && Head[u]=!=Defer[AppellF1],
     Defer[Subst][u,v,w],
-  Map[Function[SubstAux[#,v,w]],u]]]]]]]
+  Map[Function[Subst[#,v,w]],u]]]]
 
 
 (* ::Subsection::Closed:: *)
-(*SimplifyAntiderivative*)
+(*SubstBinomial[u,x,v]*)
+
+
+SubstBinomial[F_[a_.*x_^m_.],x_,b_.*x_^n_] :=
+  Switch[F,
+    ArcSin, ArcCsc,  ArcCos, ArcSec,  ArcTan, ArcCot,  ArcCot, ArcTan,  ArcSec, ArcCos,  ArcCsc, ArcSin,
+    ArcSinh, ArcCsch,  ArcCosh, ArcSech,  ArcTanh, ArcCoth,  ArcCoth, ArcTanh,  ArcSech, ArcCosh,  ArcCsch, ArcSinh][x^(-m*n)/(a*b^m)] /;
+FreeQ[{a,b},x] && IGtQ[m,0] && ILtQ[n,0] && MemberQ[{ArcSin,ArcCos,ArcTan,ArcCot,ArcSec,ArcCsc,ArcSinh,ArcCosh,ArcTanh,ArcCoth,ArcSech,ArcCsch},F]
+
+
+(* x is a variable symbol, and v is a binomial in x. *)
+(* SubstBinomial[u,x,v] returns u with all nondummy occurences of x replaced by v *)
+SubstBinomial[u_,x_,v_] :=
+  If[AtomQ[u],
+    If[u===x,
+      v,
+    u],
+  If[PowerQ[u],
+    If[Not[IntegerQ[u[[2]]]] && LinearQ[u[[1]],x],
+      Simplify[SubstBinomial[u[[1]],x,v]]^SubstBinomial[u[[2]],x,v],
+    SubstBinomial[u[[1]],x,v]^SubstBinomial[u[[2]],x,v]],
+  If[Head[u]===Defer[Subst],
+    If[u[[2]]===x || FreeQ[u[[1]],x],
+      SubstBinomial[u[[1]],u[[2]],SubstBinomial[u[[3]],x,v]],
+    Defer[Subst][u,x,v]],
+  If[Head[u]===Defer[Dist],
+    Defer[Dist][SubstBinomial[u[[1]],x,v],SubstBinomial[u[[2]],x,v],u[[3]]],
+  If[SimplifyFlag && MemberQ[{Unintegrable,CannotIntegrate},Head[u]] && u[[2]]===x,
+    With[{w=Simplify[D[v,x]]}, FreeFactors[w,x]*Head[u][Subst[u[[1]],x,v]*NonfreeFactors[w,x],x]],
+  If[CalculusQ[u] && Not[FreeQ[x,u[[2]]]] || HeldFormQ[u] && Head[u]=!=Defer[AppellF1],
+    Defer[Subst][u,x,v],
+  If[Length[u]==1 && LinearQ[u[[1]],x],
+    Head[u][Simplify[SubstBinomial[u[[1]],x,v]]],
+  If[Head[u]===PolyLog && Length[u]==2 && LinearQ[u[[2]],x],
+    PolyLog[SubstBinomial[u[[1]],x,v],Simplify[SubstBinomial[u[[2]],x,v]]],
+  If[LinearQ[u,x] && Not[AtomQ[Coefficient[u,x,0]]],
+    With[{w=Map[Function[SubstBinomial[#,x,v]],u]},
+    If[LeafCount[Simplify[w]]<2/3*LeafCount[w],
+      Simplify[w],
+    w]],
+  Map[Function[SubstBinomial[#,x,v]],u]]]]]]]]]]
+
+
+(* ::Subsection::Closed:: *)
+(*SubstNonbinomial[u,x,v]*)
+
+
+(* x is a variable symbol. *)
+(* SubstNonbinomial[u,x,v] returns u with all nondummy occurences of x replaced by v *)
+SubstNonbinomial[a_+b_.*x_,x_,c_.*F_[z_]^2] :=
+  a*Simplify[1-F[z]^2] /;
+FreeQ[{a,b,c},x] && MemberQ[{Sin,Cos,Sec,Csc,Cosh,Tanh,Coth,Sech},F] && EqQ[a+b*c,0]
+
+SubstNonbinomial[a_+b_.*x_,x_,c_.*F_[z_]^2] :=
+  a*Simplify[1+F[z]^2] /;
+FreeQ[{a,b,c},x] && MemberQ[{Tan,Cot,Sinh,Csch},F] && EqQ[a-b*c,0]
+
+
+SubstNonbinomial[a_+b_.*x_^2,x_,c_.*F_[z_]] :=
+  a*Simplify[1-F[z]^2] /;
+FreeQ[{a,b,c},x] && MemberQ[{Sin,Cos,Sec,Csc,Cosh,Tanh,Coth,Sech},F] && EqQ[a+b*c^2,0]
+
+SubstNonbinomial[a_+b_.*x_^2,x_,c_.*F_[z_]] :=
+  a*Simplify[1+F[z]^2] /;
+FreeQ[{a,b,c},x] && MemberQ[{Tan,Cot,Sinh,Csch},F] && EqQ[a-b*c^2,0]
+
+
+SubstNonbinomial[F_[a_.*x_^m_.],x_,b_.*x_^n_] :=
+  Switch[F,
+    ArcSin, ArcCsc,  ArcCos, ArcSec,  ArcTan, ArcCot,  ArcCot, ArcTan,  ArcSec, ArcCos,  ArcCsc, ArcSin,
+    ArcSinh, ArcCsch,  ArcCosh, ArcSech,  ArcTanh, ArcCoth,  ArcCoth, ArcTanh,  ArcSech, ArcCosh,  ArcCsch, ArcSinh][x^(-m*n)/(a*b^m)] /;
+FreeQ[{a,b},x] && IGtQ[m,0] && ILtQ[n,0] && MemberQ[{ArcSin,ArcCos,ArcTan,ArcCot,ArcSec,ArcCsc,ArcSinh,ArcCosh,ArcTanh,ArcCoth,ArcSech,ArcCsch},F]
+
+
+SubstNonbinomial[u_,x_,v_] :=
+  If[AtomQ[u],
+    If[u===x,
+      v,
+    u],
+  If[Head[u]===Defer[Subst],
+    If[u[[2]]===x || FreeQ[u[[1]],x],
+      SubstNonbinomial[u[[1]],u[[2]],SubstNonbinomial[u[[3]],x,v]],
+    Defer[Subst][u,x,v]],
+  If[Head[u]===Defer[Dist],
+    Defer[Dist][SubstNonbinomial[u[[1]],x,v],SubstNonbinomial[u[[2]],x,v],u[[3]]],
+  If[SimplifyFlag && MemberQ[{Unintegrable,CannotIntegrate},Head[u]] && u[[2]]===x,
+    With[{w=Simplify[D[v,x]]}, FreeFactors[w,x]*Head[u][Subst[u[[1]],x,v]*NonfreeFactors[w,x],x]],
+  If[CalculusQ[u] && Not[FreeQ[x,u[[2]]]] || HeldFormQ[u] && Head[u]=!=Defer[AppellF1],
+    Defer[Subst][u,x,v],
+  Map[Function[SubstNonbinomial[#,x,v]],u]]]]]]
+
+
+(* ::Subsection::Closed:: *)
+(*SimplifyAntiderivative[u,x]*)
 
 
 (* ::Item::Closed:: *)
@@ -6044,34 +6068,20 @@ SubstFor[v_,u_,x_] :=
     SubstFor[v,ActivateTrig[u],x],
   If[NeQ[FreeFactors[v,x],1],
     SubstFor[NonfreeFactors[v,x],u,x/FreeFactors[v,x]],
-
-  If[SinQ[v],
-    SubstForTrig[u,x,Sqrt[1-x^2],v[[1]],x],
-  If[CosQ[v],
-    SubstForTrig[u,Sqrt[1-x^2],x,v[[1]],x],
-  If[TanQ[v],
-    SubstForTrig[u,x/Sqrt[1+x^2],1/Sqrt[1+x^2],v[[1]],x],
-  If[CotQ[v],
-    SubstForTrig[u,1/Sqrt[1+x^2],x/Sqrt[1+x^2],v[[1]],x],
-  If[SecQ[v],
-    SubstForTrig[u,1/Sqrt[1-x^2],1/x,v[[1]],x],
-  If[CscQ[v],
-    SubstForTrig[u,1/x,1/Sqrt[1-x^2],v[[1]],x],
-
-  If[SinhQ[v],
-    SubstForHyperbolic[u,x,Sqrt[1+x^2],v[[1]],x],
-  If[CoshQ[v],
-    SubstForHyperbolic[u,Sqrt[-1+x^2],x,v[[1]],x],
-  If[TanhQ[v],
-    SubstForHyperbolic[u,x/Sqrt[1-x^2],1/Sqrt[1-x^2],v[[1]],x],
-  If[CothQ[v],
-    SubstForHyperbolic[u,1/Sqrt[-1+x^2],x/Sqrt[-1+x^2],v[[1]],x],
-  If[SechQ[v],
-    SubstForHyperbolic[u,1/Sqrt[-1+x^2],1/x,v[[1]],x],
-  If[CschQ[v],
-    SubstForHyperbolic[u,1/x,1/Sqrt[1+x^2],v[[1]],x],
-
-  SubstForAux[u,v,x]]]]]]]]]]]]]]]]
+  Switch[Head[v],
+    Sin, SubstForTrig[u,x,Sqrt[1-x^2],v[[1]],x],
+    Cos, SubstForTrig[u,Sqrt[1-x^2],x,v[[1]],x],
+    Tan, SubstForTrig[u,x/Sqrt[1+x^2],1/Sqrt[1+x^2],v[[1]],x],
+    Cot, SubstForTrig[u,1/Sqrt[1+x^2],x/Sqrt[1+x^2],v[[1]],x],
+    Sec, SubstForTrig[u,1/Sqrt[1-x^2],1/x,v[[1]],x],
+    Csc, SubstForTrig[u,1/x,1/Sqrt[1-x^2],v[[1]],x],
+    Sinh, SubstForHyperbolic[u,x,Sqrt[1+x^2],v[[1]],x],
+    Cosh, SubstForHyperbolic[u,Sqrt[-1+x^2],x,v[[1]],x],
+    Tanh, SubstForHyperbolic[u,x/Sqrt[1-x^2],1/Sqrt[1-x^2],v[[1]],x],
+    Coth, SubstForHyperbolic[u,1/Sqrt[-1+x^2],x/Sqrt[-1+x^2],v[[1]],x],
+    Sech, SubstForHyperbolic[u,1/Sqrt[-1+x^2],1/x,v[[1]],x],
+    Csch, SubstForHyperbolic[u,1/x,1/Sqrt[1+x^2],v[[1]],x],
+    _, SubstForAux[u,v,x]]]]]
 
 
 (* u is a function of v.  SubstForAux[u,v,x] returns u with v replaced by x. *)
@@ -6102,20 +6112,10 @@ SubstForTrig[u_,sin_,cos_,v_,x_] :=
     u,
   If[TrigQ[u] && IntegerQuotientQ[u[[1]],v],
     If[u[[1]]===v || EqQ[u[[1]],v],
-      If[SinQ[u],
-        sin,
-      If[CosQ[u],
-        cos,
-      If[TanQ[u],
-        sin/cos,
-      If[CotQ[u],
-        cos/sin,
-      If[SecQ[u],
-        1/cos,
-      1/sin]]]]],
+      Switch[Head[u], Sin, sin,  Cos, cos,  Tan, sin/cos,  Cot, cos/sin,  Sec, 1/cos,  Csc, 1/sin],
     Map[Function[SubstForTrig[#,sin,cos,v,x]],
 			ReplaceAll[TrigExpand[Head[u][Simplify[u[[1]]/v]*x]],x->v]]],
-  If[ProductQ[u] && CosQ[u[[1]]] && SinQ[u[[2]]] && EqQ[u[[1,1]],v/2] && EqQ[u[[2,1]],v/2],
+  If[ProductQ[u] && Head[u[[1]]]===Cos && Head[u[[2]]]===Sin && EqQ[u[[1,1]],v/2] && EqQ[u[[2,1]],v/2],
     sin/2*SubstForTrig[Drop[u,2],sin,cos,v,x],
   Map[Function[SubstForTrig[#,sin,cos,v,x]],u]]]]
 
@@ -6128,20 +6128,10 @@ SubstForHyperbolic[u_,sinh_,cosh_,v_,x_] :=
     u,
   If[HyperbolicQ[u] && IntegerQuotientQ[u[[1]],v],
     If[u[[1]]===v || EqQ[u[[1]],v],
-      If[SinhQ[u],
-        sinh,
-      If[CoshQ[u],
-        cosh,
-      If[TanhQ[u],
-        sinh/cosh,
-      If[CothQ[u],
-        cosh/sinh,
-      If[SechQ[u],
-        1/cosh,
-      1/sinh]]]]],
+      Switch[Head[u], Sinh, sinh,  Cosh, cosh,  Tanh, sinh/cosh,  Coth, cosh/sinh,  Sech, 1/cosh, Csch, 1/sinh],
     Map[Function[SubstForHyperbolic[#,sinh,cosh,v,x]],
 			ReplaceAll[TrigExpand[Head[u][Simplify[u[[1]]/v]*x]],x->v]]],
-  If[ProductQ[u] && CoshQ[u[[1]]] && SinhQ[u[[2]]] && EqQ[u[[1,1]],v/2] && EqQ[u[[2,1]],v/2],
+  If[ProductQ[u] && Head[u[[1]]]===Cosh && Head[u[[2]]]===Sinh && EqQ[u[[1,1]],v/2] && EqQ[u[[2,1]],v/2],
     sinh/2*SubstForHyperbolic[Drop[u,2],sinh,cosh,v,x],
   Map[Function[SubstForHyperbolic[#,sinh,cosh,v,x]],u]]]]
 
@@ -6213,13 +6203,16 @@ TryPureTanSubst[u_,x_Symbol] :=
 (*TryPureTanhSubst*)
 
 
+MemberQ[{Sinh,Cosh,Sech,Csch},f]
+
+
 TryTanhSubst[u_,x_Symbol] :=
   FalseQ[FunctionOfLinear[u,x]] &&
   Not[MatchQ[u,r_.*(s_+t_)^n_. /; IntegerQ[n] && n>0]] &&
-(*Not[MatchQ[u,Log[f_[x]^2] /; SinhCoshQ[f]]]  && *)
+(*Not[MatchQ[u,Log[f_[x]^2] /; MemberQ[{Sinh,Cosh,Sech,Csch},f]]]  && *)
   Not[MatchQ[u,Log[v_]]]  &&
-  Not[MatchQ[u,1/(a_+b_.*f_[x]^n_) /; SinhCoshQ[f] && IntegerQ[n] && n>2]] &&
-  Not[MatchQ[u,f_[m_.*x]*g_[n_.*x] /; IntegersQ[m,n] && SinhCoshQ[f] && SinhCoshQ[g]]] &&
+  Not[MatchQ[u,1/(a_+b_.*f_[x]^n_) /; MemberQ[{Sinh,Cosh,Sech,Csch},f] && IntegerQ[n] && n>2]] &&
+  Not[MatchQ[u,f_[m_.*x]*g_[n_.*x] /; IntegersQ[m,n] && MemberQ[{Sinh,Cosh,Sech,Csch},f] && MemberQ[{Sinh,Cosh,Sech,Csch},g]]] &&
   Not[MatchQ[u,r_.*(a_.*s_^m_)^p_ /; FreeQ[{a,m,p},x] && Not[m===2 && (s===Sech[x] || s===Csch[x])]]] &&
   u===ExpandIntegrand[u,x]
 
@@ -7480,6 +7473,37 @@ KnownTrigIntegrandQ[list_,u_,x_Symbol] :=
 
 
 (* ::Section::Closed:: *)
+(*Inert inverse hyperbolic functions*)
+
+
+(* ::Subsection::Closed:: *)
+(*DeactivateInverseHyperbolic[u,x]*)
+
+
+(* DeactivateInverseHyperbolic[u,x] returns u with inverse trig and hyperbolic functions replaced with inert inverse hyperbolic functions. *)
+(* DeactivateInverseHyperbolic[u_,x_] :=
+  If[AtomQ[u],
+    u,
+  If[Length[u]==1,
+    With[{v=DeactivateInverseHyperbolic[u[[1]],x]},
+    Switch[Head[u],
+	  ArcSin, -I*arcsinh[I*v],
+	  ArcCos, Pi/2+I*arcsinh[I*x],
+	  ArcTan, -I*arctanh[I*v],
+	  ArcCot, I*arccoth[I*v],
+	  ArcSec, Pi/2-I*arccsch[I*v],
+	  ArcCsc, I*arccsch[I*v],
+	  ArcSinh, arcsinh[v],
+	  ArcCosh, arccosh[v],
+	  ArcTanh, arctanh[v],
+	  ArcCoth, arccoth[v],
+	  ArcSech, arcsech[v],
+	  ArcCsch, arccsch[v],
+      _, Head[u]v]],
+  Map[Function[DeactivateInverseHyperbolic[#,x]],u]]] *)
+
+
+(* ::Section::Closed:: *)
 (*Derivative divides function*)
 
 
@@ -7511,7 +7535,7 @@ DerivativeDivides[y_,u_,x_Symbol] :=
   If[MatchQ[y,a_.*x /; FreeQ[a,x]],
     False,
   If[If[PolynomialQ[y,x], PolynomialQ[u,x] && Exponent[u,x]==Exponent[y,x]-1, EasyDQ[y,x]],
-    Module[{v=Block[{ShowSteps=False}, D[y,x]]},
+    Module[{v=Block[{ShowSteps=False}, ReplaceAll[D[y,x],Sinc[z_]->Sin[z]/z]]},
     If[EqQ[v,0],
       False,
     v=Simplify[u/v];
@@ -7901,6 +7925,6 @@ MemberQ[{Int,Subst},Head[Unevaluated[u]]]
 FixRhsIntRule[u_,x_] :=
   If[Head[Unevaluated[u]]===Dist && Length[Unevaluated[u]]==2,
     Insert[Unevaluated[u],x,3],
-  If[MemberQ[{Int,Subst,Integral,Simp,Dist},Head[Unevaluated[u]]],
+  If[MemberQ[{Int, Unintegrable, CannotIntegrate, Subst, Simp, Dist}, Head[Unevaluated[u]]],
     u,
   Simp[u,x]]]

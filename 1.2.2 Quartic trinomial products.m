@@ -20,7 +20,12 @@ FreeQ[{a,b,c},x] && EqQ[b^2-4*a*c,0] *)
 
 Int[(a_+b_.*x_^2+c_.*x_^4)^p_,x_Symbol] :=
   (a+b*x^2+c*x^4)^p/(b+2*c*x^2)^(2*p)*Int[(b+2*c*x^2)^(2*p),x] /;
-FreeQ[{a,b,c,p},x] && EqQ[b^2-4*a*c,0] && Not[IntegerQ[p]]
+FreeQ[{a,b,c,p},x] && EqQ[b^2-4*a*c,0] && IntegerQ[p-1/2]
+
+
+Int[(a_+b_.*x_^2+c_.*x_^4)^p_,x_Symbol] :=
+  a^IntPart[p]*(a+b*x^2+c*x^4)^FracPart[p]/(1+2*c*x^2/b)^(2*FracPart[p])*Int[(1+2*c*x^2/b)^(2*p),x] /;
+FreeQ[{a,b,c,p},x] && EqQ[b^2-4*a*c,0] && Not[IntegerQ[2*p]]
 
 
 Int[(a_+b_.*x_^2+c_.*x_^4)^p_,x_Symbol] :=
@@ -132,6 +137,9 @@ Int[(a_+b_.*x_^2+c_.*x_^4)^p_,x_Symbol] :=
 FreeQ[{a,b,c,p},x] && NeQ[b^2-4*a*c,0]
 
 
+
+
+
 (* ::Subsection::Closed:: *)
 (*1.2.2.2 (d x)^m (a+b x^2+c x^4)^p*)
 
@@ -162,19 +170,40 @@ FreeQ[{a,b,c,d,m,p},x] && EqQ[b^2-4*a*c,0] && IntegerQ[p] *)
 
 
 Int[(d_.*x_)^m_.*(a_+b_.*x_^2+c_.*x_^4)^p_,x_Symbol] :=
+  2*(d*x)^(m+1)*(a+b*x^2+c*x^4)^(p+1)/(d*(m+3)*(2*a+b*x^2)) - 
+  (d*x)^(m+1)*(a+b*x^2+c*x^4)^(p+1)/(2*a*d*(m+3)*(p+1)) /;
+FreeQ[{a,b,c,d,m,p},x] && EqQ[b^2-4*a*c,0] && Not[IntegerQ[p]] && EqQ[m+4*p+5,0] && LtQ[p,-1]
+
+
+Int[(d_.*x_)^m_.*(a_+b_.*x_^2+c_.*x_^4)^p_,x_Symbol] :=
   (d*x)^(m+1)*(a+b*x^2+c*x^4)^(p+1)/(4*a*d*(p+1)*(2*p+1)) - 
   (d*x)^(m+1)*(2*a+b*x^2)*(a+b*x^2+c*x^4)^p/(4*a*d*(2*p+1)) /;
 FreeQ[{a,b,c,d,m,p},x] && EqQ[b^2-4*a*c,0] && Not[IntegerQ[p]] && EqQ[m+4*p+5,0] && NeQ[p,-1/2]
 
 
+Int[x_^m_.*(a_+b_.*x_^2+c_.*x_^4)^p_,x_Symbol] :=
+  1/2*Subst[Int[x^((m-1)/2)*(a+b*x+c*x^2)^p,x],x,x^2] /;
+FreeQ[{a,b,c,p},x] && EqQ[b^2-4*a*c,0] && IntegerQ[p-1/2] && IntegerQ[(m-1)/2] && (GtQ[m,0] || LtQ[0,4*p,-m-1])
+
+
+(* Int[(d_.*x_)^m_.*(a_+b_.*x_^2+c_.*x_^4)^p_,x_Symbol] :=
+  c*(a+b*x^2+c*x^4)^(p+1)/(b/2+c*x^2)^(2*(p+1))*Int[(d*x)^m*(b/2+c*x^2)^(2*p),x] /;
+FreeQ[{a,b,c,d,m,p},x] && EqQ[b^2-4*a*c,0] && IntegerQ[p-1/2] && IGeQ[m,2*p] *)
+
+
 Int[(d_.*x_)^m_.*(a_+b_.*x_^2+c_.*x_^4)^p_,x_Symbol] :=
   (a+b*x^2+c*x^4)^FracPart[p]/(c^IntPart[p]*(b/2+c*x^2)^(2*FracPart[p]))*Int[(d*x)^m*(b/2+c*x^2)^(2*p),x] /;
-FreeQ[{a,b,c,d,m,p},x] && EqQ[b^2-4*a*c,0] && Not[IntegerQ[p]]
+FreeQ[{a,b,c,d,m,p},x] && EqQ[b^2-4*a*c,0] && IntegerQ[p-1/2]
+
+
+Int[(d_.*x_)^m_.*(a_+b_.*x_^2+c_.*x_^4)^p_,x_Symbol] :=
+  a^IntPart[p]*(a+b*x^2+c*x^4)^FracPart[p]/(1+2*c*x^2/b)^(2*FracPart[p])*Int[(d*x)^m*(1+2*c*x^2/b)^(2*p),x] /;
+FreeQ[{a,b,c,d,m,p},x] && EqQ[b^2-4*a*c,0] && Not[IntegerQ[2*p]]
 
 
 Int[x_^m_.*(a_+b_.*x_^2+c_.*x_^4)^p_.,x_Symbol] :=
-  1/2*Subst[Int[x^((m+1)/2-1)*(a+b*x+c*x^2)^p,x],x,x^2] /;
-FreeQ[{a,b,c,p},x] && NeQ[b^2-4*a*c,0] && IntegerQ[(m+1)/2]
+  1/2*Subst[Int[x^((m-1)/2)*(a+b*x+c*x^2)^p,x],x,x^2] /;
+FreeQ[{a,b,c,p},x] && IntegerQ[(m-1)/2]
 
 
 Int[(d_.*x_)^m_*(a_+b_.*x_^2+c_.*x_^4)^p_,x_Symbol] :=
@@ -357,6 +386,9 @@ FreeQ[{a,b,c,d,m,p},x]
 Int[u_^m_.*(a_.+b_.*v_^2+c_.*v_^4)^p_.,x_Symbol] :=
   u^m/(Coefficient[v,x,1]*v^m)*Subst[Int[x^m*(a+b*x^2+c*x^(2*2))^p,x],x,v] /;
 FreeQ[{a,b,c,m,p},x] && LinearPairQ[u,v,x]
+
+
+
 
 
 (* ::Subsection::Closed:: *)
@@ -1008,13 +1040,16 @@ FreeQ[{a,c,d,e,p},x] && NeQ[c*d^2+a*e^2,0] && ILtQ[q,0] && Not[IntegerQ[2*p]]
 
 
 Int[(d_+e_.*x_^2)^q_.*(a_+b_.*x_^2+c_.*x_^4)^p_.,x_Symbol] :=
-  Integral[(d+e*x^2)^q*(a+b*x^2+c*x^4)^p,x] /;
+  Unintegrable[(d+e*x^2)^q*(a+b*x^2+c*x^4)^p,x] /;
 FreeQ[{a,b,c,d,e,p,q},x]
 
 
 Int[(d_+e_.*x_^2)^q_.*(a_+c_.*x_^4)^p_.,x_Symbol] :=
-  Integral[(d+e*x^2)^q*(a+c*x^4)^p,x] /;
+  Unintegrable[(d+e*x^2)^q*(a+c*x^4)^p,x] /;
 FreeQ[{a,c,d,e,p,q},x]
+
+
+
 
 
 (* ::Subsection::Closed:: *)
@@ -1536,13 +1571,16 @@ FreeQ[{a,c,d,e,f,m,p,q},x] && ILtQ[q,0] && Not[IntegerQ[m] || GtQ[f,0]]
 
 
 Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^q_.*(a_+b_.*x_^2+c_.*x_^4)^p_.,x_Symbol] :=
-  Integral[(f*x)^m*(d+e*x^2)^q*(a+b*x^2+c*x^4)^p,x] /;
+  Unintegrable[(f*x)^m*(d+e*x^2)^q*(a+b*x^2+c*x^4)^p,x] /;
 FreeQ[{a,b,c,d,e,f,m,p,q},x]
 
 
 Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^q_.*(a_+c_.*x_^4)^p_.,x_Symbol] :=
-  Integral[(f*x)^m*(d+e*x^2)^q*(a+c*x^4)^p,x] /;
+  Unintegrable[(f*x)^m*(d+e*x^2)^q*(a+c*x^4)^p,x] /;
 FreeQ[{a,c,d,e,f,m,p,q},x]
+
+
+
 
 
 (* ::Subsection::Closed:: *)
@@ -1614,7 +1652,7 @@ FreeQ[{a,b,c},x] && PolyQ[Pq,x^2] && GtQ[Expon[Pq,x^2],1] && NeQ[b^2-4*a*c,0] &&
 
 
 Int[(d_.*x_)^m_.*Pq_*(a_+b_.*x_^2+c_.*x_^4)^p_.,x_Symbol] :=
-  Integral[(d*x)^m*Pq*(a+b*x^2+c*x^4)^p,x] /;
+  Unintegrable[(d*x)^m*Pq*(a+b*x^2+c*x^4)^p,x] /;
 FreeQ[{a,b,c,d,m,p},x] && PolyQ[Pq,x]
 
 
@@ -1664,6 +1702,9 @@ Int[(d_+e_.*x_^2)^q_*P4_/Sqrt[a_+c_.*x_^4],x_Symbol] :=
   1/(2*d*(q+1)*(c*d^2+a*e^2))*Int[(d+e*x^2)^(q+1)/Sqrt[a+c*x^4]*
     Simp[a*d*(C*d-B*e)+A*(a*e^2*(2*q+3)+2*c*d^2*(q+1))+2*d*(B*c*d-A*c*e+a*C*e)*(q+1)*x^2+c*(C*d^2-B*d*e+A*e^2)*(2*q+5)*x^4,x],x]] /;
 FreeQ[{a,c,d,e},x] && PolyQ[P4,x^2] && LeQ[Expon[P4,x],4] && ILtQ[q,-1]
+
+
+
 
 
 (* ::Subsection::Closed:: *)

@@ -22,37 +22,37 @@
 (* ::Code:: *)
 (* Int[u_.*(v_+w_)^p_.,x_Symbol] :=
   Int[u*w^p,x] /;
-FreeQ[p,x] && EqQ[v] *)
+FreeQ[p,x] && EqQ[v,0] *)
 
 
 (* ::Code:: *)
 Int[u_.*(a_+b_.*x_^n_.)^p_.,x_Symbol] :=
   Int[u*(b*x^n)^p,x] /;
-FreeQ[{a,b,n,p},x] && EqQ[a]
+FreeQ[{a,b,n,p},x] && EqQ[a,0]
 
 
 (* ::Code:: *)
 Int[u_.*(a_.+b_.*x_^n_.)^p_.,x_Symbol] :=
   Int[u*a^p,x] /;
-FreeQ[{a,b,n,p},x] && EqQ[b]
+FreeQ[{a,b,n,p},x] && EqQ[b,0]
 
 
 (* ::Code:: *)
 Int[u_.*(a_+b_.*x_^n_.+c_.*x_^j_.)^p_.,x_Symbol] :=
   Int[u*(b*x^n+c*x^(2*n))^p,x] /;
-FreeQ[{a,b,c,n,p},x] && EqQ[j-2*n] && EqQ[a]
+FreeQ[{a,b,c,n,p},x] && EqQ[j,2*n] && EqQ[a,0]
 
 
 (* ::Code:: *)
 Int[u_.*(a_.+b_.*x_^n_.+c_.*x_^j_.)^p_.,x_Symbol] :=
   Int[u*(a+c*x^(2*n))^p,x] /;
-FreeQ[{a,b,c,n,p},x] && EqQ[j-2*n] && EqQ[b]
+FreeQ[{a,b,c,n,p},x] && EqQ[j,2*n] && EqQ[b,0]
 
 
 (* ::Code:: *)
 Int[u_.*(a_.+b_.*x_^n_.+c_.*x_^j_.)^p_.,x_Symbol] :=
   Int[u*(a+b*x^n)^p,x] /;
-FreeQ[{a,b,c,n,p},x] && EqQ[j-2*n] && EqQ[c]
+FreeQ[{a,b,c,n,p},x] && EqQ[j,2*n] && EqQ[c,0]
 
 
 (* ::Code:: *)
@@ -124,25 +124,25 @@ FreeQ[{b,n},x] && IntegerQ[m]
 (* ::Code:: *)
 Int[u_.*(a_.*v_)^m_*(b_.*v_)^n_,x_Symbol] :=
   a^(m+1/2)*b^(n-1/2)*Sqrt[b*v]/Sqrt[a*v]*Int[u*v^(m+n),x] /;
-FreeQ[{a,b,m},x] && Not[IntegerQ[m]] && PositiveIntegerQ[n+1/2] && IntegerQ[m+n]
+FreeQ[{a,b,m},x] && Not[IntegerQ[m]] && IGtQ[n+1/2,0] && IntegerQ[m+n]
 
 
 (* ::Code:: *)
 (* Int[u_.*(a_.*v_)^m_*(b_.*v_)^n_,x_Symbol] :=
   b^(n-1/2)*Sqrt[b*v]/(a^(n-1/2)*Sqrt[a*v])*Int[u*(a*v)^(m+n),x] /;
-FreeQ[{a,b,m},x] && Not[IntegerQ[m]] && PositiveIntegerQ[n+1/2] && Not[IntegerQ[m+n]] *)
+FreeQ[{a,b,m},x] && Not[IntegerQ[m]] && IGtQ[n+1/2,0] && Not[IntegerQ[m+n]] *)
 
 
 (* ::Code:: *)
 Int[u_.*(a_.*v_)^m_*(b_.*v_)^n_,x_Symbol] :=
   a^(m-1/2)*b^(n+1/2)*Sqrt[a*v]/Sqrt[b*v]*Int[u*v^(m+n),x] /;
-FreeQ[{a,b,m},x] && Not[IntegerQ[m]] && NegativeIntegerQ[n-1/2] && IntegerQ[m+n]
+FreeQ[{a,b,m},x] && Not[IntegerQ[m]] && ILtQ[n-1/2,0] && IntegerQ[m+n]
 
 
 (* ::Code:: *)
 (* Int[u_.*(a_.*v_)^m_*(b_.*v_)^n_,x_Symbol] :=
   b^(n+1/2)*Sqrt[a*v]/(a^(n+1/2)*Sqrt[b*v])*Int[u*(a*v)^(m+n),x] /;
-FreeQ[{a,b,m},x] && Not[IntegerQ[m]] && NegativeIntegerQ[n-1/2] && Not[IntegerQ[m+n]] *)
+FreeQ[{a,b,m},x] && Not[IntegerQ[m]] && ILtQ[n-1/2,0] && Not[IntegerQ[m+n]] *)
 
 
 (* ::Code:: *)
@@ -160,69 +160,69 @@ FreeQ[{a,b,m,n},x] && Not[IntegerQ[m]] && Not[IntegerQ[n]] && Not[IntegerQ[m+n]]
 (* ::Code:: *)
 Int[u_.*(a_+b_.*v_)^m_.*(c_+d_.*v_)^n_.,x_Symbol] :=
   (b/d)^m*Int[u*(c+d*v)^(m+n),x] /;
-FreeQ[{a,b,c,d,n},x] && EqQ[b*c-a*d] && IntegerQ[m] && (Not[IntegerQ[n]] || SimplerQ[c+d*x,a+b*x])
+FreeQ[{a,b,c,d,n},x] && EqQ[b*c-a*d,0] && IntegerQ[m] && (Not[IntegerQ[n]] || SimplerQ[c+d*x,a+b*x])
 
 
 (* ::Code:: *)
 Int[u_.*(a_+b_.*v_)^m_*(c_+d_.*v_)^n_,x_Symbol] :=
   (b/d)^m*Int[u*(c+d*v)^(m+n),x] /;
-FreeQ[{a,b,c,d,m,n},x] && EqQ[b*c-a*d] && PositiveQ[b/d] && Not[IntegerQ[m] || IntegerQ[n]]
+FreeQ[{a,b,c,d,m,n},x] && EqQ[b*c-a*d,0] && GtQ[b/d,0] && Not[IntegerQ[m] || IntegerQ[n]]
 
 
 (* ::Code:: *)
 Int[u_.*(a_+b_.*v_)^m_*(c_+d_.*v_)^n_,x_Symbol] :=
   (a+b*v)^m/(c+d*v)^m*Int[u*(c+d*v)^(m+n),x] /;
-FreeQ[{a,b,c,d,m,n},x] && EqQ[b*c-a*d] && Not[IntegerQ[m] || IntegerQ[n] || PositiveQ[b/d]]
+FreeQ[{a,b,c,d,m,n},x] && EqQ[b*c-a*d,0] && Not[IntegerQ[m] || IntegerQ[n] || GtQ[b/d,0]]
 
 
 (* ::Code:: *)
 (* Int[u_.*(a_+b_.*v_)^m_.*(c_+d_.*v_)^m_.,x_Symbol] :=
   Int[u*(a*c+b*d*v^2)^m,x] /;
-FreeQ[{a,b,c,d,m},x] && EqQ[b*c+a*d] && (IntegerQ[m] || PositiveQ[a] && PositiveQ[c]) && 
+FreeQ[{a,b,c,d,m},x] && EqQ[b*c+a*d,0] && (IntegerQ[m] || GtQ[a,0] && GtQ[c,0]) && 
   (Not[AlgebraicFunctionQ[u,x]] || Not[MatchQ[v,e_.*x^n_. /; FreeQ[{e,n},x]]]) *)
 
 
 (* ::Code:: *)
 (* Int[u_.*(a_+b_.*v_)^m_*(c_+d_.*v_)^m_,x_Symbol] :=
   (a+b*v)^FracPart[m]*(c+d*v)^FracPart[m]/(a*c+b*d*v^2)^FracPart[m]*Int[u*(a*c+b*d*v^2)^m,x] /;
-FreeQ[{a,b,c,d,m},x] && EqQ[b*c+a*d] && Not[IntegerQ[m]] && 
+FreeQ[{a,b,c,d,m},x] && EqQ[b*c+a*d,0] && Not[IntegerQ[m]] && 
   (Not[AlgebraicFunctionQ[u,x]] || Not[MatchQ[v,e_.*x^n_. /; FreeQ[{e,n},x]]]) *)
 
 
 (* ::Code:: *)
 Int[u_.*(a_.*v_)^m_*(b_.*v_+c_.*v_^2),x_Symbol] :=
   1/a*Int[u*(a*v)^(m+1)*(b+c*v),x] /;
-FreeQ[{a,b,c},x] && RationalQ[m] && m<=-1
+FreeQ[{a,b,c},x] && LeQ[m,-1]
 
 
 (* ::Code:: *)
 Int[u_.*(a_+b_.*v_)^m_*(A_.+B_.*v_+C_.*v_^2),x_Symbol] :=
   1/b^2*Int[u*(a+b*v)^(m+1)*Simp[b*B-a*C+b*C*v,x],x] /;
-FreeQ[{a,b,A,B,C},x] && EqQ[A*b^2-a*b*B+a^2*C] && RationalQ[m] && m<=-1
+FreeQ[{a,b,A,B,C},x] && EqQ[A*b^2-a*b*B+a^2*C,0] && LeQ[m,-1]
 
 
 (* ::Code:: *)
 Int[u_.*(a_+b_.*x_^n_.)^m_.*(c_+d_.*x_^q_.)^p_.,x_Symbol] :=
   (d/a)^p*Int[u*(a+b*x^n)^(m+p)/x^(n*p),x] /;
-FreeQ[{a,b,c,d,m,n},x] && EqQ[n+q] && IntegerQ[p] && EqQ[a*c-b*d] && Not[IntegerQ[m] && NegQ[n]]
+FreeQ[{a,b,c,d,m,n},x] && EqQ[q,-n] && IntegerQ[p] && EqQ[a*c-b*d,0] && Not[IntegerQ[m] && NegQ[n]]
 
 
 (* ::Code:: *)
 Int[u_.*(a_+b_.*x_^n_.)^m_.*(c_+d_.*x_^j_)^p_.,x_Symbol] :=
   (-b^2/d)^m*Int[u*(a-b*x^n)^(-m),x] /;
-FreeQ[{a,b,c,d,m,n,p},x] && EqQ[j-2*n] && EqQ[m+p] && EqQ[b^2*c+a^2*d] && PositiveQ[a] && NegativeQ[d]
+FreeQ[{a,b,c,d,m,n,p},x] && EqQ[j,2*n] && EqQ[p,-m] && EqQ[b^2*c+a^2*d,0] && GtQ[a,0] && LtQ[d,0]
 
 
 (* ::Code:: *)
 Int[u_.*(a_+b_.*x_+c_.*x_^2)^p_.,x_Symbol] :=
   Int[u*Cancel[(b/2+c*x)^(2*p)/c^p],x] /;
-FreeQ[{a,b,c},x] && EqQ[b^2-4*a*c] && IntegerQ[p]
+FreeQ[{a,b,c},x] && EqQ[b^2-4*a*c,0] && IntegerQ[p]
 
 
 (* ::Code:: *)
 Int[u_.*(a_+b_.*x_^n_+c_.*x_^n2_.)^p_.,x_Symbol] :=
   1/c^p*Int[u*(b/2+c*x^n)^(2*p),x] /;
-FreeQ[{a,b,c,n},x] && EqQ[n2-2*n] && EqQ[b^2-4*a*c] && IntegerQ[p]
+FreeQ[{a,b,c,n},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c,0] && IntegerQ[p]
 
 
 (* ::Code:: *)
@@ -279,16 +279,16 @@ FreeQ[{a,b,c,p,q,r},x] && IntegerQ[m] && PosQ[q-p] && PosQ[r-p]
 Int[u_.*Pq_^m_*Qr_^p_,x_Symbol] :=
   Module[{gcd=PolyGCD[Pq,Qr,x]},
   Int[u*gcd^(m+p)*PolynomialQuotient[Pq,gcd,x]^m*PolynomialQuotient[Qr,gcd,x]^p,x] /;
- NeQ[gcd-1]] /;
-PositiveIntegerQ[m] && NegativeIntegerQ[p] && PolyQ[Pq,x] && PolyQ[Qr,x]
+ NeQ[gcd,1]] /;
+IGtQ[m,0] && ILtQ[p,0] && PolyQ[Pq,x] && PolyQ[Qr,x]
 
 
 (* ::Code:: *)
 Int[u_.*Pq_*Qr_^p_,x_Symbol] :=
   Module[{gcd=PolyGCD[Pq,Qr,x]},
   Int[u*gcd^(p+1)*PolynomialQuotient[Pq,gcd,x]*PolynomialQuotient[Qr,gcd,x]^p,x] /;
- NeQ[gcd-1]] /;
-NegativeIntegerQ[p] && PolyQ[Pq,x] && PolyQ[Qr,x]
+ NeQ[gcd,1]] /;
+ILtQ[p,0] && PolyQ[Pq,x] && PolyQ[Qr,x]
 
 
 

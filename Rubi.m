@@ -19,6 +19,13 @@ Dist::usage = "Dist[expn1,expn2,var] distributes <expn1> over <expn2>.";
 Subst::usage = "Subst[expn1,var,expn2] substitutes <expn2> for <var> in <expn1>.";
 
 
+Unintegrable::usage = "Unintegrable[expn,var] indicates <expn> is not integrable with respect to <var> in closed-form.";
+CannotIntegrate::usage = "CannotIntegrate[expn,var] indicates Rubi is unable to integrate <expn> with respect to <var>.";
+
+
+$Unintegrable::usage = "If $Unintegrable is True and <expn> is not integrable with respect to <var> in terms of the functions Rubi uses to express antiderivatives, Int[expn,var] returns Unintegrable[expn,var]."
+
+
 ShowSteps::usage = "If ShowSteps is True and the ShowSteps package has been loaded, integration steps are displayed.";
 $StepCounter::usage = "If the ShowSteps package has been loaded and $StepCounter is an integer, it is incremented each time an integration rule is applied.";
 
@@ -46,16 +53,13 @@ LoadRules[filename_String] :=
   Null]
 
 
-Unprotect[Int];  Clear[Int];
+Unprotect[Int];  Clear[Int];  Clear[Unintegrable];  Clear[CannotIntegrate];
 
 
 SetAttributes [Int, {Listable}];
 
 
 ShowSteps = Global`$LoadShowSteps===True;
-
-
-Integral[u_,x_] := Defer[Int][u,x]
 
 
 LoadRules["ShowStep routines"];
@@ -96,6 +100,17 @@ If[Global`$LoadShowSteps===True, StepFunction[Int]];
 
 
 Protect[Int];
+
+
+$Unintegrable = False;
+
+
+Unintegrable[u_,x_] := 
+  If[$Unintegrable===True,
+    Defer[Unintegrable][u,x],
+  Defer[Int][u,x]];
+
+CannotIntegrate[u_,x_] := Defer[Int][u,x];
 
 
 End [];

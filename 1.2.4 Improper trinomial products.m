@@ -56,13 +56,16 @@ FreeQ[{a,b,c,n,p,q},x] && EqQ[r,2*n-q] && PosQ[n-q] && Not[IntegerQ[p]]
 
 
 Int[(a_.*x_^q_.+b_.*x_^n_.+c_.*x_^r_.)^p_,x_Symbol] :=
-  Integral[(a*x^q+b*x^n+c*x^(2*n-q))^p,x] /;
+  Unintegrable[(a*x^q+b*x^n+c*x^(2*n-q))^p,x] /;
 FreeQ[{a,b,c,n,p,q},x] && EqQ[r,2*n-q]
 
 
 Int[(a_.*u_^q_.+b_.*u_^n_.+c_.*u_^r_.)^p_,x_Symbol] :=
   1/Coefficient[u,x,1]*Subst[Int[(a*x^q+b*x^n+c*x^(2*n-q))^p,x],x,u] /;
 FreeQ[{a,b,c,n,p,q},x] && EqQ[r,2*n-q] && LinearQ[u,x] && NeQ[u,x]
+
+
+
 
 
 (* ::Subsection::Closed:: *)
@@ -292,13 +295,16 @@ FreeQ[{a,b,c,A,B,j,k,p},x] && EqQ[q,k-j] && EqQ[n,2*k-j] && PosQ[k-j] && Not[Int
 
 
 Int[(A_+B_.*x_^j_.)*(a_.*x_^q_.+b_.*x_^n_.+c_.*x_^r_.)^p_.,x_Symbol] :=
-  Integral[(A+B*x^(n-q))*(a*x^q+b*x^n+c*x^(2*n-q))^p,x] /;
+  Unintegrable[(A+B*x^(n-q))*(a*x^q+b*x^n+c*x^(2*n-q))^p,x] /;
 FreeQ[{a,b,c,A,B,n,p,q},x] && EqQ[j,n-q] && EqQ[r,2*n-q]
 
 
 Int[(A_+B_.*u_^j_.)*(a_.*u_^q_.+b_.*u_^n_.+c_.*u_^r_.)^p_.,x_Symbol] :=
   1/Coefficient[u,x,1]*Subst[Int[(A+B*x^(n-q))*(a*x^q+b*x^n+c*x^(2*n-q))^p,x],x,u] /;
 FreeQ[{a,b,c,A,B,n,p,q},x] && EqQ[j,n-q] && EqQ[r,2*n-q] && LinearQ[u,x] && NeQ[u,x]
+
+
+
 
 
 (* ::Subsection::Closed:: *)

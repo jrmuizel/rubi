@@ -42,17 +42,17 @@ FreeQ[{a,b},x]
 
 
 Int[Erf[a_.+b_.*x_]^n_,x_Symbol] :=
-  Integral[Erf[a+b*x]^n,x] /;
+  Unintegrable[Erf[a+b*x]^n,x] /;
 FreeQ[{a,b,n},x] && NeQ[n,1] && NeQ[n,2]
 
 
 Int[Erfc[a_.+b_.*x_]^n_,x_Symbol] :=
-  Integral[Erfc[a+b*x]^n,x] /;
+  Unintegrable[Erfc[a+b*x]^n,x] /;
 FreeQ[{a,b,n},x] && NeQ[n,1] && NeQ[n,2]
 
 
 Int[Erfi[a_.+b_.*x_]^n_,x_Symbol] :=
-  Integral[Erfi[a+b*x]^n,x] /;
+  Unintegrable[Erfi[a+b*x]^n,x] /;
 FreeQ[{a,b,n},x] && NeQ[n,1] && NeQ[n,2]
 
 
@@ -123,17 +123,17 @@ FreeQ[{a,b,c,d},x] && IGtQ[m,0]
 
 
 Int[(c_.+d_.*x_)^m_.*Erf[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[(c+d*x)^m*Erf[a+b*x]^n,x] /;
+  Unintegrable[(c+d*x)^m*Erf[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,m,n},x]
 
 
 Int[(c_.+d_.*x_)^m_.*Erfc[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[(c+d*x)^m*Erfc[a+b*x]^n,x] /;
+  Unintegrable[(c+d*x)^m*Erfc[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,m,n},x]
 
 
 Int[(c_.+d_.*x_)^m_.*Erfi[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[(c+d*x)^m*Erfi[a+b*x]^n,x] /;
+  Unintegrable[(c+d*x)^m*Erfi[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,m,n},x]
 
 
@@ -168,17 +168,17 @@ FreeQ[{b,c,d},x] && EqQ[d,-b^2]
 
 
 Int[E^(c_.+d_.*x_^2)*Erf[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[E^(c+d*x^2)*Erf[a+b*x]^n,x] /;
+  Unintegrable[E^(c+d*x^2)*Erf[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,n},x]
 
 
 Int[E^(c_.+d_.*x_^2)*Erfc[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[E^(c+d*x^2)*Erfc[a+b*x]^n,x] /;
+  Unintegrable[E^(c+d*x^2)*Erfc[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,n},x]
 
 
 Int[E^(c_.+d_.*x_^2)*Erfi[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[E^(c+d*x^2)*Erfi[a+b*x]^n,x] /;
+  Unintegrable[E^(c+d*x^2)*Erfi[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,n},x]
 
 
@@ -258,18 +258,56 @@ FreeQ[{a,b,c,d},x] && ILtQ[m,-1]
 
 
 Int[(e_.*x_)^m_.*E^(c_.+d_.*x_^2)*Erf[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[(e*x)^m*E^(c+d*x^2)*Erf[a+b*x]^n,x] /;
+  Unintegrable[(e*x)^m*E^(c+d*x^2)*Erf[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,e,m,n},x]
 
 
 Int[(e_.*x_)^m_.*E^(c_.+d_.*x_^2)*Erfc[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[(e*x)^m*E^(c+d*x^2)*Erfc[a+b*x]^n,x] /;
+  Unintegrable[(e*x)^m*E^(c+d*x^2)*Erfc[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,e,m,n},x]
 
 
 Int[(e_.*x_)^m_.*E^(c_.+d_.*x_^2)*Erfi[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[(e*x)^m*E^(c+d*x^2)*Erfi[a+b*x]^n,x] /;
+  Unintegrable[(e*x)^m*E^(c+d*x^2)*Erfi[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,e,m,n},x]
+
+
+Int[Erf[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  x*Erf[d*(a+b*Log[c*x^n])] - 2*b*d*n/(Sqrt[Pi])*Int[1/E^(d*(a+b*Log[c*x^n]))^2,x] /;
+FreeQ[{a,b,c,d,n},x]
+
+
+Int[Erfc[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  x*Erfc[d*(a+b*Log[c*x^n])] + 2*b*d*n/(Sqrt[Pi])*Int[1/E^(d*(a+b*Log[c*x^n]))^2,x] /;
+FreeQ[{a,b,c,d,n},x]
+
+
+Int[Erfi[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  x*Erfi[d*(a+b*Log[c*x^n])] - 2*b*d*n/(Sqrt[Pi])*Int[E^(d*(a+b*Log[c*x^n]))^2,x] /;
+FreeQ[{a,b,c,d,n},x]
+
+
+Int[F_[d_.*(a_.+b_.*Log[c_.*x_^n_.])]/x_,x_Symbol] :=
+  1/n*Subst[F[d*(a+b*x)],x,Log[c*x^n]] /;
+FreeQ[{a,b,c,d,n},x] && MemberQ[{Erf,Erfc,Erfi},F]
+
+
+Int[(e_.*x_)^m_.*Erf[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  (e*x)^(m+1)*Erf[d*(a+b*Log[c*x^n])]/(e*(m+1)) - 
+  2*b*d*n/(Sqrt[Pi]*(m+1))*Int[(e*x)^m/E^(d*(a+b*Log[c*x^n]))^2,x] /;
+FreeQ[{a,b,c,d,e,m,n},x] && NeQ[m,-1]
+
+
+Int[(e_.*x_)^m_.*Erfc[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  (e*x)^(m+1)*Erfc[d*(a+b*Log[c*x^n])]/(e*(m+1)) + 
+  2*b*d*n/(Sqrt[Pi]*(m+1))*Int[(e*x)^m/E^(d*(a+b*Log[c*x^n]))^2,x] /;
+FreeQ[{a,b,c,d,e,m,n},x] && NeQ[m,-1]
+
+
+Int[(e_.*x_)^m_.*Erfi[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  (e*x)^(m+1)*Erfi[d*(a+b*Log[c*x^n])]/(e*(m+1)) - 
+  2*b*d*n/(Sqrt[Pi]*(m+1))*Int[(e*x)^m*E^(d*(a+b*Log[c*x^n]))^2,x] /;
+FreeQ[{a,b,c,d,e,m,n},x] && NeQ[m,-1]
 
 
 Int[Sin[c_.+d_.*x_^2]*Erf[b_.*x_],x_Symbol] :=
@@ -332,6 +370,20 @@ Int[Cosh[c_.+d_.*x_^2]*Erfi[b_.*x_],x_Symbol] :=
 FreeQ[{b,c,d},x] && EqQ[d^2,b^4]
 
 
+Int[F_[f_.*(a_.+b_.*Log[c_.*(d_+e_.*x_)^n_.])],x_Symbol] :=
+  1/e*Subst[Int[F[f*(a+b*Log[c*x^n])],x],x,d+e*x] /;
+FreeQ[{a,b,c,d,e,f,n},x] && MemberQ[{Erf,Erfc,Erfi,FresnelS,FresnelC,ExpIntegralEi,SinIntegral,CosIntegral,SinhIntegral,CoshIntegral},F]
+
+
+Int[(g_+h_. x_)^m_.*F_[f_.*(a_.+b_.*Log[c_.*(d_+e_.*x_)^n_.])],x_Symbol] :=
+  1/e*Subst[Int[(g*x/d)^m*F[f*(a+b*Log[c*x^n])],x],x,d+e*x] /;
+FreeQ[{a,b,c,d,e,f,g,m,n},x] && EqQ[e*f-d*g,0] && 
+  MemberQ[{Erf,Erfc,Erfi,FresnelS,FresnelC,ExpIntegralEi,SinIntegral,CosIntegral,SinhIntegral,CoshIntegral},F]
+
+
+
+
+
 (* ::Subsection::Closed:: *)
 (*8.2 Fresnel integral functions*)
 
@@ -359,12 +411,12 @@ FreeQ[{a,b},x]
 
 
 Int[FresnelS[a_.+b_.*x_]^n_,x_Symbol] :=
-  Integral[FresnelS[a+b*x]^n,x] /;
+  Unintegrable[FresnelS[a+b*x]^n,x] /;
 FreeQ[{a,b,n},x] && NeQ[n,1] && NeQ[n,2]
 
 
 Int[FresnelC[a_.+b_.*x_]^n_,x_Symbol] :=
-  Integral[FresnelC[a+b*x]^n,x] /;
+  Unintegrable[FresnelC[a+b*x]^n,x] /;
 FreeQ[{a,b,n},x] && NeQ[n,1] && NeQ[n,2]
 
 
@@ -423,12 +475,12 @@ FreeQ[{a,b,c,d},x] && IGtQ[m,0]
 
 
 Int[(c_.+d_.*x_)^m_.*FresnelS[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[(c+d*x)^m*FresnelS[a+b*x]^n,x] /;
+  Unintegrable[(c+d*x)^m*FresnelS[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,m,n},x]
 
 
 Int[(c_.+d_.*x_)^m_.*FresnelC[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[(c+d*x)^m*FresnelC[a+b*x]^n,x] /;
+  Unintegrable[(c+d*x)^m*FresnelC[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,m,n},x]
 
 
@@ -443,12 +495,12 @@ FreeQ[{b,c,d},x] && EqQ[d^2,-Pi^2/4*b^4]
 
 
 Int[E^(c_.+d_.*x_^2)*FresnelS[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[E^(c+d*x^2)*FresnelS[a+b*x]^n,x] /;
+  Unintegrable[E^(c+d*x^2)*FresnelS[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,n},x]
 
 
 Int[E^(c_.+d_.*x_^2)*FresnelC[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[E^(c+d*x^2)*FresnelC[a+b*x]^n,x] /;
+  Unintegrable[E^(c+d*x^2)*FresnelC[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,n},x]
 
 
@@ -473,12 +525,12 @@ FreeQ[{b,c,d},x] && EqQ[d^2,Pi^2/4*b^4]
 
 
 Int[Sin[c_.+d_.*x_^2]*FresnelS[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[Sin[c+d*x^2]*FresnelS[a+b*x]^n,x] /;
+  Unintegrable[Sin[c+d*x^2]*FresnelS[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,n},x]
 
 
 Int[Cos[c_.+d_.*x_^2]*FresnelC[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[Cos[c+d*x^2]*FresnelC[a+b*x]^n,x] /;
+  Unintegrable[Cos[c+d*x^2]*FresnelC[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,n},x]
 
 
@@ -507,12 +559,12 @@ FreeQ[{b,c,d},x] && EqQ[d^2,Pi^2/4*b^4]
 
 
 Int[Cos[c_.+d_.*x_^2]*FresnelS[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[Cos[c+d*x^2]*FresnelS[a+b*x]^n,x] /;
+  Unintegrable[Cos[c+d*x^2]*FresnelS[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,n},x]
 
 
 Int[Sin[c_.+d_.*x_^2]*FresnelC[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[Sin[c+d*x^2]*FresnelC[a+b*x]^n,x] /;
+  Unintegrable[Sin[c+d*x^2]*FresnelC[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,n},x]
 
 
@@ -557,12 +609,12 @@ FreeQ[{b,d},x] && EqQ[d^2,Pi^2/4*b^4] && ILtQ[m,-2]
 
 
 Int[(e_.*x_)^m_.*Sin[c_.+d_.*x_^2]*FresnelS[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[(e*x)^m*Sin[c+d*x^2]*FresnelS[a+b*x]^n,x] /;
+  Unintegrable[(e*x)^m*Sin[c+d*x^2]*FresnelS[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,e,m,n},x]
 
 
 Int[(e_.*x_)^m_.*Cos[c_.+d_.*x_^2]*FresnelC[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[(e*x)^m*Cos[c+d*x^2]*FresnelC[a+b*x]^n,x] /;
+  Unintegrable[(e*x)^m*Cos[c+d*x^2]*FresnelC[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,e,m,n},x]
 
 
@@ -605,13 +657,43 @@ FreeQ[{b,d},x] && EqQ[d^2,Pi^2/4*b^4] && ILtQ[m,-1]
 
 
 Int[(e_.*x_)^m_.*Cos[c_.+d_.*x_^2]*FresnelS[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[(e*x)^m*Cos[c+d*x^2]*FresnelS[a+b*x]^n,x] /;
+  Unintegrable[(e*x)^m*Cos[c+d*x^2]*FresnelS[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,e,m,n},x]
 
 
 Int[(e_.*x_)^m_.*Sin[c_.+d_.*x_^2]*FresnelC[a_.+b_.*x_]^n_.,x_Symbol] :=
-  Integral[(e*x)^m*Sin[c+d*x^2]*FresnelC[a+b*x]^n,x] /;
+  Unintegrable[(e*x)^m*Sin[c+d*x^2]*FresnelC[a+b*x]^n,x] /;
 FreeQ[{a,b,c,d,e,m,n},x]
+
+
+Int[FresnelS[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  x*FresnelS[d*(a+b*Log[c*x^n])] - b*d*n*Int[Sin[Pi/2*(d*(a+b*Log[c*x^n]))^2],x] /;
+FreeQ[{a,b,c,d,n},x]
+
+
+Int[FresnelC[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  x*FresnelC[d*(a+b*Log[c*x^n])] - b*d*n*Int[Cos[Pi/2*(d*(a+b*Log[c*x^n]))^2],x] /;
+FreeQ[{a,b,c,d,n},x]
+
+
+Int[F_[d_.*(a_.+b_.*Log[c_.*x_^n_.])]/x_,x_Symbol] :=
+  1/n*Subst[F[d*(a+b*x)],x,Log[c*x^n]] /;
+FreeQ[{a,b,c,d,n},x] && MemberQ[{FresnelS,FresnelC},F]
+
+
+Int[(e_.*x_)^m_.*FresnelS[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  (e*x)^(m+1)*FresnelS[d*(a+b*Log[c*x^n])]/(e*(m+1)) - 
+  b*d*n/(m+1)*Int[(e*x)^m*Sin[Pi/2*(d*(a+b*Log[c*x^n]))^2],x] /;
+FreeQ[{a,b,c,d,e,m,n},x] && NeQ[m,-1]
+
+
+Int[(e_.*x_)^m_.*FresnelC[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  (e*x)^(m+1)*FresnelC[d*(a+b*Log[c*x^n])]/(e*(m+1)) - 
+  b*d*n/(m+1)*Int[(e*x)^m*Cos[Pi/2*(d*(a+b*Log[c*x^n]))^2],x] /;
+FreeQ[{a,b,c,d,e,m,n},x] && NeQ[m,-1]
+
+
+
 
 
 (* ::Subsection::Closed:: *)
@@ -663,7 +745,7 @@ FreeQ[{a,b,c,d,m,n},x] && (IGtQ[n,0] || LtQ[m,-1] && GtQ[n,0]) && NeQ[m,-1]
 
 
 Int[(c_.+d_.*x_)^m_.*ExpIntegralE[n_,a_+b_.*x_],x_Symbol] :=
-  Integral[(c+d*x)^m*ExpIntegralE[n,a+b*x],x] /;
+  Unintegrable[(c+d*x)^m*ExpIntegralE[n,a+b*x],x] /;
 FreeQ[{a,b,c,d,m,n},x]
 
 
@@ -678,7 +760,7 @@ FreeQ[b,x]
 
 
 Int[ExpIntegralEi[a_.+b_.*x_]/(c_.+d_.*x_),x_Symbol] :=
-  Integral[ExpIntegralEi[a+b*x]/(c+d*x),x] /;
+  Unintegrable[ExpIntegralEi[a+b*x]/(c+d*x),x] /;
 FreeQ[{a,b,c,d},x]
 
 
@@ -736,6 +818,22 @@ Int[x_^m_*E^(a_.+b_.*x_)*ExpIntegralEi[c_.+d_.*x_],x_Symbol] :=
 FreeQ[{a,b,c,d},x] && ILtQ[m,-1]
 
 
+Int[ExpIntegralEi[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  x*ExpIntegralEi[d*(a+b*Log[c*x^n])] - b*n*E^(a*d)*Int[(c*x^n)^(b*d)/(a+b*Log[c*x^n]),x] /;
+FreeQ[{a,b,c,d,n},x]
+
+
+Int[ExpIntegralEi[d_.*(a_.+b_.*Log[c_.*x_^n_.])]/x_,x_Symbol] :=
+  1/n*Subst[ExpIntegralEi[d*(a+b*x)],x,Log[c*x^n]] /;
+FreeQ[{a,b,c,d,n},x]
+
+
+Int[(e_.*x_)^m_.*ExpIntegralEi[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  (e*x)^(m+1)*ExpIntegralEi[d*(a+b*Log[c*x^n])]/(e*(m+1)) - 
+  b*n*E^(a*d)*(c*x^n)^(b*d)/((m+1)*(e*x)^(b*d*n))*Int[(e*x)^(m+b*d*n)/(a+b*Log[c*x^n]),x] /;
+FreeQ[{a,b,c,d,e,m,n},x] && NeQ[m,-1]
+
+
 Int[LogIntegral[a_.+b_.*x_],x_Symbol] :=
   (a+b*x)*LogIntegral[a+b*x]/b - ExpIntegralEi[2*Log[a+b*x]]/b /;
 FreeQ[{a,b},x]
@@ -747,13 +845,16 @@ FreeQ[b,x]
 
 
 Int[LogIntegral[a_.+b_.*x_]/(c_.+d_.*x_),x_Symbol] :=
-  Integral[LogIntegral[a+b*x]/(c+d*x),x] /;
+  Unintegrable[LogIntegral[a+b*x]/(c+d*x),x] /;
 FreeQ[{a,b,c,d},x]
 
 
 Int[(c_.+d_.*x_)^m_.*LogIntegral[a_.+b_.*x_],x_Symbol] :=
   (c+d*x)^(m+1)*LogIntegral[a+b*x]/(d*(m+1)) - b/(d*(m+1))*Int[(c+d*x)^(m+1)/Log[a+b*x],x] /;
 FreeQ[{a,b,c,d,m},x] && NeQ[m,-1]
+
+
+
 
 
 (* ::Subsection::Closed:: *)
@@ -930,6 +1031,36 @@ Int[(e_.+f_.*x_)^m_*Sin[a_.+b_.*x_]*CosIntegral[c_.+d_.*x_],x_Symbol] :=
 FreeQ[{a,b,c,d,e,f},x] && ILtQ[m,-1]
 
 
+Int[SinIntegral[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  x*SinIntegral[d*(a+b*Log[c*x^n])] - b*d*n*Int[Sin[d*(a+b*Log[c*x^n])]/(d*(a+b*Log[c*x^n])),x] /;
+FreeQ[{a,b,c,d,n},x]
+
+
+Int[CosIntegral[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  x*CosIntegral[d*(a+b*Log[c*x^n])] - b*d*n*Int[Cos[d*(a+b*Log[c*x^n])]/(d*(a+b*Log[c*x^n])),x] /;
+FreeQ[{a,b,c,d,n},x]
+
+
+Int[F_[d_.*(a_.+b_.*Log[c_.*x_^n_.])]/x_,x_Symbol] :=
+  1/n*Subst[F[d*(a+b*x)],x,Log[c*x^n]] /;
+FreeQ[{a,b,c,d,n},x] && MemberQ[{SinIntegral,CosIntegral},x]
+
+
+Int[(e_.*x_)^m_.*SinIntegral[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  (e*x)^(m+1)*SinIntegral[d*(a+b*Log[c*x^n])]/(e*(m+1)) - 
+  b*d*n/(m+1)*Int[(e*x)^m*Sin[d*(a+b*Log[c*x^n])]/(d*(a+b*Log[c*x^n])),x] /;
+FreeQ[{a,b,c,d,e,m,n},x] && NeQ[m,-1]
+
+
+Int[(e_.*x_)^m_.*CosIntegral[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  (e*x)^(m+1)*CosIntegral[d*(a+b*Log[c*x^n])]/(e*(m+1)) - 
+  b*d*n/(m+1)*Int[(e*x)^m*Cos[d*(a+b*Log[c*x^n])]/(d*(a+b*Log[c*x^n])),x] /;
+FreeQ[{a,b,c,d,e,m,n},x] && NeQ[m,-1]
+
+
+
+
+
 (* ::Subsection::Closed:: *)
 (*8.5 Hyperbolic integral functions*)
 
@@ -1104,14 +1235,43 @@ Int[(e_.+f_.*x_)^m_*Sinh[a_.+b_.*x_]*CoshIntegral[c_.+d_.*x_],x_Symbol] :=
 FreeQ[{a,b,c,d,e,f},x] && ILtQ[m,-1]
 
 
+Int[SinhIntegral[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  x*SinhIntegral[d*(a+b*Log[c*x^n])] - b*d*n*Int[Sinh[d*(a+b*Log[c*x^n])]/(d*(a+b*Log[c*x^n])),x] /;
+FreeQ[{a,b,c,d,n},x]
+
+
+Int[CoshIntegral[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  x*CoshIntegral[d*(a+b*Log[c*x^n])] - b*d*n*Int[Cosh[d*(a+b*Log[c*x^n])]/(d*(a+b*Log[c*x^n])),x] /;
+FreeQ[{a,b,c,d,n},x]
+
+
+Int[F_[d_.*(a_.+b_.*Log[c_.*x_^n_.])]/x_,x_Symbol] :=
+  1/n*Subst[F[d*(a+b*x)],x,Log[c*x^n]] /;
+FreeQ[{a,b,c,d,n},x] && MemberQ[{SinhIntegral,CoshIntegral},x]
+
+
+Int[(e_.*x_)^m_.*SinhIntegral[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  (e*x)^(m+1)*SinhIntegral[d*(a+b*Log[c*x^n])]/(e*(m+1)) - 
+  b*d*n/(m+1)*Int[(e*x)^m*Sinh[d*(a+b*Log[c*x^n])]/(d*(a+b*Log[c*x^n])),x] /;
+FreeQ[{a,b,c,d,e,m,n},x] && NeQ[m,-1]
+
+
+Int[(e_.*x_)^m_.*CoshIntegral[d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  (e*x)^(m+1)*CoshIntegral[d*(a+b*Log[c*x^n])]/(e*(m+1)) - 
+  b*d*n/(m+1)*Int[(e*x)^m*Cosh[d*(a+b*Log[c*x^n])]/(d*(a+b*Log[c*x^n])),x] /;
+FreeQ[{a,b,c,d,e,m,n},x] && NeQ[m,-1]
+
+
+
+
+
 (* ::Subsection::Closed:: *)
 (*8.6 Gamma functions*)
 
 
 Int[Gamma[n_,a_.+b_.*x_],x_Symbol] :=
-  (a+b*x)*Gamma[n,a+b*x]/b -
-  Gamma[n+1,a+b*x]/b /;
-FreeQ[{a,b},x]
+  (a+b*x)*Gamma[n,a+b*x]/b - Gamma[n+1,a+b*x]/b /;
+FreeQ[{a,b,n},x]
 
 
 Int[Gamma[0,b_.*x_]/x_,x_Symbol] :=
@@ -1125,12 +1285,12 @@ FreeQ[b,x] *)
 
 
 Int[Gamma[n_,b_.*x_]/x_,x_Symbol] :=
-  b*Int[(b*x)^(n-2)/E^(b*x),x] + (n-1)*Int[Gamma[n-1,b*x]/x,x] /;
+  -Gamma[n-1,b*x] + (n-1)*Int[Gamma[n-1,b*x]/x,x] /;
 FreeQ[b,x] && IGtQ[n,1]
 
 
 Int[Gamma[n_,b_.*x_]/x_,x_Symbol] :=
-  -b/n*Int[(b*x)^(n-1)/E^(b*x),x] + 1/n*Int[Gamma[n+1,b*x]/x,x] /;
+  Gamma[n,b*x]/n + 1/n*Int[Gamma[n+1,b*x]/x,x] /;
 FreeQ[b,x] && ILtQ[n,0]
 
 
@@ -1145,6 +1305,16 @@ Int[(d_.*x_)^m_.*Gamma[n_,b_.*x_],x_Symbol] :=
 FreeQ[{b,d,m,n},x] && NeQ[m,-1]
 
 
+Int[(c_+d_.*x_)^m_.*Gamma[n_,a_+b_.*x_],x_Symbol] :=
+  1/b*Subst[Int[(d*x/b)^m*Gamma[n,x],x],x,a+b*x] /;
+FreeQ[{a,b,c,d,m,n},x] && EqQ[b*c-a*d,0]
+
+
+Int[Gamma[n_,a_.+b_.*x_]/(c_.+d_.*x_),x_Symbol] :=
+  Int[(a+b*x)^(n-1)/((c+d*x)*E^(a+b*x)),x] + (n-1)*Int[Gamma[n-1,a+b*x]/(c+d*x),x] /;
+FreeQ[{a,b,c,d},x] && IGtQ[n,1]
+
+
 Int[(c_.+d_.*x_)^m_.*Gamma[n_,a_.+b_.*x_],x_Symbol] :=
   Block[{$UseGamma=True},
     (c+d*x)^(m+1)*Gamma[n,a+b*x]/(d*(m+1)) + 
@@ -1153,7 +1323,7 @@ FreeQ[{a,b,c,d,m,n},x] && (IGtQ[m,0] || IGtQ[n,0] || IntegersQ[m,n]) && NeQ[m,-1
 
 
 Int[(c_.+d_.*x_)^m_.*Gamma[n_,a_.+b_.*x_],x_Symbol] :=
-  Integral[(c+d*x)^m*Gamma[n,a+b*x],x] /;
+  Unintegrable[(c+d*x)^m*Gamma[n,a+b*x],x] /;
 FreeQ[{a,b,c,d,m,n},x]
 
 
@@ -1169,7 +1339,7 @@ FreeQ[{a,b,c,d},x] && IGtQ[m,0]
 
 
 Int[(c_.+d_.*x_)^m_.*LogGamma[a_.+b_.*x_],x_Symbol] :=
-  Integral[(c+d*x)^m*LogGamma[a+b*x],x] /;
+  Unintegrable[(c+d*x)^m*LogGamma[a+b*x],x] /;
 FreeQ[{a,b,c,d,m},x]
 
 
@@ -1190,7 +1360,7 @@ FreeQ[{a,b,c,d,n},x] && LtQ[m,-1]
 
 
 Int[(c_.+d_.*x_)^m_.*PolyGamma[n_,a_.+b_.*x_],x_Symbol] :=
-  Integral[(c+d*x)^m*PolyGamma[n,a+b*x],x] /;
+  Unintegrable[(c+d*x)^m*PolyGamma[n,a+b*x],x] /;
 FreeQ[{a,b,c,d,m,n},x]
 
 
@@ -1202,6 +1372,35 @@ FreeQ[{a,b,n},x]
 Int[((a_.+b_.*x_)!)^n_.*PolyGamma[0,c_.+b_.*x_],x_Symbol] :=
   ((a+b*x)!)^n/(b*n) /;
 FreeQ[{a,b,c,n},x] && EqQ[c,a+1]
+
+
+Int[Gamma[p_,d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  x*Gamma[p,d*(a+b*Log[c*x^n])] + b*d*n*E^(-a*d)*Int[(d*(a+b*Log[c*x^n]))^(p-1)/(c*x^n)^(b*d),x] /;
+FreeQ[{a,b,c,d,n,p},x]
+
+
+Int[Gamma[p_,d_.*(a_.+b_.*Log[c_.*x_^n_.])]/x_,x_Symbol] :=
+  1/n*Subst[Gamma[p,d*(a+b*x)],x,Log[c*x^n]] /;
+FreeQ[{a,b,c,d,n,p},x]
+
+
+Int[(e_.*x_)^m_.*Gamma[p_,d_.*(a_.+b_.*Log[c_.*x_^n_.])],x_Symbol] :=
+  (e*x)^(m+1)*Gamma[p,d*(a+b*Log[c*x^n])]/(e*(m+1)) + 
+  b*d*n*E^(-a*d)*(e*x)^(b*d*n)/((m+1)*(c*x^n)^(b*d))*Int[(e*x)^(m-b*d*n)*(d*(a+b*Log[c*x^n]))^(p-1),x] /;
+FreeQ[{a,b,c,d,e,m,n,p},x] && NeQ[m,-1]
+
+
+Int[Gamma[p_,f_.*(a_.+b_.*Log[c_.*(d_+e_.*x_)^n_.])],x_Symbol] :=
+  1/e*Subst[Int[Gamma[p,f*(a+b*Log[c*x^n])],x],x,d+e*x] /;
+FreeQ[{a,b,c,d,e,f,n,p},x]
+
+
+Int[(g_+h_. x_)^m_.*Gamma[p_,f_.*(a_.+b_.*Log[c_.*(d_+e_.*x_)^n_.])],x_Symbol] :=
+  1/e*Subst[Int[(g*x/d)^m*Gamma[p,f*(a+b*Log[c*x^n])],x],x,d+e*x] /;
+FreeQ[{a,b,c,d,e,f,g,h,m,n,p},x] && EqQ[e*g-d*h,0]
+
+
+
 
 
 (* ::Subsection::Closed:: *)
@@ -1235,20 +1434,31 @@ Int[(c_.+d_.*x_)^m_.*Zeta[s_,a_.+b_.*x_],x_Symbol] :=
 FreeQ[{a,b,c,d,s},x] && NeQ[s,1] && NeQ[s,2] && LtQ[m,-1]
 
 
+
+
+
 (* ::Subsection::Closed:: *)
 (*8.8 Polylogarithm function*)
 
 
+Int[PolyLog[2,a_.*(b_.*x_^p_.)^q_.],x_Symbol] :=
+  x*PolyLog[2,a*(b*x^p)^q] + p*q*Int[Log[1-a*(b*x^p)^q],x] /;
+FreeQ[{a,b,p,q},x]
+
+
 Int[PolyLog[n_,a_.*(b_.*x_^p_.)^q_.],x_Symbol] :=
-  x*PolyLog[n,a*(b*x^p)^q] -
-  p*q*Int[PolyLog[n-1,a*(b*x^p)^q],x] /;
+  x*PolyLog[n,a*(b*x^p)^q] - p*q*Int[PolyLog[n-1,a*(b*x^p)^q],x] /;
 FreeQ[{a,b,p,q},x] && GtQ[n,0]
 
 
 Int[PolyLog[n_,a_.*(b_.*x_^p_.)^q_.],x_Symbol] :=
-  x*PolyLog[n+1,a*(b*x^p)^q]/(p*q) -
-  1/(p*q)*Int[PolyLog[n+1,a*(b*x^p)^q],x] /;
+  x*PolyLog[n+1,a*(b*x^p)^q]/(p*q) - 1/(p*q)*Int[PolyLog[n+1,a*(b*x^p)^q],x] /;
 FreeQ[{a,b,p,q},x] && LtQ[n,-1]
+
+
+Int[PolyLog[n_,a_.*(b_.*x_^p_.)^q_.],x_Symbol] :=
+  Unintegrable[PolyLog[n,a*(b*x^p)^q],x] /;
+FreeQ[{a,b,n,p,q},x]
 
 
 Int[PolyLog[n_,c_.*(a_.+b_.*x_)^p_.]/(d_.+e_.*x_),x_Symbol] :=
@@ -1261,16 +1471,21 @@ Int[PolyLog[n_,a_.*(b_.*x_^p_.)^q_.]/x_,x_Symbol] :=
 FreeQ[{a,b,n,p,q},x]
 
 
-Int[x_^m_.*PolyLog[n_,a_.*(b_.*x_^p_.)^q_.],x_Symbol] :=
-  x^(m+1)*PolyLog[n,a*(b*x^p)^q]/(m+1) -
-  p*q/(m+1)*Int[x^m*PolyLog[n-1,a*(b*x^p)^q],x] /;
-FreeQ[{a,b,m,p,q},x] && NeQ[m,-1] && GtQ[n,0]
+Int[(d_.*x_)^m_.*PolyLog[n_,a_.*(b_.*x_^p_.)^q_.],x_Symbol] :=
+  (d*x)^(m+1)*PolyLog[n,a*(b*x^p)^q]/(d*(m+1)) - 
+  p*q/(m+1)*Int[(d*x)^m*PolyLog[n-1,a*(b*x^p)^q],x] /;
+FreeQ[{a,b,d,m,p,q},x] && NeQ[m,-1] && GtQ[n,0]
 
 
-Int[x_^m_.*PolyLog[n_,a_.*(b_.*x_^p_.)^q_.],x_Symbol] :=
-  x^(m+1)*PolyLog[n+1,a*(b*x^p)^q]/(p*q) -
-  (m+1)/(p*q)*Int[x^m*PolyLog[n+1,a*(b*x^p)^q],x] /;
-FreeQ[{a,b,m,p,q},x] && NeQ[m,-1] && LtQ[n,-1]
+Int[(d_.*x_)^m_.*PolyLog[n_,a_.*(b_.*x_^p_.)^q_.],x_Symbol] :=
+  (d*x)^(m+1)*PolyLog[n+1,a*(b*x^p)^q]/(d*p*q) - 
+  (m+1)/(p*q)*Int[(d*x)^m*PolyLog[n+1,a*(b*x^p)^q],x] /;
+FreeQ[{a,b,d,m,p,q},x] && NeQ[m,-1] && LtQ[n,-1]
+
+
+Int[(d_.*x_)^m_.*PolyLog[n_,a_.*(b_.*x_^p_.)^q_.],x_Symbol] :=
+  Unintegrable[(d*x)^m*PolyLog[n,a*(b*x^p)^q],x] /;
+FreeQ[{a,b,d,m,n,p,q},x]
 
 
 Int[Log[c_.*x_^m_.]^r_.*PolyLog[n_,a_.*(b_.*x_^p_.)^q_.]/x_,x_Symbol] :=
@@ -1334,6 +1549,9 @@ Int[u_*Log[w_]*PolyLog[n_,v_],x_Symbol] :=
 FreeQ[n,x] && InverseFunctionFreeQ[w,x]
 
 
+
+
+
 (* ::Subsection::Closed:: *)
 (*8.9 Product logarithm function*)
 
@@ -1383,7 +1601,7 @@ Int[x_^m_.*(c_.*ProductLog[a_.*x_^n_.])^p_.,x_Symbol] :=
   x^(m+1)*(c*ProductLog[a*x^n])^p/(m+n*p+1) +
   n*p/(c*(m+n*p+1))*Int[x^m*(c*ProductLog[a*x^n])^(p+1)/(1+ProductLog[a*x^n]),x] /;
 FreeQ[{a,c,m,n,p},x] &&
-(EqQ[m+1] || IntegerQ[p-1/2] && ILtQ[Simplify[p+(m+1)/n]-1/2,0] || Not[IntegerQ[p-1/2]] && ILtQ[Simplify[p+(m+1)/n],0])
+(EqQ[m,-1] || IntegerQ[p-1/2] && ILtQ[Simplify[p+(m+1)/n]-1/2,0] || Not[IntegerQ[p-1/2]] && ILtQ[Simplify[p+(m+1)/n],0])
 
 
 Int[x_^m_.*(c_.*ProductLog[a_.*x_])^p_.,x_Symbol] :=
@@ -1394,7 +1612,7 @@ FreeQ[{a,c,m},x]
 
 Int[x_^m_.*(c_.*ProductLog[a_.*x_^n_])^p_.,x_Symbol] :=
   -Subst[Int[(c*ProductLog[a*x^(-n)])^p/x^(m+2),x],x,1/x] /;
-FreeQ[{a,c,p},x] && ILtQ[n,0] && IntegerQ[m] && NeQ[m+1]
+FreeQ[{a,c,p},x] && ILtQ[n,0] && IntegerQ[m] && NeQ[m,-1]
 
 
 Int[1/(d_+d_.*ProductLog[a_.+b_.*x_]),x_Symbol] :=
@@ -1575,3 +1793,6 @@ FreeQ[{a,c,d,p},x] && NeQ[m,-1] && IntegerQ[m] && LtQ[n,0]
 Int[u_,x_Symbol] :=
   Subst[Int[SimplifyIntegrand[(x+1)*E^x*SubstFor[ProductLog[x],u,x],x],x],x,ProductLog[x]] /;
 FunctionOfQ[ProductLog[x],u,x]
+
+
+

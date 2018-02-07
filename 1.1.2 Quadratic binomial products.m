@@ -100,8 +100,11 @@ FreeQ[{a,b,p},x] && PolyQ[Pq,x] && Not[PolyQ[Pq,x^2]] && IntegerQ[m] && NeQ[p,-1
 
 
 Int[(c_.*x_)^m_*Pq_*(a_+b_.*x_^2)^p_.,x_Symbol] :=
-  Integral[(c*x)^m*Pq*(a+b*x^2)^p,x] /;
+  Unintegrable[(c*x)^m*Pq*(a+b*x^2)^p,x] /;
 FreeQ[{a,b,c,m,p},x] && PolyQ[Pq,x] && Not[IGtQ[m,0]]
+
+
+
 
 
 (* ::Subsection::Closed:: *)
@@ -154,5 +157,8 @@ FreeQ[{a,b,p},x] && PolyQ[Pq,x] && Not[PolyQ[Pq,x^2]] && NeQ[p,-1]
 
 
 Int[Pq_*(a_+b_.*x_^2)^p_.,x_Symbol] :=
-  Integral[Pq*(a+b*x^2)^p,x] /;
+  Unintegrable[Pq*(a+b*x^2)^p,x] /;
 FreeQ[{a,b,p},x] && PolyQ[Pq,x]
+
+
+

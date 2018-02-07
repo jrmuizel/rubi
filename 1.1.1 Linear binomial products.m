@@ -666,6 +666,12 @@ FreeQ[{a,b,c,d,e,f,m,n,p},x] && ILtQ[m+n+p+2,0] && NeQ[m,-1] &&
   (SumSimplerQ[m,1] || Not[NeQ[n,-1] && SumSimplerQ[n,1]] && Not[NeQ[p,-1] && SumSimplerQ[p,1]])
 
 
+Int[(e_.*x_)^p_*(a_+b_.*x_)^m_*(c_+d_.*x_)^n_,x_Symbol] :=
+  With[{k=Denominator[p]},
+  k/e*Subst[Int[x^(k*(p+1)-1)*(a+b*x^k/e)^m*(c+d*x^k/e)^n,x],x,(e*x)^(1/k)]] /;
+FreeQ[{a,b,c,d,e,m,n},x] && NeQ[b*c-a*d,0] && FractionQ[p] && IntegerQ[m]
+
+
 Int[(a_.+b_.*x_)^m_*(c_.+d_.*x_)^n_.*(e_.+f_.*x_)^p_,x_Symbol] :=
   (b*c-a*d)^n*(a+b*x)^(m+1)/((m+1)*(b*e-a*f)^(n+1)*(e+f*x)^(m+1))*
     Hypergeometric2F1[m+1,-n,m+2,-(d*e-c*f)*(a+b*x)/((b*c-a*d)*(e+f*x))] /;
@@ -732,6 +738,9 @@ FreeQ[{a,b,c,d,e,f,m,n,p},x] && Not[IntegerQ[m]] && Not[IntegerQ[n]] && Not[Inte
 Int[(a_.+b_.*u_)^m_.*(c_.+d_.*u_)^n_.*(e_+f_.*u_)^p_.,x_Symbol] :=
   1/Coefficient[u,x,1]*Subst[Int[(a+b*x)^m*(c+d*x)^n*(e+f*x)^p,x],x,u] /;
 FreeQ[{a,b,c,d,e,f,m,n,p},x] && LinearQ[u,x] && NeQ[u,x]
+
+
+
 
 
 (* ::Subsection::Closed:: *)
@@ -888,16 +897,16 @@ FreeQ[{a,b,c,d,e,f,g,h},x]
 
 
 Int[1/(Sqrt[a_.+b_.*x_]*Sqrt[c_.+d_.*x_]*Sqrt[e_.+f_.*x_]*Sqrt[g_.+h_.*x_]),x_Symbol] :=
-  -2*(a+b*x)*Sqrt[(b*g-a*h)*(c+d*x)/((d*g-c*h)*(a+b*x))]*Sqrt[(b*g-a*h)*(e+f*x)/((f*g-e*h)*(a+b*x))]/
-    ((b*g-a*h)*Sqrt[c+d*x]*Sqrt[e+f*x])*
-    Subst[Int[1/(Sqrt[1+(b*c-a*d)*x^2/(d*g-c*h)]*Sqrt[1+(b*e-a*f)*x^2/(f*g-e*h)]),x],x,Sqrt[g+h*x]/Sqrt[a+b*x]] /;
+  2*Sqrt[g+h*x]*Sqrt[(b*e-a*f)*(c+d*x)/((d*e-c*f)*(a+b*x))]/
+    ((f*g-e*h)*Sqrt[c+d*x]*Sqrt[-(b*e-a*f)*(g+h*x)/((f*g-e*h)*(a+b*x))])*
+    Subst[Int[1/(Sqrt[1+(b*c-a*d)*x^2/(d*e-c*f)]*Sqrt[1-(b*g-a*h)*x^2/(f*g-e*h)]),x],x,Sqrt[e+f*x]/Sqrt[a+b*x]] /;
 FreeQ[{a,b,c,d,e,f,g,h},x]
 
 
 Int[Sqrt[c_.+d_.*x_]/((a_.+b_.*x_)^(3/2)*Sqrt[e_.+f_.*x_]*Sqrt[g_.+h_.*x_]),x_Symbol] :=
-  -2*(d*g-c*h)*(a+b*x)*Sqrt[(b*g-a*h)*(c+d*x)/((d*g-c*h)*(a+b*x))]*
-    Sqrt[(b*g-a*h)*(e+f*x)/((f*g-e*h)*(a+b*x))]/((b*g-a*h)^2*Sqrt[c+d*x]*Sqrt[e+f*x])*
-    Subst[Int[Sqrt[1+(b*c-a*d)*x^2/(d*g-c*h)]/Sqrt[1+(b*e-a*f)*x^2/(f*g-e*h)],x],x,Sqrt[g+h*x]/Sqrt[a+b*x]] /;
+  -2*Sqrt[c+d*x]*Sqrt[-(b*e-a*f)*(g+h*x)/((f*g-e*h)*(a+b*x))]/
+    ((b*e-a*f)*Sqrt[g+h*x]*Sqrt[(b*e-a*f)*(c+d*x)/((d*e-c*f)*(a+b*x))])*
+    Subst[Int[Sqrt[1+(b*c-a*d)*x^2/(d*e-c*f)]/Sqrt[1-(b*g-a*h)*x^2/(f*g-e*h)],x],x,Sqrt[e+f*x]/Sqrt[a+b*x]] /;
 FreeQ[{a,b,c,d,e,f,g,h},x]
 
 
@@ -939,7 +948,7 @@ FreeQ[{a,b,c,d,e,f,g,h,m,n,p},x] && IGtQ[q,0] && (SumSimplerQ[m,1] || Not[SumSim
 
 
 Int[(a_.+b_.*x_)^m_.*(c_.+d_.*x_)^n_.*(e_.+f_.*x_)^p_.*(g_.+h_.*x_)^q_.,x_Symbol] :=
-  Integral[(a+b*x)^m*(c+d*x)^n*(e+f*x)^p*(g+h*x)^q,x] /;
+  CannotIntegrate[(a+b*x)^m*(c+d*x)^n*(e+f*x)^p*(g+h*x)^q,x] /;
 FreeQ[{a,b,c,d,e,f,g,h,m,n,p,q},x]
 
 
@@ -972,3 +981,6 @@ FreeQ[{m,n,p},x] && LinearQ[{u,v,w},x] && Not[LinearMatchQ[{u,v,w},x]]
 Int[u_^m_.*v_^n_.*w_^p_.*z_^q_.,x_Symbol] :=
   Int[ExpandToSum[u,x]^m*ExpandToSum[v,x]^n*ExpandToSum[w,x]^p*ExpandToSum[z,x]^q,x] /;
 FreeQ[{m,n,p,q},x] && LinearQ[{u,v,w,z},x] && Not[LinearMatchQ[{u,v,w,z},x]]
+
+
+
