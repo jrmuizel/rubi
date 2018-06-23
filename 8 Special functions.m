@@ -1441,9 +1441,9 @@ FreeQ[{a,b,c,d,s},x] && NeQ[s,1] && NeQ[s,2] && LtQ[m,-1]
 (*8.8 Polylogarithm function*)
 
 
-Int[PolyLog[2,a_.*(b_.*x_^p_.)^q_.],x_Symbol] :=
+(* Int[PolyLog[2,a_.*(b_.*x_^p_.)^q_.],x_Symbol] :=
   x*PolyLog[2,a*(b*x^p)^q] + p*q*Int[Log[1-a*(b*x^p)^q],x] /;
-FreeQ[{a,b,p,q},x]
+FreeQ[{a,b,p,q},x] *)
 
 
 Int[PolyLog[n_,a_.*(b_.*x_^p_.)^q_.],x_Symbol] :=
@@ -1502,8 +1502,13 @@ FreeQ[{a,b,c,p},x] && GtQ[n,0]
 
 
 Int[PolyLog[2,c_.*(a_.+b_.*x_)]/(d_.+e_.*x_),x_Symbol] :=
+  Log[1-a*c-b*c*x]*PolyLog[2,c*(a+b*x)]/e + b/e*Int[Log[1-a*c-b*c*x]^2/(a+b*x),x] /;
+FreeQ[{a,b,c,d,e},x] && EqQ[c*(b*d-a*e)+e,0]
+
+
+Int[PolyLog[2,c_.*(a_.+b_.*x_)]/(d_.+e_.*x_),x_Symbol] :=
   Log[d+e*x]*PolyLog[2,c*(a+b*x)]/e + b/e*Int[Log[d+e*x]*Log[1-a*c-b*c*x]/(a+b*x),x] /;
-FreeQ[{a,b,c,d,e},x]
+FreeQ[{a,b,c,d,e},x] && NeQ[c*(b*d-a*e)+e,0]
 
 
 Int[(d_.+e_.*x_)^m_.*PolyLog[2,c_.*(a_.+b_.*x_)],x_Symbol] :=
@@ -1521,6 +1526,57 @@ Int[x_^m_.*PolyLog[n_,c_.*(a_.+b_.*x_)^p_.],x_Symbol] :=
   -(a^(m+1)-b^(m+1)*x^(m+1))*PolyLog[n,c*(a+b*x)^p]/((m+1)*b^(m+1)) +
   p/((m+1)*b^m)*Int[ExpandIntegrand[PolyLog[n-1,c*(a+b*x)^p],(a^(m+1)-b^(m+1)*x^(m+1))/(a+b*x),x],x] /;
 FreeQ[{a,b,c,p},x] && GtQ[n,0] && IntegerQ[m] && NeQ[m,-1]
+
+
+Int[(g_.+h_.*Log[f_.*(d_.+e_.*x_)^n_.])*PolyLog[2,c_.*(a_.+b_.*x_)],x_Symbol] :=
+  x*(g+h*Log[f*(d+e*x)^n])*PolyLog[2,c*(a+b*x)] + 
+  b*Int[(g+h*Log[f*(d+e*x)^n])*Log[1-a*c-b*c*x]*ExpandIntegrand[x/(a+b*x),x],x] - 
+  e*h*n*Int[PolyLog[2,c*(a+b*x)]*ExpandIntegrand[x/(d+e*x),x],x] /;
+FreeQ[{a,b,c,d,e,f,g,h,n},x]
+
+
+Int[Log[1+e_.*x_]*PolyLog[2,c_.*x_]/x_,x_Symbol] :=
+  -PolyLog[2,c*x]^2/2 /;
+FreeQ[{c,e},x] && EqQ[c+e,0]
+
+
+Int[(g_+h_.*Log[1+e_.*x_])*PolyLog[2,c_.*x_]/x_,x_Symbol] :=
+  g*Int[PolyLog[2,c*x]/x,x] + h*Int[(Log[1+e*x]*PolyLog[2,c*x])/x,x] /;
+FreeQ[{c,e,g,h},x] && EqQ[c+e,0]
+
+
+Int[x_^m_.*(g_.+h_.*Log[f_.*(d_.+e_.*x_)^n_.])*PolyLog[2,c_.*(a_.+b_.*x_)],x_Symbol] :=
+  x^(m+1)*(g+h*Log[f*(d+e*x)^n])*PolyLog[2,c*(a+b*x)]/(m+1) + 
+  b/(m+1)*Int[ExpandIntegrand[(g+h*Log[f*(d+e*x)^n])*Log[1-a*c-b*c*x],x^(m+1)/(a+b*x),x],x] - 
+  e*h*n/(m+1)*Int[ExpandIntegrand[PolyLog[2,c*(a+b*x)],x^(m+1)/(d+e*x),x],x] /;
+FreeQ[{a,b,c,d,e,f,g,h,n},x] && IntegerQ[m] && NeQ[m,-1]
+
+
+Int[Px_*(g_.+h_.*Log[f_.*(d_.+e_.*x_)^n_.])*PolyLog[2,c_.*(a_.+b_.*x_)],x_Symbol] :=
+  With[{u=IntHide[Px,x]},
+  u*(g+h*Log[f*(d+e*x)^n])*PolyLog[2,c*(a+b*x)] + 
+  b*Int[ExpandIntegrand[(g+h*Log[f*(d+e*x)^n])*Log[1-a*c-b*c*x],u/(a+b*x),x],x] - 
+  e*h*n*Int[ExpandIntegrand[PolyLog[2,c*(a+b*x)],u/(d+e*x),x],x]] /;
+FreeQ[{a,b,c,d,e,f,g,h,n},x] && PolyQ[Px,x]
+
+
+Int[x_^m_*Px_*(g_.+h_.*Log[1+e_.*x_])*PolyLog[2,c_.*x_],x_Symbol] :=
+  Coeff[Px,x,-m-1]*Int[(g+h*Log[1+e*x])*PolyLog[2,c*x]/x,x] + 
+  Int[x^m*(Px-Coeff[Px,x,-m-1]*x^(-m-1))*(g+h*Log[1+e*x])*PolyLog[2,c*x],x] /;
+FreeQ[{c,e,g,h},x] && PolyQ[Px,x] && ILtQ[m,0] && EqQ[c+e,0] && NeQ[Coeff[Px,x,-m-1],0]
+
+
+Int[x_^m_.*Px_*(g_.+h_.*Log[f_.*(d_.+e_.*x_)^n_.])*PolyLog[2,c_.*(a_.+b_.*x_)],x_Symbol] :=
+  With[{u=IntHide[x^m*Px,x]},
+  u*(g+h*Log[f*(d+e*x)^n])*PolyLog[2,c*(a+b*x)] + 
+  b*Int[ExpandIntegrand[(g+h*Log[f*(d+e*x)^n])*Log[1-a*c-b*c*x],u/(a+b*x),x],x] - 
+  e*h*n*Int[ExpandIntegrand[PolyLog[2,c*(a+b*x)],u/(d+e*x),x],x]] /;
+FreeQ[{a,b,c,d,e,f,g,h,n},x] && PolyQ[Px,x] && IntegerQ[m]
+
+
+Int[x_^m_*Px_.*(g_.+h_.*Log[f_.*(d_.+e_.*x_)^n_.])*PolyLog[2,c_.*(a_.+b_.*x_)],x_Symbol] :=
+  Unintegrable[x^m*Px*(g+h*Log[f*(d+e*x)^n])*PolyLog[2,c*(a+b*x)],x] /;
+FreeQ[{a,b,c,d,e,f,g,h,m,n},x] && PolyQ[Px,x]
 
 
 Int[PolyLog[n_,d_.*(F_^(c_.*(a_.+b_.*x_)))^p_.],x_Symbol] :=

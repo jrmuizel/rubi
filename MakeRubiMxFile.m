@@ -15,10 +15,10 @@
 $LoadShowSteps = False;
 
 
-Get[NotebookDirectory[]<>"Rubi.m"];
+Get[FileNameJoin[{DirectoryName[System`Private`$InputFileName],"Rubi.m"}]];
 
 
-SetDirectory[NotebookDirectory[]];
+SetDirectory[DirectoryName[System`Private`$InputFileName]];
 DumpSave[If[$LoadShowSteps===True, "StepRubi.mx", "Rubi.mx"], "Rubi`"];
 ResetDirectory[];
 

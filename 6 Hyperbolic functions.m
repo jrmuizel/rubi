@@ -1799,12 +1799,14 @@ FreeQ[{a,b,c,d,e,f,n},x] && IGtQ[m,0] && EqQ[a^2-b^2,0]
 
 
 Int[(e_.+f_.*x_)^m_.*Sech[c_.+d_.*x_]^n_./(a_+b_.*Sinh[c_.+d_.*x_]),x_Symbol] :=
-  2^(n+1)*Int[ExpandIntegrand[(e+f*x)^m,1/((E^(-c-d*x)+E^(c+d*x))^n*(2*a-b*(E^(-c-d*x)-E^(c+d*x)))),x],x] /;
+  b^2/(a^2+b^2)*Int[(e+f*x)^m*Sech[c+d*x]^(n-2)/(a+b*Sinh[c+d*x]),x] + 
+  1/(a^2+b^2)*Int[(e+f*x)^m*Sech[c+d*x]^n*(a-b*Sinh[c+d*x]),x] /;
 FreeQ[{a,b,c,d,e,f},x] && IGtQ[m,0] && NeQ[a^2+b^2,0] && IGtQ[n,0]
 
 
 Int[(e_.+f_.*x_)^m_.*Csch[c_.+d_.*x_]^n_./(a_+b_.*Cosh[c_.+d_.*x_]),x_Symbol] :=
-  2^(n+1)*Int[ExpandIntegrand[(e+f*x)^m,1/((-E^(-c-d*x)+E^(c+d*x))^n*(2*a+b*(E^(-c-d*x)+E^(c+d*x)))),x],x] /;
+  b^2/(a^2-b^2)*Int[(e+f*x)^m*Csch[c+d*x]^(n-2)/(a+b*Cosh[c+d*x]),x] + 
+  1/(a^2-b^2)*Int[(e+f*x)^m*Csch[c+d*x]^n*(a-b*Cosh[c+d*x]),x] /;
 FreeQ[{a,b,c,d,e,f},x] && IGtQ[m,0] && NeQ[a^2-b^2,0] && IGtQ[n,0]
 
 

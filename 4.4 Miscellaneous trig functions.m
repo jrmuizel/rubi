@@ -713,6 +713,20 @@ Int[u_*F_[c_.*(a_.+b_.*x_)],x_Symbol] :=
 FreeQ[{a,b,c},x] && (EqQ[F,Sin] || EqQ[F,sin])
 
 
+Int[u_*Cosh[c_.*(a_.+b_.*x_)],x_Symbol] :=
+  With[{d=FreeFactors[Sinh[c*(a+b*x)],x]},
+  d/(b*c)*Subst[Int[SubstFor[1,Sinh[c*(a+b*x)]/d,u,x],x],x,Sinh[c*(a+b*x)]/d] /;
+ FunctionOfQ[Sinh[c*(a+b*x)]/d,u,x,True]] /;
+FreeQ[{a,b,c},x]
+
+
+Int[u_*Sinh[c_.*(a_.+b_.*x_)],x_Symbol] :=
+  With[{d=FreeFactors[Cosh[c*(a+b*x)],x]},
+  d/(b*c)*Subst[Int[SubstFor[1,Cosh[c*(a+b*x)]/d,u,x],x],x,Cosh[c*(a+b*x)]/d] /;
+ FunctionOfQ[Cosh[c*(a+b*x)]/d,u,x,True]] /;
+FreeQ[{a,b,c},x]
+
+
 Int[u_*F_[c_.*(a_.+b_.*x_)],x_Symbol] :=
   With[{d=FreeFactors[Sin[c*(a+b*x)],x]},
   1/(b*c)*Subst[Int[SubstFor[1/x,Sin[c*(a+b*x)]/d,u,x],x],x,Sin[c*(a+b*x)]/d] /;
@@ -725,6 +739,20 @@ Int[u_*F_[c_.*(a_.+b_.*x_)],x_Symbol] :=
   -1/(b*c)*Subst[Int[SubstFor[1/x,Cos[c*(a+b*x)]/d,u,x],x],x,Cos[c*(a+b*x)]/d] /;
  FunctionOfQ[Cos[c*(a+b*x)]/d,u,x,True]] /;
 FreeQ[{a,b,c},x] && (EqQ[F,Tan] || EqQ[F,tan])
+
+
+Int[u_*Coth[c_.*(a_.+b_.*x_)],x_Symbol] :=
+  With[{d=FreeFactors[Sinh[c*(a+b*x)],x]},
+  1/(b*c)*Subst[Int[SubstFor[1/x,Sinh[c*(a+b*x)]/d,u,x],x],x,Sinh[c*(a+b*x)]/d] /;
+ FunctionOfQ[Sinh[c*(a+b*x)]/d,u,x,True]] /;
+FreeQ[{a,b,c},x]
+
+
+Int[u_*Tanh[c_.*(a_.+b_.*x_)],x_Symbol] :=
+  With[{d=FreeFactors[Cosh[c*(a+b*x)],x]},
+  1/(b*c)*Subst[Int[SubstFor[1/x,Cosh[c*(a+b*x)]/d,u,x],x],x,Cosh[c*(a+b*x)]/d] /;
+ FunctionOfQ[Cosh[c*(a+b*x)]/d,u,x,True]] /;
+FreeQ[{a,b,c},x]
 
 
 Int[u_*F_[c_.*(a_.+b_.*x_)]^2,x_Symbol] :=
@@ -755,6 +783,20 @@ Int[u_/sin[c_.*(a_.+b_.*x_)]^2,x_Symbol] :=
 FreeQ[{a,b,c},x] && NonsumQ[u]
 
 
+Int[u_*Sech[c_.*(a_.+b_.*x_)]^2,x_Symbol] :=
+  With[{d=FreeFactors[Tanh[c*(a+b*x)],x]},
+  d/(b*c)*Subst[Int[SubstFor[1,Tanh[c*(a+b*x)]/d,u,x],x],x,Tanh[c*(a+b*x)]/d] /;
+ FunctionOfQ[Tanh[c*(a+b*x)]/d,u,x,True]] /;
+FreeQ[{a,b,c},x] && NonsumQ[u]
+
+
+Int[u_*Csch[c_.*(a_.+b_.*x_)]^2,x_Symbol] :=
+  With[{d=FreeFactors[Coth[c*(a+b*x)],x]},
+  -d/(b*c)*Subst[Int[SubstFor[1,Coth[c*(a+b*x)]/d,u,x],x],x,Coth[c*(a+b*x)]/d] /;
+ FunctionOfQ[Coth[c*(a+b*x)]/d,u,x,True]] /;
+FreeQ[{a,b,c},x] && NonsumQ[u]
+
+
 Int[u_*F_[c_.*(a_.+b_.*x_)]^n_.,x_Symbol] :=
   With[{d=FreeFactors[Tan[c*(a+b*x)],x]},
   1/(b*c*d^(n-1))*Subst[Int[SubstFor[1/(x^n*(1+d^2*x^2)),Tan[c*(a+b*x)]/d,u,x],x],x,Tan[c*(a+b*x)]/d] /;
@@ -769,7 +811,21 @@ Int[u_*F_[c_.*(a_.+b_.*x_)]^n_.,x_Symbol] :=
 FreeQ[{a,b,c},x] && IntegerQ[n] && (EqQ[F,Tan] || EqQ[F,tan])
 
 
-If[ShowSteps,
+Int[u_*Coth[c_.*(a_.+b_.*x_)]^n_.,x_Symbol] :=
+  With[{d=FreeFactors[Tanh[c*(a+b*x)],x]},
+  1/(b*c*d^(n-1))*Subst[Int[SubstFor[1/(x^n*(1-d^2*x^2)),Tanh[c*(a+b*x)]/d,u,x],x],x,Tanh[c*(a+b*x)]/d] /;
+ FunctionOfQ[Tanh[c*(a+b*x)]/d,u,x,True] && TryPureTanSubst[ActivateTrig[u]*Coth[c*(a+b*x)]^n,x]] /;
+FreeQ[{a,b,c},x] && IntegerQ[n]
+
+
+Int[u_*Tanh[c_.*(a_.+b_.*x_)]^n_.,x_Symbol] :=
+  With[{d=FreeFactors[Coth[c*(a+b*x)],x]},
+  1/(b*c*d^(n-1))*Subst[Int[SubstFor[1/(x^n*(1-d^2*x^2)),Coth[c*(a+b*x)]/d,u,x],x],x,Coth[c*(a+b*x)]/d] /;
+ FunctionOfQ[Coth[c*(a+b*x)]/d,u,x,True] && TryPureTanSubst[ActivateTrig[u]*Tanh[c*(a+b*x)]^n,x]] /;
+FreeQ[{a,b,c},x] && IntegerQ[n]
+
+
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   With[{v=FunctionOfTrig[u,x]},
@@ -786,7 +842,7 @@ Int[u_,x_Symbol] :=
  Not[FalseQ[v]] && FunctionOfQ[NonfreeFactors[Cot[v],x],u,x,True] && TryPureTanSubst[ActivateTrig[u],x]]]
 
 
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   With[{v=FunctionOfTrig[u,x]},
@@ -827,6 +883,20 @@ Int[u_*F_[c_.*(a_.+b_.*x_)],x_Symbol] :=
 FreeQ[{a,b,c},x] && (EqQ[F,Sin] || EqQ[F,sin])
 
 
+Int[u_*Cosh[c_.*(a_.+b_.*x_)],x_Symbol] :=
+  With[{d=FreeFactors[Sinh[c*(a+b*x)],x]},
+  d/(b*c)*Subst[Int[SubstFor[1,Sinh[c*(a+b*x)]/d,u,x],x],x,Sinh[c*(a+b*x)]/d] /;
+ FunctionOfQ[Sinh[c*(a+b*x)]/d,u,x]] /;
+FreeQ[{a,b,c},x]
+
+
+Int[u_*Sinh[c_.*(a_.+b_.*x_)],x_Symbol] :=
+  With[{d=FreeFactors[Cosh[c*(a+b*x)],x]},
+  d/(b*c)*Subst[Int[SubstFor[1,Cosh[c*(a+b*x)]/d,u,x],x],x,Cosh[c*(a+b*x)]/d] /;
+ FunctionOfQ[Cosh[c*(a+b*x)]/d,u,x]] /;
+FreeQ[{a,b,c},x]
+
+
 Int[u_*F_[c_.*(a_.+b_.*x_)],x_Symbol] :=
   With[{d=FreeFactors[Sin[c*(a+b*x)],x]},
   1/(b*c)*Subst[Int[SubstFor[1/x,Sin[c*(a+b*x)]/d,u,x],x],x,Sin[c*(a+b*x)]/d] /;
@@ -839,6 +909,20 @@ Int[u_*F_[c_.*(a_.+b_.*x_)],x_Symbol] :=
   -1/(b*c)*Subst[Int[SubstFor[1/x,Cos[c*(a+b*x)]/d,u,x],x],x,Cos[c*(a+b*x)]/d] /;
  FunctionOfQ[Cos[c*(a+b*x)]/d,u,x]] /;
 FreeQ[{a,b,c},x] && (EqQ[F,Tan] || EqQ[F,tan])
+
+
+Int[u_*Coth[c_.*(a_.+b_.*x_)],x_Symbol] :=
+  With[{d=FreeFactors[Sinh[c*(a+b*x)],x]},
+  1/(b*c)*Subst[Int[SubstFor[1/x,Sinh[c*(a+b*x)]/d,u,x],x],x,Sinh[c*(a+b*x)]/d] /;
+ FunctionOfQ[Sinh[c*(a+b*x)]/d,u,x]] /;
+FreeQ[{a,b,c},x]
+
+
+Int[u_*Tanh[c_.*(a_.+b_.*x_)],x_Symbol] :=
+  With[{d=FreeFactors[Cosh[c*(a+b*x)],x]},
+  1/(b*c)*Subst[Int[SubstFor[1/x,Cosh[c*(a+b*x)]/d,u,x],x],x,Cosh[c*(a+b*x)]/d] /;
+ FunctionOfQ[Cosh[c*(a+b*x)]/d,u,x]] /;
+FreeQ[{a,b,c},x]
 
 
 Int[u_*F_[c_.*(a_.+b_.*x_)]^n_,x_Symbol] :=
@@ -869,104 +953,6 @@ Int[u_*F_[c_.*(a_.+b_.*x_)]^n_,x_Symbol] :=
 FreeQ[{a,b,c},x] && IntegerQ[(n-1)/2] && NonsumQ[u] && (EqQ[F,Csc] || EqQ[F,csc])
 
 
-Int[u_*F_[c_.*(a_.+b_.*x_)]^n_,x_Symbol] :=
-  With[{d=FreeFactors[Sin[c*(a+b*x)],x]},
-  1/(b*c*d^(n-1))*Subst[Int[SubstFor[(1-d^2*x^2)^((n-1)/2)/x^n,Sin[c*(a+b*x)]/d,u,x],x],x,Sin[c*(a+b*x)]/d] /;
- FunctionOfQ[Sin[c*(a+b*x)]/d,u,x]] /;
-FreeQ[{a,b,c},x] && IntegerQ[(n-1)/2] && NonsumQ[u] && (EqQ[F,Cot] || EqQ[F,cot])
-
-
-Int[u_*F_[c_.*(a_.+b_.*x_)]^n_,x_Symbol] :=
-  With[{d=FreeFactors[Cos[c*(a+b*x)],x]},
-  -1/(b*c*d^(n-1))*Subst[Int[SubstFor[(1-d^2*x^2)^((n-1)/2)/x^n,Cos[c*(a+b*x)]/d,u,x],x],x,Cos[c*(a+b*x)]/d] /;
- FunctionOfQ[Cos[c*(a+b*x)]/d,u,x]] /;
-FreeQ[{a,b,c},x] && IntegerQ[(n-1)/2] && NonsumQ[u] && (EqQ[F,Tan] || EqQ[F,tan])
-
-
-Int[u_*Cosh[c_.*(a_.+b_.*x_)],x_Symbol] :=
-  With[{d=FreeFactors[Sinh[c*(a+b*x)],x]},
-  d/(b*c)*Subst[Int[SubstFor[1,Sinh[c*(a+b*x)]/d,u,x],x],x,Sinh[c*(a+b*x)]/d] /;
- FunctionOfQ[Sinh[c*(a+b*x)]/d,u,x,True]] /;
-FreeQ[{a,b,c},x]
-
-
-Int[u_*Sinh[c_.*(a_.+b_.*x_)],x_Symbol] :=
-  With[{d=FreeFactors[Cosh[c*(a+b*x)],x]},
-  d/(b*c)*Subst[Int[SubstFor[1,Cosh[c*(a+b*x)]/d,u,x],x],x,Cosh[c*(a+b*x)]/d] /;
- FunctionOfQ[Cosh[c*(a+b*x)]/d,u,x,True]] /;
-FreeQ[{a,b,c},x]
-
-
-Int[u_*Coth[c_.*(a_.+b_.*x_)],x_Symbol] :=
-  With[{d=FreeFactors[Sinh[c*(a+b*x)],x]},
-  1/(b*c)*Subst[Int[SubstFor[1/x,Sinh[c*(a+b*x)]/d,u,x],x],x,Sinh[c*(a+b*x)]/d] /;
- FunctionOfQ[Sinh[c*(a+b*x)]/d,u,x,True]] /;
-FreeQ[{a,b,c},x]
-
-
-Int[u_*Tanh[c_.*(a_.+b_.*x_)],x_Symbol] :=
-  With[{d=FreeFactors[Cosh[c*(a+b*x)],x]},
-  1/(b*c)*Subst[Int[SubstFor[1/x,Cosh[c*(a+b*x)]/d,u,x],x],x,Cosh[c*(a+b*x)]/d] /;
- FunctionOfQ[Cosh[c*(a+b*x)]/d,u,x,True]] /;
-FreeQ[{a,b,c},x]
-
-
-Int[u_*Sech[c_.*(a_.+b_.*x_)]^2,x_Symbol] :=
-  With[{d=FreeFactors[Tanh[c*(a+b*x)],x]},
-  d/(b*c)*Subst[Int[SubstFor[1,Tanh[c*(a+b*x)]/d,u,x],x],x,Tanh[c*(a+b*x)]/d] /;
- FunctionOfQ[Tanh[c*(a+b*x)]/d,u,x,True]] /;
-FreeQ[{a,b,c},x] && NonsumQ[u]
-
-
-Int[u_*Csch[c_.*(a_.+b_.*x_)]^2,x_Symbol] :=
-  With[{d=FreeFactors[Coth[c*(a+b*x)],x]},
-  -d/(b*c)*Subst[Int[SubstFor[1,Coth[c*(a+b*x)]/d,u,x],x],x,Coth[c*(a+b*x)]/d] /;
- FunctionOfQ[Coth[c*(a+b*x)]/d,u,x,True]] /;
-FreeQ[{a,b,c},x] && NonsumQ[u]
-
-
-Int[u_*Coth[c_.*(a_.+b_.*x_)]^n_.,x_Symbol] :=
-  With[{d=FreeFactors[Tanh[c*(a+b*x)],x]},
-  1/(b*c*d^(n-1))*Subst[Int[SubstFor[1/(x^n*(1-d^2*x^2)),Tanh[c*(a+b*x)]/d,u,x],x],x,Tanh[c*(a+b*x)]/d] /;
- FunctionOfQ[Tanh[c*(a+b*x)]/d,u,x,True] && TryPureTanSubst[ActivateTrig[u]*Coth[c*(a+b*x)]^n,x]] /;
-FreeQ[{a,b,c},x] && IntegerQ[n]
-
-
-Int[u_*Tanh[c_.*(a_.+b_.*x_)]^n_.,x_Symbol] :=
-  With[{d=FreeFactors[Coth[c*(a+b*x)],x]},
-  1/(b*c*d^(n-1))*Subst[Int[SubstFor[1/(x^n*(1-d^2*x^2)),Coth[c*(a+b*x)]/d,u,x],x],x,Coth[c*(a+b*x)]/d] /;
- FunctionOfQ[Coth[c*(a+b*x)]/d,u,x,True] && TryPureTanSubst[ActivateTrig[u]*Tanh[c*(a+b*x)]^n,x]] /;
-FreeQ[{a,b,c},x] && IntegerQ[n]
-
-
-Int[u_*Cosh[c_.*(a_.+b_.*x_)],x_Symbol] :=
-  With[{d=FreeFactors[Sinh[c*(a+b*x)],x]},
-  d/(b*c)*Subst[Int[SubstFor[1,Sinh[c*(a+b*x)]/d,u,x],x],x,Sinh[c*(a+b*x)]/d] /;
- FunctionOfQ[Sinh[c*(a+b*x)]/d,u,x]] /;
-FreeQ[{a,b,c},x]
-
-
-Int[u_*Sinh[c_.*(a_.+b_.*x_)],x_Symbol] :=
-  With[{d=FreeFactors[Cosh[c*(a+b*x)],x]},
-  d/(b*c)*Subst[Int[SubstFor[1,Cosh[c*(a+b*x)]/d,u,x],x],x,Cosh[c*(a+b*x)]/d] /;
- FunctionOfQ[Cosh[c*(a+b*x)]/d,u,x]] /;
-FreeQ[{a,b,c},x]
-
-
-Int[u_*Coth[c_.*(a_.+b_.*x_)],x_Symbol] :=
-  With[{d=FreeFactors[Sinh[c*(a+b*x)],x]},
-  1/(b*c)*Subst[Int[SubstFor[1/x,Sinh[c*(a+b*x)]/d,u,x],x],x,Sinh[c*(a+b*x)]/d] /;
- FunctionOfQ[Sinh[c*(a+b*x)]/d,u,x]] /;
-FreeQ[{a,b,c},x]
-
-
-Int[u_*Tanh[c_.*(a_.+b_.*x_)],x_Symbol] :=
-  With[{d=FreeFactors[Cosh[c*(a+b*x)],x]},
-  1/(b*c)*Subst[Int[SubstFor[1/x,Cosh[c*(a+b*x)]/d,u,x],x],x,Cosh[c*(a+b*x)]/d] /;
- FunctionOfQ[Cosh[c*(a+b*x)]/d,u,x]] /;
-FreeQ[{a,b,c},x]
-
-
 Int[u_*Cosh[c_.*(a_.+b_.*x_)]^n_,x_Symbol] :=
   With[{d=FreeFactors[Sinh[c*(a+b*x)],x]},
   d/(b*c)*Subst[Int[SubstFor[(1+d^2*x^2)^((n-1)/2),Sinh[c*(a+b*x)]/d,u,x],x],x,Sinh[c*(a+b*x)]/d] /;
@@ -993,6 +979,20 @@ Int[u_*Csch[c_.*(a_.+b_.*x_)]^n_,x_Symbol] :=
   d/(b*c)*Subst[Int[SubstFor[(-1+d^2*x^2)^((-n-1)/2),Cosh[c*(a+b*x)]/d,u,x],x],x,Cosh[c*(a+b*x)]/d] /;
  FunctionOfQ[Cosh[c*(a+b*x)]/d,u,x]] /;
 FreeQ[{a,b,c},x] && IntegerQ[(n-1)/2] && NonsumQ[u]
+
+
+Int[u_*F_[c_.*(a_.+b_.*x_)]^n_,x_Symbol] :=
+  With[{d=FreeFactors[Sin[c*(a+b*x)],x]},
+  1/(b*c*d^(n-1))*Subst[Int[SubstFor[(1-d^2*x^2)^((n-1)/2)/x^n,Sin[c*(a+b*x)]/d,u,x],x],x,Sin[c*(a+b*x)]/d] /;
+ FunctionOfQ[Sin[c*(a+b*x)]/d,u,x]] /;
+FreeQ[{a,b,c},x] && IntegerQ[(n-1)/2] && NonsumQ[u] && (EqQ[F,Cot] || EqQ[F,cot])
+
+
+Int[u_*F_[c_.*(a_.+b_.*x_)]^n_,x_Symbol] :=
+  With[{d=FreeFactors[Cos[c*(a+b*x)],x]},
+  -1/(b*c*d^(n-1))*Subst[Int[SubstFor[(1-d^2*x^2)^((n-1)/2)/x^n,Cos[c*(a+b*x)]/d,u,x],x],x,Cos[c*(a+b*x)]/d] /;
+ FunctionOfQ[Cos[c*(a+b*x)]/d,u,x]] /;
+FreeQ[{a,b,c},x] && IntegerQ[(n-1)/2] && NonsumQ[u] && (EqQ[F,Tan] || EqQ[F,tan])
 
 
 Int[u_*Coth[c_.*(a_.+b_.*x_)]^n_,x_Symbol] :=
@@ -1023,7 +1023,7 @@ Int[u_*(v_+d_.*F_[c_.*(a_.+b_.*x_)]^n_.),x_Symbol] :=
 FreeQ[{a,b,c,d},x] && Not[FreeQ[v,x]] && IntegerQ[(n-1)/2] && NonsumQ[u] && (EqQ[F,Sin] || EqQ[F,sin])
 
 
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   With[{v=FunctionOfTrig[u,x]},
@@ -1040,7 +1040,7 @@ Int[u_,x_Symbol] :=
  Not[FalseQ[v]] && FunctionOfQ[NonfreeFactors[Sin[v],x],u/Cos[v],x]]]
 
 
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   With[{v=FunctionOfTrig[u,x]},
@@ -1113,7 +1113,7 @@ Int[u_.*(a_.*(b_.*F_[c_.+d_.*x_])^p_)^n_.,x_Symbol] :=
 FreeQ[{a,b,c,d,n,p},x] && InertTrigQ[F] && Not[IntegerQ[n]] && Not[IntegerQ[p]]
 
 
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   With[{v=FunctionOfTrig[u,x]},
@@ -1121,14 +1121,23 @@ Int[u_,x_Symbol] :=
   With[{d=FreeFactors[Tan[v],x]},
   Dist[d/Coefficient[v,x,1],Subst[Int[SubstFor[1/(1+d^2*x^2),Tan[v]/d,u,x],x],x,Tan[v]/d],x]]]] /;
  Not[FalseQ[v]] && FunctionOfQ[NonfreeFactors[Tan[v],x],u,x]] /;
-SimplifyFlag && InverseFunctionFreeQ[u,x],
+SimplifyFlag && InverseFunctionFreeQ[u,x] && 
+  Not[MatchQ[u,v_.*(c_.*tan[w_]^n_.*tan[z_]^n_.)^p_. /; FreeQ[{c,p},x] && IntegerQ[n] && LinearQ[w,x] && EqQ[z,2*w]]],
 
 Int[u_,x_Symbol] :=
   With[{v=FunctionOfTrig[u,x]},
   With[{d=FreeFactors[Tan[v],x]},
   Dist[d/Coefficient[v,x,1],Subst[Int[SubstFor[1/(1+d^2*x^2),Tan[v]/d,u,x],x],x,Tan[v]/d],x]] /;
  Not[FalseQ[v]] && FunctionOfQ[NonfreeFactors[Tan[v],x],u,x]] /;
-InverseFunctionFreeQ[u,x]]
+InverseFunctionFreeQ[u,x] && 
+  Not[MatchQ[u,v_.*(c_.*tan[w_]^n_.*tan[z_]^n_.)^p_. /; FreeQ[{c,p},x] && IntegerQ[n] && LinearQ[w,x] && EqQ[z,2*w]]]]
+
+
+Int[u_*(c_.*sin[v_])^m_,x_Symbol] :=
+  With[{w=FunctionOfTrig[u*Sin[v/2]^(2*m)/(c*Tan[v/2])^m,x]},
+  (c*Sin[v])^m*(c*Tan[v/2])^m/Sin[v/2]^(2*m)*Int[u*Sin[v/2]^(2*m)/(c*Tan[v/2])^m,x] /;
+ Not[FalseQ[w]] && FunctionOfQ[NonfreeFactors[Tan[w],x],u*Sin[v/2]^(2*m)/(c*Tan[v/2])^m,x]] /;
+FreeQ[c,x] && LinearQ[v,x] && IntegerQ[m+1/2] && Not[SumQ[u]] && InverseFunctionFreeQ[u,x]
 
 
 Int[u_.*(a_.*tan[c_.+d_.*x_]^n_.+b_.*sec[c_.+d_.*x_]^n_.)^p_,x_Symbol] :=
@@ -1191,10 +1200,10 @@ Int[u_,x_Symbol] :=
 Not[InertTrigFreeQ[u]]
 
 
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
-  With[{w=Block[{ShowSteps=False,$StepCounter=Null}, 
+  With[{w=Block[{$ShowSteps=False,$StepCounter=Null}, 
 			Int[SubstFor[1/(1+FreeFactors[Tan[FunctionOfTrig[u,x]/2],x]^2*x^2),Tan[FunctionOfTrig[u,x]/2]/FreeFactors[Tan[FunctionOfTrig[u,x]/2],x],u,x],x]]},  
   ShowStep["","Int[F[Sin[a+b*x],Cos[a+b*x]],x]","2/b*Subst[Int[1/(1+x^2)*F[2*x/(1+x^2),(1-x^2)/(1+x^2)],x],x,Tan[(a+b*x)/2]]",Hold[
   Module[{v=FunctionOfTrig[u,x],d},
@@ -1204,7 +1213,7 @@ Int[u_,x_Symbol] :=
 SimplifyFlag && InverseFunctionFreeQ[u,x] && Not[FalseQ[FunctionOfTrig[u,x]]],
 
 Int[u_,x_Symbol] :=
-  With[{w=Block[{ShowSteps=False,$StepCounter=Null}, 
+  With[{w=Block[{$ShowSteps=False,$StepCounter=Null}, 
 			Int[SubstFor[1/(1+FreeFactors[Tan[FunctionOfTrig[u,x]/2],x]^2*x^2),Tan[FunctionOfTrig[u,x]/2]/FreeFactors[Tan[FunctionOfTrig[u,x]/2],x],u,x],x]]},  
   Module[{v=FunctionOfTrig[u,x],d},
   d=FreeFactors[Tan[v/2],x];
@@ -1213,7 +1222,7 @@ Int[u_,x_Symbol] :=
 InverseFunctionFreeQ[u,x] && Not[FalseQ[FunctionOfTrig[u,x]]]]
 
 
-(* If[ShowSteps,
+(* If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   With[{v=FunctionOfTrig[u,x]},
@@ -2041,12 +2050,14 @@ FreeQ[{a,b,c,d,e,f,n},x] && IGtQ[m,0] && EqQ[a^2-b^2,0]
 
 
 Int[(e_.+f_.*x_)^m_.*Sec[c_.+d_.*x_]^n_./(a_+b_.*Sin[c_.+d_.*x_]),x_Symbol] :=
-  2^(n+1)*Int[ExpandIntegrand[(e+f*x)^m,1/((E^(-I*(c+d*x))+E^(I*(c+d*x)))^n*(2*a+I*b*(E^(-I*(c+d*x))-E^(I*(c+d*x))))),x],x] /;
+  -b^2/(a^2-b^2)*Int[(e+f*x)^m*Sec[c+d*x]^(n-2)/(a+b*Sin[c+d*x]),x] + 
+  1/(a^2-b^2)*Int[(e+f*x)^m*Sec[c+d*x]^n*(a-b*Sin[c+d*x]),x] /;
 FreeQ[{a,b,c,d,e,f},x] && IGtQ[m,0] && NeQ[a^2-b^2,0] && IGtQ[n,0]
 
 
 Int[(e_.+f_.*x_)^m_.*Csc[c_.+d_.*x_]^n_./(a_+b_.*Cos[c_.+d_.*x_]),x_Symbol] :=
-  2*(-2*I)^n*Int[ExpandIntegrand[(e+f*x)^m,1/((E^(-I*(c+d*x))-E^(I*(c+d*x)))^n*(2*a+b*(E^(-I*(c+d*x))+E^(I*(c+d*x))))),x],x] /;
+  -b^2/(a^2-b^2)*Int[(e+f*x)^m*Csc[c+d*x]^(n-2)/(a+b*Cos[c+d*x]),x] + 
+  1/(a^2-b^2)*Int[(e+f*x)^m*Csc[c+d*x]^n*(a-b*Cos[c+d*x]),x] /;
 FreeQ[{a,b,c,d,e,f},x] && IGtQ[m,0] && NeQ[a^2-b^2,0] && IGtQ[n,0]
 
 
@@ -2355,6 +2366,50 @@ Int[(e_.+f_.*x_)*(A_+B_.*Cos[c_.+d_.*x_])/(a_+b_.*Cos[c_.+d_.*x_])^2,x_Symbol] :
   B*(e+f*x)*Sin[c+d*x]/(a*d*(a+b*Cos[c+d*x])) -
   B*f/(a*d)*Int[Sin[c+d*x]/(a+b*Cos[c+d*x]),x] /;
 FreeQ[{a,b,c,d,e,f,A,B},x] && EqQ[a*A-b*B,0]
+
+
+Int[x_^2/(c_.*Sin[a_.*x_]+d_.*x_*Cos[a_.*x_])^2,x_Symbol] :=
+  x/(a*d*Sin[a*x]*(c*Sin[a*x]+d*x*Cos[a*x])) + 1/d^2*Int[1/Sin[a*x]^2,x] /;
+FreeQ[{a,c,d},x] && EqQ[a*c+d,0]
+
+
+Int[x_^2/(c_.*Cos[a_.*x_]+d_.*x_*Sin[a_.*x_])^2,x_Symbol] :=
+  -x/(a*d*Cos[a*x]*(c*Cos[a*x]+d*x*Sin[a*x])) + 1/d^2*Int[1/Cos[a*x]^2,x] /;
+FreeQ[{a,c,d},x] && EqQ[a*c-d,0]
+
+
+Int[Sin[a_.*x_]^2/(c_.*Sin[a_.*x_]+d_.*x_*Cos[a_.*x_])^2,x_Symbol] :=
+  1/(d^2*x) + Sin[a*x]/(a*d*x*(d*x*Cos[a*x]+c*Sin[a*x])) /;
+FreeQ[{a,c,d},x] && EqQ[a*c+d,0]
+
+
+Int[Cos[a_.*x_]^2/(c_.*Cos[a_.*x_]+d_.*x_*Sin[a_.*x_])^2,x_Symbol] :=
+  1/(d^2*x) - Cos[a*x]/(a*d*x*(d*x*Sin[a*x]+c*Cos[a*x])) /;
+FreeQ[{a,c,d},x] && EqQ[a*c-d,0]
+
+
+Int[(b_.*x_)^m_*Sin[a_.*x_]^n_/(c_.*Sin[a_.*x_]+d_.*x_*Cos[a_.*x_])^2,x_Symbol] :=
+  b*(b*x)^(m-1)*Sin[a*x]^(n-1)/(a*d*(c*Sin[a*x]+d*x*Cos[a*x])) - 
+  b^2*(n-1)/d^2*Int[(b*x)^(m-2)*Sin[a*x]^(n-2),x] /;
+FreeQ[{a,b,c,d,m,n},x] && EqQ[a*c+d,0] && EqQ[m,2-n]
+
+
+Int[(b_.*x_)^m_*Cos[a_.*x_]^n_/(c_.*Cos[a_.*x_]+d_.*x_*Sin[a_.*x_])^2,x_Symbol] :=
+  -b*(b*x)^(m-1)*Cos[a*x]^(n-1)/(a*d*(c*Cos[a*x]+d*x*Sin[a*x])) - 
+  b^2*(n-1)/d^2*Int[(b*x)^(m-2)*Cos[a*x]^(n-2),x] /;
+FreeQ[{a,b,c,d,m,n},x] && EqQ[a*c-d,0] && EqQ[m,2-n]
+
+
+Int[(b_.*x_)^m_.*Csc[a_.*x_]^n_./(c_.*Sin[a_.*x_]+d_.*x_*Cos[a_.*x_])^2,x_Symbol] :=
+  b*(b*x)^(m-1)*Csc[a*x]^(n+1)/(a*d*(c*Sin[a*x]+d*x*Cos[a*x])) + 
+  b^2*(n+1)/d^2*Int[(b*x)^(m-2)*Csc[a*x]^(n+2),x] /;
+FreeQ[{a,b,c,d,m,n},x] && EqQ[a*c+d,0] && EqQ[m,n+2]
+
+
+Int[(b_.*x_)^m_.*Sec[a_.*x_]^n_./(c_.*Cos[a_.*x_]+d_.*x_*Sin[a_.*x_])^2,x_Symbol] :=
+  -b*(b*x)^(m-1)*Sec[a*x]^(n+1)/(a*d*(c*Cos[a*x]+d*x*Sin[a*x])) + 
+  b^2*(n+1)/d^2*Int[(b*x)^(m-2)*Sec[a*x]^(n+2),x] /;
+FreeQ[{a,b,c,d,m,n},x] && EqQ[a*c-d,0] && EqQ[m,n+2]
 
 
 Int[(g_.+h_.*x_)^p_.*(a_+b_.*Sin[e_.+f_.*x_])^m_.*(c_+d_.*Sin[e_.+f_.*x_])^n_.,x_Symbol] :=

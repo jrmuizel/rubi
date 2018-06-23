@@ -1640,12 +1640,14 @@ FreeQ[{a,b,c,d,e,f},x] && EqQ[a^2+b^2,0] && ILtQ[n,-1] && GtQ[m,0]
 
 
 Int[(c_.+d_.*x_)^m_./(a_+b_.*tan[e_.+k_.*Pi+f_.*x_]),x_Symbol] :=
-  (c+d*x)^(m+1)/(d*(m+1)*(a-I*b)) - 2*I*b*Int[(c+d*x)^m/(a^2+b^2+(a-I*b)^2*E^(2*I*k*Pi)*E^(2*I*(e+f*x))),x] /;
+  (c+d*x)^(m+1)/(d*(m+1)*(a+I*b)) + 
+  2*I*b*Int[(c+d*x)^m*E^(2*I*k*Pi)*E^Simp[2*I*(e+f*x),x]/((a+I*b)^2+(a^2+b^2)*E^(2*I*k*Pi)*E^Simp[2*I*(e+f*x),x]),x] /;
 FreeQ[{a,b,c,d,e,f},x] && IntegerQ[4*k] && NeQ[a^2+b^2,0] && IGtQ[m,0]
 
 
 Int[(c_.+d_.*x_)^m_./(a_+b_.*tan[e_.+f_.*x_]),x_Symbol] :=
-  (c+d*x)^(m+1)/(d*(m+1)*(a-I*b)) - 2*I*b*Int[(c+d*x)^m/(a^2+b^2+(a-I*b)^2*E^(2*I*(e+f*x))),x] /;
+  (c+d*x)^(m+1)/(d*(m+1)*(a+I*b)) + 
+  2*I*b*Int[(c+d*x)^m*E^Simp[2*I*(e+f*x),x]/((a+I*b)^2+(a^2+b^2)*E^Simp[2*I*(e+f*x),x]),x] /;
 FreeQ[{a,b,c,d,e,f},x] && NeQ[a^2+b^2,0] && IGtQ[m,0]
 
 

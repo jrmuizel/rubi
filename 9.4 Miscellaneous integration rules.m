@@ -321,7 +321,7 @@ FreeQ[m,x] && NeQ[m,-1] && FunctionOfQ[x^(m+1),u,x]
 
 
 (* ::Code:: *)
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   With[{lst=SubstForFractionalPowerOfLinear[u,x]},
@@ -338,7 +338,7 @@ Int[u_,x_Symbol] :=
 
 
 (* ::Code:: *)
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   With[{lst=SubstForFractionalPowerOfQuotientOfLinears[u,x]},
@@ -374,8 +374,8 @@ FreeQ[{a,m,p},x] && Not[IntegerQ[p]] && Not[FreeQ[v,x]] && Not[EqQ[a,1] && EqQ[m
 
 (* ::Code:: *)
 Int[u_.*(a_.+b_.*x_^n_)^p_,x_Symbol] :=
-  FullSimplify[Sqrt[a+b*x^n]/(x^(n/2)*Sqrt[b+a/x^n])]*Int[u*x^(n*p)*(b+a*x^(-n))^p,x] /;
-FreeQ[{a,b,p},x] && IntegerQ[p+1/2] && ILtQ[n,0] && Not[RationalFunctionQ[u,x]]
+  b^IntPart[p]*(a+b*x^n)^FracPart[p]/(x^(n*FracPart[p])*(1+a*x^(-n)/b)^FracPart[p])*Int[u*x^(n*p)*(1+a*x^(-n)/b)^p,x] /;
+FreeQ[{a,b,p},x] && Not[IntegerQ[p]] && ILtQ[n,0] && Not[RationalFunctionQ[u,x]] && IntegerQ[p+1/2]
 
 
 (* ::Code:: *)
@@ -394,7 +394,7 @@ FreeQ[{a,b,m,p},x] && Not[IntegerQ[p]] && ILtQ[n,0] && BinomialQ[v,x]
 Int[u_.*(a_.*x_^r_.+b_.*x_^s_.)^m_,x_Symbol] :=
   With[{v=(a*x^r+b*x^s)^FracPart[m]/(x^(r*FracPart[m])*(a+b*x^(s-r))^FracPart[m])},
   v*Int[u*x^(m*r)*(a+b*x^(s-r))^m,x] /;
- Not[EqQ[Simplify[v],1]]] /;
+ NeQ[Simplify[v],1]] /;
 FreeQ[{a,b,m,r,s},x] && Not[IntegerQ[m]] && PosQ[s-r]
 
 
@@ -433,7 +433,7 @@ FreeQ[{a,b,c,m,n},x]
 
 
 (* ::Code:: *)
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   With[{lst=FunctionOfLinear[u,x]},
@@ -449,7 +449,7 @@ Int[u_,x_Symbol] :=
 
 
 (* ::Code:: *)
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_/x_,x_Symbol] :=
   With[{lst=PowerVariableExpn[u,0,x]},
@@ -466,7 +466,7 @@ NonsumQ[u] && Not[RationalFunctionQ[u,x]]]
 
 
 (* ::Code:: *)
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_*x_^m_.,x_Symbol] :=
   With[{lst=PowerVariableExpn[u,m+1,x]},
@@ -491,7 +491,7 @@ FractionQ[m]
 
 
 (* ::Code:: *)
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   With[{lst=FunctionOfSquareRootOfQuadratic[u,x]},
@@ -510,7 +510,7 @@ EulerIntegrandQ[u,x]]
 
 
 (* ::Code:: *)
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   With[{lst=FunctionOfSquareRootOfQuadratic[u,x]},
@@ -529,7 +529,7 @@ EulerIntegrandQ[u,x]]
 
 
 (* ::Code:: *)
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   With[{lst=FunctionOfSquareRootOfQuadratic[u,x]},
@@ -600,7 +600,7 @@ FreeQ[{a,b,c,n,p},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c,0] && IntegerQ[p-1/2]
 
 
 (* ::Code:: *)
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   With[{lst=SubstForFractionalPowerOfLinear[u,x]},

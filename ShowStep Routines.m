@@ -1,33 +1,35 @@
 (* ::Package:: *)
 
-(* ShowSteps controls the use of special definitions when defining rules AND display of steps when simplify expressions. *) 
-If[ShowSteps=!=False, ShowSteps=True];
 SimplifyFlag=True;
 
 
 $StepCounter = 0;
+$RuleList = {};
 $RuleColor = Red;
 $ConditionColor = Blue;
 
 
-Unprotect[IntShowSteps];  Clear[IntShowSteps];
-
-IntShowSteps[u_,x_Symbol] :=
- Block[{ShowSteps=True},
-  FixedPoint[
-    Function[CellPrint[ExpressionCell[#,"Input"]]; 
-    ReplaceAll[#,{Defer[Int]->Int,Defer[Dist]->Dist,Defer[Subst]->Subst}]],Int[u,x]];
-  Null]
-
-Protect[IntShowSteps];
+Int[u_,x_Symbol,flag_] :=
+  If[flag===Step,
+    Block[{$ShowSteps=True}, Int[u,x]],
+  If[flag===Steps,
+    Block[{$ShowSteps=True},
+    FixedPoint[
+      Function[CellPrint[ExpressionCell[#,"Input"]]; 
+      ReplaceAll[#,{Defer[Int]->Int,Defer[Dist]->Dist,Defer[Subst]->Subst}]],Int[u,x]]],
+  If[flag===Stats,
+    Block[{$ShowSteps=False,$StepCounter=0,$RuleList={}},
+    With[{result=Int[u,x]},
+    Print[{$StepCounter,Length[$RuleList],LeafCount[u],LeafCount[result],N[Length[$RuleList]/LeafCount[u],4]}];
+    result]],
+  Int[u,x]]]]
 
 
 (* If func is a function defined using properly defined transformation rules,
    StepFunction[func] modifies the rules to display steps when the control
-   variable ShowSteps is True. *)
+   variable $ShowSteps is True. *)
 StepFunction[func_] :=
   Module[{lst=DownValues[func]},
-  Print["Modifying ",Length[lst]," integration rules to display steps..."];
   Block[{ShowStep,SimplifyFlag},
     Monitor[Do[
       lst[[i]]=ModifyRule[i,lst[[i]],SimplifyFlag],
@@ -134,12 +136,15 @@ PatternEqualQ[pattern_,var_] :=
 (* rhs is an expression of the form Defer[...] where ... is the right hand side of a rule.
 	FormatRhs[rhs] returns a string for the rhs of the rule in InputForm. *)
 FormatRhs[rhs_] :=
-  Block[{SubstFor,Rt,F},
-  DropDefer[ToString[ReplaceAll[rhs,{
-		SubstFor[v_,u_,x_] -> F[x],
-		Rt[u_,2] -> Sqrt[u],
-		Rt[u_,n_] -> u^(1/n)
-  }], InputForm]]]
+  Block[{SubstFor,Simp,Rt,F},
+  DropDefer[ToString[
+	ReplaceAll[
+		ReplaceAll[rhs,{
+			SubstFor[v_,u_,x_] -> F[x],
+			Rt[u_,2] -> Sqrt[u],
+			Rt[u_,n_] -> u^(1/n)}],
+		Simp[u_,x_] -> u],
+	InputForm]]]
 
 
 (* strg is a string of the form "Defer[...]".  DropDefer[strg] returns the string "...", with 
@@ -190,7 +195,7 @@ FormatLets[let_] :=
   If[MatchQ[let,Defer[{u_}]],
     If[let[[1,1,0]]===Set &&
 		  let[[1,1,2,0]]===Block &&
-		  Extract[let,{1,1,2,1},Defer]===Defer[{ShowSteps=False}],
+		  Extract[let,{1,1,2,1},Defer]===Defer[{$ShowSteps=False}],
       If[let[[1,1,2,2,0]]===Simplify,
         ToConditionString[Extract[let,{1,1,1},Defer]] <> "=" <>
         ToConditionString[Extract[let,{1,1,2,2,1},Defer]] <> ", then",
@@ -233,12 +238,13 @@ SpliceConditionString[cond1_,lets_,cond2_] :=
 
 (* condStrg, lhsStrg and rhsStrg are the strings required to display the rule being applied.
 	rhs is the expression on the right side of the rule (i.e. the consequent of the rule).
-	If ShowSteps is True, ShowStep[num,condStrg,lhsStrg,rhsStrg,rhs] displays the rule being applied, 
+	If $ShowSteps is True, ShowStep[num,condStrg,lhsStrg,rhsStrg,rhs] displays the rule being applied, 
 	sets SimplifyFlag to False to turn off further simplification, and release the hold on the rhs 
 	of the rule. *)
 ShowStep[condStrg_,lhsStrg_,rhsStrg_,rhs_] := (
-  If[IntegerQ[$StepCounter], $StepCounter++];
-  If[ShowSteps,
+  If[IntegerQ[$StepCounter],
+    $StepCounter=$StepCounter+1];
+  If[$ShowSteps===True,
     Print["Rule: ",Style[condStrg,$ConditionColor]];
     Print["  ",Style[ToExpression["Defer["<>lhsStrg<>"]"],$RuleColor],Style[" \[LongRightArrow] ",Bold],Style[ToExpression["Defer["<>rhsStrg<>"]"],$RuleColor]];
     Block[{SimplifyFlag=False},
@@ -246,8 +252,11 @@ ShowStep[condStrg_,lhsStrg_,rhsStrg_,rhs_] := (
   ReleaseHold[rhs]] )
 
 ShowStep[num_,condStrg_,lhsStrg_,rhsStrg_,rhs_] := (
-  If[IntegerQ[$StepCounter], $StepCounter++];
-  If[ShowSteps,
+  If[IntegerQ[$StepCounter],
+    $StepCounter=$StepCounter+1];
+  If[Head[$RuleList]===List && Not[MemberQ[$RuleList,num]],
+    $RuleList=Append[$RuleList,num]];
+  If[$ShowSteps===True,
     Print["Rule ",num+1,": ",Style[condStrg,$ConditionColor]];
     Print["  ",Style[ToExpression["Defer["<>lhsStrg<>"]"],$RuleColor],Style[" \[LongRightArrow] ",Bold],Style[ToExpression["Defer["<>rhsStrg<>"]"],$RuleColor]];
     Block[{SimplifyFlag=False},

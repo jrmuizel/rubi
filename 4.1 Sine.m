@@ -8,7 +8,7 @@
 (*4.1.0.1 (a sin)^m (b trg)^n*)
 
 
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   Int[DeactivateTrig[u,x],x] /;

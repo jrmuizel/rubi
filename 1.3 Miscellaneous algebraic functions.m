@@ -5,394 +5,190 @@
 
 
 (* ::Subsection::Closed:: *)
-(*1.3.1 u (a+b x+c x^2+d x^3)^p*)
+(*1.3.1 P(x)^p*)
+
+
+Int[u_.*P_^p_.,x_Symbol] :=
+  With[{m=MinimumMonomialExponent[P,x]},
+  P^FracPart[p]/(x^(m*FracPart[p])*Distrib[1/x^m,P]^FracPart[p])*Int[u*x^(m*p)*Distrib[1/x^m,P]^p,x]] /;
+FreeQ[p,x] && Not[IntegerQ[p]] && SumQ[P] && EveryQ[Function[BinomialQ[#,x]],P] && Not[PolyQ[P,x,2]]
+
+
+Int[P_^p_,x_Symbol] :=
+  With[{u=Factor[ReplaceAll[P,x->Sqrt[x]]]},
+  Int[ExpandIntegrand[ReplaceAll[u,x->x^2]^p,x],x] /;
+ Not[SumQ[NonfreeFactors[u,x]]]] /;
+PolyQ[P,x^2] && ILtQ[p,0]
+
+
+Int[P_^p_,x_Symbol] :=
+  With[{u=Factor[P]},
+  Int[ExpandIntegrand[u^p,x],x] /;
+ Not[SumQ[NonfreeFactors[u,x]]]] /;
+PolyQ[P,x] && ILtQ[p,0]
+
+
+Int[P_^p_,x_Symbol] :=
+  With[{u=Factor[P]},
+  Int[u^p,x] /;
+ Not[SumQ[NonfreeFactors[u,x]]]] /;
+PolyQ[P,x] && IntegerQ[p]
+
+
+(* Int[Pn_^p_,x_Symbol] :=
+  With[{u=Factor[Pn]},
+  Pn^p/DistributeDegree[u,p]*Int[DistributeDegree[u,p],x] /;
+ Not[SumQ[u]]] /;
+PolyQ[Pn,x] && Not[IntegerQ[p]] *)
+
+
+Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
+  1/3^p*Subst[Int[Simp[(3*a*c-b^2)/c+c^2*x^3/b,x]^p,x],x,c/(3*d)+x] /;
+FreeQ[{a,b,c,d},x] && IGtQ[p,0] && EqQ[c^2-3*b*d,0]
+
+
+Int[P_^p_,x_Symbol] :=
+  Int[ExpandToSum[P^p,x],x] /;
+PolyQ[P,x] && IGtQ[p,0]
+
+
+Int[P_^p_,x_Symbol] :=
+  Int[ExpandIntegrand[P^p,x],x] /;
+PolyQ[P,x] && IntegerQ[p] && QuadraticProductQ[Factor[P],x]
 
 
 Int[(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
   1/(3^(3*p)*a^(2*p))*Int[(3*a-b*x)^p*(3*a+2*b*x)^(2*p),x] /;
-FreeQ[{a,b,d},x] && IntegerQ[p] && EqQ[4*b^3+27*a^2*d,0]
-
-
-Int[(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
-  Int[ExpandToSum[(a+b*x+d*x^3)^p,x],x] /;
-FreeQ[{a,b,d},x] && IGtQ[p,0] && NeQ[4*b^3+27*a^2*d,0]
-
-
-Int[(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=Factor[a+b*x+d*x^3]},
-  FreeFactors[u,x]^p*Int[DistributeDegree[NonfreeFactors[u,x],p],x] /;
- ProductQ[NonfreeFactors[u,x]]] /;
-FreeQ[{a,b,d},x] && ILtQ[p,0] && NeQ[4*b^3+27*a^2*d,0]
-
-
-Int[(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[-27*a*d^2+3*Sqrt[3]*d*Sqrt[4*b^3*d+27*a^2*d^2],3]},
-  1/(3^(3*p)*d^(2*p))*
-    Int[((6*b*d-2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      ((6*(1+I*Sqrt[3])*b*d-2^(1/3)*(1-I*Sqrt[3])*r^2)/(2*2^(2/3)*r)-3*d*x)^p*
-      ((6*(1-I*Sqrt[3])*b*d-2^(1/3)*(1+I*Sqrt[3])*r^2)/(2*2^(2/3)*r)-3*d*x)^p,x]] /;
-FreeQ[{a,b,d},x] && ILtQ[p,0] && NeQ[4*b^3+27*a^2*d,0]
+FreeQ[{a,b,d},x] && EqQ[4*b^3+27*a^2*d,0] && IntegerQ[p]
 
 
 Int[(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
   (a+b*x+d*x^3)^p/((3*a-b*x)^p*(3*a+2*b*x)^(2*p))*Int[(3*a-b*x)^p*(3*a+2*b*x)^(2*p),x] /;
-FreeQ[{a,b,d,p},x] && Not[IntegerQ[p]] && EqQ[4*b^3+27*a^2*d,0]
+FreeQ[{a,b,d,p},x] && EqQ[4*b^3+27*a^2*d,0] && Not[IntegerQ[p]]
 
 
 Int[(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=NonfreeFactors[Factor[a+b*x+d*x^3],x]},
-  (a+b*x+d*x^3)^p/DistributeDegree[u,p]*Int[DistributeDegree[u,p],x] /;
- ProductQ[u]] /;
-FreeQ[{a,b,d,p},x] && Not[IntegerQ[p]] && NeQ[4*b^3+27*a^2*d,0]
+  With[{r=Rt[-9*a*d^2+Sqrt[3]*d*Sqrt[4*b^3*d+27*a^2*d^2],3]},
+  1/d^(2*p)*Int[Simp[18^(1/3)*b*d/(3*r)-r/18^(1/3)+d*x,x]^p*
+    Simp[b*d/3+12^(1/3)*b^2*d^2/(3*r^2)+r^2/(3*12^(1/3))-d*(2^(1/3)*b*d/(3^(1/3)*r)-r/18^(1/3))*x+d^2*x^2,x]^p,x]] /;
+FreeQ[{a,b,d},x] && NeQ[4*b^3+27*a^2*d,0] && IntegerQ[p]
 
 
 Int[(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[-27*a*d^2+3*Sqrt[3]*d*Sqrt[4*b^3*d+27*a^2*d^2],3]},
-  (a+b*x+d*x^3)^p/(((6*b*d-2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      ((6*(1+I*Sqrt[3])*b*d-2^(1/3)*(1-I*Sqrt[3])*r^2)/(2*2^(2/3)*r)-3*d*x)^p*
-      ((6*(1-I*Sqrt[3])*b*d-2^(1/3)*(1+I*Sqrt[3])*r^2)/(2*2^(2/3)*r)-3*d*x)^p)*
-    Int[((6*b*d-2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      ((6*(1+I*Sqrt[3])*b*d-2^(1/3)*(1-I*Sqrt[3])*r^2)/(2*2^(2/3)*r)-3*d*x)^p*
-      ((6*(1-I*Sqrt[3])*b*d-2^(1/3)*(1+I*Sqrt[3])*r^2)/(2*2^(2/3)*r)-3*d*x)^p,x]] /;
-FreeQ[{a,b,d,p},x] && Not[IntegerQ[p]] && NeQ[4*b^3+27*a^2*d,0]
+  With[{r=Rt[-9*a*d^2+Sqrt[3]*d*Sqrt[4*b^3*d+27*a^2*d^2],3]},
+  (a+b*x+d*x^3)^p/
+    (Simp[18^(1/3)*b*d/(3*r)-r/18^(1/3)+d*x,x]^p*
+      Simp[b*d/3+12^(1/3)*b^2*d^2/(3*r^2)+r^2/(3*12^(1/3))-d*(2^(1/3)*b*d/(3^(1/3)*r)-r/18^(1/3))*x+d^2*x^2,x]^p)*
+    Int[Simp[18^(1/3)*b*d/(3*r)-r/18^(1/3)+d*x,x]^p*
+      Simp[b*d/3+12^(1/3)*b^2*d^2/(3*r^2)+r^2/(3*12^(1/3))-d*(2^(1/3)*b*d/(3^(1/3)*r)-r/18^(1/3))*x+d^2*x^2,x]^p,x]] /;
+FreeQ[{a,b,d,p},x] && NeQ[4*b^3+27*a^2*d,0] && Not[IntegerQ[p]]
 
 
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
-  1/(3^(3*p)*a^(2*p))*Int[(e+f*x)^m*(3*a-b*x)^p*(3*a+2*b*x)^(2*p),x] /;
-FreeQ[{a,b,d,e,f,m},x] && IntegerQ[p] && EqQ[4*b^3+27*a^2*d,0]
+Int[P3_^p_,x_Symbol] :=
+  With[{a=Coeff[P3,x,0],b=Coeff[P3,x,1],c=Coeff[P3,x,2],d=Coeff[P3,x,3]},
+  Subst[Int[Simp[(2*c^3-9*b*c*d+27*a*d^2)/(27*d^2)-(c^2-3*b*d)*x/(3*d)+d*x^3,x]^p,x],x,x+c/(3*d)] /;
+ NeQ[c,0]] /;
+FreeQ[p,x] && PolyQ[P3,x,3]
 
 
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
-  Int[ExpandIntegrand[(e+f*x)^m*(a+b*x+d*x^3)^p,x],x] /;
-FreeQ[{a,b,d,e,f,m},x] && IGtQ[p,0] && NeQ[4*b^3+27*a^2*d,0]
+Int[P4_^p_,x_Symbol] :=
+  With[{a=Coeff[P4,x,0],b=Coeff[P4,x,1],c=Coeff[P4,x,2],d=Coeff[P4,x,3],e=Coeff[P4,x,4]},
+  -16*a^2*Subst[
+    Int[1/(b-4*a*x)^2*(a*(-3*b^4+16*a*b^2*c-64*a^2*b*d+256*a^3*e-32*a^2*(3*b^2-8*a*c)*x^2+256*a^4*x^4)/(b-4*a*x)^4)^p,x],
+    x,b/(4*a)+1/x] /;
+ NeQ[a,0] && NeQ[b,0] && EqQ[b^3-4*a*b*c+8*a^2*d,0]] /;
+FreeQ[p,x] && PolyQ[P4,x,4] && IntegerQ[2*p] && Not[IGtQ[p,0]]
 
 
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=Factor[a+b*x+d*x^3]},
-  FreeFactors[u,x]^p*Int[(e+f*x)^m*DistributeDegree[NonfreeFactors[u,x],p],x] /;
- ProductQ[NonfreeFactors[u,x]]] /;
-FreeQ[{a,b,d,e,f,m},x] && ILtQ[p,0] && NeQ[4*b^3+27*a^2*d,0]
+Int[Q6_^p_,x_Symbol] :=
+  With[{a=Coeff[Q6,x,0],b=Coeff[Q6,x,2],c=Coeff[Q6,x,3],d=Coeff[Q6,x,4],e=Coeff[Q6,x,6]},
+  1/(3^(3*p)*a^(2*p))*Int[ExpandIntegrand[
+    (3*a+3*Rt[a,3]^2*Rt[c,3]*x+b*x^2)^p*
+    (3*a-3*(-1)^(1/3)*Rt[a,3]^2*Rt[c,3]*x+b*x^2)^p*
+    (3*a+3*(-1)^(2/3)*Rt[a,3]^2*Rt[c,3]*x+b*x^2)^p,x],x] /;
+ EqQ[b^2-3*a*d,0] && EqQ[b^3-27*a^2*e,0]] /;
+ILtQ[p,0] && PolyQ[Q6,x,6] && EqQ[Coeff[Q6,x,1],0] && EqQ[Coeff[Q6,x,5],0] && RationalFunctionQ[u,x]
 
 
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[-27*a*d^2+3*Sqrt[3]*d*Sqrt[4*b^3*d+27*a^2*d^2],3]},
-  1/(3^(3*p)*d^(2*p))*
-    Int[(e+f*x)^m*((6*b*d-2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      ((6*(1+I*Sqrt[3])*b*d-2^(1/3)*(1-I*Sqrt[3])*r^2)/(2*2^(2/3)*r)-3*d*x)^p*
-      ((6*(1-I*Sqrt[3])*b*d-2^(1/3)*(1+I*Sqrt[3])*r^2)/(2*2^(2/3)*r)-3*d*x)^p,x]] /;
-FreeQ[{a,b,d,e,f,m},x] && ILtQ[p,0] && NeQ[4*b^3+27*a^2*d,0]
 
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
-  (a+b*x+d*x^3)^p/((3*a-b*x)^p*(3*a+2*b*x)^(2*p))*Int[(e+f*x)^m*(3*a-b*x)^p*(3*a+2*b*x)^(2*p),x] /;
-FreeQ[{a,b,d,e,f,m,p},x] && Not[IntegerQ[p]] && EqQ[4*b^3+27*a^2*d,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=NonfreeFactors[Factor[a+b*x+d*x^3],x]},
-  (a+b*x+d*x^3)^p/DistributeDegree[u,p]*Int[(e+f*x)^m*DistributeDegree[u,p],x] /;
- ProductQ[u]] /;
-FreeQ[{a,b,d,e,f,m,p},x] && Not[IntegerQ[p]] && NeQ[4*b^3+27*a^2*d,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[-27*a*d^2+3*Sqrt[3]*d*Sqrt[4*b^3*d+27*a^2*d^2],3]},
-  (a+b*x+d*x^3)^p/(((6*b*d-2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      ((6*(1+I*Sqrt[3])*b*d-2^(1/3)*(1-I*Sqrt[3])*r^2)/(2*2^(2/3)*r)-3*d*x)^p*
-      ((6*(1-I*Sqrt[3])*b*d-2^(1/3)*(1+I*Sqrt[3])*r^2)/(2*2^(2/3)*r)-3*d*x)^p)*
-    Int[(e+f*x)^m*((6*b*d-2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      ((6*(1+I*Sqrt[3])*b*d-2^(1/3)*(1-I*Sqrt[3])*r^2)/(2*2^(2/3)*r)-3*d*x)^p*
-      ((6*(1-I*Sqrt[3])*b*d-2^(1/3)*(1+I*Sqrt[3])*r^2)/(2*2^(2/3)*r)-3*d*x)^p,x]] /;
-FreeQ[{a,b,d,e,f,m,p},x] && Not[IntegerQ[p]] && NeQ[4*b^3+27*a^2*d,0]
-
-
-Int[(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  -1/(3^(3*p)*d^(2*p))*Int[(c-3*d*x)^p*(2*c+3*d*x)^(2*p),x] /;
-FreeQ[{a,c,d},x] && IntegerQ[p] && EqQ[4*c^3+27*a*d^2,0]
-
-
-Int[(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  Int[ExpandToSum[(a+c*x^2+d*x^3)^p,x],x] /;
-FreeQ[{a,c,d},x] && IGtQ[p,0] && NeQ[4*c^3+27*a*d^2,0]
-
-
-Int[(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=Factor[a+c*x^2+d*x^3]},
-  FreeFactors[u,x]^p*Int[DistributeDegree[NonfreeFactors[u,x],p],x] /;
- ProductQ[NonfreeFactors[u,x]]] /;
-FreeQ[{a,c,d},x] && ILtQ[p,0] && NeQ[4*c^3+27*a*d^2,0]
-
-
-Int[(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[-2*c^3-27*a*d^2+3*Sqrt[3]*d*Sqrt[4*a*c^3+27*a^2*d^2],3]},
-  1/(3^(3*p)*d^(2*p))*
-    Int[(c-(2*c^2+2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1+I*Sqrt[3])*c^2+2^(1/3)*(1-I*Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1-I*Sqrt[3])*c^2+2^(1/3)*(1+I*Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p,x]] /;
-FreeQ[{a,c,d},x] && ILtQ[p,0] && NeQ[4*c^3+27*a*d^2,0]
-
-
-Int[(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  (a+c*x^2+d*x^3)^p/((c-3*d*x)^p*(2*c+3*d*x)^(2*p))*Int[(c-3*d*x)^p*(2*c+3*d*x)^(2*p),x] /;
-FreeQ[{a,c,d,p},x] && Not[IntegerQ[p]] && EqQ[4*c^3+27*a*d^2,0]
-
-
-Int[(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=NonfreeFactors[Factor[a+c*x^2+d*x^3],x]},
-  (a+c*x^2+d*x^3)^p/DistributeDegree[u,p]*Int[DistributeDegree[u,p],x] /;
- ProductQ[u]] /;
-FreeQ[{a,c,d,p},x] && Not[IntegerQ[p]] && NeQ[4*c^3+27*a*d^2,0]
-
-
-Int[(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[-2*c^3-27*a*d^2+3*Sqrt[3]*d*Sqrt[4*a*c^3+27*a^2*d^2],3]},
-  (a+c*x^2+d*x^3)^p/((c-(2*c^2+2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1+I*Sqrt[3])*c^2+2^(1/3)*(1-I*Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1-I*Sqrt[3])*c^2+2^(1/3)*(1+I*Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p)*
-    Int[(c-(2*c^2+2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1+I*Sqrt[3])*c^2+2^(1/3)*(1-I*Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1-I*Sqrt[3])*c^2+2^(1/3)*(1+I*Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p,x]] /;
-FreeQ[{a,c,d,p},x] && Not[IntegerQ[p]] && NeQ[4*c^3+27*a*d^2,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  -1/(3^(3*p)*d^(2*p))*Int[(e+f*x)^m*(c-3*d*x)^p*(2*c+3*d*x)^(2*p),x] /;
-FreeQ[{a,c,d,e,f,m},x] && IntegerQ[p] && EqQ[4*c^3+27*a*d^2,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  Int[ExpandIntegrand[(e+f*x)^m*(a+c*x^2+d*x^3)^p,x],x] /;
-FreeQ[{a,c,d,e,f,m},x] && IGtQ[p,0] && NeQ[4*c^3+27*a*d^2,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=Factor[a+c*x^2+d*x^3]},
-  FreeFactors[u,x]^p*Int[(e+f*x)^m*DistributeDegree[NonfreeFactors[u,x],p],x] /;
- ProductQ[NonfreeFactors[u,x]]] /;
-FreeQ[{a,c,d,e,f,m},x] && ILtQ[p,0] && NeQ[4*c^3+27*a*d^2,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[-2*c^3-27*a*d^2+3*Sqrt[3]*d*Sqrt[4*a*c^3+27*a^2*d^2],3]},
-  1/(3^(3*p)*d^(2*p))*
-    Int[(e+f*x)^m*(c-(2*c^2+2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1+I*Sqrt[3])*c^2+2^(1/3)*(1-I*Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1-I*Sqrt[3])*c^2+2^(1/3)*(1+I*Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p,x]] /;
-FreeQ[{a,c,d,e,f,m},x] && ILtQ[p,0] && NeQ[4*c^3+27*a*d^2,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  (a+c*x^2+d*x^3)^p/((c-3*d*x)^p*(2*c+3*d*x)^(2*p))*Int[(e+f*x)^m*(c-3*d*x)^p*(2*c+3*d*x)^(2*p),x] /;
-FreeQ[{a,c,d,e,f,m,p},x] && Not[IntegerQ[p]] && EqQ[4*c^3+27*a*d^2,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=NonfreeFactors[Factor[a+c*x^2+d*x^3],x]},
-  (a+c*x^2+d*x^3)^p/DistributeDegree[u,p]*Int[(e+f*x)^m*DistributeDegree[u,p],x] /;
- ProductQ[u]] /;
-FreeQ[{a,c,d,e,f,m,p},x] && Not[IntegerQ[p]] && NeQ[4*c^3+27*a*d^2,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[-2*c^3-27*a*d^2+3*Sqrt[3]*d*Sqrt[4*a*c^3+27*a^2*d^2],3]},
-  (a+c*x^2+d*x^3)^p/((c-(2*c^2+2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1+I*Sqrt[3])*c^2+2^(1/3)*(1-I*Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1-I*Sqrt[3])*c^2+2^(1/3)*(1+I*Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p)*
-    Int[(e+f*x)^m*(c-(2*c^2+2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1+I*Sqrt[3])*c^2+2^(1/3)*(1-I*Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1-I*Sqrt[3])*c^2+2^(1/3)*(1+I*Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p,x]] /;
-FreeQ[{a,c,d,e,f,m,p},x] && Not[IntegerQ[p]] && NeQ[4*c^3+27*a*d^2,0]
-
-
-Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  1/(3^p*b^p*c^p)*Int[(b+c*x)^(3*p),x] /;
-FreeQ[{a,b,c,d},x] && IntegerQ[p] && EqQ[c^2-3*b*d,0] && EqQ[b^2-3*a*c,0]
-
-
-Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  1/(3^p*b^p*c^p)*Subst[Int[(3*a*b*c-b^3+c^3*x^3)^p,x],x,x+c/(3*d)] /;
-FreeQ[{a,b,c,d},x] && IntegerQ[p] && EqQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0]
-
-
-(* Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[b^3-3*a*b*c,3]},
-  1/(3^p*b^p*c^p)*Int[(b-r+c*x)^p*(b+(1-I*Sqrt[3])*r/2+c*x)^p*(b+(1+I*Sqrt[3])*r/2+c*x)^p,x]] /;
-FreeQ[{a,b,c,d},x] && IntegerQ[p] && EqQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0] *)
-
-
-Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[c^3-3*b*c*d,3]},
-  1/(3^p*b^p*c^p)*Int[(b+(c-r)*x)^p*(b+(c+(1-I*Sqrt[3])*r/2)*x)^p*(b+(c+(1+I*Sqrt[3])*r/2)*x)^p,x]] /;
-FreeQ[{a,b,c,d},x] && IntegerQ[p] && NeQ[c^2-3*b*d,0] && EqQ[b^2-3*a*c,0]
-
-
-Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  Int[ExpandToSum[(a+b*x+c*x^2+d*x^3)^p,x],x] /;
-FreeQ[{a,b,c,d},x] && IGtQ[p,0] && NeQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0]
-
-
-Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=Factor[a+b*x+c*x^2+d*x^3]},
-  FreeFactors[u,x]^p*Int[DistributeDegree[NonfreeFactors[u,x],p],x] /;
- ProductQ[NonfreeFactors[u,x]]] /;
-FreeQ[{a,b,c,d},x] && ILtQ[p,0] && NeQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0]
-
-
-Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  1/(3^(3*p)*d^(2*p))*Subst[Int[(2*c^3-9*b*c*d+27*a*d^2-9*d*(c^2-3*b*d)*x+27*d^3*x^3)^p,x],x,x+c/(3*d)] /;
-FreeQ[{a,b,c,d},x] && ILtQ[p,0] && NeQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0]
-
-
-(* Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[-2*c^3+9*b*c*d-27*a*d^2+3*Sqrt[3]*d*Sqrt[-b^2*c^2+4*a*c^3+4*b^3*d-18*a*b*c*d+27*a^2*d^2],3]},
-  1/(3^(3*p)*d^(2*p))*
-    Int[(c-(2*c^2-6*b*d+2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1+I*Sqrt[3])*c^2-6*(1+I*Sqrt[3])*b*d-I*2^(1/3)*(I+Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1-I*Sqrt[3])*c^2-6*(1-I*Sqrt[3])*b*d+I*2^(1/3)*(-I+Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p,x]] /;
-FreeQ[{a,b,c,d},x] && ILtQ[p,0] && NeQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0] *)
-
-
-Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  (a+b*x+c*x^2+d*x^3)^p/(b+c*x)^(3*p)*Int[(b+c*x)^(3*p),x] /;
-FreeQ[{a,b,c,d,p},x] && Not[IntegerQ[p]] && EqQ[c^2-3*b*d,0] && EqQ[b^2-3*a*c,0]
-
-
-Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[b^3-3*a*b*c,3]},
-  (a+b*x+c*x^2+d*x^3)^p/((b-r+c*x)^p*(b+(1-I*Sqrt[3])*r/2+c*x)^p*(b+(1+I*Sqrt[3])*r/2+c*x)^p)*
-    Int[(b-r+c*x)^p*(b+(1-I*Sqrt[3])*r/2+c*x)^p*(b+(1+I*Sqrt[3])*r/2+c*x)^p,x]] /;
-FreeQ[{a,b,c,d,p},x] && Not[IntegerQ[p]] && EqQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0]
-
-
-Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[c^3-3*b*c*d,3]},
-  (a+b*x+c*x^2+d*x^3)^p/((b+(c-r)*x)^p*(b+(c+(1-I*Sqrt[3])*r/2)*x)^p*(b+(c+(1+I*Sqrt[3])*r/2)*x)^p)*
-    Int[(b+(c-r)*x)^p*(b+(c+(1-I*Sqrt[3])*r/2)*x)^p*(b+(c+(1+I*Sqrt[3])*r/2)*x)^p,x]] /;
-FreeQ[{a,b,c,d,p},x] && Not[IntegerQ[p]] && NeQ[c^2-3*b*d,0] && EqQ[b^2-3*a*c,0]
-
-
-Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=NonfreeFactors[Factor[a+b*x+c*x^2+d*x^3],x]},
-  (a+b*x+c*x^2+d*x^3)^p/DistributeDegree[u,p]*Int[DistributeDegree[u,p],x] /;
- ProductQ[u]] /;
-FreeQ[{a,b,c,d,p},x] && Not[IntegerQ[p]] && NeQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0]
-
-
-(* Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  1/(3^(3*p)*d^(2*p))*Subst[Int[(2*c^3-9*b*c*d+27*a*d^2-9*d*(c^2-3*b*d)*x+27*d^3*x^3)^p,x],x,x+c/(3*d)] /;
-FreeQ[{a,b,c,d,p},x] && Not[IntegerQ[p]] *)
-
-
-Int[(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[-2*c^3+9*b*c*d-27*a*d^2+3*Sqrt[3]*d*Sqrt[-b^2*c^2+4*a*c^3+4*b^3*d-18*a*b*c*d+27*a^2*d^2],3]},
-  (a+b*x+c*x^2+d*x^3)^p/
-    ((c-(2*c^2-6*b*d+2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1+I*Sqrt[3])*c^2-6*(1+I*Sqrt[3])*b*d-I*2^(1/3)*(I+Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1-I*Sqrt[3])*c^2-6*(1-I*Sqrt[3])*b*d+I*2^(1/3)*(-I+Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p)*
-    Int[(c-(2*c^2-6*b*d+2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1+I*Sqrt[3])*c^2-6*(1+I*Sqrt[3])*b*d-I*2^(1/3)*(I+Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1-I*Sqrt[3])*c^2-6*(1-I*Sqrt[3])*b*d+I*2^(1/3)*(-I+Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p,x]] /;
-FreeQ[{a,b,c,d,p},x] && Not[IntegerQ[p]] && NeQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0]
-
-
-Int[u_^p_,x_Symbol] :=
-  Int[ExpandToSum[u,x]^p,x] /;
-FreeQ[p,x] && PolyQ[u,x,3] && Not[CubicMatchQ[u,x]]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  1/(3^p*b^p*c^p)*Int[(e+f*x)^m*(b+c*x)^(3*p),x] /;
-FreeQ[{a,b,c,d,e,f,m},x] && IntegerQ[p] && EqQ[c^2-3*b*d,0] && EqQ[b^2-3*a*c,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[b^3-3*a*b*c,3]},
-  1/(3^p*b^p*c^p)*Int[(e+f*x)^m*(b-r+c*x)^p*(b+(1-I*Sqrt[3])*r/2+c*x)^p*(b+(1+I*Sqrt[3])*r/2+c*x)^p,x]] /;
-FreeQ[{a,b,c,d,e,f,m},x] && IntegerQ[p] && EqQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[c^3-3*b*c*d,3]},
-  1/(3^p*b^p*c^p)*Int[(e+f*x)^m*(b+(c-r)*x)^p*(b+(c+(1-I*Sqrt[3])*r/2)*x)^p*(b+(c+(1+I*Sqrt[3])*r/2)*x)^p,x]] /;
-FreeQ[{a,b,c,d,e,f,m},x] && IntegerQ[p] && NeQ[c^2-3*b*d,0] && EqQ[b^2-3*a*c,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  Int[ExpandIntegrand[(e+f*x)^m*(a+b*x+c*x^2+d*x^3)^p,x],x] /;
-FreeQ[{a,b,c,d,e,f,m},x] && IGtQ[p,0] && NeQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=Factor[a+b*x+c*x^2+d*x^3]},
-  FreeFactors[u,x]^p*Int[(e+f*x)^m*DistributeDegree[NonfreeFactors[u,x],p],x] /;
- ProductQ[NonfreeFactors[u,x]]] /;
-FreeQ[{a,b,c,d,e,f,m},x] && ILtQ[p,0] && NeQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  1/(3^(3*p)*d^(2*p))*Subst[Int[(2*c^3-9*b*c*d+27*a*d^2-9*d*(c^2-3*b*d)*x+27*d^3*x^3)^p,x],x,x+c/(3*d)] /;
-FreeQ[{a,b,c,d,e,f,m},x] && ILtQ[p,0] && NeQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0]
-
-
-(* Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[-2*c^3+9*b*c*d-27*a*d^2+3*Sqrt[3]*d*Sqrt[-b^2*c^2+4*a*c^3+4*b^3*d-18*a*b*c*d+27*a^2*d^2],3]},
-  1/(3^(3*p)*d^(2*p))*
-    Int[(e+f*x)^m*(c-(2*c^2-6*b*d+2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1+I*Sqrt[3])*c^2-6*(1+I*Sqrt[3])*b*d-I*2^(1/3)*(I+Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1-I*Sqrt[3])*c^2-6*(1-I*Sqrt[3])*b*d+I*2^(1/3)*(-I+Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p,x]] /;
-FreeQ[{a,b,c,d,e,f,m},x] && ILtQ[p,0] && NeQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0] *)
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  (a+b*x+c*x^2+d*x^3)^p/(b+c*x)^(3*p)*Int[(e+f*x)^m*(b+c*x)^(3*p),x] /;
-FreeQ[{a,b,c,d,e,f,m,p},x] && Not[IntegerQ[p]] && EqQ[c^2-3*b*d,0] && EqQ[b^2-3*a*c,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[b^3-3*a*b*c,3]},
-  (a+b*x+c*x^2+d*x^3)^p/((b-r+c*x)^p*(b+(1-I*Sqrt[3])*r/2+c*x)^p*(b+(1+I*Sqrt[3])*r/2+c*x)^p)*
-    Int[(e+f*x)^m*(b-r+c*x)^p*(b+(1-I*Sqrt[3])*r/2+c*x)^p*(b+(1+I*Sqrt[3])*r/2+c*x)^p,x]] /;
-FreeQ[{a,b,c,d,e,f,m,p},x] && Not[IntegerQ[p]] && EqQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[c^3-3*b*c*d,3]},
-  (a+b*x+c*x^2+d*x^3)^p/((b+(c-r)*x)^p*(b+(c+(1-I*Sqrt[3])*r/2)*x)^p*(b+(c+(1+I*Sqrt[3])*r/2)*x)^p)*
-    Int[(e+f*x)^m*(b+(c-r)*x)^p*(b+(c+(1-I*Sqrt[3])*r/2)*x)^p*(b+(c+(1+I*Sqrt[3])*r/2)*x)^p,x]] /;
-FreeQ[{a,b,c,d,e,f,m,p},x] && Not[IntegerQ[p]] && NeQ[c^2-3*b*d,0] && EqQ[b^2-3*a*c,0]
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{u=NonfreeFactors[Factor[a+b*x+c*x^2+d*x^3],x]},
-  (a+b*x+c*x^2+d*x^3)^p/DistributeDegree[u,p]*Int[(e+f*x)^m*DistributeDegree[u,p],x] /;
- ProductQ[u]] /;
-FreeQ[{a,b,c,d,e,f,m,p},x] && Not[IntegerQ[p]] && NeQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0]
-
-
-(* Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  1/(3^(3*p)*d^(2*p))*Subst[Int[(2*c^3-9*b*c*d+27*a*d^2-9*d*(c^2-3*b*d)*x+27*d^3*x^3)^p,x],x,x+c/(3*d)] /;
-FreeQ[{a,b,c,d,e,f,m,p},x] && Not[IntegerQ[p]] *)
-
-
-Int[(e_.+f_.*x_)^m_.*(a_.+b_.*x_+c_.*x_^2+d_.*x_^3)^p_,x_Symbol] :=
-  With[{r=Rt[-2*c^3+9*b*c*d-27*a*d^2+3*Sqrt[3]*d*Sqrt[-b^2*c^2+4*a*c^3+4*b^3*d-18*a*b*c*d+27*a^2*d^2],3]},
-  (a+b*x+c*x^2+d*x^3)^p/
-    ((c-(2*c^2-6*b*d+2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1+I*Sqrt[3])*c^2-6*(1+I*Sqrt[3])*b*d-I*2^(1/3)*(I+Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1-I*Sqrt[3])*c^2-6*(1-I*Sqrt[3])*b*d+I*2^(1/3)*(-I+Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p)*
-    Int[(e+f*x)^m*(c-(2*c^2-6*b*d+2^(1/3)*r^2)/(2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1+I*Sqrt[3])*c^2-6*(1+I*Sqrt[3])*b*d-I*2^(1/3)*(I+Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p*
-      (c+(2*(1-I*Sqrt[3])*c^2-6*(1-I*Sqrt[3])*b*d+I*2^(1/3)*(-I+Sqrt[3])*r^2)/(2*2^(2/3)*r)+3*d*x)^p,x]] /;
-FreeQ[{a,b,c,d,e,f,m,p},x] && Not[IntegerQ[p]] && NeQ[c^2-3*b*d,0] && NeQ[b^2-3*a*c,0]
-
-
-Int[u_^m_.*v_^p_.,x_Symbol] :=
-  Int[ExpandToSum[u,x]^m*ExpandToSum[v,x]^p,x] /;
-FreeQ[{m,p},x] && LinearQ[u,x] && PolyQ[v,x,3] && Not[LinearMatchQ[u,x] && CubicMatchQ[v,x]]
 
 
 (* ::Subsection::Closed:: *)
-(*1.3.2 u (a+b x+c x^2+d x^3+e x^4)^p*)
+(*1.3.2 P(x) Q(x)^p*)
+
+
+Int[Sqrt[v_]/(d_+e_.*x_^4),x_Symbol] :=
+  With[{a=Coeff[v,x,0],b=Coeff[v,x,2],c=Coeff[v,x,4]},
+  a/d*Subst[Int[1/(1-2*b*x^2+(b^2-4*a*c)*x^4),x],x,x/Sqrt[v]] /;
+ EqQ[c*d+a*e,0] && PosQ[a*c]] /;
+FreeQ[{d,e},x] && PolyQ[v,x^2,2]
+
+
+Int[Sqrt[a_+b_.*x_^2+c_.*x_^4]/(d_+e_.*x_^4),x_Symbol] :=
+  With[{q=Sqrt[b^2-4*a*c]},
+  -a*Sqrt[b+q]/(2*Sqrt[2]*Rt[-a*c,2]*d)*ArcTan[Sqrt[b+q]*x*(b-q+2*c*x^2)/(2*Sqrt[2]*Rt[-a*c,2]*Sqrt[a+b*x^2+c*x^4])] + 
+  a*Sqrt[-b+q]/(2*Sqrt[2]*Rt[-a*c,2]*d)*ArcTanh[Sqrt[-b+q]*x*(b+q+2*c*x^2)/(2*Sqrt[2]*Rt[-a*c,2]*Sqrt[a+b*x^2+c*x^4])]] /;
+FreeQ[{a,b,c,d,e},x] && EqQ[c*d+a*e,0] && NegQ[a*c]
+
+
+Int[P_^p_*Q_^q_.,x_Symbol] :=
+  With[{PP=Factor[ReplaceAll[P,x->Sqrt[x]]]},
+  Int[ExpandIntegrand[ReplaceAll[PP,x->x^2]^p*Q^q,x],x] /;
+ Not[SumQ[NonfreeFactors[PP,x]]]] /;
+FreeQ[q,x] && PolyQ[P,x^2] && PolyQ[Q,x] && ILtQ[p,0]
+
+
+Int[P_^p_*Q_^q_.,x_Symbol] :=
+  With[{PP=Factor[P]},
+  Int[ExpandIntegrand[PP^p*Q^q,x],x] /;
+ Not[SumQ[NonfreeFactors[PP,x]]]] /;
+FreeQ[q,x] && PolyQ[P,x] && PolyQ[Q,x] && IntegerQ[p] && NeQ[P,x]
+
+
+Int[P_^p_*Qm_,x_Symbol] :=
+  With[{PP=Factor[P]},
+  Int[ExpandIntegrand[PP^p*Qm,x],x] /;
+ QuadraticProductQ[PP,x]] /;
+PolyQ[Qm,x] && PolyQ[P,x] && ILtQ[p,0]
+
+
+Int[(e_.+f_.*x_)^m_.*(a_+b_.*x_+d_.*x_^3)^p_.,x_Symbol] :=
+  1/(3^(3*p)*a^(2*p))*Int[(e+f*x)^m*(3*a-b*x)^p*(3*a+2*b*x)^(2*p),x] /;
+FreeQ[{a,b,d,e,f,m},x] && EqQ[4*b^3+27*a^2*d,0] && IntegerQ[p]
+
+
+Int[(e_.+f_.*x_)^m_.*(a_+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
+  (a+b*x+d*x^3)^p/((3*a-b*x)^p*(3*a+2*b*x)^(2*p))*Int[(e+f*x)^m*(3*a-b*x)^p*(3*a+2*b*x)^(2*p),x] /;
+FreeQ[{a,b,d,e,f,m,p},x] && EqQ[4*b^3+27*a^2*d,0] && Not[IntegerQ[p]]
+
+
+Int[(e_.+f_.*x_)^m_.*(a_+b_.*x_+d_.*x_^3)^p_.,x_Symbol] :=
+  Int[ExpandIntegrand[(e+f*x)^m*(a+b*x+d*x^3)^p,x],x] /;
+FreeQ[{a,b,d,e,f,m},x] && NeQ[4*b^3+27*a^2*d,0] && IGtQ[p,0]
+
+
+Int[(e_.+f_.*x_)^m_.*(a_+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
+  With[{r=Rt[-9*a*d^2+Sqrt[3]*d*Sqrt[4*b^3*d+27*a^2*d^2],3]},
+  1/d^(2*p)*Int[(e+f*x)^m*Simp[18^(1/3)*b*d/(3*r)-r/18^(1/3)+d*x,x]^p*
+    Simp[b*d/3+12^(1/3)*b^2*d^2/(3*r^2)+r^2/(3*12^(1/3))-d*(2^(1/3)*b*d/(3^(1/3)*r)-r/18^(1/3))*x+d^2*x^2,x]^p,x]] /;
+FreeQ[{a,b,d,e,f,m},x] && NeQ[4*b^3+27*a^2*d,0] && ILtQ[p,0]
+
+
+Int[(e_.+f_.*x_)^m_.*(a_+b_.*x_+d_.*x_^3)^p_,x_Symbol] :=
+  With[{r=Rt[-9*a*d^2+Sqrt[3]*d*Sqrt[4*b^3*d+27*a^2*d^2],3]},
+  (a+b*x+d*x^3)^p/
+    (Simp[18^(1/3)*b*d/(3*r)-r/18^(1/3)+d*x,x]^p*
+      Simp[b*d/3+12^(1/3)*b^2*d^2/(3*r^2)+r^2/(3*12^(1/3))-d*(2^(1/3)*b*d/(3^(1/3)*r)-r/18^(1/3))*x+d^2*x^2,x]^p)*
+    Int[(e+f*x)^m*Simp[18^(1/3)*b*d/(3*r)-r/18^(1/3)+d*x,x]^p*
+      Simp[b*d/3+12^(1/3)*b^2*d^2/(3*r^2)+r^2/(3*12^(1/3))-d*(2^(1/3)*b*d/(3^(1/3)*r)-r/18^(1/3))*x+d^2*x^2,x]^p,x]] /;
+FreeQ[{a,b,d,e,f,m,p},x] && NeQ[4*b^3+27*a^2*d,0] && Not[IntegerQ[p]]
+
+
+Int[(e_.+f_.*x_)^m_.*P3_^p_.,x_Symbol] :=
+  With[{a=Coeff[P3,x,0],b=Coeff[P3,x,1],c=Coeff[P3,x,2],d=Coeff[P3,x,3]},
+  Subst[Int[((3*d*e-c*f)/(3*d)+f*x)^m*Simp[(2*c^3-9*b*c*d+27*a*d^2)/(27*d^2)-(c^2-3*b*d)*x/(3*d)+d*x^3,x]^p,x],x,x+c/(3*d)] /;
+ NeQ[c,0]] /;
+FreeQ[{e,f,m,p},x] && PolyQ[P3,x,3]
 
 
 Int[(f_+g_.*x_^2)/((d_+e_.*x_+d_.*x_^2)*Sqrt[a_+b_.*x_+c_.*x_^2+b_.*x_^3+a_.*x_^4]),x_Symbol] :=
@@ -409,37 +205,14 @@ Int[P3_/(a_+b_.*x_+c_.*x_^2+d_.*x_^3+e_.*x_^4),x_Symbol] :=
   With[{q=Sqrt[8*a^2+b^2-4*a*c],A=Coeff[P3,x,0],B=Coeff[P3,x,1],C=Coeff[P3,x,2],D=Coeff[P3,x,3]},
   1/q*Int[(b*A-2*a*B+2*a*D+A*q+(2*a*A-2*a*C+b*D+D*q)*x)/(2*a+(b+q)*x+2*a*x^2),x] -
   1/q*Int[(b*A-2*a*B+2*a*D-A*q+(2*a*A-2*a*C+b*D-D*q)*x)/(2*a+(b-q)*x+2*a*x^2),x]] /;
-FreeQ[{a,b,c},x] && PolyQ[P3,x,3] && EqQ[a,e] && EqQ[b,d] && SumQ[Factor[a+b*x+c*x^2+b*x^3+a*x^4]]
+FreeQ[{a,b,c},x] && PolyQ[P3,x,3] && EqQ[a,e] && EqQ[b,d]
 
 
 Int[x_^m_.*P3_/(a_+b_.*x_+c_.*x_^2+d_.*x_^3+e_.*x_^4),x_Symbol] :=
   With[{q=Sqrt[8*a^2+b^2-4*a*c],A=Coeff[P3,x,0],B=Coeff[P3,x,1],C=Coeff[P3,x,2],D=Coeff[P3,x,3]},
   1/q*Int[x^m*(b*A-2*a*B+2*a*D+A*q+(2*a*A-2*a*C+b*D+D*q)*x)/(2*a+(b+q)*x+2*a*x^2),x] -
   1/q*Int[x^m*(b*A-2*a*B+2*a*D-A*q+(2*a*A-2*a*C+b*D-D*q)*x)/(2*a+(b-q)*x+2*a*x^2),x]] /;
-FreeQ[{a,b,c,m},x] && PolyQ[P3,x,3] && EqQ[a,e] && EqQ[b,d] && SumQ[Factor[a+b*x+c*x^2+b*x^3+a*x^4]]
-
-
-Int[P4_^p_,x_Symbol] :=
-  With[{a=Coeff[P4,x,0],b=Coeff[P4,x,1],c=Coeff[P4,x,2],d=Coeff[P4,x,3],e=Coeff[P4,x,4]},
-  Subst[Int[SimplifyIntegrand[(a+d^4/(256*e^3)-b*d/(8*e)+(c-3*d^2/(8*e))*x^2+e*x^4)^p,x],x],x,d/(4*e)+x] /;
- EqQ[d^3-4*c*d*e+8*b*e^2,0] && NeQ[d,0]] /;
-FreeQ[p,x] && PolyQ[P4,x,4] && NeQ[p,2] && NeQ[p,3]
-
-
-Int[Pq_*Q4_^p_,x_Symbol] :=
-  With[{a=Coeff[Q4,x,0],b=Coeff[Q4,x,1],c=Coeff[Q4,x,2],d=Coeff[Q4,x,3],e=Coeff[Q4,x,4]},
-  Subst[Int[SimplifyIntegrand[ReplaceAll[Pq,x->-d/(4*e)+x]*(a+d^4/(256*e^3)-b*d/(8*e)+(c-3*d^2/(8*e))*x^2+e*x^4)^p,x],x],x,d/(4*e)+x] /;
- EqQ[d^3-4*c*d*e+8*b*e^2,0] && NeQ[d,0]] /;
-FreeQ[p,x] && PolyQ[Pq,x] && PolyQ[Q4,x,4] && Not[IGtQ[p,0]]
-
-
-Int[P4_^p_,x_Symbol] :=
-  With[{a=Coeff[P4,x,0],b=Coeff[P4,x,1],c=Coeff[P4,x,2],d=Coeff[P4,x,3],e=Coeff[P4,x,4]},
-  -16*a^2*Subst[
-    Int[1/(b-4*a*x)^2*(a*(-3*b^4+16*a*b^2*c-64*a^2*b*d+256*a^3*e-32*a^2*(3*b^2-8*a*c)*x^2+256*a^4*x^4)/(b-4*a*x)^4)^p,x],
-    x,b/(4*a)+1/x] /;
- NeQ[a,0] && NeQ[b,0] && EqQ[b^3-4*a*b*c+8*a^2*d,0]] /;
-FreeQ[p,x] && PolyQ[P4,x,4] && IntegerQ[2*p]
+FreeQ[{a,b,c,m},x] && PolyQ[P3,x,3] && EqQ[a,e] && EqQ[b,d]
 
 
 Int[(A_.+B_.*x_+C_.*x_^2)/(a_+b_.*x_+c_.*x_^2+d_.*x_^3+e_.*x_^4),x_Symbol] :=
@@ -470,14 +243,90 @@ Int[(A_.+C_.*x_^2)/(a_+b_.*x_+c_.*x_^2+d_.*x_^3+e_.*x_^4),x_Symbol] :=
 FreeQ[{a,b,c,d,e,A,C},x] && EqQ[b*C+A*d,0] && EqQ[a*C^2-A^2*e,0] && NegQ[C*(-8*A*e^2+C*(d^2-4*c*e))]
 
 
-Int[P3_/(a_+b_.*x_+c_.*x_^2+d_.*x_^3+e_.*x_^4),x_Symbol] :=
-  With[{A=Coeff[P3,x,0],B=Coeff[P3,x,1],C=Coeff[P3,x,2],D=Coeff[P3,x,3]},
-    D/(4*e)*Log[a+b*x+c*x^2+d*x^3+e*x^4] - 
-    1/(4*e)*Int[(b*D-4*A*e+2*(c*D-2*B*e)*x+(3*d*D-4*C*e)*x^2)/(a+b*x+c*x^2+d*x^3+e*x^4),x] /;
-   EqQ[4*d*(c*D-2*B*e)^2+8*(3*d*D-4*C*e)*(b*d*D-b*C*e-A*d*e)-4*(c*D-2*B*e)*(3*c*d*D-4*c*C*e+2*b*D*e-8*A*e^2),0] && 
-   EqQ[8*d*(c*D-2*B*e)^3+8*d*(b*D-4*A*e)*(c*D-2*B*e)*(3*d*D-4*C*e)+8*a*(3*d*D-4*C*e)^3-8*c*(c*D-2*B*e)^2*(3*d*D-4*C*e)-
-     4*e*(b*D-4*A*e)*(4*(c*D-2*B*e)^2+2*(b*D-4*A*e)*(3*d*D-4*C*e)),0]] /;
-FreeQ[{a,b,c,d,e},x] && PolyQ[P3,x,3]
+Int[(A_+B_.*x_^n_)/(a_+b_.*x_^2+c_.*x_^n_+d_.*x_^n2_), x_Symbol] :=
+  A^2*(n-1)*Subst[Int[1/(a+A^2*b*(n-1)^2*x^2),x],x,x/(A*(n-1)-B*x^n)] /;
+FreeQ[{a,b,c,d,A,B,n},x] && EqQ[n2,2*n] && NeQ[n,2] && EqQ[a*B^2-A^2*d*(n-1)^2,0] && EqQ[B*c+2*A*d*(n-1),0]
+
+
+Int[x_^m_.*(A_+B_.*x_^n_.)/(a_+b_.*x_^k_.+c_.*x_^n_.+d_.*x_^n2_), x_Symbol] :=
+  A^2*(m-n+1)/(m+1)*Subst[Int[1/(a+A^2*b*(m-n+1)^2*x^2),x],x,x^(m+1)/(A*(m-n+1)+B*(m+1)*x^n)] /;
+FreeQ[{a,b,c,d,A,B,m,n},x] && EqQ[n2,2*n] && EqQ[k,2*(m+1)] && EqQ[a*B^2*(m+1)^2-A^2*d*(m-n+1)^2,0] && EqQ[B*c*(m+1)-2*A*d*(m-n+1),0]
+
+
+Int[(a_+b_.*x_^2+c_.*x_^4)/(d_+e_.*x_^2+f_.*x_^4+g_.*x_^6),x_Symbol] :=
+  With[{q=Rt[(-a*c*f^2+12*a^2*g^2+f*(3*c^2*d-2*a*b*g))/(c*g*(3*c*d-a*f)),2],
+        r=Rt[(a*c*f^2+4*g*(b*c*d+a^2*g)-f*(3*c^2*d+2*a*b*g))/(c*g*(3*c*d-a*f)),2]},
+  c/(g*q)*ArcTan[(r+2*x)/q] - 
+  c/(g*q)*ArcTan[(r-2*x)/q] - 
+  c/(g*q)*ArcTan[(3*c*d-a*f)*x/(g*q*(b*c*d-2*a^2*g)*(b*c*d-a*b*f+4*a^2*g))*
+    (b*c^2*d*f-a*b^2*f*g-2*a^2*c*f*g+6*a^2*b*g^2+c*(3*c^2*d*f-a*c*f^2-b*c*d*g+2*a^2*g^2)*x^2+c^2*g*(3*c*d-a*f)*x^4)]] /;
+FreeQ[{a,b,c,d,e,f,g},x] && EqQ[9*c^3*d^2-c*(b^2+6*a*c)*d*f+a^2*c*f^2+2*a*b*(3*c*d+a*f)*g-12*a^3*g^2,0] && 
+  EqQ[3*c^4*d^2*e-3*a^2*c^2*d*f*g+a^3*c*f^2*g+2*a^3*g^2*(b*f-6*a*g)-c^3*d*(2*b*d*f+a*e*f-12*a*d*g),0] && 
+  NeQ[3*c*d-a*f,0] && NeQ[b*c*d-2*a^2*g,0] && NeQ[b*c*d-a*b*f+4*a^2*g,0] && 
+  PosQ[(-a*c*f^2+12*a^2*g^2+f*(3*c^2*d-2*a*b*g))/(c*g*(3*c*d-a*f))]
+
+
+Int[(a_+c_.*x_^4)/(d_+e_.*x_^2+f_.*x_^4+g_.*x_^6),x_Symbol] :=
+  With[{q=Rt[(-a*c*f^2+12*a^2*g^2+3*f*c^2*d)/(c*g*(3*c*d-a*f)),2],
+        r=Rt[(a*c*f^2+4*a^2*g^2-3*c^2*d*f)/(c*g*(3*c*d-a*f)),2]},
+  c/(g*q)*ArcTan[(r+2*x)/q] - 
+  c/(g*q)*ArcTan[(r-2*x)/q] - 
+  c/(g*q)*ArcTan[(c*(3*c*d-a*f)*x*(2*a^2*f*g-(3*c^2*d*f-a*c*f^2+2*a^2*g^2)*x^2-c*(3*c*d-a*f)*g*x^4))/(8*a^4*g^3*q)]] /;
+FreeQ[{a,c,d,e,f,g},x] && EqQ[9*c^3*d^2-6*a*c^2*d*f+a^2*c*f^2-12*a^3*g^2,0] && 
+  EqQ[3*c^4*d^2*e-3*a^2*c^2*d*f*g+a^3*c*f^2*g-12*a^4*g^3-a*c^3*d*(e*f-12*d*g),0] && 
+  NeQ[3*c*d-a*f,0] && PosQ[(-a*c*f^2+12*a^2*g^2+3*c^2*d*f)/(c*g*(3*c*d-a*f))]
+
+
+Int[u_*Q6_^p_,x_Symbol] :=
+  With[{a=Coeff[Q6,x,0],b=Coeff[Q6,x,2],c=Coeff[Q6,x,3],d=Coeff[Q6,x,4],e=Coeff[Q6,x,6]},
+  1/(3^(3*p)*a^(2*p))*Int[ExpandIntegrand[u*
+    (3*a+3*Rt[a,3]^2*Rt[c,3]*x+b*x^2)^p*
+    (3*a-3*(-1)^(1/3)*Rt[a,3]^2*Rt[c,3]*x+b*x^2)^p*
+    (3*a+3*(-1)^(2/3)*Rt[a,3]^2*Rt[c,3]*x+b*x^2)^p,x],x] /;
+ EqQ[b^2-3*a*d,0] && EqQ[b^3-27*a^2*e,0]] /;
+ILtQ[p,0] && PolyQ[Q6,x,6] && EqQ[Coeff[Q6,x,1],0] && EqQ[Coeff[Q6,x,5],0] && RationalFunctionQ[u,x]
+
+
+Int[Pm_/Qn_,x_Symbol] :=
+  With[{m=Expon[Pm,x],n=Expon[Qn,x]},
+  Coeff[Pm,x,m]*Log[Qn]/(n*Coeff[Qn,x,n]) + Simplify[Pm-Coeff[Pm,x,m]*D[Qn,x]/(n*Coeff[Qn,x,n])]*Int[1/Qn,x]/;
+ EqQ[m,n-1] && EqQ[D[Simplify[Pm-Coeff[Pm,x,m]/(n*Coeff[Qn,x,n])*D[Qn,x]],x],0]] /;
+PolyQ[Pm,x] && PolyQ[Qn,x]
+
+
+Int[Pm_*Qn_^p_,x_Symbol] :=
+  With[{m=Expon[Pm,x],n=Expon[Qn,x]},
+  Coeff[Pm,x,m]*Qn^(p+1)/(n*(p+1)*Coeff[Qn,x,n]) + Simplify[Pm-Coeff[Pm,x,m]*D[Qn,x]/(n*Coeff[Qn,x,n])]*Int[Qn^p,x]/;
+ EqQ[m,n-1] && EqQ[D[Simplify[Pm-Coeff[Pm,x,m]/(n*Coeff[Qn,x,n])*D[Qn,x]],x],0]] /;
+FreeQ[p,x] && PolyQ[Pm,x] && PolyQ[Qn,x] && NeQ[p,-1]
+
+
+Int[Pm_/Qn_,x_Symbol] :=
+  With[{m=Expon[Pm,x],n=Expon[Qn,x]},
+  Coeff[Pm,x,m]*Log[Qn]/(n*Coeff[Qn,x,n]) + 
+  1/(n*Coeff[Qn,x,n])Int[ExpandToSum[n*Coeff[Qn,x,n]*Pm-Coeff[Pm,x,m]*D[Qn,x],x]/Qn,x]/;
+ EqQ[m,n-1]] /;
+PolyQ[Pm,x] && PolyQ[Qn,x]
+
+
+Int[Pm_*Qn_^p_,x_Symbol] :=
+  With[{m=Expon[Pm,x],n=Expon[Qn,x]},
+  Coeff[Pm,x,m]*Qn^(p+1)/(n*(p+1)*Coeff[Qn,x,n]) + 
+  1/(n*Coeff[Qn,x,n])*Int[ExpandToSum[n*Coeff[Qn,x,n]*Pm-Coeff[Pm,x,m]*D[Qn,x],x]*Qn^p,x]/;
+ EqQ[m,n-1]] /;
+FreeQ[p,x] && PolyQ[Pm,x] && PolyQ[Qn,x] && NeQ[p,-1]
+
+
+Int[Pm_*Qn_^p_.,x_Symbol] :=
+  With[{m=Expon[Pm,x],n=Expon[Qn,x]},
+  Coeff[Pm,x,m]*x^(m-n+1)*Qn^(p+1)/((m+n*p+1)*Coeff[Qn,x,n]) + 
+  1/((m+n*p+1)*Coeff[Qn,x,n])*
+    Int[ExpandToSum[(m+n*p+1)*Coeff[Qn,x,n]*Pm-Coeff[Pm,x,m]*x^(m-n)*((m-n+1)*Qn+(p+1)*x*D[Qn,x]),x]*Qn^p,x] /;
+ LtQ[1,n,m+1] && m+n*p+1<0] /;
+FreeQ[p,x] && PolyQ[Pm,x] && PolyQ[Qn,x] && LtQ[p,-1]
+
+
+
 
 
 (* ::Subsection::Closed:: *)
@@ -539,53 +388,11 @@ Int[1/((a_+b_.*x_^3)*Sqrt[d_.+f_.*x_^2]),x_Symbol] :=
 FreeQ[{a,b,d,f},x] && NegQ[a/b]
 
 
-Int[1/((d_+e_.*x_)*Sqrt[v_]),x_Symbol] :=
-  d*Int[1/((d^2-e^2*x^2)*Sqrt[v]),x] - e*Int[x/((d^2-e^2*x^2)*Sqrt[v]),x] /;
-FreeQ[{d,e},x] && PolyQ[v,x^2,2]
-
-
-Int[1/((d_+e_.*x_)^2*Sqrt[v_]),x_Symbol] :=
-  With[{a=Coeff[v,x,0],b=Coeff[v,x,2],c=Coeff[v,x,4]},
-  -e^3*Sqrt[v]/((c*d^4+b*d^2*e^2+a*e^4)*(d+e*x)) - c/(c*d^4+b*d^2*e^2+a*e^4)*Int[(d^2-e^2*x^2)/Sqrt[v],x] /;
- NeQ[c*d^4+b*d^2*e^2+a*e^4,0] && EqQ[2*c*d^3+b*d*e^2,0]] /;
-FreeQ[{d,e},x] && PolyQ[v,x^2,2]
-
-
-Int[1/((d_+e_.*x_)^2*Sqrt[v_]),x_Symbol] :=
-  With[{a=Coeff[v,x,0],b=Coeff[v,x,2],c=Coeff[v,x,4]},
-  -e^3*Sqrt[v]/((c*d^4+b*d^2*e^2+a*e^4)*(d+e*x)) - 
-  c/(c*d^4+b*d^2*e^2+a*e^4)*Int[(d^2-e^2*x^2)/Sqrt[v],x] + 
-  (2*c*d^3+b*d*e^2)/(c*d^4+b*d^2*e^2+a*e^4)*Int[1/((d+e*x)*Sqrt[v]),x] /;
- NeQ[c*d^4+b*d^2*e^2+a*e^4,0] && NeQ[2*c*d^3+b*d*e^2,0]] /;
-FreeQ[{d,e},x] && PolyQ[v,x^2,2]
-
-
-Int[(A_+B_.*x_^2)/((d_+e_.*x_^2)*Sqrt[v_]),x_Symbol] :=
-  With[{a=Coeff[v,x,0],b=Coeff[v,x,2],c=Coeff[v,x,4]},
-  A*Subst[Int[1/(d-(b*d-2*a*e)*x^2),x],x,x/Sqrt[v]] /;
- EqQ[B*d+A*e,0] && EqQ[c*d^2-a*e^2,0]] /;
-FreeQ[{d,e,A,B},x] && PolyQ[v,x^2,2]
-
-
 Int[u_*(A_+B_.*x_^4)/Sqrt[v_],x_Symbol] :=
   With[{a=Coeff[v,x,0],b=Coeff[v,x,2],c=Coeff[v,x,4],d=Coeff[1/u,x,0],e=Coeff[1/u,x,2],f=Coeff[1/u,x,4]},
   A*Subst[Int[1/(d-(b*d-a*e)*x^2),x],x,x/Sqrt[v]] /;
  EqQ[a*B+A*c,0] && EqQ[c*d-a*f,0]] /;
 FreeQ[{A,B},x] && PolyQ[v,x^2,2] && PolyQ[1/u,x^2,2]
-
-
-Int[Sqrt[v_]/(d_+e_.*x_^4),x_Symbol] :=
-  With[{a=Coeff[v,x,0],b=Coeff[v,x,2],c=Coeff[v,x,4]},
-  a/d*Subst[Int[1/(1-2*b*x^2+(b^2-4*a*c)*x^4),x],x,x/Sqrt[v]] /;
- EqQ[c*d+a*e,0] && PosQ[a*c]] /;
-FreeQ[{d,e},x] && PolyQ[v,x^2,2]
-
-
-Int[Sqrt[a_+b_.*x_^2+c_.*x_^4]/(d_+e_.*x_^4),x_Symbol] :=
-  With[{q=Sqrt[b^2-4*a*c]},
-  -a*Sqrt[b+q]/(2*Sqrt[2]*Rt[-a*c,2]*d)*ArcTan[Sqrt[b+q]*x*(b-q+2*c*x^2)/(2*Sqrt[2]*Rt[-a*c,2]*Sqrt[a+b*x^2+c*x^4])] + 
-  a*Sqrt[-b+q]/(2*Sqrt[2]*Rt[-a*c,2]*d)*ArcTanh[Sqrt[-b+q]*x*(b+q+2*c*x^2)/(2*Sqrt[2]*Rt[-a*c,2]*Sqrt[a+b*x^2+c*x^4])]] /;
-FreeQ[{a,b,c,d,e},x] && EqQ[c*d+a*e,0] && NegQ[a*c]
 
 
 Int[1/((a_+b_.*x_)*Sqrt[c_+d_.*x_^2]*Sqrt[e_+f_.*x_^2]),x_Symbol] :=
@@ -716,99 +523,136 @@ FreeQ[{a,b,c,d,m},x] && EqQ[e,b^2] && GtQ[a,0]
 
 
 Int[1/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
+  2/(3*c)*Int[1/Sqrt[a+b*x^3],x] + 1/(3*c)*Int[(c-2*d*x)/((c+d*x)*Sqrt[a+b*x^3]),x] /;
+FreeQ[{a,b,c,d},x] && EqQ[b*c^3-4*a*d^3,0]
+
+
+Int[1/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
+  -6*a*d^3/(c*(b*c^3-28*a*d^3))*Int[1/Sqrt[a+b*x^3],x] + 
+  1/(c*(b*c^3-28*a*d^3))*Int[Simp[c*(b*c^3-22*a*d^3)+6*a*d^4*x,x]/((c+d*x)*Sqrt[a+b*x^3]),x] /;
+FreeQ[{a,b,c,d},x] && EqQ[b^2*c^6-20*a*b*c^3*d^3-8*a^2*d^6,0]
+
+
+Int[1/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
   With[{q=Rt[b/a,3]},
   -q/((1+Sqrt[3])*d-c*q)*Int[1/Sqrt[a+b*x^3],x] + 
   d/((1+Sqrt[3])*d-c*q)*Int[(1+Sqrt[3]+q*x)/((c+d*x)*Sqrt[a+b*x^3]),x]] /;
-FreeQ[{a,b,c,d},x] && PosQ[a] && PosQ[b]
-
-
-Int[1/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
-  With[{q=Rt[-b/a,3]},
-  q/((1+Sqrt[3])*d+c*q)*Int[1/Sqrt[a+b*x^3],x] + 
-  d/((1+Sqrt[3])*d+c*q)*Int[(1+Sqrt[3]-q*x)/((c+d*x)*Sqrt[a+b*x^3]),x]] /;
-FreeQ[{a,b,c,d},x] && PosQ[a] && NegQ[b]
-
-
-Int[1/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
-  With[{q=Rt[-b/a,3]},
-  q/((1-Sqrt[3])*d+c*q)*Int[1/Sqrt[a+b*x^3],x] + 
-  d/((1-Sqrt[3])*d+c*q)*Int[(1-Sqrt[3]-q*x)/((c+d*x)*Sqrt[a+b*x^3]),x]] /;
-FreeQ[{a,b,c,d},x] && NegQ[a] && PosQ[b]
-
-
-Int[1/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
-  With[{q=Rt[b/a,3]},
-  -q/((1-Sqrt[3])*d-c*q)*Int[1/Sqrt[a+b*x^3],x] + 
-  d/((1-Sqrt[3])*d-c*q)*Int[(1-Sqrt[3]+q*x)/((c+d*x)*Sqrt[a+b*x^3]),x]] /;
-FreeQ[{a,b,c,d},x] && NegQ[a] && NegQ[b]
+FreeQ[{a,b,c,d},x] && NeQ[b^2*c^6-20*a*b*c^3*d^3-8*a^2*d^6,0]
 
 
 Int[(e_+f_.*x_)/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
-  With[{q=Rt[b/a,3]},
+  2*e/d*Subst[Int[1/(1+3*a*x^2),x],x,(1+2*d*x/c)/Sqrt[a+b*x^3]] /;
+FreeQ[{a,b,c,d,e,f},x] && NeQ[d*e-c*f,0] && EqQ[b*c^3-4*a*d^3,0] && EqQ[2*d*e+c*f,0]
+
+
+Int[(e_+f_.*x_)/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
+  -2*e/d*Subst[Int[1/(9-a*x^2),x],x,(1+f*x/e)^2/Sqrt[a+b*x^3]] /;
+FreeQ[{a,b,c,d,e,f},x] && NeQ[d*e-c*f,0] && EqQ[b*c^3+8*a*d^3,0] && EqQ[2*d*e+c*f,0]
+
+
+Int[(e_.+f_.*x_)/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
+  (2*d*e+c*f)/(3*c*d)*Int[1/Sqrt[a+b*x^3],x] + 
+  (d*e-c*f)/(3*c*d)*Int[(c-2*d*x)/((c+d*x)*Sqrt[a+b*x^3]),x] /;
+FreeQ[{a,b,c,d,e,f},x] && NeQ[d*e-c*f,0] && (EqQ[b*c^3-4*a*d^3,0] || EqQ[b*c^3+8*a*d^3,0]) && NeQ[2*d*e+c*f,0]
+
+
+Int[(e_+f_.*x_)/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
+  With[{k=Simplify[(d*e+2*c*f)/(c*f)]},
+  (1+k)*e/d*Subst[Int[1/(1+(3+2*k)*a*x^2),x],x,(1+(1+k)*d*x/c)/Sqrt[a+b*x^3]]] /;
+FreeQ[{a,b,c,d,e,f},x] && NeQ[d*e-c*f,0] && EqQ[b^2*c^6-20*a*b*c^3*d^3-8*a^2*d^6,0] && EqQ[6*a*d^4*e-c*f*(b*c^3-22*a*d^3),0]
+
+
+Int[(e_.+f_.*x_)/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
+  -(6*a*d^4*e-c*f*(b*c^3-22*a*d^3))/(c*d*(b*c^3-28*a*d^3))*Int[1/Sqrt[a+b*x^3],x] + 
+  (d*e-c*f)/(c*d*(b*c^3-28*a*d^3))*Int[(c*(b*c^3-22*a*d^3)+6*a*d^4*x)/((c+d*x)*Sqrt[a+b*x^3]),x] /;
+FreeQ[{a,b,c,d,e,f},x] && NeQ[d*e-c*f,0] && EqQ[b^2*c^6-20*a*b*c^3*d^3-8*a^2*d^6,0] && NeQ[6*a*d^4*e-c*f*(b*c^3-22*a*d^3),0]
+
+
+(* Int[(e_+f_.*x_)/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
+  With[{q=(1+Sqrt[3])*f/e},
+  4*3^(1/4)*Sqrt[2-Sqrt[3]]*f*(1+Sqrt[3]+q*x)^2*Sqrt[(1+q^3*x^3)/(1+Sqrt[3]+q*x)^4]/(q*Sqrt[a+b*x^3])*
+  Subst[Int[1/(((1-Sqrt[3])*d-c*q+((1+Sqrt[3])*d-c*q)*x)*
+      Sqrt[7-4*Sqrt[3]-2*(3-2*Sqrt[3])*x^2-x^4]),x],x,(-1+Sqrt[3]-q*x)/(1+Sqrt[3]+q*x)]] /;
+FreeQ[{a,b,c,d,e,f},x] && NeQ[d*e-c*f,0] && EqQ[b*e^3-2*(5+3*Sqrt[3])*a*f^3,0] && NeQ[b*c^3-2*(5-3*Sqrt[3])*a*d^3,0] *)
+
+
+Int[(e_+f_.*x_)/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
+  With[{q=Simplify[(1+Sqrt[3])*f/e]},
   4*3^(1/4)*Sqrt[2-Sqrt[3]]*f*(1+q*x)*Sqrt[(1-q*x+q^2*x^2)/(1+Sqrt[3]+q*x)^2]/
     (q*Sqrt[a+b*x^3]*Sqrt[(1+q*x)/(1+Sqrt[3]+q*x)^2])*
-    Subst[Int[1/(((1-Sqrt[3])*d-c*q+((1+Sqrt[3])*d-c*q)*x)*Sqrt[1-x^2]*Sqrt[7-4*Sqrt[3]+x^2]),x],x,(-1+Sqrt[3]-q*x)/(1+Sqrt[3]+q*x)] /;
- EqQ[(1+Sqrt[3])*f-e*q,0]] /;
-FreeQ[{a,b,c,d,e,f},x] && PosQ[a] && PosQ[b]
+    Subst[Int[1/(((1-Sqrt[3])*d-c*q+((1+Sqrt[3])*d-c*q)*x)*Sqrt[1-x^2]*Sqrt[7-4*Sqrt[3]+x^2]),x],x,(-1+Sqrt[3]-q*x)/(1+Sqrt[3]+q*x)]] /;
+FreeQ[{a,b,c,d,e,f},x] && NeQ[d*e-c*f,0] && EqQ[b*e^3-2*(5+3*Sqrt[3])*a*f^3,0] && NeQ[b*c^3-2*(5-3*Sqrt[3])*a*d^3,0]
+
+
+Int[(e_+f_.*x_)/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
+  With[{q=Simplify[(-1+Sqrt[3])*f/e]},
+  4*3^(1/4)*Sqrt[2+Sqrt[3]]*f*(1-q*x)*Sqrt[(1+q*x+q^2*x^2)/(1-Sqrt[3]-q*x)^2]/
+    (q*Sqrt[a+b*x^3]*Sqrt[-(1-q*x)/(1-Sqrt[3]-q*x)^2])*
+  Subst[Int[1/(((1+Sqrt[3])*d+c*q+((1-Sqrt[3])*d+c*q)*x)*Sqrt[1-x^2]*Sqrt[7+4*Sqrt[3]+x^2]),x],x,(1+Sqrt[3]-q*x)/(-1+Sqrt[3]+q*x)]] /;
+FreeQ[{a,b,c,d,e,f},x] && NeQ[d*e-c*f,0] && EqQ[b*e^3-2*(5-3*Sqrt[3])*a*f^3,0] && NeQ[b*c^3-2*(5+3*Sqrt[3])*a*d^3,0]
 
 
 Int[(e_.+f_.*x_)/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
   With[{q=Rt[b/a,3]},
   ((1+Sqrt[3])*f-e*q)/((1+Sqrt[3])*d-c*q)*Int[1/Sqrt[a+b*x^3],x] + 
-  (d*e-c*f)/((1+Sqrt[3])*d-c*q)*Int[(1+Sqrt[3]+q*x)/((c+d*x)*Sqrt[a+b*x^3]),x] /;
- NeQ[(1+Sqrt[3])*f-e*q,0]] /;
-FreeQ[{a,b,c,d,e,f},x] && PosQ[a] && PosQ[b]
+  (d*e-c*f)/((1+Sqrt[3])*d-c*q)*Int[(1+Sqrt[3]+q*x)/((c+d*x)*Sqrt[a+b*x^3]),x]] /;
+FreeQ[{a,b,c,d,e,f},x] && NeQ[d*e-c*f,0] && NeQ[b^2*c^6-20*a*b*c^3*d^3-8*a^2*d^6,0] && NeQ[b^2*e^6-20*a*b*e^3*f^3-8*a^2*f^6,0]
 
 
-Int[(e_+f_.*x_)/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
-  With[{q=Rt[-b/a,3]},
-  -4*3^(1/4)*Sqrt[2-Sqrt[3]]*f*(1-q*x)*Sqrt[(1+q*x+q^2*x^2)/(1+Sqrt[3]-q*x)^2]/
-    (q*Sqrt[a+b*x^3]*Sqrt[(1-q*x)/(1+Sqrt[3]-q*x)^2])*
-    Subst[Int[1/(((1-Sqrt[3])*d+c*q+((1+Sqrt[3])*d+c*q)*x)*Sqrt[1-x^2]*Sqrt[7-4*Sqrt[3]+x^2]),x],x,(-1+Sqrt[3]+q*x)/(1+Sqrt[3]-q*x)] /;
- EqQ[(1+Sqrt[3])*f+e*q,0]] /;
-FreeQ[{a,b,c,d,e,f},x] && PosQ[a] && NegQ[b]
+Int[(f_+g_.*x_+h_.*x_^2)/((c_+d_.*x_+e_.*x_^2)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
+  -2*g*h*Subst[Int[1/(2*e*h-(b*d*f-2*a*e*h)*x^2),x],x,(1+2*h*x/g)/Sqrt[a+b*x^3]] /;
+FreeQ[{a,b,c,d,e,f,g,h},x] && NeQ[b*d*f-2*a*e*h,0] && EqQ[b*g^3-8*a*h^3,0] && EqQ[g^2+2*f*h,0] && EqQ[b*d*f+b*c*g-4*a*e*h,0]
 
 
-Int[(e_.+f_.*x_)/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
-  With[{q=Rt[-b/a,3]},
-  ((1+Sqrt[3])*f+e*q)/((1+Sqrt[3])*d+c*q)*Int[1/Sqrt[a+b*x^3],x] + 
-  (d*e-c*f)/((1+Sqrt[3])*d+c*q)*Int[(1+Sqrt[3]-q*x)/((c+d*x)*Sqrt[a+b*x^3]),x] /;
- NeQ[(1+Sqrt[3])*f+e*q,0]] /;
-FreeQ[{a,b,c,d,e,f},x] && PosQ[a] && NegQ[b]
+Int[(f_+g_.*x_+h_.*x_^2)/((c_+e_.*x_^2)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
+  -g/e*Subst[Int[1/(1+a*x^2),x],x,(1+2*h*x/g)/Sqrt[a+b*x^3]] /;
+FreeQ[{a,b,c,e,f,g,h},x] && EqQ[b*g^3-8*a*h^3,0] && EqQ[g^2+2*f*h,0] && EqQ[b*c*g-4*a*e*h,0]
 
 
-Int[(e_+f_.*x_)/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
-  With[{q=Rt[-b/a,3]},
-  4*3^(1/4)*Sqrt[2+Sqrt[3]]*f*(1-q*x)*Sqrt[(1+q*x+q^2*x^2)/(1-Sqrt[3]-q*x)^2]/
-    (q*Sqrt[a+b*x^3]*Sqrt[-(1-q*x)/(1-Sqrt[3]-q*x)^2])*
-  Subst[Int[1/(((1+Sqrt[3])*d+c*q+((1-Sqrt[3])*d+c*q)*x)*Sqrt[1-x^2]*Sqrt[7+4*Sqrt[3]+x^2]),x],x,(1+Sqrt[3]-q*x)/(-1+Sqrt[3]+q*x)] /;
- EqQ[(1-Sqrt[3])*f+e*q,0]] /;
-FreeQ[{a,b,c,d,e,f},x] && NegQ[a] && PosQ[b]
+Int[Sqrt[a_+b_.*x_^3]/(c_+d_.*x_),x_Symbol] :=
+  b/d*Int[x^2/Sqrt[a+b*x^3],x] - 
+  (b*c^3-a*d^3)/d^3*Int[1/((c+d*x)*Sqrt[a+b*x^3]),x] + 
+  b*c/d^3*Int[(c-d*x)/Sqrt[a+b*x^3],x] /;
+FreeQ[{a,b,c,d},x]
 
 
-Int[(e_.+f_.*x_)/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
-  With[{q=Rt[-b/a,3]},
-  ((1-Sqrt[3])*f+e*q)/((1-Sqrt[3])*d+c*q)*Int[1/Sqrt[a+b*x^3],x] + 
-  (d*e-c*f)/((1-Sqrt[3])*d+c*q)*Int[(1-Sqrt[3]-q*x)/((c+d*x)*Sqrt[a+b*x^3]),x] /;
- NeQ[(1-Sqrt[3])*f+e*q,0]] /;
-FreeQ[{a,b,c,d,e,f},x] && NegQ[a] && PosQ[b]
+Int[1/((c_+d_.*x_)*(a_+b_.*x_^3)^(1/3)),x_Symbol] :=
+  Sqrt[3]*ArcTan[(1-2^(1/3)*Rt[b,3]*(c-d*x)/(d*(a+b*x^3)^(1/3)))/Sqrt[3]]/(2^(4/3)*Rt[b,3]*c) + 
+  Log[(c+d*x)^2*(c-d*x)]/(2^(7/3)*Rt[b,3]*c) - 
+  (3*Log[Rt[b,3]*(c-d*x)+2^(2/3)*d*(a+b*x^3)^(1/3)])/(2^(7/3)*Rt[b,3]*c) /;
+FreeQ[{a,b,c,d},x] && EqQ[b*c^3+a*d^3,0]
 
 
-Int[(e_+f_.*x_)/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
-  With[{q=Rt[b/a,3]},
-  -4*3^(1/4)*Sqrt[2+Sqrt[3]]*f*(1+q*x)*Sqrt[(1-q*x+q^2*x^2)/(1-Sqrt[3]+q*x)^2]/
-   (q*Sqrt[a +b*x^3]*Sqrt[-(1+q*x)/(1-Sqrt[3]+q*x)^2])*
-   Subst[Int[1/(((1+Sqrt[3])*d-c*q+((1-Sqrt[3])*d-c*q)*x)*Sqrt[1-x^2]*Sqrt[7+4*Sqrt[3]+x^2]),x],x,(1+Sqrt[3]+q*x)/(-1+Sqrt[3]-q*x)] /;
- EqQ[(1-Sqrt[3])*f-e*q,0]] /;
-FreeQ[{a,b,c,d,e,f},x] && NegQ[a] && NegQ[b]
+Int[1/((c_+d_.*x_)*(a_+b_.*x_^3)^(1/3)),x_Symbol] :=
+  1/(2*c)*Int[1/(a+b*x^3)^(1/3),x] + 1/(2*c)*Int[(c-d*x)/((c+d*x)*(a+b*x^3)^(1/3)),x] /;
+FreeQ[{a,b,c,d},x] && EqQ[2*b*c^3-a*d^3,0]
 
 
-Int[(e_.+f_.*x_)/((c_+d_.*x_)*Sqrt[a_+b_.*x_^3]),x_Symbol] :=
-  With[{q=Rt[b/a,3]},
-  ((1-Sqrt[3])*f-e*q)/((1-Sqrt[3])*d-c*q)*Int[1/Sqrt[a+b*x^3],x] + 
-  (d*e-c*f)/((1-Sqrt[3])*d-c*q)*Int[(1-Sqrt[3]+q*x)/((c+d*x)*Sqrt[a+b*x^3]),x] /;
- NeQ[(1-Sqrt[3])*f-e*q,0]] /;
-FreeQ[{a,b,c,d,e,f},x] && NegQ[a] && NegQ[b]
+Int[1/((c_+d_.*x_)*(a_+b_.*x_^3)^(1/3)),x_Symbol] :=
+  Unintegrable[1/((c+d*x)*(a+b*x^3)^(1/3)),x] /;
+FreeQ[{a,b,c,d},x]
+
+
+Int[(e_+f_.*x_)/((c_+d_.*x_)*(a_+b_.*x_^3)^(1/3)),x_Symbol] :=
+  Sqrt[3]*f*ArcTan[(1+2*Rt[b,3]*(2*c+d*x)/(d*(a+b*x^3)^(1/3)))/Sqrt[3]]/(Rt[b,3]*d) + 
+  (f*Log[c+d*x])/(Rt[b,3]*d) - 
+  (3*f*Log[Rt[b,3]*(2*c+d*x)-d*(a+b*x^3)^(1/3)])/(2*Rt[b,3]*d) /;
+FreeQ[{a,b,c,d,e,f},x] && EqQ[d*e+c*f,0] && EqQ[2*b*c^3-a*d^3,0]
+
+
+Int[(e_.+f_.*x_)/((c_.+d_.*x_)*(a_+b_.*x_^3)^(1/3)),x_Symbol] :=
+  f/d*Int[1/(a+b*x^3)^(1/3),x] + (d*e-c*f)/d*Int[1/((c+d*x)*(a+b*x^3)^(1/3)),x] /;
+FreeQ[{a,b,c,d,e,f},x]
+
+
+Int[(c_+d_.*x_^n_.)^q_*(a_+b_.*x_^nn_.)^p_,x_Symbol] :=
+  Int[ExpandIntegrand[(a+b*x^nn)^p,(c/(c^2-d^2*x^(2*n))-d*x^n/(c^2-d^2*x^(2*n)))^(-q),x],x] /;
+FreeQ[{a,b,c,d,n,nn,p},x] && Not[IntegerQ[p]] && ILtQ[q,0] && IGtQ[Log[2,nn/n],0]
+
+
+Int[(e_.*x_)^m_.*(c_+d_.*x_^n_.)^q_*(a_+b_.*x_^nn_.)^p_,x_Symbol] :=
+  (e*x)^m/x^m*Int[ExpandIntegrand[x^m*(a+b*x^nn)^p,(c/(c^2-d^2*x^(2*n))-d*x^n/(c^2-d^2*x^(2*n)))^(-q),x],x] /;
+FreeQ[{a,b,c,d,e,m,n,nn,p},x] && Not[IntegerQ[p]] && ILtQ[q,0] && IGtQ[Log[2,nn/n],0]
 
 
 Int[x_^m_./(c_+d_.*x_^n_+e_.*Sqrt[a_+b_.*x_^n_]),x_Symbol] :=
@@ -821,77 +665,4 @@ Int[u_./(c_+d_.*x_^n_+e_.*Sqrt[a_+b_.*x_^n_]),x_Symbol] :=
 FreeQ[{a,b,c,d,e,n},x] && EqQ[b*c-a*d,0]
 
 
-Int[(A_+B_.*x_^n_)/(a_+b_.*x_^2+c_.*x_^n_+d_.*x_^n2_), x_Symbol] :=
-  A^2*(n-1)*Subst[Int[1/(a+A^2*b*(n-1)^2*x^2),x],x,x/(A*(n-1)-B*x^n)] /;
-FreeQ[{a,b,c,d,A,B,n},x] && EqQ[n2,2*n] && NeQ[n,2] && EqQ[a*B^2-A^2*d*(n-1)^2,0] && EqQ[B*c+2*A*d*(n-1),0]
 
-
-Int[x_^m_.*(A_+B_.*x_^n_.)/(a_+b_.*x_^k_.+c_.*x_^n_.+d_.*x_^n2_), x_Symbol] :=
-  A^2*(m-n+1)/(m+1)*Subst[Int[1/(a+A^2*b*(m-n+1)^2*x^2),x],x,x^(m+1)/(A*(m-n+1)+B*(m+1)*x^n)] /;
-FreeQ[{a,b,c,d,A,B,m,n},x] && EqQ[n2,2*n] && EqQ[k,2*(m+1)] && EqQ[a*B^2*(m+1)^2-A^2*d*(m-n+1)^2,0] && EqQ[B*c*(m+1)-2*A*d*(m-n+1),0]
-
-
-Int[(a_.+b_.*x_^2+c_.*x_^4)/(d_+e_.*x_^2+f_.*x_^4+g_.*x_^6),x_Symbol] :=
-  With[{q=Rt[(-a*c*f^2+12*a^2*g^2+f*(3*c^2*d-2*a*b*g))/(c*g*(3*c*d-a*f)),2],
-        r=Rt[(a*c*f^2+4*g*(b*c*d+a^2*g)-f*(3*c^2*d+2*a*b*g))/(c*g*(3*c*d-a*f)),2]},
-  c/(g*q)*ArcTan[(r+2*x)/q] - 
-  c/(g*q)*ArcTan[(r-2*x)/q] - 
-  c/(g*q)*ArcTan[(3*c*d-a*f)*x/(g*q*(b*c*d-2*a^2*g)*(b*c*d-a*b*f+4*a^2*g))*
-    (b*c^2*d*f-a*b^2*f*g-2*a^2*c*f*g+6*a^2*b*g^2+c*(3*c^2*d*f-a*c*f^2-b*c*d*g+2*a^2*g^2)*x^2+c^2*g*(3*c*d-a*f)*x^4)]] /;
-FreeQ[{a,b,c,d,e,f,g},x] && EqQ[9*c^3*d^2-c*(b^2+6*a*c)*d*f+a^2*c*f^2+2*a*b*(3*c*d+a*f)*g-12*a^3*g^2,0] && 
-  EqQ[3*c^4*d^2*e-3*a^2*c^2*d*f*g+a^3*c*f^2*g+2*a^3*g^2*(b*f-6*a*g)-c^3*d*(2*b*d*f+a*e*f-12*a*d*g),0] && 
-  NeQ[3*c*d-a*f,0] && NeQ[b*c*d-2*a^2*g,0] && NeQ[b*c*d-a*b*f+4*a^2*g,0] && 
-  PosQ[(-a*c*f^2+12*a^2*g^2+f*(3*c^2*d-2*a*b*g))/(c*g*(3*c*d-a*f))]
-
-
-Int[(a_.+c_.*x_^4)/(d_+e_.*x_^2+f_.*x_^4+g_.*x_^6),x_Symbol] :=
-  With[{q=Rt[(-a*c*f^2+12*a^2*g^2+3*f*c^2*d)/(c*g*(3*c*d-a*f)),2],
-        r=Rt[(a*c*f^2+4*a^2*g^2-3*c^2*d*f)/(c*g*(3*c*d-a*f)),2]},
-  c/(g*q)*ArcTan[(r+2*x)/q] - 
-  c/(g*q)*ArcTan[(r-2*x)/q] - 
-  c/(g*q)*ArcTan[(c*(3*c*d-a*f)*x*(2*a^2*f*g-(3*c^2*d*f-a*c*f^2+2*a^2*g^2)*x^2-c*(3*c*d-a*f)*g*x^4))/(8*a^4*g^3*q)]] /;
-FreeQ[{a,c,d,e,f,g},x] && EqQ[9*c^3*d^2-6*a*c^2*d*f+a^2*c*f^2-12*a^3*g^2,0] && 
-  EqQ[3*c^4*d^2*e-3*a^2*c^2*d*f*g+a^3*c*f^2*g-12*a^4*g^3-a*c^3*d*(e*f-12*d*g),0] && 
-  NeQ[3*c*d-a*f,0] && PosQ[(-a*c*f^2+12*a^2*g^2+3*c^2*d*f)/(c*g*(3*c*d-a*f))]
-
-
-Int[u_.*Q6_^p_,x_Symbol] :=
-  With[{a=Coeff[Q6,x,0],b=Coeff[Q6,x,2],c=Coeff[Q6,x,3],d=Coeff[Q6,x,4],e=Coeff[Q6,x,6]},
-  1/(3^(3*p)*a^(2*p))*Int[ExpandIntegrand[u*
-    (3*a+3*Rt[a,3]^2*Rt[c,3]*x+b*x^2)^p*
-    (3*a-3*(-1)^(1/3)*Rt[a,3]^2*Rt[c,3]*x+b*x^2)^p*
-    (3*a+3*(-1)^(2/3)*Rt[a,3]^2*Rt[c,3]*x+b*x^2)^p,x],x] /;
- EqQ[b^2-3*a*d,0] && EqQ[b^3-27*a^2*e,0]] /;
-ILtQ[p,0] && PolyQ[Q6,x,6] && EqQ[Coeff[Q6,x,1],0] && EqQ[Coeff[Q6,x,5],0] && RationalFunctionQ[u,x]
-
-
-If[ShowSteps,
-Int[u_*v_^p_,x_Symbol] :=
-  With[{m=Exponent[u,x],n=Exponent[v,x]},
-  Module[{c=Coefficient[u,x,m]/(Coefficient[v,x,n]*(m+1+n*p)),w},
-  w=Apart[u-c*x^(m-n)*((m-n+1)*v+(p+1)*x*D[v,x]),x];
-  If[EqQ[w,0],
-    ShowStep["
-If p>1, 1<n<=m+1, and m+1-n*p<0, let c=pm/(qn*(m+1-n*p)), then if (\!\(\*SubscriptBox[\(P\), \(m\)]\)[x]-c*x^(m-n)*((m-n+1)*\!\(\*SubscriptBox[\(Q\), \(n\)]\)[x]+(1-p)*x*D[\!\(\*SubscriptBox[\(Q\), \(n\)]\)[x],x]))==0,",
-	  "Int[\!\(\*SubscriptBox[\(P\), \(m\)]\)[x]/\!\(\*SubscriptBox[\(Q\), \(n\)]\)[x]^p,x]", "c*x^(m-n+1)/\!\(\*SubscriptBox[\(Q\), \(n\)]\)[x]^(p-1)",
-      Hold[c*x^(m-n+1)*v^(p+1)]],
-  ShowStep["If p>1, 1<n<=m+1, and m+1-n*p<0, let c=pm/(qn*(m+1-n*p)), then",
-	"Int[\!\(\*SubscriptBox[\(P\), \(m\)]\)[x]/\!\(\*SubscriptBox[\(Q\), \(n\)]\)[x]^p,x]",
-	"c*x^(m-n+1)/\!\(\*SubscriptBox[\(Q\), \(n\)]\)[x]^(p-1)+Int[(\!\(\*SubscriptBox[\(P\), \(m\)]\)[x]-c*x^(m-n)*((m-n+1)*\!\(\*SubscriptBox[\(Q\), \(n\)]\)[x]+(1-p)*x*D[\!\(\*SubscriptBox[\(Q\), \(n\)]\)[x],x]))/\!\(\*SubscriptBox[\(Q\), \(n\)]\)[x]^p,x]",
-	Hold[c*x^(m-n+1)*v^(p+1) + Int[w*v^p,x]]]]] /;
- 1<n<=m+1 && m+n*p<-1 && FalseQ[DerivativeDivides[v,u,x]]] /;
-SimplifyFlag && RationalQ[p] && p<-1 && PolynomialQ[u,x] && PolynomialQ[v,x] && SumQ[v] && 
-Not[MonomialQ[u,x] && BinomialQ[v,x]] && 
-Not[EqQ[Coefficient[u,x,0],0] && EqQ[Coefficient[v,x,0],0]],
-Int[u_*v_^p_,x_Symbol] :=
-  With[{m=Exponent[u,x],n=Exponent[v,x]},
-  Module[{c=Coefficient[u,x,m]/(Coefficient[v,x,n]*(m+1+n*p)),w},
-  c=Coefficient[u,x,m]/(Coefficient[v,x,n]*(m+1+n*p));
-  w=Apart[u-c*x^(m-n)*((m-n+1)*v+(p+1)*x*D[v,x]),x];
-  If[EqQ[w,0],
-    c*x^(m-n+1)*v^(p+1),
-  c*x^(m-n+1)*v^(p+1) + Int[w*v^p,x]]] /;
- 1<n<=m+1 && m+n*p<-1 && FalseQ[DerivativeDivides[v,u,x]]] /;
-RationalQ[p] && p<-1 && PolynomialQ[u,x] && PolynomialQ[v,x] && SumQ[v] && 
-Not[MonomialQ[u,x] && BinomialQ[v,x]] && 
-Not[EqQ[Coefficient[u,x,0],0] && EqQ[Coefficient[v,x,0],0]]]

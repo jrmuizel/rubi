@@ -554,7 +554,7 @@ FreeQ[{a,b,c,d,e,j,m,n,p,q},x] && EqQ[jn,j+n] && Not[IntegerQ[p]] && NeQ[b*c-a*d
 
 
 (* ::Subsection::Closed:: *)
-(*1.1.4.4 (c x)^m Pq(x) (a x^j+b x^n)^p*)
+(*1.1.4.4 P(x) (c x)^m (a x^j+b x^n)^p*)
 
 
 Int[Pq_*(a_.*x_^j_.+b_.*x_^n_)^p_,x_Symbol] :=

@@ -97,7 +97,7 @@ FreeQ[a,x] && Not[MatchQ[u, b_*v_ /; FreeQ[b,x]]]
 
 
 (* ::Code:: *)
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   ShowStep["","Int[a*u + b*v + \[CenterEllipsis],x]","a*Integrate[u,x] + b*Integrate[v,x] + \[CenterEllipsis]",Hold[
@@ -113,6 +113,12 @@ SumQ[u]]
 Int[(c_.*x_)^m_.*u_,x_Symbol] :=
   Int[ExpandIntegrand[(c*x)^m*u,x],x] /;
 FreeQ[{c,m},x] && SumQ[u] && Not[LinearQ[u,x]] && Not[MatchQ[u,a_+b_.*v_ /; FreeQ[{a,b},x] && InverseFunctionQ[v]]]
+
+
+(* ::Code:: *)
+Int[u_.*(a_.*x_^n_)^m_,x_Symbol] :=
+  a^IntPart[m]*(a*x^n)^FracPart[m]/x^(n*FracPart[m])*Int[u*x^(m*n),x] /;
+FreeQ[{a,m,n},x] && Not[IntegerQ[m]]
 
 
 (* ::Code:: *)
@@ -226,25 +232,34 @@ FreeQ[{a,b,c,n},x] && EqQ[n2,2*n] && EqQ[b^2-4*a*c,0] && IntegerQ[p]
 
 
 (* ::Code:: *)
-Int[Qr_/Pq_,x_Symbol] :=
-  With[{q=Expon[Pq,x],r=Expon[Qr,x]},
-  Coeff[Qr,x,r]*Log[RemoveContent[Pq,x]]/(q*Coeff[Pq,x,q]) /;
- EqQ[r,q-1] && EqQ[Coeff[Qr,x,r]*D[Pq,x],q*Coeff[Pq,x,q]*Qr]] /;
-PolyQ[Pq,x] && PolyQ[Qr,x]
+Int[Pp_/Qq_,x_Symbol] :=
+  With[{p=Expon[Pp,x],q=Expon[Qq,x]},
+  Coeff[Pp,x,p]*Log[RemoveContent[Qq,x]]/(q*Coeff[Qq,x,q])/;
+ EqQ[p,q-1] && EqQ[Pp,Simplify[Coeff[Pp,x,p]/(q*Coeff[Qq,x,q])*D[Qq,x]]]] /;
+PolyQ[Pp,x] && PolyQ[Qq,x]
 
 
 (* ::Code:: *)
-Int[Qr_*Pq_^p_.,x_Symbol] :=
-  With[{q=Expon[Pq,x],r=Expon[Qr,x]},
-  Coeff[Qr,x,r]*Pq^(p+1)/(q*(p+1)*Coeff[Pq,x,q]) /;
- EqQ[r,q-1] && EqQ[Coeff[Qr,x,r]*D[Pq,x],q*Coeff[Pq,x,q]*Qr]] /;
-FreeQ[p,x] && PolyQ[Pq,x] && PolyQ[Qr,x] && NeQ[p,-1]
+Int[Pp_*Qq_^m_.,x_Symbol] :=
+  With[{p=Expon[Pp,x],q=Expon[Qq,x]},
+  Coeff[Pp,x,p]*x^(p-q+1)*Qq^(m+1)/((p+m*q+1)*Coeff[Qq,x,q]) /;
+ NeQ[p+m*q+1,0] && EqQ[(p+m*q+1)*Coeff[Qq,x,q]*Pp,Coeff[Pp,x,p]*x^(p-q)*((p-q+1)*Qq+(m+1)*x*D[Qq,x])]] /;
+FreeQ[m,x] && PolyQ[Pp,x] && PolyQ[Qq,x] && NeQ[m,-1]
 
 
 (* ::Code:: *)
 Int[x_^m_.*(a1_+b1_.*x_^n_.)^p_*(a2_+b2_.*x_^n_.)^p_,x_Symbol] :=
   (a1+b1*x^n)^(p+1)*(a2+b2*x^n)^(p+1)/(2*b1*b2*n*(p+1)) /;
 FreeQ[{a1,b1,a2,b2,m,n,p},x] && EqQ[a2*b1+a1*b2,0] && EqQ[m-2*n+1,0] && NeQ[p,-1]
+
+
+(* ::Code:: *)
+Int[Pp_*Qq_^m_.*Rr_^n_.,x_Symbol] :=
+  With[{p=Expon[Pp,x],q=Expon[Qq,x],r=Expon[Rr,x]},
+  Coeff[Pp,x,p]*x^(p-q-r+1)*Qq^(m+1)*Rr^(n+1)/((p+m*q+n*r+1)*Coeff[Qq,x,q]*Coeff[Rr,x,r]) /;
+ NeQ[p+m*q+n*r+1,0] && 
+ EqQ[(p+m*q+n*r+1)*Coeff[Qq,x,q]*Coeff[Rr,x,r]*Pp,Coeff[Pp,x,p]*x^(p-q-r)*((p-q-r+1)*Qq*Rr+(m+1)*x*Rr*D[Qq,x]+(n+1)*x*Qq*D[Rr,x])]] /;
+FreeQ[{m,n},x] && PolyQ[Pp,x] && PolyQ[Qq,x] && PolyQ[Rr,x] && NeQ[m,-1] && NeQ[n,-1]
 
 
 (* ::Code:: *)

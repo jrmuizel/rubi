@@ -2240,25 +2240,25 @@ FreeQ[{a,b,c,e,f,n,p},x] && IntegerQ[(m-1)/2] && (GtQ[m,0] || EqQ[n,2] || EqQ[n,
 Int[(d_.*tan[e_.+f_.*x_])^m_*(b_.*sec[e_.+f_.*x_]^2)^p_.,x_Symbol] :=
   With[{ff=FreeFactors[Tan[e+f*x],x]},
   b*ff/f*Subst[Int[(d*ff*x)^m*(b+b*ff^2*x^2)^(p-1),x],x,Tan[e+f*x]/ff]] /;
-FreeQ[{b,e,f,m,p},x]
+FreeQ[{b,d,e,f,m,p},x]
 
 
 Int[(d_.*tan[e_.+f_.*x_])^m_*(a_+b_.*sec[e_.+f_.*x_]^n_)^p_.,x_Symbol] :=
   With[{ff=FreeFactors[Tan[e+f*x],x]},
   ff/f*Subst[Int[(d*ff*x)^m*(a+b*(1+ff^2*x^2)^(n/2))^p/(1+ff^2*x^2),x],x,Tan[e+f*x]/ff]] /;
-FreeQ[{a,b,e,f,m,p},x] && IntegerQ[n/2] && (IntegerQ[m/2] || EqQ[n,2])
+FreeQ[{a,b,d,e,f,m,p},x] && IntegerQ[n/2] && (IntegerQ[m/2] || EqQ[n,2])
 
 
 Int[(d_.*tan[e_.+f_.*x_])^m_*(b_.*(c_.*sec[e_.+f_.*x_])^n_)^p_.,x_Symbol] :=
   d*(d*Tan[e+f*x])^(m-1)*(b*(c*Sec[e+f*x])^n)^p/(f*(p*n+m-1)) - 
   d^2*(m-1)/(p*n+m-1)*Int[(d*Tan[e+f*x])^(m-2)*(b*(c*Sec[e+f*x])^n)^p,x] /;
-FreeQ[{b,d,c,e,f,p,n},x] && GtQ[m,1] && NeQ[p*n+m-1,0] && IntegersQ[2*p*n,2*m]
+FreeQ[{b,c,d,e,f,p,n},x] && GtQ[m,1] && NeQ[p*n+m-1,0] && IntegersQ[2*p*n,2*m]
 
 
 Int[(d_.*tan[e_.+f_.*x_])^m_*(b_.*(c_.*sec[e_.+f_.*x_])^n_)^p_.,x_Symbol] :=
   (d*Tan[e+f*x])^(m+1)*(b*(c*Sec[e+f*x])^n)^p/(d*f*(m+1)) - 
   (p*n+m+1)/(d^2*(m+1))*Int[(d*Tan[e+f*x])^(m+2)*(b*(c*Sec[e+f*x])^n)^p,x] /;
-FreeQ[{b,d,c,e,f,p,n},x] && LtQ[m,-1] && NeQ[p*n+m+1,0] && IntegersQ[2*p*n,2*m]
+FreeQ[{b,c,d,e,f,p,n},x] && LtQ[m,-1] && NeQ[p*n+m+1,0] && IntegersQ[2*p*n,2*m]
 
 
 Int[(d_.*tan[e_.+f_.*x_])^m_.*(a_+b_.*(c_.*sec[e_.+f_.*x_])^n_)^p_.,x_Symbol] :=

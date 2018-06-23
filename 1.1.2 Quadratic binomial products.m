@@ -5,7 +5,7 @@
 
 
 (* ::Subsection::Closed:: *)
-(*1.1.2.y (c x)^m Pq(x) (a+b x^2)^p*)
+(*1.1.2.y P(x) (c x)^m (a+b x^2)^p*)
 
 
 Int[x_^m_.*Pq_*(a_+b_.*x_^2)^p_.,x_Symbol] :=
@@ -92,23 +92,11 @@ Int[(c_.*x_)^m_.*Pq_*(a_+b_.*x_^2)^p_,x_Symbol] :=
 FreeQ[{a,b,c,m,p},x] && PolyQ[Pq,x] && (Not[IGtQ[m,0]] || IGtQ[p+1/2,-1])
 
 
-Int[x_^m_.*Pq_*(a_+b_.*x_^2)^p_,x_Symbol] :=
-  Module[{q=Expon[Pq,x],k},
-  Int[x^m*Sum[Coeff[Pq,x,2*k]*x^(2*k),{k,0,q/2}]*(a+b*x^2)^p,x] + 
-  Int[x^(m+1)*Sum[Coeff[Pq,x,2*k+1]*x^(2*k),{k,0,(q-1)/2}]*(a+b*x^2)^p,x]] /;
-FreeQ[{a,b,p},x] && PolyQ[Pq,x] && Not[PolyQ[Pq,x^2]] && IntegerQ[m] && NeQ[p,-1]
-
-
-Int[(c_.*x_)^m_*Pq_*(a_+b_.*x_^2)^p_.,x_Symbol] :=
-  Unintegrable[(c*x)^m*Pq*(a+b*x^2)^p,x] /;
-FreeQ[{a,b,c,m,p},x] && PolyQ[Pq,x] && Not[IGtQ[m,0]]
-
-
 
 
 
 (* ::Subsection::Closed:: *)
-(*1.1.2.x Pq(x) (a+b x^2)^p*)
+(*1.1.2.x P(x) (a+b x^2)^p*)
 
 
 Int[Pq_*(a_+b_.*x_^2)^p_,x_Symbol] :=
@@ -147,18 +135,6 @@ Int[Pq_*(a_+b_.*x_^2)^p_,x_Symbol] :=
   e*x^(q-1)*(a+b*x^2)^(p+1)/(b*(q+2*p+1)) + 
   1/(b*(q+2*p+1))*Int[(a+b*x^2)^p*ExpandToSum[b*(q+2*p+1)*Pq-a*e*(q-1)*x^(q-2)-b*e*(q+2*p+1)*x^q,x],x]] /;
 FreeQ[{a,b,p},x] && PolyQ[Pq,x] && Not[LeQ[p,-1]]
-
-
-Int[Pq_*(a_+b_.*x_^2)^p_,x_Symbol] :=
-  Module[{q=Expon[Pq,x],k},
-  Int[Sum[Coeff[Pq,x,2*k]*x^(2*k),{k,0,q/2}]*(a+b*x^2)^p,x] + 
-  Int[x*Sum[Coeff[Pq,x,2*k+1]*x^(2*k),{k,0,(q-1)/2}]*(a+b*x^2)^p,x]] /;
-FreeQ[{a,b,p},x] && PolyQ[Pq,x] && Not[PolyQ[Pq,x^2]] && NeQ[p,-1]
-
-
-Int[Pq_*(a_+b_.*x_^2)^p_.,x_Symbol] :=
-  Unintegrable[Pq*(a+b*x^2)^p,x] /;
-FreeQ[{a,b,p},x] && PolyQ[Pq,x]
 
 
 

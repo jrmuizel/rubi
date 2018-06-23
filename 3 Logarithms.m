@@ -1509,7 +1509,7 @@ Int[f_^(a_.*Log[u_]),x_Symbol] :=
 FreeQ[{a,f},x]
 
 
-(* If[ShowSteps,
+(* If[$LoadShowSteps,
 
 Int[u_/x_,x_Symbol] :=
   With[{lst=FunctionOfLog[u,x]},
@@ -1525,7 +1525,7 @@ Int[u_/x_,x_Symbol] :=
 NonsumQ[u]] *)
 
 
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_,x_Symbol] :=
   With[{lst=FunctionOfLog[Cancel[x*u],x]},

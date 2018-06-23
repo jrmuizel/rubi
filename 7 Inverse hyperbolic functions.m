@@ -424,10 +424,14 @@ Int[(d1_+e1_.*x_)^p_.*(d2_+e2_.*x_)^p_.*(a_.+b_.*ArcCosh[c_.*x_])^n_.,x_Symbol] 
 FreeQ[{a,b,c,d1,e1,d2,e2,n,p},x]
 
 
-Int[(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcSinh[c_.*x_])^n_.,x_Symbol] :=
-  (d+e*x)^FracPart[p]*(f+g*x)^FracPart[p]/(d*f+e*g*x^2)^FracPart[p]*
-    Int[(d*f+e*g*x^2)^p*(a+b*ArcSinh[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,n,p},x] && EqQ[e*f+d*g,0] && EqQ[c^2*f^2+g^2,0] && Not[IntegerQ[p]]
+Int[(d_+e_.*x_)^p_*(f_+g_.*x_)^q_*(a_.+b_.*ArcSinh[c_.*x_])^n_.,x_Symbol] :=
+  (-d^2*g/e)^q*Int[(d+e*x)^(p-q)*(1+c^2*x^2)^q*(a+b*ArcSinh[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,g,n},x] && EqQ[e*f+d*g,0] && EqQ[c^2*d^2+e^2,0] && HalfIntegerQ[p,q] && GeQ[p-q,0] && GtQ[d,0] && LtQ[g/e,0]
+
+
+Int[(d_+e_.*x_)^p_*(f_+g_.*x_)^q_*(a_.+b_.*ArcSinh[c_.*x_])^n_.,x_Symbol] :=
+  (d+e*x)^q*(f+g*x)^q/(1+c^2*x^2)^q*Int[(d+e*x)^(p-q)*(1+c^2*x^2)^q*(a+b*ArcSinh[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,g,n},x] && EqQ[e*f+d*g,0] && EqQ[c^2*d^2+e^2,0] && HalfIntegerQ[p,q] && GeQ[p-q,0]
 
 
 Int[(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCosh[c_.*x_])^n_.,x_Symbol] :=
@@ -1104,10 +1108,15 @@ Int[(f_.*x_)^m_.*(d1_+e1_.*x_)^p_.*(d2_+e2_.*x_)^p_.*(a_.+b_.*ArcCosh[c_.*x_])^n
 FreeQ[{a,b,c,d1,e1,d2,e2,f,m,n,p},x]
 
 
-Int[(h_.*x_)^m_.*(d_+e_.*x_)^p_*(f_+g_.*x_)^p_*(a_.+b_.*ArcSinh[c_.*x_])^n_.,x_Symbol] :=
-  (d+e*x)^FracPart[p]*(f+g*x)^FracPart[p]/(d*f+e*g*x^2)^FracPart[p]*
-    Int[(h*x)^m*(d*f+e*g*x^2)^p*(a+b*ArcSinh[c*x])^n,x] /;
-FreeQ[{a,b,c,d,e,f,g,h,m,n,p},x] && EqQ[e*f+d*g,0] && EqQ[c^2*f^2+g^2,0] && Not[IntegerQ[p]]
+Int[(h_.*x_)^m_.*(d_+e_.*x_)^p_*(f_+g_.*x_)^q_*(a_.+b_.*ArcSinh[c_.*x_])^n_.,x_Symbol] :=
+  (-d^2*g/e)^q*Int[(h*x)^m*(d+e*x)^(p-q)*(1+c^2*x^2)^q*(a+b*ArcSinh[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,g,h,m,n},x] && EqQ[e*f+d*g,0] && EqQ[c^2*d^2+e^2,0] && HalfIntegerQ[p,q] && GeQ[p-q,0] && GtQ[d,0] && LtQ[g/e,0]
+
+
+Int[(h_.*x_)^m_.*(d_+e_.*x_)^p_*(f_+g_.*x_)^q_*(a_.+b_.*ArcSinh[c_.*x_])^n_.,x_Symbol] :=
+  (-d^2*g/e)^IntPart[q]*(d+e*x)^FracPart[q]*(f+g*x)^FracPart[q]/(1+c^2*x^2)^FracPart[q]*
+    Int[(h*x)^m*(d+e*x)^(p-q)*(1+c^2*x^2)^q*(a+b*ArcSinh[c*x])^n,x] /;
+FreeQ[{a,b,c,d,e,f,g,h,m,n},x] && EqQ[e*f+d*g,0] && EqQ[c^2*d^2+e^2,0] && HalfIntegerQ[p,q] && GeQ[p-q,0]
 
 
 Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^p_*(a_.+b_.*ArcCosh[c_.*x_])^n_.,x_Symbol] :=
@@ -1812,36 +1821,16 @@ RationalQ[m] && IntegerQ[n] && PolynomialQ[u,x]
 (*7.2.1 u (a+b arctanh(c x^n))^p*)
 
 
-Int[(a_.+b_.*ArcTanh[c_.*x_^n_.])^p_.,x_Symbol] :=
-  x*(a+b*ArcTanh[c*x^n])^p - 
-  b*c*n*p*Int[x^n*(a+b*ArcTanh[c*x^n])^(p-1)/(1-c^2*x^(2*n)),x] /;
-FreeQ[{a,b,c,n},x] && IGtQ[p,0] && (EqQ[p,1] || EqQ[n,1])
+Int[(a_.+b_.*ArcTanh[c_.*x_])^p_.,x_Symbol] :=
+  x*(a+b*ArcTanh[c*x])^p - 
+  b*c*p*Int[x*(a+b*ArcTanh[c*x])^(p-1)/(1-c^2*x^2),x] /;
+FreeQ[{a,b,c},x] && IGtQ[p,0]
 
 
-Int[(a_.+b_.*ArcCoth[c_.*x_^n_.])^p_.,x_Symbol] :=
-  x*(a+b*ArcCoth[c*x^n])^p - 
-  b*c*n*p*Int[x^n*(a+b*ArcCoth[c*x^n])^(p-1)/(1-c^2*x^(2*n)),x] /;
-FreeQ[{a,b,c,n},x] && IGtQ[p,0] && (EqQ[p,1] || EqQ[n,1])
-
-
-Int[(a_.+b_.*ArcTanh[c_.*x_^n_.])^p_.,x_Symbol] :=
-  Int[ExpandIntegrand[(a+b*Log[1+c*x^n]/2-b*Log[1-c*x^n]/2)^p,x],x] /;
-FreeQ[{a,b,c,n},x] && IGtQ[p,0] && IntegerQ[n]
-
-
-Int[(a_.+b_.*ArcCoth[c_.*x_^n_.])^p_.,x_Symbol] :=
-  Int[ExpandIntegrand[(a+b*Log[1+x^(-n)/c]/2-b*Log[1-x^(-n)/c]/2)^p,x],x] /;
-FreeQ[{a,b,c,n},x] && IGtQ[p,0] && IntegerQ[n]
-
-
-Int[(a_.+b_.*ArcTanh[c_.*x_^n_.])^p_.,x_Symbol] :=
-  Unintegrable[(a+b*ArcTanh[c*x^n])^p,x] /;
-FreeQ[{a,b,c,n,p},x]
-
-
-Int[(a_.+b_.*ArcCoth[c_.*x_^n_.])^p_.,x_Symbol] :=
-  Unintegrable[(a+b*ArcCoth[c*x^n])^p,x] /;
-FreeQ[{a,b,c,n,p},x]
+Int[(a_.+b_.*ArcCoth[c_.*x_])^p_.,x_Symbol] :=
+  x*(a+b*ArcCoth[c*x])^p - 
+  b*c*p*Int[x*(a+b*ArcCoth[c*x])^(p-1)/(1-c^2*x^2),x] /;
+FreeQ[{a,b,c},x] && IGtQ[p,0]
 
 
 Int[(a_.+b_.*ArcTanh[c_.*x_])/x_,x_Symbol] :=
@@ -1866,16 +1855,6 @@ Int[(a_.+b_.*ArcCoth[c_.*x_])^p_/x_,x_Symbol] :=
 FreeQ[{a,b,c},x] && IGtQ[p,1]
 
 
-Int[(a_.+b_.*ArcTanh[c_.*x_^n_])^p_./x_,x_Symbol] :=
-  1/n*Subst[Int[(a+b*ArcTanh[c*x])^p/x,x],x,x^n] /;
-FreeQ[{a,b,c,n},x] && IGtQ[p,0]
-
-
-Int[(a_.+b_.*ArcCoth[c_.*x_^n_])^p_./x_,x_Symbol] :=
-  1/n*Subst[Int[(a+b*ArcCoth[c*x])^p/x,x],x,x^n] /;
-FreeQ[{a,b,c,n},x] && IGtQ[p,0]
-
-
 Int[(d_.*x_)^m_.*(a_.+b_.*ArcTanh[c_.*x_])^p_.,x_Symbol] :=
   (d*x)^(m+1)*(a+b*ArcTanh[c*x])^p/(d*(m+1)) - 
   b*c*p/(d*(m+1))*Int[(d*x)^(m+1)*(a+b*ArcTanh[c*x])^(p-1)/(1-c^2*x^2),x] /;
@@ -1886,28 +1865,6 @@ Int[(d_.*x_)^m_.*(a_.+b_.*ArcCoth[c_.*x_])^p_.,x_Symbol] :=
   (d*x)^(m+1)*(a+b*ArcCoth[c*x])^p/(d*(m+1)) - 
   b*c*p/(d*(m+1))*Int[(d*x)^(m+1)*(a+b*ArcCoth[c*x])^(p-1)/(1-c^2*x^2),x] /;
 FreeQ[{a,b,c,d,m},x] && IGtQ[p,0] && (EqQ[p,1] || IntegerQ[m]) && NeQ[m,-1]
-
-
-Int[(d_.*x_)^m_.*(a_.+b_.*ArcTanh[c_.*x_^n_.]),x_Symbol] :=
-  (d*x)^(m+1)*(a+b*ArcTanh[c*x^n])/(d*(m+1)) - 
-  b*c*n/(d*(m+1))*Int[x^(n-1)*(d*x)^(m+1)/(1-c^2*x^(2*n)),x] /;
-FreeQ[{a,b,c,d,m,n},x] && NeQ[m,-1]
-
-
-Int[(d_.*x_)^m_.*(a_.+b_.*ArcCoth[c_.*x_^n_.]),x_Symbol] :=
-  (d*x)^(m+1)*(a+b*ArcCoth[c*x^n])/(d*(m+1)) - 
-  b*c*n/(d*(m+1))*Int[x^(n-1)*(d*x)^(m+1)/(1-c^2*x^(2*n)),x] /;
-FreeQ[{a,b,c,d,m,n},x] && NeQ[m,-1]
-
-
-Int[(d_.*x_)^m_.*(a_.+b_.*ArcTanh[c_.*x_^n_.])^p_.,x_Symbol] :=
-  Int[ExpandIntegrand[(d*x)^m*(a+b*Log[1+c*x^n]/2-b*Log[1-c*x^n]/2)^p,x],x] /;
-FreeQ[{a,b,c,d,m,n},x] && IGtQ[p,0] && IntegerQ[m] && IntegerQ[n]
-
-
-Int[(d_.*x_)^m_.*(a_.+b_.*ArcCoth[c_.*x_^n_.])^p_.,x_Symbol] :=
-  Int[ExpandIntegrand[(d*x)^m*(a+b*Log[1+x^(-n)/c]/2-b*Log[1-x^(-n)/c]/2)^p,x],x] /;
-FreeQ[{a,b,c,d,m,n},x] && IGtQ[p,0] && IntegerQ[m] && IntegerQ[n]
 
 
 Int[(a_.+b_.*ArcTanh[c_.*x_])^p_./(d_+e_.*x_),x_Symbol] :=
@@ -2006,38 +1963,6 @@ Int[(d_+e_.*x_)^q_.*(a_.+b_.*ArcCoth[c_.*x_])^p_,x_Symbol] :=
 FreeQ[{a,b,c,d,e},x] && IGtQ[p,1] && IntegerQ[q] && NeQ[q,-1]
 
 
-Int[(d_+e_.*x_)^q_.*(a_.+b_.*ArcTanh[c_.*Sqrt[x_]])^p_.,x_Symbol] :=
-  2*Subst[Int[x*(d+e*x^2)^q*(a+b*ArcTanh[c*x])^p,x],x,Sqrt[x]] /;
-FreeQ[{a,b,c,d,e,p,q},x]
-
-
-Int[(d_+e_.*x_)^q_.*(a_.+b_.*ArcCoth[c_.*Sqrt[x_]])^p_.,x_Symbol] :=
-  2*Subst[Int[x*(d+e*x^2)^q*(a+b*ArcCoth[c*x])^p,x],x,Sqrt[x]] /;
-FreeQ[{a,b,c,d,e,p,q},x]
-
-
-Int[(d_+e_.*x_)^q_.*(a_.+b_.*ArcTanh[c_.*x_^n_.]),x_Symbol] :=
-  (d+e*x)^(q+1)*(a+b*ArcTanh[c*x^n])/(e*(q+1)) - 
-  b*c*n/(e*(q+1))*Int[x^(n-1)*(d+e*x)^(q+1)/(1-c^2*x^(2*n)),x] /;
-FreeQ[{a,b,c,d,e,q,n},x] && NeQ[q,-1]
-
-
-Int[(d_+e_.*x_)^q_.*(a_.+b_.*ArcCoth[c_.*x_^n_.]),x_Symbol] :=
-  (d+e*x)^(q+1)*(a+b*ArcCoth[c*x^n])/(e*(q+1)) - 
-  b*c*n/(e*(q+1))*Int[x^(n-1)*(d+e*x)^(q+1)/(1-c^2*x^(2*n)),x] /;
-FreeQ[{a,b,c,d,e,q,n},x] && NeQ[q,-1]
-
-
-Int[(d_.+e_.*x_)^q_.*(a_.+b_.*ArcTanh[c_.*x_^n_.])^p_.,x_Symbol] :=
-  Unintegrable[(d+e*x)^q*(a+b*ArcTanh[c*x^n])^p,x] /;
-FreeQ[{a,b,c,d,e,q,n,p},x]
-
-
-Int[(d_.+e_.*x_)^q_.*(a_.+b_.*ArcCoth[c_.*x_^n_.])^p_.,x_Symbol] :=
-  Unintegrable[(d+e*x)^q*(a+b*ArcCoth[c*x^n])^p,x] /;
-FreeQ[{a,b,c,d,e,q,n,p},x]
-
-
 Int[(f_.*x_)^m_.*(a_.+b_.*ArcTanh[c_.*x_])^p_./(d_+e_.*x_),x_Symbol] :=
   f/e*Int[(f*x)^(m-1)*(a+b*ArcTanh[c*x])^p,x] - 
   d*f/e*Int[(f*x)^(m-1)*(a+b*ArcTanh[c*x])^p/(d+e*x),x] /;
@@ -2106,38 +2031,6 @@ FreeQ[{a,b,c,d,e,f,m},x] && IGtQ[p,0] && IntegerQ[q] && (GtQ[q,0] || NeQ[a,0] ||
 Int[(f_.*x_)^m_.*(d_+e_.*x_)^q_.*(a_.+b_.*ArcCoth[c_.*x_])^p_.,x_Symbol] :=
   Int[ExpandIntegrand[(a+b*ArcCoth[c*x])^p,(f*x)^m*(d+e*x)^q,x],x] /;
 FreeQ[{a,b,c,d,e,f,m},x] && IGtQ[p,0] && IntegerQ[q] && (GtQ[q,0] || NeQ[a,0] || IntegerQ[m])
-
-
-Int[x_^m_.*(d_.+e_.*x_)^q_.*(a_.+b_.*ArcTanh[c_.*Sqrt[x_]])^p_.,x_Symbol] :=
-  2*Subst[Int[x^(2*m+1)*(d+e*x^2)^q*(a+b*ArcTanh[c*x])^p,x],x,Sqrt[x]] /;
-FreeQ[{a,b,c,d,e,p,q},x] && IntegerQ[2*m]
-
-
-Int[x_^m_.*(d_.+e_.*x_)^q_.*(a_.+b_.*ArcCoth[c_.*Sqrt[x_]])^p_.,x_Symbol] :=
-  2*Subst[Int[x^(2*m+1)*(d+e*x^2)^q*(a+b*ArcCoth[c*x])^p,x],x,Sqrt[x]] /;
-FreeQ[{a,b,c,d,e,p,q},x] && IntegerQ[2*m]
-
-
-Int[(f_.*x_)^m_.*(d_.+e_.*x_)^q_.*(a_.+b_.*ArcTanh[c_.*x_^n_.]),x_Symbol] :=
-  With[{u=IntHide[(f*x)^m*(d+e*x)^q,x]},
-  Dist[(a+b*ArcTanh[c*x^n]),u] - b*c*n*Int[SimplifyIntegrand[u*x^(n-1)/(1-c^2*x^(2*n)),x],x]] /;
-FreeQ[{a,b,c,d,e,q,n},x] && NeQ[q,-1] && IntegerQ[2*m] && (IGtQ[m,0] && IGtQ[q,0] || ILtQ[m+q+1,0] && LtQ[m*q,0])
-
-
-Int[(f_.*x_)^m_.*(d_.+e_.*x_)^q_.*(a_.+b_.*ArcCoth[c_.*x_^n_.]),x_Symbol] :=
-  With[{u=IntHide[(f*x)^m*(d+e*x)^q,x]},
-  Dist[(a+b*ArcCoth[c*x^n]),u] - b*c*n*Int[SimplifyIntegrand[u*x^(n-1)/(1-c^2*x^(2*n)),x],x]] /;
-FreeQ[{a,b,c,d,e,q,n},x] && NeQ[q,-1] && IntegerQ[2*m] && (IGtQ[m,0] && IGtQ[q,0] || ILtQ[m+q+1,0] && LtQ[m*q,0])
-
-
-Int[(f_.*x_)^m_.*(d_.+e_.*x_)^q_.*(a_.+b_.*ArcTanh[c_.*x_^n_.])^p_.,x_Symbol] :=
-  Unintegrable[(f*x)^m*(d+e*x)^q*(a+b*ArcTanh[c*x^n])^p,x] /;
-FreeQ[{a,b,c,d,e,f,m,n,p,q},x]
-
-
-Int[(f_.*x_)^m_.*(d_.+e_.*x_)^q_.*(a_.+b_.*ArcCoth[c_.*x_^n_.])^p_.,x_Symbol] :=
-  Unintegrable[(f*x)^m*(d+e*x)^q*(a+b*ArcCoth[c*x^n])^p,x] /;
-FreeQ[{a,b,c,d,e,f,m,n,p,q},x]
 
 
 Int[(d_+e_.*x_^2)^q_.*(a_.+b_.*ArcTanh[c_.*x_]),x_Symbol] :=
@@ -2348,34 +2241,24 @@ FreeQ[{a,b,c,d,e},x]
 
 Int[(d_.+e_.*x_^2)^q_.*(a_.+b_.*ArcTanh[c_.*x_]),x_Symbol] :=
   With[{u=IntHide[(d+e*x^2)^q,x]},  
-  Dist[a+b*ArcTanh[c*x],u,x] - b*c*Int[ExpandIntegrand[u/(1-c^2*x^2),x],x]] /;
+  Dist[a+b*ArcTanh[c*x],u,x] - b*c*Int[u/(1-c^2*x^2),x]] /;
 FreeQ[{a,b,c,d,e},x] && (IntegerQ[q] || ILtQ[q+1/2,0])
 
 
 Int[(d_.+e_.*x_^2)^q_.*(a_.+b_.*ArcCoth[c_.*x_]),x_Symbol] :=
   With[{u=IntHide[(d+e*x^2)^q,x]},  
-  Dist[a+b*ArcCoth[c*x],u,x] - b*c*Int[ExpandIntegrand[u/(1-c^2*x^2),x],x]] /;
+  Dist[a+b*ArcCoth[c*x],u,x] - b*c*Int[u/(1-c^2*x^2),x]] /;
 FreeQ[{a,b,c,d,e},x] && (IntegerQ[q] || ILtQ[q+1/2,0])
 
 
 Int[(d_+e_.*x_^2)^q_.*(a_.+b_.*ArcTanh[c_.*x_])^p_.,x_Symbol] :=
-  Int[ExpandIntegrand[(d+e*x^2)^q*(a+b*ArcTanh[c*x])^p,x],x] /;
+  Int[ExpandIntegrand[(a+b*ArcTanh[c*x])^p,(d+e*x^2)^q,x],x] /;
 FreeQ[{a,b,c,d,e},x] && IntegerQ[q] && IGtQ[p,0]
 
 
 Int[(d_+e_.*x_^2)^q_.*(a_.+b_.*ArcCoth[c_.*x_])^p_.,x_Symbol] :=
-  Int[ExpandIntegrand[(d+e*x^2)^q*(a+b*ArcCoth[c*x])^p,x],x] /;
+  Int[ExpandIntegrand[(a+b*ArcCoth[c*x])^p,(d+e*x^2)^q,x],x] /;
 FreeQ[{a,b,c,d,e},x] && IntegerQ[q] && IGtQ[p,0]
-
-
-Int[(d_.+e_.*x_^2)^q_.*(a_.+b_.*ArcTanh[c_.*x_])^p_.,x_Symbol] :=
-  Unintegrable[(d+e*x^2)^q*(a+b*ArcTanh[c*x])^p,x] /;
-FreeQ[{a,b,c,d,e,p,q},x]
-
-
-Int[(d_.+e_.*x_^2)^q_.*(a_.+b_.*ArcCoth[c_.*x_])^p_.,x_Symbol] :=
-  Unintegrable[(d+e*x^2)^q*(a+b*ArcCoth[c*x])^p,x] /;
-FreeQ[{a,b,c,d,e,p,q},x]
 
 
 Int[(f_.*x_)^m_*(a_.+b_.*ArcTanh[c_.*x_])^p_./(d_+e_.*x_^2),x_Symbol] :=
@@ -2766,14 +2649,30 @@ FreeQ[{a,b,c,d,e,f,m,q},x] && (
   ILtQ[(m+2*q+1)/2,0] && Not[ILtQ[(m-1)/2,0]] )
 
 
+Int[x_*(a_.+b_.*ArcTanh[c_.*x_])^p_./(d_+e_.*x_^2)^2,x_Symbol] :=
+  1/(4*d^2*Rt[-e/d,2])*Int[(a+b*ArcTanh[c*x])^p/(1-Rt[-e/d,2]*x)^2,x] - 
+  1/(4*d^2*Rt[-e/d,2])*Int[(a+b*ArcTanh[c*x])^p/(1+Rt[-e/d,2]*x)^2,x] /;
+FreeQ[{a,b,c,d,e},x] && IGtQ[p,0]
+
+
+Int[x_*(a_.+b_.*ArcCoth[c_.*x_])^p_./(d_+e_.*x_^2)^2,x_Symbol] :=
+  1/(4*d^2*Rt[-e/d,2])*Int[(a+b*ArcCoth[c*x])^p/(1-Rt[-e/d,2]*x)^2,x] - 
+  1/(4*d^2*Rt[-e/d,2])*Int[(a+b*ArcCoth[c*x])^p/(1+Rt[-e/d,2]*x)^2,x] /;
+FreeQ[{a,b,c,d,e},x] && IGtQ[p,0]
+
+
 Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^q_.*(a_.+b_.*ArcTanh[c_.*x_])^p_.,x_Symbol] :=
-  Int[ExpandIntegrand[(a+b*ArcTanh[c*x])^p,(f*x)^m*(d+e*x^2)^q,x],x] /;
-FreeQ[{a,b,c,d,e,f,m},x] && IntegerQ[q] && IGtQ[p,0] && (GtQ[q,0] || LtQ[q,-1] && IntegerQ[m] && NeQ[m,1])
+  With[{u=ExpandIntegrand[(a+b*ArcTanh[c*x])^p,(f*x)^m*(d+e*x^2)^q,x]},
+  Int[u,x] /;
+ SumQ[u]] /;
+FreeQ[{a,b,c,d,e,f,m},x] && IntegerQ[q] && IGtQ[p,0] && (GtQ[q,0] || IntegerQ[m])
 
 
 Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^q_.*(a_.+b_.*ArcCoth[c_.*x_])^p_.,x_Symbol] :=
-  Int[ExpandIntegrand[(a+b*ArcCoth[c*x])^p,(f*x)^m*(d+e*x^2)^q,x],x] /;
-FreeQ[{a,b,c,d,e,f,m},x] && IntegerQ[q] && IGtQ[p,0] && (GtQ[q,0] || LtQ[q,-1] && IntegerQ[m] && NeQ[m,1])
+  With[{u=ExpandIntegrand[(a+b*ArcCoth[c*x])^p,(f*x)^m*(d+e*x^2)^q,x]},
+  Int[u,x] /;
+ SumQ[u]] /;
+FreeQ[{a,b,c,d,e,f,m},x] && IntegerQ[q] && IGtQ[p,0] && (GtQ[q,0] || IntegerQ[m])
 
 
 Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^q_.*(a_+b_.*ArcTanh[c_.*x_]),x_Symbol] :=
@@ -2784,16 +2683,6 @@ FreeQ[{a,b,c,d,e,f,m,q},x]
 Int[(f_.*x_)^m_.*(d_+e_.*x_^2)^q_.*(a_+b_.*ArcCoth[c_.*x_]),x_Symbol] :=
   a*Int[(f*x)^m*(d+e*x^2)^q,x] + b*Int[(f*x)^m*(d+e*x^2)^q*ArcCoth[c*x],x] /;
 FreeQ[{a,b,c,d,e,f,m,q},x]
-
-
-Int[(f_.*x_)^m_.*(d_.+e_.*x_^2)^q_.*(a_.+b_.*ArcTanh[c_.*x_])^p_.,x_Symbol] :=
-  Unintegrable[(f*x)^m*(d+e*x^2)^q*(a+b*ArcTanh[c*x])^p,x] /;
-FreeQ[{a,b,c,d,e,f,m,p,q},x]
-
-
-Int[x_^m_.*(d_.+e_.*x_^2)^q_.*(a_.+b_.*ArcCoth[c_.*x_])^p_.,x_Symbol] :=
-  Unintegrable[x^m*(d+e*x^2)^q*(a+b*ArcCoth[c*x])^p,x] /;
-FreeQ[{a,b,c,d,e,m,p,q},x]
 
 
 Int[(f_+g_.*x_)^m_.*(a_.+b_.*ArcTanh[c_.*x_])^p_./(d_+e_.*x_^2),x_Symbol] :=
@@ -3038,6 +2927,86 @@ Int[x_*(d_.+e_.*Log[f_+g_.*x_^2])*(a_.+b_.*ArcCoth[c_.*x_])^2,x_Symbol] :=
   b/c*Int[(d+e*Log[f+g*x^2])*(a+b*ArcCoth[c*x]),x] + 
   b*c*e*Int[x^2*(a+b*ArcCoth[c*x])/(1-c^2*x^2),x] /;
 FreeQ[{a,b,c,d,e,f,g},x] && EqQ[c^2*f+g,0]
+
+
+Int[u_.*(a_.+b_.*ArcTanh[c_.*x_])^p_.,x_Symbol] :=
+  Unintegrable[u*(a+b*ArcTanh[c*x])^p,x] /;
+FreeQ[{a,b,c,p},x] && (EqQ[u,1] || 
+  MatchQ[u,(d_.+e_.*x)^q_./; FreeQ[{d,e,q},x]] || 
+  MatchQ[u,(f_.*x)^m_.*(d_.+e_.*x)^q_./; FreeQ[{d,e,f,m,q},x]] || 
+  MatchQ[u,(d_.+e_.*x^2)^q_./; FreeQ[{d,e,q},x]] || 
+  MatchQ[u,(f_.*x)^m_.*(d_.+e_.*x^2)^q_./; FreeQ[{d,e,f,m,q},x]])
+
+
+Int[u_.*(a_.+b_.*ArcCoth[c_.*x_])^p_.,x_Symbol] :=
+  Unintegrable[u*(a+b*ArcCoth[c*x])^p,x] /;
+FreeQ[{a,b,c,p},x] && (EqQ[u,1] || 
+  MatchQ[u,(d_.+e_.*x)^q_./; FreeQ[{d,e,q},x]] || 
+  MatchQ[u,(f_.*x)^m_.*(d_.+e_.*x)^q_./; FreeQ[{d,e,f,m,q},x]] || 
+  MatchQ[u,(d_.+e_.*x^2)^q_./; FreeQ[{d,e,q},x]] || 
+  MatchQ[u,(f_.*x)^m_.*(d_.+e_.*x^2)^q_./; FreeQ[{d,e,f,m,q},x]])
+
+
+Int[ArcTanh[c_.*x_^n_],x_Symbol] :=
+  x*ArcTanh[c*x^n] - c*n*Int[x^n/(1-c^2*x^(2*n)),x] /;
+FreeQ[{c,n},x]
+
+
+Int[ArcCoth[c_.*x_^n_],x_Symbol] :=
+  x*ArcCoth[c*x^n] - c*n*Int[x^n/(1-c^2*x^(2*n)),x] /;
+FreeQ[{c,n},x]
+
+
+Int[(a_.+b_.*ArcTanh[c_.*x_^n_])^p_.,x_Symbol] :=
+  Int[ExpandIntegrand[(a+b*Log[1+c*x^n]/2-b*Log[1-c*x^n]/2)^p,x],x] /;
+FreeQ[{a,b,c,n},x] && IGtQ[p,0] && IntegerQ[n]
+
+
+Int[(a_.+b_.*ArcCoth[c_.*x_^n_])^p_.,x_Symbol] :=
+  Int[ExpandIntegrand[(a+b*Log[1+x^(-n)/c]/2-b*Log[1-x^(-n)/c]/2)^p,x],x] /;
+FreeQ[{a,b,c,n},x] && IGtQ[p,0] && IntegerQ[n]
+
+
+Int[(a_.+b_.*ArcTanh[c_.*x_^n_])^p_./x_,x_Symbol] :=
+  1/n*Subst[Int[(a+b*ArcTanh[c*x])^p/x,x],x,x^n] /;
+FreeQ[{a,b,c,n},x] && IGtQ[p,0]
+
+
+Int[(a_.+b_.*ArcCoth[c_.*x_^n_])^p_./x_,x_Symbol] :=
+  1/n*Subst[Int[(a+b*ArcCoth[c*x])^p/x,x],x,x^n] /;
+FreeQ[{a,b,c,n},x] && IGtQ[p,0]
+
+
+Int[(d_.*x_)^m_.*(a_.+b_.*ArcTanh[c_.*x_^n_]),x_Symbol] :=
+  (d*x)^(m+1)*(a+b*ArcTanh[c*x^n])/(d*(m+1)) - 
+  b*c*n/(d*(m+1))*Int[x^(n-1)*(d*x)^(m+1)/(1-c^2*x^(2*n)),x] /;
+FreeQ[{a,b,c,d,m,n},x] && NeQ[m,-1]
+
+
+Int[(d_.*x_)^m_.*(a_.+b_.*ArcCoth[c_.*x_^n_]),x_Symbol] :=
+  (d*x)^(m+1)*(a+b*ArcCoth[c*x^n])/(d*(m+1)) - 
+  b*c*n/(d*(m+1))*Int[x^(n-1)*(d*x)^(m+1)/(1-c^2*x^(2*n)),x] /;
+FreeQ[{a,b,c,d,m,n},x] && NeQ[m,-1]
+
+
+Int[(d_.*x_)^m_.*(a_.+b_.*ArcTanh[c_.*x_^n_])^p_.,x_Symbol] :=
+  Int[ExpandIntegrand[(d*x)^m*(a+b*Log[1+c*x^n]/2-b*Log[1-c*x^n]/2)^p,x],x] /;
+FreeQ[{a,b,c,d,m,n},x] && IGtQ[p,0] && IntegerQ[m] && IntegerQ[n]
+
+
+Int[(d_.*x_)^m_.*(a_.+b_.*ArcCoth[c_.*x_^n_])^p_.,x_Symbol] :=
+  Int[ExpandIntegrand[(d*x)^m*(a+b*Log[1+x^(-n)/c]/2-b*Log[1-x^(-n)/c]/2)^p,x],x] /;
+FreeQ[{a,b,c,d,m,n},x] && IGtQ[p,0] && IntegerQ[m] && IntegerQ[n]
+
+
+Int[u_.*(a_.+b_.*ArcTanh[c_.*x_^n_])^p_.,x_Symbol] :=
+  Unintegrable[u*(a+b*ArcTanh[c*x^n])^p,x] /;
+FreeQ[{a,b,c,n,p},x] && (EqQ[u,1] || MatchQ[u,(d_.*x)^m_./; FreeQ[{d,m},x]]) 
+
+
+Int[u_.*(a_.+b_.*ArcCoth[c_.*x_^n_])^p_.,x_Symbol] :=
+  Unintegrable[u*(a+b*ArcCoth[c*x^n])^p,x] /;
+FreeQ[{a,b,c,n,p},x] && (EqQ[u,1] || MatchQ[u,(d_.*x)^m_./; FreeQ[{d,m},x]]) 
 
 
 
@@ -3742,7 +3711,7 @@ Int[ArcCoth[c_.*x_/Sqrt[a_.+b_.*x_^2]]^m_./Sqrt[d_.+e_.*x_^2],x_Symbol] :=
 FreeQ[{a,b,c,d,e,m},x] && EqQ[b,c^2] && EqQ[b*d-a*e,0]
 
 
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_*v_^n_.,x_Symbol] :=
   With[{tmp=InverseFunctionOfLinear[u,x]},
@@ -3761,7 +3730,7 @@ Int[u_*v_^n_.,x_Symbol] :=
 QuadraticQ[v,x] && ILtQ[n,0] && PosQ[Discriminant[v,x]] && MatchQ[u,r_.*f_^w_ /; FreeQ[f,x]]]
 
 
-If[ShowSteps,
+If[$LoadShowSteps,
 
 Int[u_*v_^n_.,x_Symbol] :=
   With[{tmp=InverseFunctionOfLinear[u,x]},
@@ -4135,6 +4104,12 @@ Int[(a_.+b_.*ArcSech[c_.*x_])/(d_.+e_.*x_),x_Symbol] :=
 FreeQ[{a,b,c,d,e},x]
 
 
+Int[(d_.+e_.*x_)^m_.*(a_.+b_.*ArcSech[c_.*x_]),x_Symbol] :=
+  (d+e*x)^(m+1)*(a+b*ArcSech[c*x])/(e*(m+1)) + 
+  b*Sqrt[1+c*x]/(e*(m+1))*Sqrt[1/(1+c*x)]*Int[(d+e*x)^(m+1)/(x*Sqrt[1-c^2*x^2]),x] /;
+FreeQ[{a,b,c,d,e,m},x] && NeQ[m,-1]
+
+
 Int[(a_.+b_.*ArcCsch[c_.*x_])/(d_.+e_.*x_),x_Symbol] :=
   (a+b*ArcCsch[c*x])*Log[1-(e-Sqrt[c^2*d^2+e^2])*E^ArcCsch[c*x]/(c*d)]/e + 
   (a+b*ArcCsch[c*x])*Log[1-(e+Sqrt[c^2*d^2+e^2])*E^ArcCsch[c*x]/(c*d)]/e - 
@@ -4145,22 +4120,10 @@ Int[(a_.+b_.*ArcCsch[c_.*x_])/(d_.+e_.*x_),x_Symbol] :=
 FreeQ[{a,b,c,d,e},x]
 
 
-Int[(d_.+e_.*x_)^m_.*(a_.+b_.*ArcSech[c_.*x_]),x_Symbol] :=
-  (d+e*x)^(m+1)*(a+b*ArcSech[c*x])/(e*(m+1)) + 
-  b*Sqrt[1+c*x]/(e*(m+1))*Sqrt[1/(1+c*x)]*Int[(d+e*x)^(m+1)/(x*Sqrt[1-c^2*x^2]),x] /;
-FreeQ[{a,b,c,d,e,m},x] && NeQ[m,-1]
-
-
 Int[(d_.+e_.*x_)^m_.*(a_.+b_.*ArcCsch[c_.*x_]),x_Symbol] :=
   (d+e*x)^(m+1)*(a+b*ArcCsch[c*x])/(e*(m+1)) + 
   b/(c*e*(m+1))*Int[(d+e*x)^(m+1)/(x^2*Sqrt[1+1/(c^2*x^2)]),x] /;
-FreeQ[{a,b,c,d,e,m},x] && NeQ[m,-1] && IntegerQ[m]
-
-
-Int[(d_.+e_.*x_)^m_.*(a_.+b_.*ArcCsch[c_.*x_]),x_Symbol] :=
-  (d+e*x)^(m+1)*(a+b*ArcCsch[c*x])/(e*(m+1)) -
-  b*c*x/(e*(m+1)*Sqrt[-c^2*x^2])*Int[(d+e*x)^(m+1)/(x*Sqrt[-1-c^2*x^2]),x] /;
-FreeQ[{a,b,c,d,e,m},x] && Not[IntegerQ[m]]
+FreeQ[{a,b,c,d,e,m},x] && NeQ[m,-1]
 
 
 Int[(d_.+e_.*x_^2)^p_.*(a_.+b_.*ArcSech[c_.*x_]),x_Symbol] :=
@@ -4276,8 +4239,8 @@ FreeQ[{a,b,c},x]
 
 Int[u_*(a_.+b_.*ArcCsch[c_.*x_]),x_Symbol] :=
   With[{v=IntHide[u,x]},  
-  Dist[(a+b*ArcCsch[c*x]),v,x] - 
-  b*c*x/Sqrt[-c^2*x^2]*Int[SimplifyIntegrand[v/(x*Sqrt[-1-c^2*x^2]),x],x] /;
+  Dist[(a+b*ArcCsch[c*x]),v,x] + 
+  b/c*Int[SimplifyIntegrand[v/(x^2*Sqrt[1+1/(c^2*x^2)]),x],x] /;
  InverseFunctionFreeQ[v,x]] /;
 FreeQ[{a,b,c},x]
 
